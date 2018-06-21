@@ -50,7 +50,7 @@ try:
             'expiryYear': 2018,
             'cvv': '100'
         },
-        amount=100, # cents
+        value=100, # cents
         currency=sdk.Currency.USD, # or 'usd'
         email='customer@email.com'
     )
@@ -67,7 +67,7 @@ except sdk.errors.CheckoutSdkError as e:
 try:
     response = api.Payments.request(
         card = 'card_713A3978-AFB2-4D30-BF9A-BA55714DC309',
-        amount=100, # cents
+        value=100, # cents
         currency=sdk.Currency.USD, # or 'usd'
         email='customer@email.com'
     )
