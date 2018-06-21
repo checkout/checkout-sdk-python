@@ -33,7 +33,7 @@ api = sdk.get_api()
 
 import checkout_sdk as sdk
 
-api = sdk.get_api(secret_key='sk_test_be994177-4711-44a6-b719-fceb82bde8c4') # default sandbox = True
+api = sdk.get_api(secret_key='<your secret key>') # default sandbox = True
 
 ```
 
