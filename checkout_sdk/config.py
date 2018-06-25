@@ -42,8 +42,7 @@ class Config:
         if SECRET_KEY_REGEX.match(value):
             self._secret_key = value
         else:
-            # TODO: raise appropriate type error
-            raise Exception
+            raise ValueError('Invalid secret key.')
 
     @property
     def api_base_url(self):

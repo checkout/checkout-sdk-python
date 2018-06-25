@@ -4,7 +4,13 @@ from enum import Enum
 class ExtendedEnum(Enum):
     @classmethod
     def has_value(cls, value):
-        return any(str(value).lower() == item.value.lower() for item in cls)
+        return value is not None and any(str(value).lower() == str(item.value).lower() for item in cls)
+
+
+class PaymentType(ExtendedEnum):
+    Regular = 1,
+    Recurring = 2,
+    MOTO = 3
 
 
 class Currency(ExtendedEnum):

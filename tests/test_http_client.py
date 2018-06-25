@@ -31,17 +31,18 @@ class HttpClientTests(CheckoutSdkTestCase):
         self.mock_requests_patcher.stop()
 
     def set_mock_response(self, name, headers, body, status_code=200):
-        response = Mock(name=name, status_code=status_code, headers = headers)
+        response = Mock(name=name, status_code=status_code, headers=headers)
         response.json.return_value = body
         self.session.request = MagicMock(return_value=response)
 
     def test_http_client_get(self):
         config = Config()
         http_client = HttpClient(config)
-        self.set_mock_response('client_get', http_client.headers, self.RESPONSE_BODY)
-        _, headers, _, json, _ = http_client.get(self.PATH)
+        self.set_mock_response(
+            'client_get', http_client.headers, self.RESPONSE_BODY)
+        _, headers, body, _ = http_client.get(self.PATH)
 
-        self.assertEqual(json, self.RESPONSE_BODY)
+        self.assertEqual(body, self.RESPONSE_BODY)
         self.assert_http_call_params(
             path=urljoin(config.api_base_url, self.PATH), method='GET', request=None, headers=headers)
 

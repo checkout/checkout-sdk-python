@@ -2,7 +2,10 @@ import requests
 import time
 
 from checkout_sdk import errors, constants
-from urllib.parse import urljoin
+try:
+    from urllib.parse import urljoin
+except:
+    from urlparse import urljoin
 
 http_headers_default = {
     'user-agent': 'checkout-sdk-python/{}'.format(constants.VERSION)
@@ -58,11 +61,11 @@ class HttpClient:
 
             r.raise_for_status()
             try:
-                json = r.json()
+                body = r.json()
             except ValueError:
-                json = None
+                body = None
 
-            return r.status_code, r.headers, r.text, json, elapsed
+            return r.status_code, r.headers, body, elapsed
         except requests.exceptions.HTTPError as e:
             status_code_switch = {
                 400: lambda: errors.BadRequestError,

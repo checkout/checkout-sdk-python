@@ -11,7 +11,7 @@ default_auto_capture_delay = 0  # valid: 0 - 168 (hours)
 from checkout_sdk import constants
 from checkout_sdk.config import Config
 from checkout_sdk.validator import Validator
-from checkout_sdk.enums import Currency
+from checkout_sdk.enums import Currency, PaymentType
 
 from checkout_sdk.http_client import HttpClient
 from checkout_sdk.api_response import ApiResponse
