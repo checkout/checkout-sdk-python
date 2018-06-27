@@ -8,8 +8,8 @@ class ExtendedEnum(Enum):
 
 
 class PaymentType(ExtendedEnum):
-    Regular = 1,
-    Recurring = 2,
+    Regular = 1
+    Recurring = 2
     MOTO = 3
 
 

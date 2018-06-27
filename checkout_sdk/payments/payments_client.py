@@ -11,7 +11,7 @@ Refund
 Void
 
 Payment Response
-        Id
+        ChargeId
         Processed On
         Approved
         Response Code
@@ -25,15 +25,18 @@ Payment Response
             Email
             Name
         Source
-            Card Id
+            Id
+            Fingerprint
+
             BillingAddress
             Phone
+
+            Last4
             ExpiryMonth
             ExpiryYear
             Name
+
             Scheme
-            Last4
-            Fingerprint
             Bin
             CardType
             CardCategory
@@ -50,11 +53,10 @@ class PaymentsClient(ApiClient):
     def request(self,
                 card=None, token=None,
                 value=0, currency=sdk.default_currency,
-                payment_type=sdk.enums.PaymentType.Regular,
+                payment_type=sdk.PaymentType.Regular,
                 customer=None, track_id=None,
                 auto_capture=sdk.default_auto_capture,
                 auto_capture_delay=sdk.default_auto_capture_delay,
-                metadata={},
                 **kwargs):
 
         Validator.validate_payment_source(card=card, token=token)
@@ -68,8 +70,7 @@ class PaymentsClient(ApiClient):
             'trackId': track_id if track_id else '',
             'transactionIndicator': payment_type if not isinstance(payment_type, sdk.PaymentType) else payment_type.value,
             'autoCapture': 'Y' if auto_capture else 'N',
-            'autoCapTime': auto_capture_delay,
-            'metadata': metadata
+            'autoCapTime': auto_capture_delay
         }
 
         if card:
