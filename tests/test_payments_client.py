@@ -32,6 +32,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
                     'expiryMonth': 6,
                     'expiryYear': 2018,
                     'cvv': '100',
+                    'name': 'Joe Smith',
                     'billingDetails': {
                         'addressLine1': '1 London Street',
                         'postcode': 'W1',
@@ -48,7 +49,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
                 currency=sdk.Currency.USD,  # or 'usd'
                 payment_type=sdk.PaymentType.Recurring,
                 track_id='ORDER-001-002',
-                customer='riazbordie@gmail.com',
+                customer='joesmith@gmail.com',
                 udf1='udf1',
                 customerIp='8.8.8.8',
                 products=[{
@@ -69,17 +70,23 @@ class PaymentsClientTests(CheckoutSdkTestCase):
             self.assertEqual(payment.currency, 'USD')
             self.assertEqual(payment.track_id, 'ORDER-001-002')
 
+            # test card
+            self.assertTrue(Validator.is_id(payment.card.id), 'card')
+            # expiry month and year return as string (month is padded with 0)
+            self.assertEqual(payment.card.expiryMonth, '06')
+            self.assertEqual(payment.card.expiryYear, '2018')
+            self.assertEqual(payment.card.last4, '4242')
+            self.assertEqual(payment.card.name, 'Joe Smith')
+
             # test customer
-            self.assertTrue(Validator.is_id(payment.customer.id))
-            self.assertEqual(payment.customer.email, 'riazbordie@gmail.com')
+            self.assertTrue(Validator.is_id(payment.customer.id, 'cust'))
+            self.assertEqual(payment.customer.email, 'joesmith@gmail.com')
 
             # test other content from the http body
             body = payment.http_response.body
 
-            # expiry month and year return as string
-            self.assertEqual(body['card']['expiryMonth'], '6')
-            self.assertEqual(body['card']
-                             ['billingDetails']['city'], 'London')
+            self.assertEqual(body['card']['expiryMonth'], '06')
+            self.assertEqual(body['card']['billingDetails']['city'], 'London')
             self.assertEqual(body['transactionIndicator'],
                              sdk.PaymentType.Recurring.value)  # pylint: disable = no-member
             self.assertEqual(body['udf1'], 'udf1')

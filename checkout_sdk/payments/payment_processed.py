@@ -1,5 +1,5 @@
 from checkout_sdk import ApiResponse
-from checkout_sdk.common import Customer
+from checkout_sdk.common import Customer, Card
 
 
 class PaymentProcessed:
@@ -7,10 +7,11 @@ class PaymentProcessed:
         if not isinstance(api_response, ApiResponse):
             raise ValueError(
                 'api_response must be a valid instance of APIResponse')
-        self._response = api_response
+        self._card = Card(api_response.body['card'])
         # customer name is not currently returned from the API
         self._customer = Customer(
-            id=self._response.body['card']['customerId'], email=self._response.body['email'])
+            id=api_response.body['card']['customerId'], email=api_response.body['email'])
+        self._response = api_response
 
     @property
     def http_response(self):
@@ -40,6 +41,10 @@ class PaymentProcessed:
     @property
     def track_id(self):
         return self._response.body['trackId']
+
+    @property
+    def card(self):
+        return self._card
 
     @property
     def customer(self):
