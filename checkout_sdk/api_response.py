@@ -1,6 +1,6 @@
 class ApiResponse:
-    def __init__(self, http_status, headers, body, elapsed):
-        self.http_status = http_status
+    def __init__(self, status, headers, body, elapsed):
+        self.status = status
         self.headers = headers
         self.body = body        # dict
         self.elapsed = elapsed  # ms

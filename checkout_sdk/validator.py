@@ -5,11 +5,12 @@ import checkout_sdk
 from checkout_sdk import errors, constants
 from checkout_sdk.enums import Currency, PaymentType
 
-ALPHANUM_REGEX = r'(\w{8})-(\w{4})-(\w{4})-(\w{4})-(\w{12})$'
+SHORT_ID_REGEX = r'(\w{20})$'
+LONG_ID_REGEX = r'(\w{8})-(\w{4})-(\w{4})-(\w{4})-(\w{12})$'
 
 
-def get_guid_regex(prefix=None): return re.compile(
-    '^' + (prefix+'_' if prefix else r'(\w{3,}_)?') + ALPHANUM_REGEX, re.IGNORECASE)
+def get_guid_regex(prefix=None, short_id=False): return re.compile(
+    '^' + (prefix+'_' if prefix else r'(\w{3,}_(test_)?)?') + (SHORT_ID_REGEX if short_id else LONG_ID_REGEX), re.IGNORECASE)
 
 
 CUSTOMER_ID_REGEX = get_guid_regex('cust')
@@ -59,8 +60,8 @@ class Validator:
             message=error_message, error_code=constants.VALIDATION_ERROR_CODE)
 
     @classmethod
-    def is_id(cls, property, prefix=None):
-        return get_guid_regex(prefix).match(property)
+    def is_id(cls, property, prefix=None, short_id=False):
+        return get_guid_regex(prefix, short_id).match(property) is not None
 
     @classmethod
     def is_number(cls, num, min=None, max=None):

@@ -1,5 +1,6 @@
 import checkout_sdk as sdk
 from checkout_sdk import ApiClient, Validator
+from checkout_sdk.payments import PaymentProcessed
 
 """
 TODO List
@@ -10,42 +11,14 @@ Capture
 Refund
 Void
 
-Payment Response
-        ChargeId
-        Processed On
-        Approved
-        Response Code
-        Status
-        Auth Code
-        Currency
-        Value
-        TrackId
-        Customer
-            Id
-            Email
-            Name
         Source
             Id
-            Fingerprint
-
-            BillingAddress
-            Phone
-
+            Scheme
             Last4
             ExpiryMonth
             ExpiryYear
             Name
 
-            Scheme
-            Bin
-            CardType
-            CardCategory
-            Issuer
-            IssuerCountry
-            ProductId
-            ProductType
-            AvsCheck
-            CvvCheck
 """
 
 
@@ -89,4 +62,7 @@ class PaymentsClient(ApiClient):
         # add remaining properties
         request.update(kwargs)
 
-        return self._build_api_response(*self._http_client.post('charges/card', request))
+        return self._build_response(*self._http_client.post('charges/card', request))
+
+    def _build_response(self, http_status, headers, body, elapsed):
+        return PaymentProcessed(super()._build_response(http_status, headers, body, elapsed))
