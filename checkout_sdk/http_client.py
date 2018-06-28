@@ -1,4 +1,3 @@
-import re
 import requests
 import time
 
@@ -8,8 +7,6 @@ from urllib.parse import urljoin
 http_headers_default = {
     'user-agent': 'checkout-sdk-python/{}'.format(constants.VERSION)
 }
-
-SNAKE_CASE_REGEX = re.compile(r'_([a-z])')
 
 
 class HttpClient:
@@ -48,10 +45,6 @@ class HttpClient:
 
     def _request(self, path, request=None):
         start = time.time()
-
-        # convert all snake-case to camelCase
-        if request is not None:
-            request = self._convert_json(request, self._snake_to_camel_case)
 
         # call the interceptor as a hook to override the url, headers and/or request
         url, headers, request = self.interceptor(
@@ -96,13 +89,3 @@ class HttpClient:
         except requests.exceptions.RequestException:
             raise errors.ApiError(
                 message='Unexpected API connection error - please contact support@checkout.com')
-
-    def _snake_to_camel_case(self, name):
-        return SNAKE_CASE_REGEX.sub(lambda x: x.group(1).upper(), name)
-
-    def _convert_json(self, json, convert):
-        output = {}
-        for k, v in json.items():
-            output[convert(k)] = self._convert_json(
-                v, convert) if isinstance(v, dict) else v
-        return output

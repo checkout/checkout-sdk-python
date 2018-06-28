@@ -51,7 +51,7 @@ try:
         card = {
             'number': '4242424242424242',
             'expiryMonth': 6,
-            'expiryYear': 2018,
+            'expiry_year': 2018, # snake_case is automatically converted
             'cvv': '100'
         },
         value=100, # cents

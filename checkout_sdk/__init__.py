@@ -12,10 +12,11 @@ from checkout_sdk import constants
 from checkout_sdk.config import Config
 from checkout_sdk.validator import Validator
 
-from checkout_sdk.enums import Currency, PaymentType
+from checkout_sdk.enums import Currency, HttpMethod, PaymentType
 
 from checkout_sdk.http_response import HttpResponse
 from checkout_sdk.http_client import HttpClient
+from checkout_sdk.api_client import ApiClient
 from checkout_sdk.checkout_api import CheckoutApi
 
 # TODO: use logger

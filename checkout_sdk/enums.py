@@ -13,6 +13,11 @@ class PaymentType(ExtendedEnum):
     MOTO = 3
 
 
+class HttpMethod(ExtendedEnum):
+    GET = 'GET'
+    POST = 'POST'
+
+
 class Currency(ExtendedEnum):
     ALL = "ALL"
     STN = "STN"
