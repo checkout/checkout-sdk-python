@@ -51,7 +51,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
                 track_id='ORDER-001-002',
                 customer='joesmith@gmail.com',
                 udf1='udf1',
-                customerIp='8.8.8.8',
+                customer_ip='8.8.8.8',
                 products=[{
                     "description": "Blue Medium",
                     "name": "T-Shirt",
@@ -61,6 +61,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
                     "sku": "tee123"
                 }]
             )
+
             self.assertEqual(payment.http_response.status, 200)
 
             # test payment
@@ -85,11 +86,11 @@ class PaymentsClientTests(CheckoutSdkTestCase):
             # test other content from the http body
             body = payment.http_response.body
 
-            self.assertEqual(body['card']['expiryMonth'], '06')
             self.assertEqual(body['card']['billingDetails']['city'], 'London')
             self.assertEqual(body['transactionIndicator'],
                              sdk.PaymentType.Recurring.value)  # pylint: disable = no-member
             self.assertEqual(body['udf1'], 'udf1')
+            # below is also a test of snake >> camel casing.
             self.assertEqual(body['customerIp'], '8.8.8.8')
             self.assertEqual(body['products'][0]['price'], 2000)
         except sdk.errors.CheckoutSdkError as e:

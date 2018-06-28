@@ -1,4 +1,4 @@
-class ApiResponse:
+class HttpResponse:
     def __init__(self, status, headers, body, elapsed):
         self.status = status
         self.headers = headers
@@ -6,4 +6,4 @@ class ApiResponse:
         self.elapsed = elapsed  # ms
 
     def __str__(self):
-        return '{0.http_status} {0.elapsed}'.format(self)
+        return '{0.status} {0.elapsed}'.format(self)

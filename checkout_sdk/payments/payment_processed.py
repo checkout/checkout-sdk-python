@@ -1,14 +1,14 @@
-from checkout_sdk import ApiResponse
+from checkout_sdk import HttpResponse
 from checkout_sdk.common import Customer, Card
 
 
 class PaymentProcessed:
     def __init__(self, api_response):
-        if not isinstance(api_response, ApiResponse):
+        if not isinstance(api_response, HttpResponse):
             raise ValueError(
                 'api_response must be a valid instance of APIResponse')
         self._card = Card(api_response.body['card'])
-        # customer name is not currently returned from the API
+        # customer name is not currently returned from an Auth response
         self._customer = Customer(
             id=api_response.body['card']['customerId'], email=api_response.body['email'])
         self._response = api_response

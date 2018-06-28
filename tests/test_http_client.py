@@ -40,11 +40,11 @@ class HttpClientTests(CheckoutSdkTestCase):
         http_client = HttpClient(config)
         self.set_mock_response(
             'client_get', http_client.headers, self.RESPONSE_BODY)
-        _, headers, body, _ = http_client.get(self.PATH)
+        response = http_client.get(self.PATH)
 
-        self.assertEqual(body, self.RESPONSE_BODY)
+        self.assertEqual(response.body, self.RESPONSE_BODY)
         self.assert_http_call_params(
-            path=urljoin(config.api_base_url, self.PATH), method='GET', request=None, headers=headers)
+            path=urljoin(config.api_base_url, self.PATH), method='GET', request=None, headers=response.headers)
 
     def assert_http_call_params(self, path, method, headers, request):
         self.session.request.assert_called_with(

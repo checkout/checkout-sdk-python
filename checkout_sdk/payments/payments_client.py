@@ -1,5 +1,5 @@
 import checkout_sdk as sdk
-from checkout_sdk import ApiClient, Validator
+from checkout_sdk import Validator
 from checkout_sdk.payments import PaymentProcessed
 
 """
@@ -10,19 +10,13 @@ Get Payment
 Capture
 Refund
 Void
-
-        Source
-            Id
-            Scheme
-            Last4
-            ExpiryMonth
-            ExpiryYear
-            Name
-
 """
 
 
-class PaymentsClient(ApiClient):
+class PaymentsClient:
+    def __init__(self, http_client):
+        self._http_client = http_client
+
     def request(self,
                 card=None, token=None,
                 value=0, currency=sdk.default_currency,
@@ -62,7 +56,4 @@ class PaymentsClient(ApiClient):
         # add remaining properties
         request.update(kwargs)
 
-        return self._build_response(*self._http_client.post('charges/card', request))
-
-    def _build_response(self, http_status, headers, body, elapsed):
-        return PaymentProcessed(super()._build_response(http_status, headers, body, elapsed))
+        return PaymentProcessed(self._http_client.post('charges/card', request))

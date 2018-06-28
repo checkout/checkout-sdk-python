@@ -31,7 +31,6 @@ api = sdk.get_api()
 import checkout_sdk as sdk
 
 api = sdk.get_api(secret_key='<your secret key>') # default sandbox = True
-
 ```
 
 ### Setting defaults
@@ -48,7 +47,7 @@ sdk.default_auto_capture_delay = 0  # valid: 0 - 168 (hours)
 
 ``` python
 try:
-    response = api.Payments.request(
+    payment = api.payments.request(
         card = {
             'number': '4242424242424242',
             'expiryMonth': 6,
@@ -59,8 +58,10 @@ try:
         currency=sdk.Currency.USD, # or 'usd'
         customer='customer@email.com'
     )
-    print(response) # status, elapsed ms
-    print(response.json) # JSON body
+    print(payment.id)
+    print(payment.card.id)
+    print(payment.customer.id)
+    print(payment.http_response.body) # JSON body
 except sdk.errors.CheckoutSdkError as e:
     print('{0.http_status} {0.error_code} {0.elapsed} {0.event_id} // {0.message}'.format(e))
 ```
@@ -69,14 +70,14 @@ except sdk.errors.CheckoutSdkError as e:
 
 ``` python
 try:
-    response = api.Payments.request(
+    payment = api.payments.request(
         card = 'card_713A3978-AFB2-4D30-BF9A-BA55714DC309',
         value=100, # cents
         currency=sdk.Currency.USD, # or 'usd'
         customer='customer@email.com'
     )
-    print(response) # status, elapsed ms
-    print(response.json) # JSON body
+    if payment.approved:
+        # ...
 except sdk.errors.CheckoutSdkError as e:
     print('{0.http_status} {0.error_code} {0.elapsed} {0.event_id} // {0.message}'.format(e))
 ```
@@ -90,5 +91,5 @@ class BadRequestError(CheckoutSdkError):       # 400
 class ResourceNotFoundError(CheckoutSdkError): # 404
 class Timeout(CheckoutSdkError):
 class TooManyRequestsError(CheckoutSdkError):  # 422
-class APIError(CheckoutSdkError):              # 500 / fallback
+class ApiError(CheckoutSdkError):              # 500 / fallback
 ```

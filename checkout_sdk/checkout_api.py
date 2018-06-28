@@ -5,4 +5,4 @@ from checkout_sdk.payments import PaymentsClient
 class CheckoutApi:
     def __init__(self, **kwargs):
         http_client = HttpClient(Config(**kwargs))
-        self.Payments = PaymentsClient(http_client)
+        self.payments = PaymentsClient(http_client)

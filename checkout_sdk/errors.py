@@ -53,7 +53,7 @@ class TooManyRequestsError(CheckoutSdkError):
         super().__init__(message=message, **kwargs)
 
 
-class APIError(CheckoutSdkError):
+class ApiError(CheckoutSdkError):
     def __init__(self, **kwargs):
         message = kwargs.pop('message', 'General API error.')
         super().__init__(message=message, **kwargs)
