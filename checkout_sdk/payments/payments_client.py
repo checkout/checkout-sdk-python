@@ -5,11 +5,13 @@ from checkout_sdk.payments import PaymentProcessed
 """
 TODO List
 
-Get Payment
-
 Capture
 Refund
 Void
+
+Get Payment
+
+Logging
 """
 
 
@@ -23,9 +25,9 @@ class PaymentsClient(ApiClient):
                 auto_capture_delay=sdk.default_auto_capture_delay,
                 **kwargs):
 
-        # card can be a dictionary and need the JSON converted, if needed, before being validated
+        # card can be a dictionary and need the JSON case converted, if needed, before being validated
         if isinstance(card, dict):
-            card = self._convert_json(card)
+            card = self._convert_json_case(card)
 
         Validator.validate_payment_source(card=card, token=token)
         Validator.validate_transaction(

@@ -14,12 +14,12 @@ class ApiClient:
         self._http_client = http_client
 
     def _send_http_request(self, url, method, request):
-        request = self._convert_json(request)
+        request = self._convert_json_case(request)
         return getattr(self._http_client, method.value.lower())(url, request)
 
-    def _convert_json(self, json):
+    def _convert_json_case(self, json):
         output = {}
         for k, v in json.items():
-            output[_snake_to_camel_case(k)] = self._convert_json(
+            output[_snake_to_camel_case(k)] = self._convert_json_case(
                 v) if isinstance(v, dict) else v
         return output
