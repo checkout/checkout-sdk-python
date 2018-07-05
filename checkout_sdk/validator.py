@@ -21,6 +21,12 @@ EMAIL_REGEX = re.compile(r'^.+@.+$', re.IGNORECASE)
 
 class Validator:
     @classmethod
+    def validate_payment_id(cls, id):
+        """Validates the payment id."""
+        if not Validator.is_id(id, short_id=True):
+            cls.throw('Invalid Payment/Charge Id')
+
+    @classmethod
     def validate_payment_source(cls, card=None, token=None):
         """Validates card and token payment sources."""
         if not (card or token):
@@ -32,7 +38,7 @@ class Validator:
                  cls.is_number(card.get('expiryMonth'), 1, 12) and
                  cls.is_number(card.get('expiryYear'), datetime.datetime.now().year) and
                  cls.is_number(card.get('cvv', 0))):
-            Validator.throw(error_message='Invalid card data.')
+            cls.throw('Invalid card data.')
         if type(card) is str and not CARD_ID_REGEX.match(card):
             cls.throw(
                 'Invalid card source. Please provide a valid Card Id.')

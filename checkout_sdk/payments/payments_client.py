@@ -1,6 +1,6 @@
 import checkout_sdk as sdk
 from checkout_sdk import ApiClient, Validator, HttpMethod
-from checkout_sdk.payments import PaymentProcessed
+from checkout_sdk.payments import PaymentProcessed, VoidResponse
 
 """
 TODO List
@@ -37,7 +37,7 @@ class PaymentsClient(ApiClient):
         request = {
             'value': value,
             'currency': currency if not isinstance(currency, sdk.Currency) else currency.value,
-            'trackId': track_id if track_id else '',
+            'trackId': track_id,
             'transactionIndicator': payment_type if not isinstance(payment_type, sdk.PaymentType) else payment_type.value,
             'autoCapture': 'Y' if auto_capture else 'N',
             'autoCapTime': auto_capture_delay
@@ -59,4 +59,19 @@ class PaymentsClient(ApiClient):
         # add remaining properties
         request.update(kwargs)
 
-        return PaymentProcessed(self._send_http_request('charges/card', HttpMethod.POST, request))
+        return PaymentProcessed(
+            self._send_http_request('charges/card' if card is not None else 'charges/token',
+                                    HttpMethod.POST, request))
+
+    def void(self, id, track_id=None, description=None, **kwargs):
+        Validator.validate_payment_id(id)
+
+        request = {
+            'trackId': track_id,
+            'description': description
+        }
+
+        # add remaining properties
+        request.update(kwargs)
+
+        return VoidResponse(self._send_http_request('charges/{}/void'.format(id), HttpMethod.POST, request))
