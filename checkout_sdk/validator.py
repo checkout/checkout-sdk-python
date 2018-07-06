@@ -46,12 +46,12 @@ class Validator:
             cls.throw('Invalid token source.')
 
     @classmethod
-    def validate_transaction(cls, value, currency, payment_type):
+    def validate_transaction(cls, value, currency=None, payment_type=None):
         if not cls.is_number(value, 0):
             cls.throw('Transaction value must be equal or greater than zero')
-        if not Currency.has_value(currency if not isinstance(currency, Currency) else currency.value):
+        if currency and not Currency.has_value(currency if not isinstance(currency, Currency) else currency.value):
             cls.throw('Invalid currency.')
-        if not PaymentType.has_value(payment_type if not isinstance(payment_type, PaymentType) else payment_type.value):
+        if payment_type and not PaymentType.has_value(payment_type if not isinstance(payment_type, PaymentType) else payment_type.value):
             cls.throw('Invalid payment type.')
 
     @classmethod

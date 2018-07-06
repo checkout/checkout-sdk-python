@@ -1,13 +1,9 @@
 import checkout_sdk as sdk
 from checkout_sdk import ApiClient, Validator, HttpMethod
-from checkout_sdk.payments import PaymentProcessed, VoidResponse
+from checkout_sdk.payments import PaymentProcessed, CaptureResponse, VoidResponse, RefundResponse
 
 """
 TODO List
-
-Capture
-Refund
-Void
 
 Get Payment
 
@@ -63,14 +59,27 @@ class PaymentsClient(ApiClient):
             self._send_http_request('charges/card' if card is not None else 'charges/token',
                                     HttpMethod.POST, request))
 
-    def void(self, id, value=None, track_id=None, **kwargs):
+    def capture(self, id, value=None, track_id=None, **kwargs):
+        return CaptureResponse(self._getPaymentActionResponse(id, 'capture', value, track_id, **kwargs))
+
+    def void(self, id, track_id=None, **kwargs):
+        return VoidResponse(self._getPaymentActionResponse(id, 'void', None, track_id, **kwargs))
+
+    def refund(self, id, value=None, track_id=None, **kwargs):
+        return RefundResponse(self._getPaymentActionResponse(id, 'refund', value, track_id, **kwargs))
+
+    def _getPaymentActionResponse(self, id, action, value, track_id, **kwargs):
         Validator.validate_payment_id(id)
 
         request = {
             'trackId': track_id
         }
 
+        if value is not None:
+            Validator.validate_transaction(value=value)
+            request['value'] = value
+
         # add remaining properties
         request.update(kwargs)
 
-        return VoidResponse(self._send_http_request('charges/{}/void'.format(id), HttpMethod.POST, request))
+        return self._send_http_request('charges/{}/{}'.format(id, action), HttpMethod.POST, request)

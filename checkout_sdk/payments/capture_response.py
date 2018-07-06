@@ -1,7 +1,7 @@
 from checkout_sdk.payments import PaymentResponse
 
 
-class VoidResponse(PaymentResponse):
+class CaptureResponse(PaymentResponse):
     def __init__(self, api_response):
         super().__init__(api_response)
 

@@ -57,6 +57,35 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         self.assertEqual(body['customerIp'], '8.8.8.8')
         self.assertEqual(body['products'][0]['price'], 2000)
 
+    def test_payments_client_capture_full_amount_request(self):
+        payment = self.auth_card(value=150)
+        # capture the previous auth request
+        response = self.client.capture(payment.id,
+                                       track_id='ORDER-001-002-CAPTURE')
+
+        self.assertEqual(response.http_response.status, 200)
+        # test payment
+        self.assertTrue(Validator.is_id(response.id, short_id=True))
+        self.assertTrue(Validator.is_id(response.original_id, short_id=True))
+        self.assertEqual(payment.id, response.original_id)
+        self.assertEqual(response.track_id, 'ORDER-001-002-CAPTURE')
+        self.assertEqual(response.value, 150)
+        self.assertTrue(response.approved)
+
+    def test_payments_client_capture_partial_amount_request(self):
+        payment = self.auth_card(value=150)
+        # capture the previous auth request
+        response = self.client.capture(payment.id, value=100,
+                                       track_id='ORDER-001-002-CAPTURE')
+
+        self.assertEqual(response.http_response.status, 200)
+        # test payment
+        self.assertTrue(Validator.is_id(response.id, short_id=True))
+        self.assertTrue(Validator.is_id(response.original_id, short_id=True))
+        self.assertEqual(response.track_id, 'ORDER-001-002-CAPTURE')
+        self.assertEqual(response.value, 100)
+        self.assertTrue(response.approved)
+
     def test_payments_client_void_request(self):
         payment = self.auth_card()
         # void the previous auth request
@@ -68,9 +97,44 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         self.assertTrue(Validator.is_id(response.id, short_id=True))
         self.assertTrue(Validator.is_id(response.original_id, short_id=True))
         self.assertEqual(response.track_id, 'ORDER-001-002-VOID')
-        self.assertTrue(response.accepted)
+        self.assertTrue(response.approved)
 
-    def auth_card(self):
+    def test_payments_client_refund_full_amount_request(self):
+        payment = self.auth_card(value=150)
+        # capture the previous auth request
+        capture = self.client.capture(payment.id,
+                                      track_id='ORDER-001-002-CAPTURE')
+        self.assertEqual(payment.id, capture.original_id)
+        # refund the capture
+        response = self.client.refund(capture.id,
+                                      track_id='ORDER-001-002-REFUND')
+        self.assertEqual(response.http_response.status, 200)
+        # test payment
+        self.assertTrue(Validator.is_id(response.id, short_id=True))
+        self.assertTrue(Validator.is_id(response.original_id, short_id=True))
+        self.assertEqual(capture.id, response.original_id)
+        self.assertEqual(response.track_id, 'ORDER-001-002-REFUND')
+        self.assertEqual(response.value, 150)
+        self.assertTrue(response.approved)
+
+    def test_payments_client_multiple_partial_refunds_request(self):
+        payment = self.auth_card(value=150)
+        # capture the previous auth request
+        capture = self.client.capture(payment.id,
+                                      track_id='ORDER-001-002-CAPTURE')
+        self.assertEqual(payment.id, capture.original_id)
+        # partial refund the capture
+        response1 = self.client.refund(capture.id, value=50,
+                                       track_id='ORDER-001-002-REFUND-1')
+        self.assertTrue(response1.approved)
+        self.assertEqual(response1.value, 50)
+
+        response2 = self.client.refund(capture.id, value=80,
+                                       track_id='ORDER-001-002-REFUND-2')
+        self.assertTrue(response2.approved)
+        self.assertEqual(response2.value, 80)
+
+    def auth_card(self, value=None):
         # TODO: put test values into CONSTANTS where appropriate
         payment = self.client.request(
             card={
@@ -91,7 +155,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
                     }
                 }
             },
-            value=100,  # cents
+            value=value or 100,  # cents
             currency=sdk.Currency.USD,  # or 'usd'
             payment_type=sdk.PaymentType.Recurring,
             track_id='ORDER-001-002',
