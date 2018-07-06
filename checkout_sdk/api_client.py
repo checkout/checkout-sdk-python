@@ -13,9 +13,10 @@ class ApiClient:
     def __init__(self, http_client):
         self._http_client = http_client
 
-    def _send_http_request(self, url, method, request):
-        request = self._convert_json_case(request)
-        return getattr(self._http_client, method.value.lower())(url, request)
+    def _send_http_request(self, url, method, request=None):
+        if request:
+            request = self._convert_json_case(request)
+        return self._http_client.send(url, method, request)
 
     def _convert_json_case(self, json):
         output = {}

@@ -5,7 +5,7 @@ import json
 
 import checkout_sdk as sdk
 
-from checkout_sdk import Config, HttpClient, errors, constants
+from checkout_sdk import Config, HttpClient, HttpMethod, errors, constants
 from tests.base import CheckoutSdkTestCase
 from unittest.mock import MagicMock, Mock, patch
 from urllib.parse import urljoin
@@ -40,7 +40,7 @@ class HttpClientTests(CheckoutSdkTestCase):
         http_client = HttpClient(config)
         self.set_mock_response(
             'client_get', http_client.headers, self.RESPONSE_BODY)
-        response = http_client.get(self.PATH)
+        response = http_client.send(self.PATH, HttpMethod.GET)
 
         self.assertEqual(response.body, self.RESPONSE_BODY)
         self.assert_http_call_params(

@@ -1,7 +1,7 @@
 import requests
 import time
 
-from checkout_sdk import errors, constants, HttpResponse
+from checkout_sdk import errors, constants, HttpResponse, HttpMethod
 from urllib.parse import urljoin
 
 http_headers_default = {
@@ -34,16 +34,10 @@ class HttpClient:
         headers['authorization'] = self.config.secret_key
         return headers
 
-    def get(self, path):
-        return self._request(path)
-
-    def post(self, path, request):
-        return self._request(path, request)
-
     def close_session(self):
         self._session.close()
 
-    def _request(self, path, request=None):
+    def send(self, path, method=HttpMethod.GET, request=None):
         start = time.time()
 
         # call the interceptor as a hook to override the url, headers and/or request
@@ -52,7 +46,7 @@ class HttpClient:
 
         try:
             r = self._session.request(
-                method='POST' if request else 'GET',
+                method=method.value,
                 url=url,
                 json=request,
                 headers=headers,

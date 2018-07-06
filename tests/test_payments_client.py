@@ -57,6 +57,15 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         self.assertEqual(body['customerIp'], '8.8.8.8')
         self.assertEqual(body['products'][0]['price'], 2000)
 
+    def test_payments_client_get_request(self):
+        payment = self.auth_card()
+        # get the previous auth request
+        response = self.client.get(payment.id)
+
+        self.assertEqual(response.http_response.status, 200)
+        self.assertEqual(payment.id, response.id)
+        # TODO: improve test to compare all GET value with previous Auth response values
+
     def test_payments_client_capture_full_amount_request(self):
         payment = self.auth_card(value=150)
         # capture the previous auth request
