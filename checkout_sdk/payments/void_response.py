@@ -10,9 +10,5 @@ class VoidResponse(PaymentResponse):
         return self._response.body['originalId']
 
     @property
-    def track_id(self):
-        return self._response.body['trackId']
-
-    @property
     def accepted(self):
         return str(self._response.status).startswith('2')

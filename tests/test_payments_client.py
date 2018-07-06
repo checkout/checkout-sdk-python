@@ -14,9 +14,9 @@ from enum import Enum
 class PaymentsClientTests(CheckoutSdkTestCase):
     def setUp(self):
         super().setUp()
-        self.http_client = HttpClient(
-            Config(api_base_url=tests.MOCK_API_BASE_URL))
-        #self.http_client = HttpClient(Config())
+        # self.http_client = HttpClient(
+        # Config(api_base_url=tests.MOCK_API_BASE_URL))
+        self.http_client = HttpClient(Config())
         self.client = PaymentsClient(self.http_client)
 
     def tearDown(self):
@@ -61,13 +61,13 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         payment = self.auth_card()
         # void the previous auth request
         response = self.client.void(payment.id,
-                                    track_id='ORDER-001-002-VOID',
-                                    description='void')
+                                    track_id='ORDER-001-002-VOID')
 
         self.assertEqual(response.http_response.status, 200)
         # test payment
         self.assertTrue(Validator.is_id(response.id, short_id=True))
         self.assertTrue(Validator.is_id(response.original_id, short_id=True))
+        self.assertEqual(response.track_id, 'ORDER-001-002-VOID')
         self.assertTrue(response.accepted)
 
     def auth_card(self):

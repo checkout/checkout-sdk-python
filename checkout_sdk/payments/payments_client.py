@@ -19,7 +19,7 @@ class PaymentsClient(ApiClient):
     def request(self,
                 card=None, token=None,
                 value=0, currency=sdk.default_currency,
-                payment_type=sdk.PaymentType.Regular,
+                payment_type=sdk.default_payment_type,
                 customer=None, track_id=None,
                 auto_capture=sdk.default_auto_capture,
                 auto_capture_delay=sdk.default_auto_capture_delay,
@@ -63,12 +63,11 @@ class PaymentsClient(ApiClient):
             self._send_http_request('charges/card' if card is not None else 'charges/token',
                                     HttpMethod.POST, request))
 
-    def void(self, id, track_id=None, description=None, **kwargs):
+    def void(self, id, value=None, track_id=None, **kwargs):
         Validator.validate_payment_id(id)
 
         request = {
-            'trackId': track_id,
-            'description': description
+            'trackId': track_id
         }
 
         # add remaining properties

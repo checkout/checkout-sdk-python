@@ -1,2 +1,3 @@
 SECRET_KEY = 'sk_test_00000000-0000-0000-0000-000000000000'
+SECRET_KEY = 'sk_test_be994177-4711-44a6-b719-fceb82bde8c4'
 MOCK_API_BASE_URL = 'http://localhost:3000/'

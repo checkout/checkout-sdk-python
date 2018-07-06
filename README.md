@@ -39,6 +39,7 @@ api = sdk.get_api(secret_key='<your secret key>') # default sandbox = True
 sdk.default_currency = sdk.Currency.EUR
 sdk.default_auto_capture = True
 sdk.default_auto_capture_delay = 0  # valid: 0 - 168 (hours)
+sdk.default_payment_type = PaymentType.Regular
 ```
 
 ### Payment Request
@@ -51,7 +52,7 @@ try:
         card = {
             'number': '4242424242424242',
             'expiryMonth': 6,
-            'expiry_year': 2018, # snake_case is automatically converted
+            'expiry_year': 2025, # snake_case is automatically converted
             'cvv': '100'
         },
         value=100, # cents

@@ -16,3 +16,7 @@ class PaymentResponse:
     @property
     def id(self):
         return self._response.body['id']
+
+    @property
+    def track_id(self):
+        return self._response.body['trackId']

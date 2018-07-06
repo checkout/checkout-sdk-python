@@ -27,10 +27,6 @@ class PaymentProcessed(PaymentResponse):
         return self._response.body['value']
 
     @property
-    def track_id(self):
-        return self._response.body['trackId']
-
-    @property
     def card(self):
         return self._card
 
