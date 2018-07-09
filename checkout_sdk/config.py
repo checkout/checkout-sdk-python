@@ -39,7 +39,7 @@ class Config:
 
     @secret_key.setter
     def secret_key(self, value):
-        if SECRET_KEY_REGEX.match(value):
+        if SECRET_KEY_REGEX.match(value or ''):
             self._secret_key = value
         else:
             raise ValueError('Invalid secret key.')

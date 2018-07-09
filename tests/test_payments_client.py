@@ -14,8 +14,6 @@ from enum import Enum
 class PaymentsClientTests(CheckoutSdkTestCase):
     def setUp(self):
         super().setUp()
-        # self.http_client = HttpClient(
-        # Config(api_base_url=tests.MOCK_API_BASE_URL))
         self.http_client = HttpClient(Config())
         self.client = PaymentsClient(self.http_client)
 
