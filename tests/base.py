@@ -8,7 +8,7 @@ from checkout_sdk import logger
 class CheckoutSdkTestCase(unittest.TestCase):
     def setUp(self):
         super().setUp()
-        print('.....{}.....'.format(self._testMethodName))
+        print('\n')
 
     def tearDown(self):
         super().tearDown()

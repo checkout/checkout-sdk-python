@@ -116,5 +116,5 @@ The tests currently need a Sandbox account. This will eventually be replaced by 
 ```
 export CKO_SECRET_KEY="<your secret key>"
 export CKO_LOGGING="info|debug"
-python|python3 -m unittest discover
+python|python3 setup.py test
 ```
