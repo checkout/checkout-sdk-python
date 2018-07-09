@@ -5,6 +5,8 @@
 
 ## Installation
 
+    pip install --upgrade checkout-sdk
+
 From source:
 
     python setup.py install
@@ -119,5 +121,5 @@ The tests currently need a Sandbox account. This will eventually be replaced by 
 ```
 export CKO_SECRET_KEY="<your secret key>"
 export CKO_LOGGING="info|debug"
-python|python3 setup.py test
+python setup.py test
 ```
