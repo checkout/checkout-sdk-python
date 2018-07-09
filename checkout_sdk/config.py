@@ -1,7 +1,7 @@
 import re
 import os
 
-from checkout_sdk import constants
+from checkout_sdk import constants, logger
 
 SECRET_KEY_REGEX = re.compile(
     r'^sk_(test_)?(\w{8})-(\w{4})-(\w{4})-(\w{4})-(\w{12})$', re.IGNORECASE)
@@ -32,6 +32,9 @@ class Config:
             sandbox = \
                 sandbox if sandbox is not None else env_settings['sandbox']()
             self.api_base_url = api_base_urls['sandbox'] if sandbox == True else api_base_urls['production']
+
+        logger.info('{} - sk{}{}'.format(self.api_base_url, '*' * 6,
+                                         self.secret_key[-6:]))
 
     @property
     def secret_key(self):

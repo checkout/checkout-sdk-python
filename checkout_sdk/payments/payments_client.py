@@ -69,6 +69,8 @@ class PaymentsClient(ApiClient):
         return RefundResponse(self._getPaymentActionResponse(id, 'refund', value, track_id, **kwargs))
 
     def get(self, id):
+        self._log_info('Get {}'.format(id))
+
         Utils.validate_payment_id(id)
 
         return PaymentProcessed(self._send_http_request('charges/{}'.format(id), HttpMethod.GET))
