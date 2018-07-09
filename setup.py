@@ -1,12 +1,16 @@
 import setuptools
-from checkout_sdk import constants
+import os
 
 with open("README.md", "r") as f:
     long_description = f.read()
 
+constants = {}
+with open(os.path.join('checkout_sdk', 'constants.py')) as f:
+    exec(f.read(), constants)
+
 setuptools.setup(
     name="checkout_sdk",
-    version=constants.VERSION,
+    version=constants['VERSION'],
     author="Checkout.com",
     author_email="support@checkout.com",
     description="Checkout.com Python SDK",
