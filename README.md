@@ -1,5 +1,7 @@
 # Checkout.com Python SDK
 
+[![Build Status](https://travis-ci.org/checkout/checkout-sdk-python.svg?branch=master)](https://travis-ci.org/checkout/checkout-sdk-python)
+
 ## Installation
 
 From source:
