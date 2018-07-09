@@ -45,7 +45,7 @@ api = sdk.get_api(secret_key='<your secret key>') # default sandbox = True
 sdk.default_currency = sdk.Currency.EUR
 sdk.default_auto_capture = True
 sdk.default_auto_capture_delay = 0  # valid: 0 - 168 (hours)
-sdk.default_payment_type = PaymentType.Regular
+sdk.default_payment_type = sdk.PaymentType.Regular
 ```
 
 ### Payment Request
