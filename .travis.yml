@@ -6,7 +6,7 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
-  - "3.7"
+  - "3.7-dev"
 
 install:
   - python setup.py clean --all
@@ -14,3 +14,7 @@ install:
 
 script:
   - python setup.py test
+
+matrix:
+  allow_failures:
+    - python: 3.7-dev
