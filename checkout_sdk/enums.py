@@ -6,6 +6,9 @@ class ExtendedEnum(Enum):
     def has_value(cls, value):
         return value is not None and any(str(value).lower() == str(item.value).lower() for item in cls)
 
+    def __str__(self):
+        return '{0.value}'.format(self)
+
 
 class PaymentType(ExtendedEnum):
     Regular = 1

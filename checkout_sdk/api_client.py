@@ -1,6 +1,7 @@
 import re
+import pprint
 
-from checkout_sdk import HttpMethod
+from checkout_sdk import HttpMethod, logger
 
 SNAKE_CASE_REGEX = re.compile(r'_([a-z])')
 
@@ -16,7 +17,11 @@ class ApiClient:
     def _send_http_request(self, url, method, request=None):
         if request:
             request = self._convert_json_case(request)
-        return self._http_client.send(url, method, request)
+
+        response = self._http_client.send(url, method, request)
+        self._log_info(response)        # http status, elapsed
+        self._log_debug('HTTP response:\n'+pprint.pformat(response.body))
+        return response
 
     def _convert_json_case(self, json):
         output = {}
@@ -24,3 +29,9 @@ class ApiClient:
             output[_snake_to_camel_case(k)] = self._convert_json_case(
                 v) if isinstance(v, dict) else v
         return output
+
+    def _log_info(self, message, **kwargs):
+        logger.info(message, **kwargs)
+
+    def _log_debug(self, message, **kwargs):
+        logger.debug(message, **kwargs)

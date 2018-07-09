@@ -1,14 +1,7 @@
 import checkout_sdk as sdk
-from checkout_sdk import ApiClient, Validator, HttpMethod
+
+from checkout_sdk import ApiClient, Utils, HttpMethod
 from checkout_sdk.payments import PaymentProcessed, CaptureResponse, VoidResponse, RefundResponse
-
-"""
-TODO List
-
-Get Payment
-
-Logging
-"""
 
 
 class PaymentsClient(ApiClient):
@@ -21,14 +14,21 @@ class PaymentsClient(ApiClient):
                 auto_capture_delay=sdk.default_auto_capture_delay,
                 **kwargs):
 
+        payment_source = card or token
+
         # card can be a dictionary and need the JSON case converted, if needed, before being validated
         if isinstance(card, dict):
             card = self._convert_json_case(card)
+            # change payment source to a masked PAN
+            payment_source = Utils.mask_pan(card['number'])
 
-        Validator.validate_payment_source(card=card, token=token)
-        Validator.validate_transaction(
+        self._log_info(
+            'Auth {} - {}{} - {}'.format(payment_source, value, currency, track_id if track_id else '<no track id>'))
+
+        Utils.validate_payment_source(card=card, token=token)
+        Utils.validate_transaction(
             value=value, currency=currency, payment_type=payment_type)
-        Validator.validate_customer(customer=customer)
+        Utils.validate_customer(customer=customer)
 
         request = {
             'value': value,
@@ -47,7 +47,7 @@ class PaymentsClient(ApiClient):
         else:
             request['cardToken'] = token
 
-        if Validator.is_id(customer):
+        if Utils.is_id(customer):
             request['customerId'] = customer
         else:
             request['email'] = customer
@@ -69,22 +69,26 @@ class PaymentsClient(ApiClient):
         return RefundResponse(self._getPaymentActionResponse(id, 'refund', value, track_id, **kwargs))
 
     def get(self, id):
-        Validator.validate_payment_id(id)
+        Utils.validate_payment_id(id)
 
         return PaymentProcessed(self._send_http_request('charges/{}'.format(id), HttpMethod.GET))
 
     def _getPaymentActionResponse(self, id, action, value, track_id, **kwargs):
-        Validator.validate_payment_id(id)
+        self._log_info('{} - {} - {}'.format(action.capitalize(), id,
+                                             track_id if track_id else '<no track id>'))
+
+        Utils.validate_payment_id(id)
 
         request = {
             'trackId': track_id
         }
 
         if value is not None:
-            Validator.validate_transaction(value=value)
+            Utils.validate_transaction(value=value)
             request['value'] = value
 
         # add remaining properties
         request.update(kwargs)
 
-        return self._send_http_request('charges/{}/{}'.format(id, action), HttpMethod.POST, request)
+        return self._send_http_request(
+            'charges/{}/{}'.format(id, action), HttpMethod.POST, request)

@@ -17,6 +17,7 @@ From source:
 ``` python
 os.environ['CKO_SECRET_KEY'] = '<your secret key>'
 os.environ['CKO_SANDBOX'] = 'True|true|1' # else is False (Production)
+os.environ['CKO_LOGGING'] = 'debug|DEBUG|info|INFO'
 
 # ...
 
@@ -93,4 +94,17 @@ class ResourceNotFoundError(CheckoutSdkError): # 404
 class Timeout(CheckoutSdkError):
 class TooManyRequestsError(CheckoutSdkError):  # 422
 class ApiError(CheckoutSdkError):              # 500 / fallback
+```
+
+### Logging
+
+```python
+os.environ['CKO_LOGGING'] = 'debug|DEBUG|info|INFO'
+```
+
+or ...
+
+```python
+import logging
+logging.getLogger('cko').setLevel(logging.DEBUG)
 ```

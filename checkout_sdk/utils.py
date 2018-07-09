@@ -1,6 +1,7 @@
 import re
 import datetime
 import checkout_sdk
+import pprint
 
 from checkout_sdk import errors, constants
 from checkout_sdk.enums import Currency, PaymentType
@@ -19,11 +20,11 @@ TOKEN_REGEX = get_guid_regex('(card_)?tok')
 EMAIL_REGEX = re.compile(r'^.+@.+$', re.IGNORECASE)
 
 
-class Validator:
+class Utils:
     @classmethod
     def validate_payment_id(cls, id):
         """Validates the payment id."""
-        if not Validator.is_id(id, short_id=True):
+        if not Utils.is_id(id, short_id=True):
             cls.throw('Invalid Payment/Charge Id')
 
     @classmethod
@@ -79,13 +80,13 @@ class Validator:
             return num is not None and (min is None or num >= min) and (max is None or num <= max)
 
     @classmethod
-    def validate_luhn(cls, card_number):
-        if card_number is None:
+    def validate_luhn(cls, pan):
+        if pan is None:
             return False
 
         def digits_of(n):
             return [int(d) for d in str(n)]
-        digits = digits_of(card_number)
+        digits = digits_of(pan)
         odd_digits = digits[-1::-2]
         even_digits = digits[-2::-2]
         checksum = 0
@@ -93,3 +94,12 @@ class Validator:
         for d in even_digits:
             checksum += sum(digits_of(d*2))
         return (checksum % 10) == 0
+
+    @classmethod
+    def mask_pan(cls, pan):
+        left, right = (6, 4)
+        return pan[0:left].ljust(len(pan)-right, '*')+pan[-right:]
+
+    @classmethod
+    def pretty_print_dict(dict):
+        pprint.pprint(dict)
