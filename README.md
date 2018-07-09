@@ -108,3 +108,12 @@ or ...
 import logging
 logging.getLogger('cko').setLevel(logging.DEBUG)
 ```
+
+### Test Suite
+
+The tests currently need a Sandbox account. This will eventually be replaced by the incoming Checkout.com Mock API.
+
+```
+export CKO_SECRET_KEY="<your secret key>"
+python|python3 -m unittest discover
+```
