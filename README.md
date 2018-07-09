@@ -8,7 +8,7 @@ From source:
 
 ### Requirements
 
-* Python 3.3+
+* Python 3.4+
 
 ## Usage
 
