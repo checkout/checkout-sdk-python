@@ -9,11 +9,13 @@ python:
 
 install:
   - pip install codecov
+  - pip install coverage
   - python setup.py clean --all
   - python setup.py install
 
 script:
-  - python setup.py test
+  - coverage run setup.py test
+
 
 after_success:
   codecov
