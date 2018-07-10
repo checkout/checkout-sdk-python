@@ -11,7 +11,6 @@ from tests.base import CheckoutSdkTestCase
 from enum import Enum
 
 
-@unittest.skip("showing class skipping")
 class PaymentsClientTests(CheckoutSdkTestCase):
     def setUp(self):
         super().setUp()
