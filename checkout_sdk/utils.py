@@ -57,7 +57,7 @@ class Utils:
 
     @classmethod
     def validate_customer(cls, customer):
-        if not (customer or CUSTOMER_ID_REGEX.match(customer) or EMAIL_REGEX.match(customer)):
+        if not customer or not (CUSTOMER_ID_REGEX.match(customer) or EMAIL_REGEX.match(customer)):
             cls.throw(
                 'Email or Customer Id is required when requesting a payment.')
 
