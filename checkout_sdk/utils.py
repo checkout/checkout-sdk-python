@@ -34,7 +34,7 @@ class Utils:
             cls.throw(
                 'Payment source missing. Please specify a valid card or token.')
         if isinstance(card, dict) and \
-            not (cls.validate_luhn(card.get('number')) and
+            not (cls.luhn_check(card.get('number')) and
                  # not smart on month for current year - API handles this
                  cls.is_number(card.get('expiryMonth'), 1, 12) and
                  cls.is_number(card.get('expiryYear'), datetime.datetime.now().year) and
@@ -80,7 +80,7 @@ class Utils:
             return num is not None and (min is None or num >= min) and (max is None or num <= max)
 
     @classmethod
-    def validate_luhn(cls, pan):
+    def luhn_check(cls, pan):
         if pan is None:
             return False
 
@@ -99,7 +99,3 @@ class Utils:
     def mask_pan(cls, pan):
         left, right = (6, 4)
         return pan[0:left].ljust(len(pan)-right, '*')+pan[-right:]
-
-    @classmethod
-    def pretty_print_dict(dict):
-        pprint.pprint(dict)
