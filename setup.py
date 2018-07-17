@@ -16,6 +16,7 @@ setuptools.setup(
     description="Checkout.com Python SDK",
     long_description=long_description,
     long_description_content_type="text/markdown",
+    zip_safe=False,
     url="https://github.com/checkout/checkout-sdk-python",
     license='MIT',
     packages=setuptools.find_packages(),
