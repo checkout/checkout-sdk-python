@@ -9,7 +9,7 @@ HTTP_PROTOCOL_REGEX = re.compile(r'^http(s)?', re.IGNORECASE)
 
 api_base_urls = {
     'sandbox': 'https://sandbox.checkout.com/api2/v2/',
-    'production': 'https://api.checkout.com/'
+    'production': 'https://api2.checkout.com/'
 }
 
 # using lambda functions here so that env variables are read at the time of access
