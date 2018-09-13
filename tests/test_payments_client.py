@@ -164,6 +164,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
             },
             value=value or 100,  # cents
             currency=sdk.Currency.USD,  # or 'usd'
+            auto_capture=False,
             payment_type=sdk.PaymentType.Recurring,
             track_id='ORDER-001-002',
             customer='joesmith@gmail.com',
