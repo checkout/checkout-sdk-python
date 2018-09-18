@@ -14,27 +14,14 @@ class CheckoutSdkError(Exception):
         return '{} - {}'.format(self.event_id, self.message)
 
 
-class InputValidationError(CheckoutSdkError):
-    def __init__(self, message, **kwargs):
-        message = kwargs.pop(
-            'message', 'Offline validation error. The request failed to proceed.')
-        super().__init__(message=message, **kwargs)
-
-
-class ApiError(CheckoutSdkError):
-    def __init__(self, **kwargs):
-        message = kwargs.pop('message', 'General API error.')
-        super().__init__(message=message, **kwargs)
-
-
-class AuthenticationError(ApiError):
+class AuthenticationError(CheckoutSdkError):
     def __init__(self, **kwargs):
         message = kwargs.pop(
             'message', 'Authentication error. Secret key might be missing or expired.')
         super().__init__(message=message, **kwargs)
 
 
-class BadRequestError(ApiError):
+class BadRequestError(CheckoutSdkError):
     def __init__(self, **kwargs):
         message = kwargs.pop(
             'message', 'Bad request. Check for possible validation error.')
@@ -45,22 +32,28 @@ class BadRequestError(ApiError):
         return self.error_code == constants.VALIDATION_ERROR_CODE
 
 
-class ResourceNotFoundError(ApiError):
+class ResourceNotFoundError(CheckoutSdkError):
     def __init__(self, **kwargs):
         message = kwargs.pop(
             'message', 'Resource not found. Please check the identifier and retry.')
         super().__init__(message=message, **kwargs)
 
 
-class Timeout(ApiError):
+class Timeout(CheckoutSdkError):
     def __init__(self, **kwargs):
         message = kwargs.pop(
             'message', 'The request timed out. Considering adjust the "timeout" setting.')
         super().__init__(message=message, **kwargs)
 
 
-class TooManyRequestsError(ApiError):
+class TooManyRequestsError(CheckoutSdkError):
     def __init__(self, **kwargs):
         message = kwargs.pop(
             'message', 'Requests blocked due to API request throttling.')
+        super().__init__(message=message, **kwargs)
+
+
+class ApiError(CheckoutSdkError):
+    def __init__(self, **kwargs):
+        message = kwargs.pop('message', 'General API error.')
         super().__init__(message=message, **kwargs)
