@@ -7,6 +7,7 @@ import checkout_sdk as sdk
 
 from checkout_sdk import HttpClient, Config, Utils
 from checkout_sdk.payments import PaymentsClient
+from checkout_sdk.payments import PaymentResponse
 from tests.base import CheckoutSdkTestCase
 from enum import Enum
 
@@ -21,10 +22,15 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         super().tearDown()
         self.http_client.close_session()
 
+    def test_bad_payment_response_init(self):
+        with self.assertRaises(TypeError):
+            payment_response = PaymentResponse(False)
+
     def test_payments_client_full_card_auth_request(self):
         payment = self.auth_card()
 
         self.assertEqual(payment.http_response.status, 200)
+        self.assertIsNotNone(payment.created)
 
         # test payment
         self.assertIsNotNone(payment.id)
@@ -142,7 +148,6 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         self.assertEqual(response2.value, 80)
 
     def auth_card(self, value=None):
-        # TODO: put test values into CONSTANTS where appropriate
         payment = self.client.request(
             card={
                 'number': '4242424242424242',

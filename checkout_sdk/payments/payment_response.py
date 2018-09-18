@@ -4,7 +4,7 @@ from checkout_sdk import HttpResponse
 class PaymentResponse:
     def __init__(self, api_response):
         if not isinstance(api_response, HttpResponse):
-            raise ValueError(
+            raise TypeError(
                 'api_response must be a valid instance of APIResponse')
         self._response = api_response
 

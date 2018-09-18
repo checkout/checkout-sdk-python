@@ -42,6 +42,8 @@ class HttpClientTests(CheckoutSdkTestCase):
             'client_get', http_client.headers, self.RESPONSE_BODY)
         response = http_client.send(self.PATH, HttpMethod.GET)
 
+        self.assertEqual(
+            str(response), '{0.status} {0.elapsed}'.format(response))
         self.assertEqual(response.body, self.RESPONSE_BODY)
         self.assert_http_call_params(
             path=urljoin(config.api_base_url, self.PATH), method='GET', request=None, headers=response.headers)
