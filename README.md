@@ -101,6 +101,8 @@ class TooManyRequestsError(CheckoutSdkError):  # 422
 class ApiError(CheckoutSdkError):              # 500 / fallback
 ```
 
+> The SDK will not do any offline validation of card data, IDs, etc. Provided the values and types is correct, all business validations are handled at API level. On that note, expect `ValueError` and `TypeError` for incorrect usage.
+
 ### Logging
 
 ```python

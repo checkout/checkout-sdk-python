@@ -47,10 +47,10 @@ class PaymentsClient(ApiClient):
         else:
             request['cardToken'] = token
 
-        if Utils.is_id(customer):
-            request['customerId'] = customer
-        else:
+        if Utils.is_email(customer):
             request['email'] = customer
+        else:
+            request['customerId'] = customer
 
         # add remaining properties
         request.update(kwargs)
@@ -71,7 +71,7 @@ class PaymentsClient(ApiClient):
     def get(self, id):
         self._log_info('Get {}'.format(id))
 
-        Utils.validate_payment_id(id)
+        Utils.validate_id(id)
 
         return PaymentProcessed(self._send_http_request('charges/{}'.format(id), HttpMethod.GET))
 
@@ -79,7 +79,7 @@ class PaymentsClient(ApiClient):
         self._log_info('{} - {} - {}'.format(action.capitalize(), id,
                                              track_id if track_id else '<no track id>'))
 
-        Utils.validate_payment_id(id)
+        Utils.validate_id(id)
 
         request = {
             'trackId': track_id
