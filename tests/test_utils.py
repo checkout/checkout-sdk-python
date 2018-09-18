@@ -54,6 +54,14 @@ class UtilsTests(CheckoutSdkTestCase):
         with self.assertRaises(TypeError):
             Utils.validate_payment_source(None, self.INVALID_ID)
 
+    def test_validate_customer_with_missing_id(self):
+        with self.assertRaises(ValueError):
+            Utils.validate_customer(None)
+
+    def test_validate_customer_with_wrong_id_type(self):
+        with self.assertRaises(TypeError):
+            Utils.validate_customer(self.INVALID_ID)
+
     def test_validate_transaction(self):
         try:
             Utils.validate_transaction(
