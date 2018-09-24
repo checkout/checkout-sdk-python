@@ -4,6 +4,10 @@
 
 > **IMPORTANT**: This is not a release yet and still in development. Please do **not** use this branch for your integration.
 
+Todo:
+1) Clear 3DS flows on README.md
+2) How to get extra properties on README.md
+
 # Checkout.com Python SDK
 
 [![Build Status](https://travis-ci.org/checkout/checkout-sdk-python.svg?branch=master)](https://travis-ci.org/checkout/checkout-sdk-python)

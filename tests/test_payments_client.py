@@ -67,6 +67,15 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         payment = self.auth_card(threeds=True)
 
         self.assertTrue(payment.requires_redirect)
+        self.assertTrue(payment.charge_mode ==
+                        sdk.ChargeMode.ThreeDS.value)  # pylint: disable = no-member
+
+    def test_payments_client_3d_full_card_auth_request_with_downgrade(self):
+        # value 5000 will trigger 20153 (https://docs.checkout.com/docs/testing#section-response-codes)
+        payment = self.auth_card(value=5000, threeds=True, attempt_n3d=True)
+
+        self.assertTrue(payment.requires_redirect)
+        self.assertTrue(payment.downgraded)
 
     def test_payments_client_get_request(self):
         payment = self.auth_card()
@@ -154,7 +163,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         self.assertTrue(response2.approved)
         self.assertEqual(response2.value, 80)
 
-    def auth_card(self, value=None, threeds=False):
+    def auth_card(self, value=None, threeds=False, attempt_n3d=False):
         payment = self.client.request(
             card={
                 'number': '4242424242424242',
@@ -179,6 +188,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
             auto_capture=False,
             payment_type=sdk.PaymentType.Recurring,
             charge_mode=2 if threeds else 1,
+            attemptN3D=attempt_n3d,
             track_id='ORDER-001-002',
             customer='joesmith@gmail.com',
             udf1='udf1',

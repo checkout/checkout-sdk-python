@@ -29,4 +29,4 @@ class ThreeDSResponse(PaymentResponse):
 
     @property
     def downgraded(self):
-        return self.charge_mode == sdk.ChargeMode.NonThreeD
+        return self.charge_mode == sdk.ChargeMode.NonThreeD.value  # pylint: disable = no-member
