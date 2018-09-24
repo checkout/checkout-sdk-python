@@ -6,11 +6,16 @@ from checkout_sdk.payments import PaymentProcessed, ThreeDSResponse, CaptureResp
 
 class PaymentsClient(ApiClient):
     def request(self,
+                # Source
                 card=None, token=None,
+                # Transaction
                 value=0, currency=sdk.default_currency,
                 payment_type=sdk.default_payment_type,
                 customer=None, track_id=None,
+                # 3D
                 charge_mode=sdk.ChargeMode.NonThreeD,
+                attempt_n3d=False,
+                # Auto Capture
                 auto_capture=sdk.default_auto_capture,
                 auto_capture_delay=sdk.default_auto_capture_delay,
                 **kwargs):
@@ -37,6 +42,7 @@ class PaymentsClient(ApiClient):
             'trackId': track_id,
             'transactionIndicator': payment_type if not isinstance(payment_type, sdk.PaymentType) else payment_type.value,
             'chargeMode': charge_mode if not isinstance(charge_mode, sdk.ChargeMode) else charge_mode.value,
+            'attemptN3D': attempt_n3d,
             'autoCapture': 'Y' if auto_capture else 'N',
             'autoCapTime': auto_capture_delay
         }

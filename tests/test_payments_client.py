@@ -188,7 +188,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
             auto_capture=False,
             payment_type=sdk.PaymentType.Recurring,
             charge_mode=2 if threeds else 1,
-            attemptN3D=attempt_n3d,
+            attempt_n3d=attempt_n3d,
             track_id='ORDER-001-002',
             customer='joesmith@gmail.com',
             udf1='udf1',
