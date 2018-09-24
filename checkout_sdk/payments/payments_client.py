@@ -1,7 +1,7 @@
 import checkout_sdk as sdk
 
 from checkout_sdk import ApiClient, Utils, HttpMethod
-from checkout_sdk.payments import PaymentProcessed, CaptureResponse, VoidResponse, RefundResponse
+from checkout_sdk.payments import PaymentProcessed, ThreeDSResponse, CaptureResponse, VoidResponse, RefundResponse
 
 
 class PaymentsClient(ApiClient):
@@ -10,6 +10,7 @@ class PaymentsClient(ApiClient):
                 value=0, currency=sdk.default_currency,
                 payment_type=sdk.default_payment_type,
                 customer=None, track_id=None,
+                charge_mode=sdk.ChargeMode.NonThreeD,
                 auto_capture=sdk.default_auto_capture,
                 auto_capture_delay=sdk.default_auto_capture_delay,
                 **kwargs):
@@ -27,7 +28,7 @@ class PaymentsClient(ApiClient):
 
         Utils.validate_payment_source(card=card, token=token)
         Utils.validate_transaction(
-            value=value, currency=currency, payment_type=payment_type)
+            value=value, currency=currency, payment_type=payment_type, charge_mode=charge_mode)
         Utils.validate_customer(customer=customer)
 
         request = {
@@ -35,6 +36,7 @@ class PaymentsClient(ApiClient):
             'currency': currency if not isinstance(currency, sdk.Currency) else currency.value,
             'trackId': track_id,
             'transactionIndicator': payment_type if not isinstance(payment_type, sdk.PaymentType) else payment_type.value,
+            'chargeMode': charge_mode if not isinstance(charge_mode, sdk.ChargeMode) else charge_mode.value,
             'autoCapture': 'Y' if auto_capture else 'N',
             'autoCapTime': auto_capture_delay
         }
@@ -55,9 +57,13 @@ class PaymentsClient(ApiClient):
         # add remaining properties
         request.update(kwargs)
 
-        return PaymentProcessed(
-            self._send_http_request('charges/card' if card is not None else 'charges/token',
-                                    HttpMethod.POST, request))
+        http_response = self._send_http_request('charges/card' if card is not None else 'charges/token',
+                                                HttpMethod.POST, request)
+
+        if Utils.verify_redirect_flow(http_response):
+            return ThreeDSResponse(http_response)
+        else:
+            return PaymentProcessed(http_response)
 
     def capture(self, id, value=None, track_id=None, **kwargs):
         return CaptureResponse(self._getPaymentActionResponse(id, 'capture', value, track_id, **kwargs))

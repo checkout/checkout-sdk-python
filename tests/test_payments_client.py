@@ -24,7 +24,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
 
     def test_bad_payment_response_init(self):
         with self.assertRaises(TypeError):
-            payment_response = PaymentResponse(False)
+            PaymentResponse(False)
 
     def test_payments_client_full_card_auth_request(self):
         payment = self.auth_card()
@@ -35,9 +35,11 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         # test payment
         self.assertIsNotNone(payment.id)
         self.assertTrue(payment.approved)
+        self.assertIsNotNone(payment.auth_code)
         self.assertEqual(payment.value, 100)
         self.assertEqual(payment.currency, 'USD')
         self.assertEqual(payment.track_id, 'ORDER-001-002')
+        self.assertFalse(payment.requires_redirect)
 
         # test card
         self.assertIsNotNone(payment.card.id)
@@ -60,6 +62,11 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         # below is also a test of snake >> camel casing.
         self.assertEqual(body['customerIp'], '8.8.8.8')
         self.assertEqual(body['products'][0]['price'], 2000)
+
+    def test_payments_client_3d_full_card_auth_request(self):
+        payment = self.auth_card(threeds=True)
+
+        self.assertTrue(payment.requires_redirect)
 
     def test_payments_client_get_request(self):
         payment = self.auth_card()
@@ -147,7 +154,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         self.assertTrue(response2.approved)
         self.assertEqual(response2.value, 80)
 
-    def auth_card(self, value=None):
+    def auth_card(self, value=None, threeds=False):
         payment = self.client.request(
             card={
                 'number': '4242424242424242',
@@ -171,6 +178,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
             currency=sdk.Currency.USD,  # or 'usd'
             auto_capture=False,
             payment_type=sdk.PaymentType.Recurring,
+            charge_mode=2 if threeds else 1,
             track_id='ORDER-001-002',
             customer='joesmith@gmail.com',
             udf1='udf1',

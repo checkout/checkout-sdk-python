@@ -1,7 +1,7 @@
-from checkout_sdk.payments import PaymentResponse
+from checkout_sdk.payments import PaymentActionResponse
 
 
-class VoidResponse(PaymentResponse):
+class VoidResponse(PaymentActionResponse):
     def __init__(self, api_response):
         super().__init__(api_response)
 

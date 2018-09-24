@@ -16,6 +16,11 @@ class PaymentType(ExtendedEnum):
     MOTO = 3
 
 
+class ChargeMode(ExtendedEnum):
+    NonThreeD = 1
+    ThreeDS = 2
+
+
 class HttpMethod(ExtendedEnum):
     GET = 'GET'
     POST = 'POST'

@@ -1,7 +1,7 @@
-from checkout_sdk.payments import PaymentResponse
+from checkout_sdk.payments import PaymentActionResponse
 
 
-class RefundResponse(PaymentResponse):
+class RefundResponse(PaymentActionResponse):
     def __init__(self, api_response):
         super().__init__(api_response)
 

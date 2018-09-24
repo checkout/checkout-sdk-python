@@ -65,14 +65,14 @@ class UtilsTests(CheckoutSdkTestCase):
     def test_validate_transaction(self):
         try:
             Utils.validate_transaction(
-                100, sdk.Currency.USD, sdk.PaymentType.Recurring)
+                100, sdk.Currency.USD, sdk.PaymentType.Recurring, sdk.ChargeMode.NonThreeD)
         except Exception:
             self.fail(
                 'Utils.validate_transaction raised an exception unexpectedly when using enums.')
 
     def test_validate_transaction_without_enums(self):
         try:
-            Utils.validate_transaction(100, 'eur', 2)
+            Utils.validate_transaction(100, 'eur', 2, 1)
         except Exception:
             self.fail(
                 'Utils.validate_transaction raised an exception unexpectedly when not using enums')
@@ -104,3 +104,20 @@ class UtilsTests(CheckoutSdkTestCase):
     def test_validate_transaction_fails_with_wrong_payment_type_type(self):
         with self.assertRaises(TypeError):
             Utils.validate_transaction(100, 'usd', False)
+
+    def test_validate_transaction_fails_with_bad_charge_mode(self):
+        with self.assertRaises(ValueError):
+            Utils.validate_transaction(100, 'usd', 2, 10)
+
+    def test_validate_transaction_fails_with_wrong_charge_mode_type(self):
+        with self.assertRaises(TypeError):
+            Utils.validate_transaction(100, 'usd', 2, False)
+
+    def test_verify_redirect_flow(self):
+        http_response = {
+            'body': {
+                'redirectUrl': 'http',
+                'id': 'pay_tok_1'
+            }
+        }
+        self.assertTrue(Utils.verify_redirect_flow(http_response))

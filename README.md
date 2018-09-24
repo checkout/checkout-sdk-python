@@ -1,3 +1,9 @@
+> **IMPORTANT**: This is not a release yet and still in development. Please do **not** use this branch for your integration.
+
+> **IMPORTANT**: This is not a release yet and still in development. Please do **not** use this branch for your integration.
+
+> **IMPORTANT**: This is not a release yet and still in development. Please do **not** use this branch for your integration.
+
 # Checkout.com Python SDK
 
 [![Build Status](https://travis-ci.org/checkout/checkout-sdk-python.svg?branch=master)](https://travis-ci.org/checkout/checkout-sdk-python)
