@@ -12,12 +12,12 @@ class PaymentsClient(ApiClient):
                 value=0, currency=sdk.default_currency,
                 payment_type=sdk.default_payment_type,
                 customer=None, track_id=None,
-                # 3D
-                charge_mode=sdk.ChargeMode.NonThreeD,
-                attempt_n3d=False,
                 # Auto Capture
                 auto_capture=sdk.default_auto_capture,
                 auto_capture_delay=sdk.default_auto_capture_delay,
+                # 3D
+                charge_mode=sdk.ChargeMode.NonThreeD,
+                attempt_n3d=False,
                 **kwargs):
 
         payment_source = card or token
