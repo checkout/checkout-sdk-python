@@ -7,6 +7,7 @@ import checkout_sdk as sdk
 
 from checkout_sdk import Utils, errors
 from tests.base import CheckoutSdkTestCase
+from checkout_sdk import HttpResponse
 
 
 class UtilsTests(CheckoutSdkTestCase):
@@ -114,10 +115,8 @@ class UtilsTests(CheckoutSdkTestCase):
             Utils.validate_transaction(100, 'usd', 2, False)
 
     def test_verify_redirect_flow(self):
-        http_response = {
-            'body': {
-                'redirectUrl': 'http',
-                'id': 'pay_tok_1'
-            }
-        }
+        http_response = HttpResponse(200, None, {
+            'redirectUrl': 'http',
+            'id': 'pay_tok_1'
+        }, 0)
         self.assertTrue(Utils.verify_redirect_flow(http_response))
