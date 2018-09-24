@@ -4,9 +4,10 @@ import checkout_sdk
 import pprint
 
 from checkout_sdk import errors, constants
-from checkout_sdk.enums import Currency, PaymentType
+from checkout_sdk.enums import Currency, PaymentType, ChargeMode
 
 EMAIL_REGEX = re.compile(r'^.+@.+$', re.IGNORECASE)
+PAYMENT_TOKEN_REGEX = re.compile(r'^pay_tok_', re.IGNORECASE)
 
 
 class Utils:
@@ -44,7 +45,7 @@ class Utils:
         return EMAIL_REGEX.match(val) is not None
 
     @classmethod
-    def validate_transaction(cls, value, currency=None, payment_type=None):
+    def validate_transaction(cls, value, currency=None, payment_type=None, charge_mode=None):
         if value is None or (type(value) is int and value < 0):
             raise ValueError('Value must be greater or equal to zero.')
         if type(value) is not int:
@@ -58,9 +59,20 @@ class Utils:
             raise ValueError('Invalid payment type.')
         if payment_type is not None and not (isinstance(payment_type, PaymentType) or type(payment_type) is int):
             raise TypeError(
-                'Payment type should be of the correct enum type or a string.')
+                'Payment type should be of the correct enum type or an integer.')
+        if charge_mode is not None and type(charge_mode) is int and not ChargeMode.has_value(charge_mode):
+            raise ValueError('Invalid charge mode.')
+        if charge_mode is not None and not (isinstance(charge_mode, ChargeMode) or type(charge_mode) is int):
+            raise TypeError(
+                'Charge mode should be of the correct enum type or an integer.')
 
     @classmethod
     def mask_pan(cls, pan):
         left, right = (6, 4)
         return pan[0:left].ljust(len(pan)-right, '*')+pan[-right:]
+
+    @classmethod
+    def verify_redirect_flow(cls, http_response):
+        # this is how a 3D response is detected currently
+        return http_response.body.get('redirectUrl') is not None \
+            and PAYMENT_TOKEN_REGEX.match(http_response.body.get('id')) is not None
