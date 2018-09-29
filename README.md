@@ -99,7 +99,7 @@ try:
         card = {
             'number': '4242424242424242',
             'expiryMonth': 6,
-            'expiryear': 2025,
+            'expiryYear': 2025,
             'cvv': '100'
         },
         value=100,
@@ -125,7 +125,7 @@ try:
         card = {
             'number': '4242424242424242',
             'expiryMonth': 6,
-            'expiryear': 2025,
+            'expiryYear': 2025,
             'cvv': '100'
         },
         value=5000,
