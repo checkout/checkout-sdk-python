@@ -6,10 +6,12 @@ import json
 import checkout_sdk as sdk
 
 from checkout_sdk import HttpClient, Config, Utils
-from checkout_sdk.payments import PaymentsClient
-from checkout_sdk.payments import PaymentResponse
 from tests.base import CheckoutSdkTestCase
 from enum import Enum
+
+from checkout_sdk.payments import PaymentsClient, PaymentResponse
+from checkout_sdk.payments import PaymentSource, CardSource, Customer, ThreeDS
+from checkout_sdk.common import Address, Phone
 
 
 class PaymentsClientTests(CheckoutSdkTestCase):
@@ -26,6 +28,59 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         with self.assertRaises(TypeError):
             PaymentResponse(False)
 
+    def test_payments_client_full_card_auth_request_with_classes(self):
+        response = self.client.request_new(
+            source=CardSource(
+                number='4242424242424242',
+                expiry_month=9,
+                expiry_year=2025,
+                cvv='100',
+                billing_address=Address(
+                    address_line1='1 New Street',
+                    city='London',
+                    zip='W1'
+                ),
+                phone=Phone(
+                    country_code='+44',
+                    number='7900900900'
+                )
+            ),
+            amount=1000,
+            currency=sdk.Currency.USD,
+            payment_type=sdk.PaymentType.Regular,
+            reference='REF_X01',
+            customer=Customer(email='riaz@bordie.com', name='Jeff Bridges'),
+            threeds=True
+        )
+
+        """
+        response = self.client.request_new(
+            source={
+                'type': 'card',
+                'number': '4242424242424242',
+                'expiry_month': 9,
+                'expiry_year': 2025,
+                'cvv': '956',
+                'billing_address': {
+                    'address_line1': '1 New Street',
+                    'city': 'London',
+                    'zip': 'W1'
+                },
+                'phone': {
+                    'country_code': '+44',
+                    'number': '7900900900'
+                }
+            },
+            amount=1000,
+            currency=sdk.Currency.USD,
+            payment_type=sdk.PaymentType.Regular
+        )
+        """
+
+        print(response.body)
+
+
+"""
     def test_payments_client_full_card_auth_request(self):
         payment = self.auth_card()
 
@@ -204,3 +259,4 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         )
 
         return payment
+"""

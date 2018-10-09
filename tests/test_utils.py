@@ -73,7 +73,7 @@ class UtilsTests(CheckoutSdkTestCase):
 
     def test_validate_transaction_without_enums(self):
         try:
-            Utils.validate_transaction(100, 'eur', 2, 1)
+            Utils.validate_transaction(100, 'eur', 'Regular', 1)
         except Exception:
             self.fail(
                 'Utils.validate_transaction raised an exception unexpectedly when not using enums')
@@ -100,7 +100,7 @@ class UtilsTests(CheckoutSdkTestCase):
 
     def test_validate_transaction_fails_with_bad_payment_type(self):
         with self.assertRaises(ValueError):
-            Utils.validate_transaction(100, 'usd', 5)
+            Utils.validate_transaction(100, 'usd', 'invalid')
 
     def test_validate_transaction_fails_with_wrong_payment_type_type(self):
         with self.assertRaises(TypeError):
@@ -108,7 +108,7 @@ class UtilsTests(CheckoutSdkTestCase):
 
     def test_validate_transaction_fails_with_bad_charge_mode(self):
         with self.assertRaises(ValueError):
-            Utils.validate_transaction(100, 'usd', 2, 10)
+            Utils.validate_transaction(100, 'usd', 'Regular', 10)
 
     def test_validate_transaction_fails_with_wrong_charge_mode_type(self):
         with self.assertRaises(TypeError):

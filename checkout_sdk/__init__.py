@@ -9,8 +9,7 @@ name = "checkout_sdk"
 from checkout_sdk.enums import Currency, ChargeMode, HttpMethod, PaymentType
 
 default_currency = None
-default_auto_capture = True
-default_auto_capture_delay = 0  # valid: 0 - 168 (hours)
+default_capture = True
 default_payment_type = PaymentType.Regular
 
 # logging

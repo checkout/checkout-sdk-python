@@ -1,10 +1,36 @@
 import checkout_sdk as sdk
 
 from checkout_sdk import ApiClient, Utils, HttpMethod
+from checkout_sdk.common import DTO
 from checkout_sdk.payments import PaymentProcessed, ThreeDSResponse, CaptureResponse, VoidResponse, RefundResponse
 
 
 class PaymentsClient(ApiClient):
+    def request_new(self,
+                    source, amount=0, currency=sdk.default_currency,
+                    payment_type=sdk.default_payment_type,
+                    customer=None, reference=None,
+                    capture=sdk.default_capture,
+                    capture_on=None,
+                    threeds=None
+                    ):
+        request = {
+            'source': source.get_dict() if isinstance(source, DTO) else source,
+            'amount': amount,
+            'currency': currency if not isinstance(currency, sdk.Currency) else currency.value,
+            'payment_type': payment_type if not isinstance(payment_type, sdk.PaymentType) else payment_type.value,
+            'reference': reference,
+            'customer': customer.get_dict() if isinstance(customer, DTO) else customer,
+            'capture': capture,
+            'capture_on': capture_on,
+            '3ds': threeds.get_dict() if isinstance(threeds, DTO) else threeds
+        }
+
+        http_response = self._send_http_request(
+            'payments', HttpMethod.POST, request)
+
+        return http_response
+
     def request(self,
                 # Source
                 card=None, token=None,
@@ -13,8 +39,8 @@ class PaymentsClient(ApiClient):
                 payment_type=sdk.default_payment_type,
                 customer=None, track_id=None,
                 # Auto Capture
-                auto_capture=sdk.default_auto_capture,
-                auto_capture_delay=sdk.default_auto_capture_delay,
+                auto_capture=sdk.default_capture,
+                auto_capture_delay=0,
                 # 3D
                 charge_mode=sdk.ChargeMode.NonThreeD,
                 attempt_n3d=False,
@@ -63,7 +89,7 @@ class PaymentsClient(ApiClient):
         # add remaining properties
         request.update(kwargs)
 
-        http_response = self._send_http_request('charges/card' if card is not None else 'charges/token',
+        http_response = self._send_http_request('payments' if card is not None else 'charges/token',
                                                 HttpMethod.POST, request)
 
         if Utils.verify_redirect_flow(http_response):

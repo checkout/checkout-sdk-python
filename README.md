@@ -1,7 +1,7 @@
 # Checkout.com Python SDK
 
-[![Build Status](https://travis-ci.org/checkout/checkout-sdk-python.svg?branch=master)](https://travis-ci.org/checkout/checkout-sdk-python)
-[![codecov](https://codecov.io/gh/checkout/checkout-sdk-python/branch/master/graph/badge.svg)](https://codecov.io/gh/checkout/checkout-sdk-python)
+[![Build Status](https://travis-ci.org/checkout/checkout-sdk-python.svg?branch=dev-unified-payments)](https://travis-ci.org/checkout/checkout-sdk-python)
+[![codecov](https://codecov.io/gh/checkout/checkout-sdk-python/branch/dev-unified-payments/graph/badge.svg)](https://codecov.io/gh/checkout/checkout-sdk-python)
 
 ## Installation
 

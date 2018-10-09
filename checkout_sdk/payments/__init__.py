@@ -6,3 +6,9 @@ from checkout_sdk.payments.capture_response import CaptureResponse
 from checkout_sdk.payments.void_response import VoidResponse
 from checkout_sdk.payments.refund_response import RefundResponse
 from checkout_sdk.payments.payments_client import PaymentsClient
+# sources
+from checkout_sdk.payments.payment_source import PaymentSource
+from checkout_sdk.payments.card_source import CardSource
+# dto
+from checkout_sdk.payments.customer import Customer
+from checkout_sdk.payments.threeds import ThreeDS

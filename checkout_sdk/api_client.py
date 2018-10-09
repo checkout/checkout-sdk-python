@@ -15,8 +15,8 @@ class ApiClient:
         self._http_client = http_client
 
     def _send_http_request(self, url, method, request=None):
-        if request:
-            request = self._convert_json_case(request)
+        # if request:
+        #   request = self._convert_json_case(request)
 
         response = self._http_client.send(url, method, request)
         self._log_info(response)        # http status, elapsed

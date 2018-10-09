@@ -55,11 +55,11 @@ class Utils:
         if currency is not None and not (isinstance(currency, Currency) or type(currency) is str):
             raise TypeError(
                 'Currency should be of the correct enum type or a string.')
-        if payment_type is not None and type(payment_type) is int and not PaymentType.has_value(payment_type):
+        if payment_type is not None and type(payment_type) is str and not PaymentType.has_value(payment_type):
             raise ValueError('Invalid payment type.')
-        if payment_type is not None and not (isinstance(payment_type, PaymentType) or type(payment_type) is int):
+        if payment_type is not None and not (isinstance(payment_type, PaymentType) or type(payment_type) is str):
             raise TypeError(
-                'Payment type should be of the correct enum type or an integer.')
+                'Payment type should be of the correct enum type or a string.')
         if charge_mode is not None and type(charge_mode) is int and not ChargeMode.has_value(charge_mode):
             raise ValueError('Invalid charge mode.')
         if charge_mode is not None and not (isinstance(charge_mode, ChargeMode) or type(charge_mode) is int):
