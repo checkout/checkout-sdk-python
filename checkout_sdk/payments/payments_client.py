@@ -2,18 +2,47 @@ import checkout_sdk as sdk
 
 from checkout_sdk import ApiClient, Utils, HttpMethod
 from checkout_sdk.common import DTO
-from checkout_sdk.payments import PaymentProcessed, ThreeDSResponse, CaptureResponse, VoidResponse, RefundResponse
+from checkout_sdk.payments import PaymentProcessed, PaymentPending, CaptureResponse, VoidResponse, RefundResponse, PaymentSource, Customer, ThreeDS
 
 
 class PaymentsClient(ApiClient):
-    def request_new(self,
-                    source, amount=0, currency=sdk.default_currency,
-                    payment_type=sdk.default_payment_type,
-                    customer=None, reference=None,
-                    capture=sdk.default_capture,
-                    capture_on=None,
-                    threeds=None
-                    ):
+    def request(self,
+                # Source
+                source,
+                # Transaction
+                amount=0, currency=sdk.default_currency,
+                payment_type=sdk.default_payment_type,
+                reference=None,
+                # Customer
+                customer=None,
+                # Capture
+                capture=sdk.default_capture,
+                capture_on=None,
+                # 3DS
+                threeds=None,
+                # Misc
+                **kwargs
+                ):
+
+        source_type = source.type if isinstance(
+            source, PaymentSource) else source.get('type', 'unknown')
+
+        self._log_info('Auth {} - {}{} - {}'.format(source_type, amount,
+                                                    currency, reference if reference else '<no reference>'))
+
+        Utils.validate_dynamic_attribute(attribute=source, clazz=PaymentSource,
+                                         type_err_msg='Invalid payment source.',
+                                         missing_value_err_msg='Payment source missing.')
+        Utils.validate_transaction(
+            amount=amount, currency=currency, payment_type=payment_type, reference=reference)
+        Utils.validate_dynamic_attribute(attribute=customer, clazz=Customer,
+                                         type_err_msg='Invalid customer.')
+        """
+        Todo: REINSTATE AFTER 3DS RELEASE
+        Utils.validate_dynamic_attribute(
+            threeds, clazz=ThreeDS, type_err_msg='Invalid 3DS.')
+        """
+
         request = {
             'source': source.get_dict() if isinstance(source, DTO) else source,
             'amount': amount,
@@ -26,74 +55,14 @@ class PaymentsClient(ApiClient):
             '3ds': threeds.get_dict() if isinstance(threeds, DTO) else threeds
         }
 
-        http_response = self._send_http_request(
-            'payments', HttpMethod.POST, request)
-
-        return http_response
-
-    def request(self,
-                # Source
-                card=None, token=None,
-                # Transaction
-                value=0, currency=sdk.default_currency,
-                payment_type=sdk.default_payment_type,
-                customer=None, track_id=None,
-                # Auto Capture
-                auto_capture=sdk.default_capture,
-                auto_capture_delay=0,
-                # 3D
-                charge_mode=sdk.ChargeMode.NonThreeD,
-                attempt_n3d=False,
-                **kwargs):
-
-        payment_source = card or token
-
-        # card can be a dictionary and need the JSON case converted, if needed, before being validated
-        if isinstance(card, dict):
-            card = self._convert_json_case(card)
-            # change payment source to a masked PAN
-            payment_source = Utils.mask_pan(card['number'])
-
-        self._log_info(
-            'Auth {} - {}{} - {}'.format(payment_source, value, currency, track_id if track_id else '<no track id>'))
-
-        Utils.validate_payment_source(card=card, token=token)
-        Utils.validate_transaction(
-            value=value, currency=currency, payment_type=payment_type, charge_mode=charge_mode)
-        Utils.validate_customer(customer=customer)
-
-        request = {
-            'value': value,
-            'currency': currency if not isinstance(currency, sdk.Currency) else currency.value,
-            'trackId': track_id,
-            'transactionIndicator': payment_type if not isinstance(payment_type, sdk.PaymentType) else payment_type.value,
-            'chargeMode': charge_mode if not isinstance(charge_mode, sdk.ChargeMode) else charge_mode.value,
-            'attemptN3D': attempt_n3d,
-            'autoCapture': 'Y' if auto_capture else 'N',
-            'autoCapTime': auto_capture_delay
-        }
-
-        if card:
-            if isinstance(card, dict):
-                request['card'] = card
-            else:
-                request['cardId'] = card
-        else:
-            request['cardToken'] = token
-
-        if Utils.is_email(customer):
-            request['email'] = customer
-        else:
-            request['customerId'] = customer
-
         # add remaining properties
         request.update(kwargs)
 
-        http_response = self._send_http_request('payments' if card is not None else 'charges/token',
-                                                HttpMethod.POST, request)
+        http_response = self._send_http_request(
+            'payments', HttpMethod.POST, request)
 
-        if Utils.verify_redirect_flow(http_response):
-            return ThreeDSResponse(http_response)
+        if Utils.is_pending_flow(http_response):
+            return PaymentPending(http_response)
         else:
             return PaymentProcessed(http_response)
 
@@ -124,7 +93,7 @@ class PaymentsClient(ApiClient):
         }
 
         if value is not None:
-            Utils.validate_transaction(value=value)
+            Utils.validate_transaction(amount=value)
             request['value'] = value
 
         # add remaining properties

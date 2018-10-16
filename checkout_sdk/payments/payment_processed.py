@@ -5,10 +5,6 @@ from checkout_sdk.common import Card
 class PaymentProcessed(PaymentActionResponse):
     def __init__(self, api_response):
         super().__init__(api_response)
-        self._card = Card(api_response.body['card'])
-        # customer name is not currently returned from an Auth response
-        # self._customer = Customer(
-        #    id=api_response.body['card']['customerId'], email=api_response.body['email'])
 
     @property
     def charge_mode(self):
@@ -17,10 +13,6 @@ class PaymentProcessed(PaymentActionResponse):
     @property
     def auth_code(self):
         return self._response.body['authCode']
-
-    @property
-    def card(self):
-        return self._card
 
     """
     @property

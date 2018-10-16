@@ -5,9 +5,11 @@ import json
 
 import checkout_sdk as sdk
 
-from checkout_sdk import Utils, errors
+from http import HTTPStatus
 from tests.base import CheckoutSdkTestCase
-from checkout_sdk import HttpResponse
+from checkout_sdk import Utils, errors
+from checkout_sdk.common import HttpResponse
+from checkout_sdk.payments import Customer
 
 
 class UtilsTests(CheckoutSdkTestCase):
@@ -29,66 +31,57 @@ class UtilsTests(CheckoutSdkTestCase):
         with self.assertRaises(TypeError):
             Utils.validate_id(self.INVALID_ID)
 
-    def test_validate_payment_source_card(self):
+    def test_validate_dynamic_attribute_dict(self):
         try:
-            Utils.validate_payment_source(self.VALID_ID)
+            Utils.validate_dynamic_attribute({
+                'key': 'value'
+            }, None, None)
         except Exception:
             self.fail(
-                'Utils.validate_payment_source raised an exception unexpectedly for a valid card source.')
+                'Utils.validate_dynamic_attribute raised an exception unexpectedly for a dictionary.')
 
-    def test_validate_payment_source_token(self):
+    def test_validate_dynamic_attribute_class(self):
         try:
-            Utils.validate_payment_source(None, self.VALID_ID)
+            Utils.validate_dynamic_attribute(Customer(), Customer, None)
         except Exception:
             self.fail(
-                'Utils.validate_payment_source raised an exception unexpectedly for a valid token.')
+                'Utils.validate_dynamic_attribute raised an exception unexpectedly for a valid class.')
 
-    def test_validate_payment_source_with_missing_source(self):
+    def test_validate_dynamic_attribute_with_missing_value(self):
         with self.assertRaises(ValueError):
-            Utils.validate_payment_source(None, None)
+            Utils.validate_dynamic_attribute(None, None, None, 'value error')
 
-    def test_validate_payment_source_card_id_fails(self):
+    def test_validate_dynamic_attribute_with_wrong_type(self):
         with self.assertRaises(TypeError):
-            Utils.validate_payment_source(self.INVALID_ID)
-
-    def test_validate_payment_source_token_fails(self):
-        with self.assertRaises(TypeError):
-            Utils.validate_payment_source(None, self.INVALID_ID)
-
-    def test_validate_customer_with_missing_id(self):
-        with self.assertRaises(ValueError):
-            Utils.validate_customer(None)
-
-    def test_validate_customer_with_wrong_id_type(self):
-        with self.assertRaises(TypeError):
-            Utils.validate_customer(self.INVALID_ID)
+            Utils.validate_dynamic_attribute(
+                False, Customer, 'type error')
 
     def test_validate_transaction(self):
         try:
             Utils.validate_transaction(
-                100, sdk.Currency.USD, sdk.PaymentType.Recurring, sdk.ChargeMode.NonThreeD)
+                100, sdk.Currency.USD, sdk.PaymentType.Recurring)
         except Exception:
             self.fail(
                 'Utils.validate_transaction raised an exception unexpectedly when using enums.')
 
     def test_validate_transaction_without_enums(self):
         try:
-            Utils.validate_transaction(100, 'eur', 'Regular', 1)
+            Utils.validate_transaction(100, 'eur', 'Regular')
         except Exception:
             self.fail(
                 'Utils.validate_transaction raised an exception unexpectedly when not using enums')
 
-    def test_validate_transaction_fails_with_missing_value(self):
+    def test_validate_transaction_fails_with_missing_amount(self):
         with self.assertRaises(ValueError):
             Utils.validate_transaction(None)
 
-    def test_validate_transaction_fails_with_negative_value(self):
+    def test_validate_transaction_fails_with_negative_amount(self):
         with self.assertRaises(ValueError):
             Utils.validate_transaction(-5)
 
-    def test_validate_transaction_fails_with_wrong_value_type(self):
+    def test_validate_transaction_fails_with_wrong_amount_type(self):
         with self.assertRaises(TypeError):
-            Utils.validate_transaction('value')
+            Utils.validate_transaction('amount')
 
     def test_validate_transaction_fails_with_bad_currency(self):
         with self.assertRaises(ValueError):
@@ -106,17 +99,10 @@ class UtilsTests(CheckoutSdkTestCase):
         with self.assertRaises(TypeError):
             Utils.validate_transaction(100, 'usd', False)
 
-    def test_validate_transaction_fails_with_bad_charge_mode(self):
-        with self.assertRaises(ValueError):
-            Utils.validate_transaction(100, 'usd', 'Regular', 10)
-
-    def test_validate_transaction_fails_with_wrong_charge_mode_type(self):
+    def test_validate_transaction_fails_with_wrong_payment_reference_type(self):
         with self.assertRaises(TypeError):
             Utils.validate_transaction(100, 'usd', 2, False)
 
-    def test_verify_redirect_flow(self):
-        http_response = HttpResponse(200, None, {
-            'redirectUrl': 'http',
-            'id': 'pay_tok_1'
-        }, 0)
-        self.assertTrue(Utils.verify_redirect_flow(http_response))
+    def test_is_pending_flow(self):
+        http_response = HttpResponse(HTTPStatus.ACCEPTED, None, {}, 0)
+        self.assertTrue(Utils.is_pending_flow(http_response))

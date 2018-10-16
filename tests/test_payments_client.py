@@ -9,8 +9,8 @@ from checkout_sdk import HttpClient, Config, Utils
 from tests.base import CheckoutSdkTestCase
 from enum import Enum
 
-from checkout_sdk.payments import PaymentsClient, PaymentResponse
-from checkout_sdk.payments import PaymentSource, CardSource, Customer, ThreeDS
+from checkout_sdk.payments import PaymentsClient, PaymentResponse, PaymentPending
+from checkout_sdk.payments import CardSource, Customer, ThreeDS, ThreeDSEnrollment
 from checkout_sdk.common import Address, Phone
 
 
@@ -28,8 +28,8 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         with self.assertRaises(TypeError):
             PaymentResponse(False)
 
-    def test_payments_client_full_card_auth_request_with_classes(self):
-        response = self.client.request_new(
+    def test_payments_client_full_card_3d_auth_request_with_classes(self):
+        response = self.client.request(
             source=CardSource(
                 number='4242424242424242',
                 expiry_month=9,
@@ -49,18 +49,36 @@ class PaymentsClientTests(CheckoutSdkTestCase):
             currency=sdk.Currency.USD,
             payment_type=sdk.PaymentType.Regular,
             reference='REF_X01',
-            customer=Customer(email='riaz@bordie.com', name='Jeff Bridges'),
-            threeds=True
+            customer=Customer(email='test@user.com', name='Test User'),
+            threeds=ThreeDS(enabled=True)
         )
 
-        """
-        response = self.client.request_new(
+        self.assertTrue(isinstance(response, PaymentPending))
+        # Resource
+        self.assertTrue(response.links is not None and len(response.links) > 0)
+        # PaymentResponse
+        self.assertTrue(type(response.id) is str)
+        self.assertTrue(type(response.reference) is str)
+        self.assertTrue(type(response.status) is str)
+        self.assertTrue(response.is_pending)
+        # PaymentPending
+        self.assertTrue(isinstance(response.customer, Customer))
+        self.assertTrue(type(response.customer.id) is str)
+        self.assertTrue(response.customer.name == 'Test User')
+        self.assertTrue(response.customer.email == 'test@user.com')
+        # 3DS
+        self.assertTrue(isinstance(response.threeds, ThreeDSEnrollment))
+        self.assertTrue(response.requires_redirect)
+        self.assertTrue(response.redirect_link is not None)
+
+    def test_payments_client_full_card_3d_auth_request_with_dictionary(self):
+        response = self.client.request(
             source={
                 'type': 'card',
                 'number': '4242424242424242',
                 'expiry_month': 9,
                 'expiry_year': 2025,
-                'cvv': '956',
+                'cvv': '100',
                 'billing_address': {
                     'address_line1': '1 New Street',
                     'city': 'London',
@@ -73,11 +91,24 @@ class PaymentsClientTests(CheckoutSdkTestCase):
             },
             amount=1000,
             currency=sdk.Currency.USD,
-            payment_type=sdk.PaymentType.Regular
+            threeds=ThreeDS(enabled=True)
         )
-        """
 
-        print(response.body)
+        self.assertTrue(isinstance(response, PaymentPending))
+        # Resource
+        self.assertTrue(response.links is not None and len(response.links) > 0)
+        # PaymentResponse
+        self.assertTrue(type(response.id) is str)
+        self.assertIsNone(response.reference)
+        self.assertTrue(type(response.status) is str)
+        self.assertTrue(response.is_pending)
+        # PaymentPending
+        self.assertTrue(isinstance(response.customer, Customer))
+        self.assertTrue(type(response.customer.id) is str)
+        # 3DS
+        self.assertTrue(isinstance(response.threeds, ThreeDSEnrollment))
+        self.assertTrue(response.requires_redirect)
+        self.assertTrue(response.redirect_link is not None)
 
 
 """
