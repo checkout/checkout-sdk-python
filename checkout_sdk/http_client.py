@@ -1,7 +1,8 @@
 import requests
 import time
 
-from checkout_sdk import errors, constants, HttpResponse, HttpMethod
+from checkout_sdk import errors, constants, HttpMethod
+from checkout_sdk.common import HttpResponse
 from urllib.parse import urljoin
 
 http_headers_default = {

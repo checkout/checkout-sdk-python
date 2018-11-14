@@ -6,8 +6,7 @@ import json
 import checkout_sdk as sdk
 
 from checkout_sdk import HttpClient, Config, Utils
-from checkout_sdk.payments import PaymentsClient
-from checkout_sdk.payments import PaymentResponse
+from checkout_sdk.payments import PaymentsClient, PaymentResponse
 from tests.base import CheckoutSdkTestCase
 from enum import Enum
 
