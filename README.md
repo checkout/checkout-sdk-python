@@ -55,7 +55,7 @@ sdk.default_payment_type = sdk.PaymentType.Regular
 ``` python
 try:
     payment = api.payments.request(
-        card = {
+        card={
             'number': '4242424242424242',
             'expiryMonth': 6,
             'expiry_year': 2025,                        # snake_case is auto converted
@@ -78,7 +78,7 @@ except sdk.errors.CheckoutSdkError as e:
 ``` python
 try:
     payment = api.payments.request(
-        card = 'card_713A3978-AFB2-4D30-BF9A-BA55714DC309',
+        card='card_713A3978-AFB2-4D30-BF9A-BA55714DC309',
         value=100,                                      # cents
         currency=sdk.Currency.USD,                      # or 'usd'
         customer='customer@email.com'
@@ -96,7 +96,7 @@ except sdk.errors.CheckoutSdkError as e:
 ``` python
 try:
     payment = api.payments.request(
-        card = {
+        card={
             'number': '4242424242424242',
             'expiryMonth': 6,
             'expiryYear': 2025,
@@ -122,7 +122,7 @@ except sdk.errors.CheckoutSdkError as e:
 ``` python
 try:
     payment = api.payments.request(
-        card = {
+        card={
             'number': '4242424242424242',
             'expiryMonth': 6,
             'expiryYear': 2025,
