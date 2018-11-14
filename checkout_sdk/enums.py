@@ -19,6 +19,7 @@ class PaymentType(ExtendedEnum):
 class ChargeMode(ExtendedEnum):
     NonThreeD = 1
     ThreeDS = 2
+    APM = 3
 
 
 class HttpMethod(ExtendedEnum):
