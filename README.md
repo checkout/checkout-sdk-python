@@ -55,7 +55,7 @@ sdk.default_payment_type = sdk.PaymentType.Regular
 ``` python
 try:
     payment = api.payments.request(
-        card = {
+        card={
             'number': '4242424242424242',
             'expiryMonth': 6,
             'expiry_year': 2025,                        # snake_case is auto converted
@@ -78,7 +78,7 @@ except sdk.errors.CheckoutSdkError as e:
 ``` python
 try:
     payment = api.payments.request(
-        card = 'card_713A3978-AFB2-4D30-BF9A-BA55714DC309',
+        card='card_713A3978-AFB2-4D30-BF9A-BA55714DC309',
         value=100,                                      # cents
         currency=sdk.Currency.USD,                      # or 'usd'
         customer='customer@email.com'
@@ -96,7 +96,7 @@ except sdk.errors.CheckoutSdkError as e:
 ``` python
 try:
     payment = api.payments.request(
-        card = {
+        card={
             'number': '4242424242424242',
             'expiryMonth': 6,
             'expiryYear': 2025,
@@ -122,7 +122,7 @@ except sdk.errors.CheckoutSdkError as e:
 ``` python
 try:
     payment = api.payments.request(
-        card = {
+        card={
             'number': '4242424242424242',
             'expiryMonth': 6,
             'expiryYear': 2025,
@@ -156,6 +156,37 @@ class ApiError(CheckoutSdkError):                       # 500 / fallback
 ```
 
 > The SDK will not do any offline validation of card data, IDs, etc. Provided the values and types are correct, all business validations are handled at API level. On that note, expect `ValueError` and `TypeError` for incorrect usage.
+
+#### Handling API Validation Exceptions
+
+API Response
+
+``` json
+{
+    "eventId": "00000000-0000-0000-0000-000000000000",
+    "errorCode": "70000",
+    "message": "Validation error",
+    "errorMessageCodes": [
+        "70034",
+        "70013"
+    ],
+    "errors": [
+        "Invalid card id",
+        "Invalid customer id"
+    ]
+}
+```
+
+Exception Handling
+
+``` python
+except sdk.errors.BadRequestError as e:
+    if e.validation_error:                              # error_code == 70000
+        print(e.errors)                                 # dictionary { msg_code: msg }
+        for msg_code in e.errors:
+            print(msg_code)                             # e.g. 70034
+            print(e.errors[msg_code])                   # e.g. Invalid card id
+```
 
 ### Logging
 

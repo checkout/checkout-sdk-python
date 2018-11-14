@@ -2,13 +2,20 @@ from checkout_sdk import constants
 
 
 class CheckoutSdkError(Exception):
-    def __init__(self, event_id=None, http_status=None, error_code=None, message=None, elapsed=0):
+    def __init__(self,
+                 event_id=None,
+                 http_status=None,
+                 error_code=None,
+                 message=None,
+                 elapsed=0,
+                 json=None):
         super().__init__(message)
         self.event_id = event_id
         self.http_status = http_status
         self.error_code = error_code
         self.message = message
         self.elapsed = elapsed
+        self.json = json
 
     def __str__(self):
         return '{} - {}'.format(self.event_id, self.message)
@@ -27,9 +34,23 @@ class BadRequestError(CheckoutSdkError):
             'message', 'Bad request. Check for possible validation error.')
         super().__init__(message=message, **kwargs)
 
+        self._errors = {}
+        if self.json is not None:
+            error_message_codes = self.json.get('errorMessageCodes', [])
+            errors = self.json.get('errors', [])
+            index = 0
+            for code in error_message_codes:
+                self._errors[code] = errors[index] if index < len(
+                    errors) else ''
+                index = index + 1
+
     @property
     def validation_error(self):
         return self.error_code == constants.VALIDATION_ERROR_CODE
+
+    @property
+    def errors(self):
+        return self._errors
 
 
 class ResourceNotFoundError(CheckoutSdkError):

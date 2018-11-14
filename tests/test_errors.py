@@ -31,10 +31,28 @@ class ErrorsTests(CheckoutSdkTestCase):
     def test_init_bad_request_error(self):
         bad_request_error = errors.BadRequestError(
             message='bad request',
-            error_code=constants.VALIDATION_ERROR_CODE
+            error_code=constants.VALIDATION_ERROR_CODE,
+            json={
+                "errorCode": "70000",
+                "message": "Validation error",
+                "errorMessageCodes": [
+                    "001",
+                    "002",
+                    "003"
+                ],
+                "errors": [
+                    "Validation error 1",
+                    "Validation error 2"
+                ]
+            }
         )
         self.assertEqual(bad_request_error.message, 'bad request')
         self.assertTrue(bad_request_error.validation_error)
+        self.assertTrue(
+            bad_request_error.errors['001'] == 'Validation error 1')
+        self.assertTrue(
+            bad_request_error.errors['002'] == 'Validation error 2')
+        self.assertTrue(bad_request_error.errors['003'] == '')
 
     def test_init_authentication_error(self):
         error = errors.AuthenticationError()
