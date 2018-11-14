@@ -61,7 +61,7 @@ try:
             'expiry_year': 2025,                        # snake_case is auto converted
             'cvv': '100'
         },
-        value=100, # cents
+        value=100,                                      # cents
         currency=sdk.Currency.USD,                      # or 'usd'
         customer='customer@email.com'
     )
@@ -142,6 +142,25 @@ except sdk.errors.CheckoutSdkError as e:
 ```
 
 > **Important**: Value needs to be set to `5000` to simulate a `20153` response code on the Sandbox environment, which will then attempt an N3D charge.
+
+### Tokens
+
+#### Payment Token Request
+
+``` python
+try:
+    token = api.tokens.request_payment_token(
+        value=100,                                      # cents
+        currency=sdk.Currency.USD,                      # or 'usd'
+        track_id='001'
+    )
+    print(token.id)
+    print(payment.http_response.body)                   # JSON body
+except sdk.errors.CheckoutSdkError as e:
+    print('{0.http_status} {0.error_code} {0.elapsed} {0.event_id} // {0.message}'.format(e))
+```
+
+> **Important**: The SDK only support payment token creation at present and intended for Checkout.js merchants.
 
 ### Exception handling
 
