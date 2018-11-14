@@ -1,4 +1,4 @@
-from checkout_sdk.common import DTO
+from checkout_sdk.common import RequestDTO
 from checkout_sdk.payments import PaymentSource
 
 
@@ -19,6 +19,6 @@ class CardSource(PaymentSource):
     def get_dict(self):
         return {
             **self.__dict__,
-            'billing_address': self.billing_address.get_dict() if isinstance(self.billing_address, DTO) else self.billing_address,
-            'phone': self.phone.get_dict() if isinstance(self.phone, DTO) else self.phone
+            'billing_address': self.billing_address.get_dict() if isinstance(self.billing_address, RequestDTO) else self.billing_address,
+            'phone': self.phone.get_dict() if isinstance(self.phone, RequestDTO) else self.phone
         }

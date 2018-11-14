@@ -1,8 +1,8 @@
 import checkout_sdk as sdk
 
 from checkout_sdk import ApiClient, Utils, HttpMethod
-from checkout_sdk.common import DTO
-from checkout_sdk.payments import PaymentProcessed, PaymentPending, CaptureResponse, VoidResponse, RefundResponse, PaymentSource, Customer, ThreeDS
+from checkout_sdk.common import RequestDTO
+from checkout_sdk.payments import PaymentProcessed, PaymentPending, CaptureResponse, VoidResponse, RefundResponse, PaymentSource, CustomerRequest, ThreeDS
 
 
 class PaymentsClient(ApiClient):
@@ -35,24 +35,21 @@ class PaymentsClient(ApiClient):
                                          missing_value_err_msg='Payment source missing.')
         Utils.validate_transaction(
             amount=amount, currency=currency, payment_type=payment_type, reference=reference)
-        Utils.validate_dynamic_attribute(attribute=customer, clazz=Customer,
+        Utils.validate_dynamic_attribute(attribute=customer, clazz=CustomerRequest,
                                          type_err_msg='Invalid customer.')
-        """
-        Todo: REINSTATE AFTER 3DS RELEASE
-        Utils.validate_dynamic_attribute(
-            threeds, clazz=ThreeDS, type_err_msg='Invalid 3DS.')
-        """
+
+        threeds = Utils.validate_and_set_threeds(threeds=threeds)
 
         request = {
-            'source': source.get_dict() if isinstance(source, DTO) else source,
+            'source': source.get_dict() if isinstance(source, RequestDTO) else source,
             'amount': amount,
             'currency': currency if not isinstance(currency, sdk.Currency) else currency.value,
             'payment_type': payment_type if not isinstance(payment_type, sdk.PaymentType) else payment_type.value,
             'reference': reference,
-            'customer': customer.get_dict() if isinstance(customer, DTO) else customer,
+            'customer': customer.get_dict() if isinstance(customer, RequestDTO) else customer,
             'capture': capture,
             'capture_on': capture_on,
-            '3ds': threeds.get_dict() if isinstance(threeds, DTO) else threeds
+            '3ds': threeds.get_dict() if isinstance(threeds, RequestDTO) else threeds
         }
 
         # add remaining properties
@@ -64,6 +61,7 @@ class PaymentsClient(ApiClient):
         if Utils.is_pending_flow(http_response):
             return PaymentPending(http_response)
         else:
+            print(http_response.body)
             return PaymentProcessed(http_response)
 
     def capture(self, id, value=None, track_id=None, **kwargs):

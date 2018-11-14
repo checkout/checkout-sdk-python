@@ -3,7 +3,7 @@ from checkout_sdk.common import Resource
 from checkout_sdk import Utils
 
 
-class PaymentResponse(Resource):
+class Payment(Resource):
     @property
     def id(self):
         return self._response.body.get('id')

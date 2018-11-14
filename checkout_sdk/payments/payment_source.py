@@ -1,6 +1,6 @@
-from checkout_sdk.common import DTO
+from checkout_sdk.common import RequestDTO
 
 
-class PaymentSource(DTO):
+class PaymentSource(RequestDTO):
     def __init__(self, type):
         self.type = type

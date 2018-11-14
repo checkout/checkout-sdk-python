@@ -1,0 +1,2 @@
+class Capture():
+    pass

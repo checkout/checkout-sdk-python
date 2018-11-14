@@ -1,7 +1,7 @@
-from checkout_sdk.common import DTO
+from checkout_sdk.common import RequestDTO
 
 
-class ThreeDS(DTO):
+class ThreeDS(RequestDTO):
     def __init__(self, enabled=False, attempt_n3d=False, eci=None, cryptogram=None, xid=None):
         self.enabled = enabled
         self.attempt_n3d = attempt_n3d

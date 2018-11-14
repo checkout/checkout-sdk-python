@@ -1,5 +1,5 @@
 from checkout_sdk import Utils
-from checkout_sdk.common import HttpResponse
+from checkout_sdk.common import HttpResponse, Link
 
 
 class Resource:
@@ -8,7 +8,12 @@ class Resource:
             raise TypeError(
                 'api_response must be a valid instance of HttpResponse')
         self._response = api_response
-        self._links = self._response.body['_links']
+
+        self._links = {}
+        links = self._response.body['_links']
+        for key in links:
+            self._links[key] = Link(links[key].get(
+                'href'), links[key].get('title'))
 
     @property
     def http_response(self):

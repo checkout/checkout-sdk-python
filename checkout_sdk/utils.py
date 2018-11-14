@@ -6,6 +6,7 @@ import pprint
 from http import HTTPStatus
 from checkout_sdk import errors, constants
 from checkout_sdk.enums import Currency, PaymentType, ChargeMode
+from checkout_sdk.payments import ThreeDS
 
 
 EMAIL_REGEX = re.compile(r'^.+@.+$', re.IGNORECASE)
@@ -49,6 +50,16 @@ class Utils:
                 'Payment type should be of the correct enum type or a string.')
         if reference is not None and type(reference) is not str:
             raise TypeError('Reference must be a string.')
+
+    @classmethod
+    def validate_and_set_threeds(cls, threeds):
+        # some sugar on ThreeDS
+        if type(threeds) is bool:
+            return ThreeDS(enabled=threeds)
+        else:
+            cls.validate_dynamic_attribute(
+                threeds, clazz=ThreeDS, type_err_msg='Invalid 3DS.')
+            return threeds
 
     @classmethod
     def mask_pan(cls, pan):

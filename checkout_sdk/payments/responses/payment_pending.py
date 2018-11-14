@@ -1,9 +1,7 @@
-import checkout_sdk as sdk
-
-from checkout_sdk.payments import PaymentResponse, Customer, ThreeDSEnrollment
+from checkout_sdk.payments.responses import Payment, Customer, ThreeDSEnrollment
 
 
-class PaymentPending(PaymentResponse):
+class PaymentPending(Payment):
     def __init__(self, api_response):
         super().__init__(api_response)
 
@@ -23,7 +21,7 @@ class PaymentPending(PaymentResponse):
                 signature_valid=threeds.get('signature_valid'),
                 authentication_response=threeds.get('authentication_response'),
                 eci=threeds.get('eci'),
-                cavv=threeds.get('cavv'),
+                cryptogram=threeds.get('cavv'),
                 xid=threeds.get('xid')
             )
 
