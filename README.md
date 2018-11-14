@@ -157,6 +157,37 @@ class ApiError(CheckoutSdkError):                       # 500 / fallback
 
 > The SDK will not do any offline validation of card data, IDs, etc. Provided the values and types are correct, all business validations are handled at API level. On that note, expect `ValueError` and `TypeError` for incorrect usage.
 
+#### Handling API Validation Exceptions
+
+API Response
+
+``` json
+{
+    "eventId": "00000000-0000-0000-0000-000000000000",
+    "errorCode": "70000",
+    "message": "Validation error",
+    "errorMessageCodes": [
+        "70034",
+        "70013"
+    ],
+    "errors": [
+        "Invalid card id",
+        "Invalid customer id"
+    ]
+}
+```
+
+Exception Handling
+
+``` python
+except sdk.errors.BadRequestError as e:
+    if e.validation_error:                              # error_code == 70000
+        print(e.errors)                                 # dictionary { msg_code: msg }
+        for msg_code in e.errors:
+            print(msg_code)                             # e.g. 70034
+            print(e.errors[msg_code])                   # e.g. Invalid card id
+```
+
 ### Logging
 
 ```python

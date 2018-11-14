@@ -68,7 +68,11 @@ class HttpClient:
                 422: lambda: errors.TooManyRequestsError,
                 500: lambda: errors.ApiError
             }
-            jsonResponse = e.response.json()
+            try:
+                jsonResponse = e.response.json()
+            except ValueError:
+                jsonResponse = None
+
             errorCls = status_code_switch.get(e.response.status_code,
                                               errors.ApiError)()
             raise errorCls(
@@ -76,7 +80,8 @@ class HttpClient:
                 http_status=e.response.status_code,
                 error_code=jsonResponse['errorCode'],
                 message=jsonResponse['message'],
-                elapsed=elapsed)
+                elapsed=elapsed,
+                json=jsonResponse)
         except requests.exceptions.Timeout as e:
             elapsed = time.time() - start
             raise errors.Timeout(elapsed=elapsed)
