@@ -152,15 +152,17 @@ try:
     token = api.tokens.request_payment_token(
         value=100,                                      # cents
         currency=sdk.Currency.USD,                      # or 'usd'
-        track_id='001'
+        track_id='001',
+        success_url='http://success.com',
+        fail_url='http://retry.com'
     )
     print(token.id)
-    print(payment.http_response.body)                   # JSON body
+    print(token.http_response.body)                   # JSON body
 except sdk.errors.CheckoutSdkError as e:
     print('{0.http_status} {0.error_code} {0.elapsed} {0.event_id} // {0.message}'.format(e))
 ```
 
-> **Important**: The SDK only support payment token creation at present and intended for Checkout.js merchants.
+> **Important**: The SDK only support payment token creation at present and intended for Alternative Payment Methods via Checkout.js.
 
 ### Exception handling
 
