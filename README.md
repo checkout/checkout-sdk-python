@@ -157,7 +157,7 @@ try:
         fail_url='http://retry.com'
     )
     print(token.id)
-    print(token.http_response.body)                   # JSON body
+    print(token.http_response.body)                     # JSON body
 except sdk.errors.CheckoutSdkError as e:
     print('{0.http_status} {0.error_code} {0.elapsed} {0.event_id} // {0.message}'.format(e))
 ```
