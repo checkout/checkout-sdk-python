@@ -7,7 +7,7 @@ import checkout_sdk as sdk
 
 from checkout_sdk import Utils, errors
 from tests.base import CheckoutSdkTestCase
-from checkout_sdk import HttpResponse
+from checkout_sdk.common import HttpResponse
 
 
 class UtilsTests(CheckoutSdkTestCase):

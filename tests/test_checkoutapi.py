@@ -6,6 +6,7 @@ import json
 import checkout_sdk as sdk
 from checkout_sdk import HttpClient
 from checkout_sdk.payments import PaymentsClient
+from checkout_sdk.tokens import TokensClient
 from tests.base import CheckoutSdkTestCase
 
 
@@ -15,4 +16,5 @@ class CheckoutApiTests(CheckoutSdkTestCase):
         api = sdk.get_api()
 
         self.assertTrue(isinstance(api.payments, PaymentsClient))
+        self.assertTrue(isinstance(api.tokens, TokensClient))
         self.assertTrue(isinstance(api.payments._http_client, HttpClient))
