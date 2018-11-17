@@ -10,7 +10,7 @@ from tests.base import CheckoutSdkTestCase
 from enum import Enum
 
 from checkout_sdk.payments import PaymentsClient, CardSource, Customer, ThreeDS
-from checkout_sdk.payments.responses import ThreeDSEnrollment, Payment, PaymentPending, PaymentProcessed
+from checkout_sdk.payments.responses import ThreeDSEnrollment, Customer as CustomerResponse, Payment, PaymentPending, PaymentProcessed
 from checkout_sdk.common import Address, Phone
 
 
@@ -33,7 +33,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
 
         self.assert_payment_response(payment, PaymentPending, True)
         # PaymentPending
-        self.assertTrue(isinstance(payment.customer, Customer))
+        self.assertTrue(isinstance(payment.customer, CustomerResponse))
         self.assertTrue(type(payment.customer.id) is str)
         self.assertTrue(payment.customer.name == 'Test User')
         self.assertTrue(payment.customer.email == 'test@user.com')
