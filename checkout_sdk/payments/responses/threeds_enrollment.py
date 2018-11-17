@@ -1,7 +1,4 @@
-from checkout_sdk.common import RequestDTO
-
-
-class ThreeDSEnrollment(RequestDTO):
+class ThreeDSEnrollment:
     def __init__(self,
                  downgraded, enrolled, signature_valid,
                  authentication_response, eci, cryptogram, xid):

@@ -1,6 +1,6 @@
 from checkout_sdk.common import Resource
 
-from checkout_sdk import Utils
+from checkout_sdk.payments import PaymentHelper
 
 
 class Payment(Resource):
@@ -18,4 +18,4 @@ class Payment(Resource):
 
     @property
     def is_pending(self):
-        return Utils.is_pending_flow(self._response)
+        return PaymentHelper.is_pending_flow(self._response)

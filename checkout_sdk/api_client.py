@@ -10,7 +10,7 @@ class ApiClient:
 
     def _send_http_request(self, url, method, request=None):
         response = self._http_client.send(url, method, request)
-        self._log_info(response)        # http status, elapsed
+        self._log_info(response)  # http status, elapsed
         self._log_debug('HTTP response:\n'+pprint.pformat(response.body))
         return response
 

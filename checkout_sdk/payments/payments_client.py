@@ -1,8 +1,9 @@
 import checkout_sdk as sdk
 
-from checkout_sdk import ApiClient, Utils, HttpMethod
+from checkout_sdk import ApiClient, HttpMethod, Utils
 from checkout_sdk.common import RequestDTO
-from checkout_sdk.payments import PaymentProcessed, PaymentPending, CaptureResponse, VoidResponse, RefundResponse, PaymentSource, CustomerRequest, ThreeDS
+from checkout_sdk.payments import PaymentHelper, PaymentSource, Customer, ThreeDS
+from checkout_sdk.payments.responses import PaymentProcessed, PaymentPending, Capture, Void, Refund
 
 
 class PaymentsClient(ApiClient):
@@ -33,12 +34,12 @@ class PaymentsClient(ApiClient):
         Utils.validate_dynamic_attribute(attribute=source, clazz=PaymentSource,
                                          type_err_msg='Invalid payment source.',
                                          missing_value_err_msg='Payment source missing.')
-        Utils.validate_transaction(
+        PaymentHelper.validate_transaction(
             amount=amount, currency=currency, payment_type=payment_type, reference=reference)
-        Utils.validate_dynamic_attribute(attribute=customer, clazz=CustomerRequest,
+        Utils.validate_dynamic_attribute(attribute=customer, clazz=Customer,
                                          type_err_msg='Invalid customer.')
 
-        threeds = Utils.validate_and_set_threeds(threeds=threeds)
+        threeds = PaymentHelper.validate_and_set_threeds(threeds=threeds)
 
         request = {
             'source': source.get_dict() if isinstance(source, RequestDTO) else source,
@@ -58,20 +59,20 @@ class PaymentsClient(ApiClient):
         http_response = self._send_http_request(
             'payments', HttpMethod.POST, request)
 
-        if Utils.is_pending_flow(http_response):
+        if PaymentHelper.is_pending_flow(http_response):
             return PaymentPending(http_response)
         else:
             print(http_response.body)
             return PaymentProcessed(http_response)
 
     def capture(self, id, value=None, track_id=None, **kwargs):
-        return CaptureResponse(self._getPaymentActionResponse(id, 'capture', value, track_id, **kwargs))
+        return Capture(self._getPaymentActionResponse(id, 'capture', value, track_id, **kwargs))
 
     def void(self, id, track_id=None, **kwargs):
-        return VoidResponse(self._getPaymentActionResponse(id, 'void', None, track_id, **kwargs))
+        return Void(self._getPaymentActionResponse(id, 'void', None, track_id, **kwargs))
 
     def refund(self, id, value=None, track_id=None, **kwargs):
-        return RefundResponse(self._getPaymentActionResponse(id, 'refund', value, track_id, **kwargs))
+        return Refund(self._getPaymentActionResponse(id, 'refund', value, track_id, **kwargs))
 
     def get(self, id):
         self._log_info('Get {}'.format(id))
@@ -91,7 +92,7 @@ class PaymentsClient(ApiClient):
         }
 
         if value is not None:
-            Utils.validate_transaction(amount=value)
+            PaymentHelper.validate_transaction(amount=value)
             request['value'] = value
 
         # add remaining properties

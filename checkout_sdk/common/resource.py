@@ -1,4 +1,3 @@
-from checkout_sdk import Utils
 from checkout_sdk.common import HttpResponse, Link
 
 
