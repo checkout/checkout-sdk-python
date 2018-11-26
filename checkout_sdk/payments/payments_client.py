@@ -1,7 +1,14 @@
 import checkout_sdk as sdk
 
 from checkout_sdk import ApiClient, Utils, HttpMethod
-from checkout_sdk.payments import PaymentProcessed, ThreeDSResponse, CaptureResponse, VoidResponse, RefundResponse
+from checkout_sdk.payments import (
+    PaymentHistory,
+    PaymentProcessed,
+    ThreeDSResponse,
+    CaptureResponse,
+    VoidResponse,
+    RefundResponse
+)
 
 
 class PaymentsClient(ApiClient):
@@ -40,7 +47,8 @@ class PaymentsClient(ApiClient):
             'value': value,
             'currency': currency if not isinstance(currency, sdk.Currency) else currency.value,
             'trackId': track_id,
-            'transactionIndicator': payment_type if not isinstance(payment_type, sdk.PaymentType) else payment_type.value,
+            'transactionIndicator': payment_type if not isinstance(payment_type,
+                                                                   sdk.PaymentType) else payment_type.value,
             'chargeMode': charge_mode if not isinstance(charge_mode, sdk.ChargeMode) else charge_mode.value,
             'attemptN3D': attempt_n3d,
             'autoCapture': 'Y' if auto_capture else 'N',
@@ -86,6 +94,13 @@ class PaymentsClient(ApiClient):
         Utils.validate_id(id)
 
         return PaymentProcessed(self._send_http_request('charges/{}'.format(id), HttpMethod.GET))
+
+    def history(self, id):
+        self._log_info('Getting charge history for {}'.format(id))
+
+        Utils.validate_id(id)
+
+        return PaymentHistory(self._send_http_request('charges/{}/history'.format(id), HttpMethod.GET))
 
     def _getPaymentActionResponse(self, id, action, value, track_id, **kwargs):
         self._log_info('{} - {} - {}'.format(action.capitalize(), id,
