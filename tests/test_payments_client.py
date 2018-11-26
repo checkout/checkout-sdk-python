@@ -2,6 +2,7 @@ import unittest
 import os
 import tests
 import json
+import logging
 
 import checkout_sdk as sdk
 
@@ -14,7 +15,7 @@ from enum import Enum
 class PaymentsClientTests(CheckoutSdkTestCase):
     def setUp(self):
         super().setUp()
-        self.http_client = HttpClient(Config())
+        self.http_client = HttpClient(Config(secret_key="sk_test_4576e25e-1e16-49a7-8f85-e91c3291fc09"))
         self.client = PaymentsClient(self.http_client)
 
     def tearDown(self):
@@ -84,6 +85,13 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         self.assertEqual(response.http_response.status, 200)
         self.assertEqual(payment.id, response.id)
         # TODO: improve test to compare all GET value with previous Auth response values
+
+    def test_payments_history_response(self):
+        payment = self.auth_card()
+        # history on the previous auth request
+        response = self.client.history(payment.id)
+
+        self.assertEqual(response.http_response.status, 200)
 
     def test_payments_client_capture_full_amount_request(self):
         payment = self.auth_card(value=150)
