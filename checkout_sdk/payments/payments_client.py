@@ -62,7 +62,6 @@ class PaymentsClient(ApiClient):
         if PaymentHelper.is_pending_flow(http_response):
             return PaymentPending(http_response)
         else:
-            print(http_response.body)
             return PaymentProcessed(http_response)
 
     def capture(self, id, value=None, track_id=None, **kwargs):

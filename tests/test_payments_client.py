@@ -28,6 +28,16 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         with self.assertRaises(TypeError):
             Payment(False)
 
+    def test_payments_client_full_card_non_3ds_auth_request_with_classes(self):
+        payment = self.auth_card()
+
+        self.assert_payment_response(payment, PaymentProcessed, False)
+        # PaymentProcessed
+        self.assertTrue(isinstance(payment.customer, CustomerResponse))
+        self.assertTrue(type(payment.customer.id) is str)
+        self.assertTrue(payment.customer.name == 'Test User')
+        self.assertTrue(payment.customer.email == 'test@user.com')
+
     def test_payments_client_full_card_3ds_auth_request_with_classes(self):
         payment = self.auth_card(True)
 
