@@ -12,7 +12,3 @@ class ApiResponse:
     def http_response(self):
         """Http response with status, headers, JSON body and elapsed time (ms)."""
         return self._response
-
-    @property
-    def id(self):
-        return self._response.body['id']

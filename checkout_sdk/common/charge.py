@@ -1,52 +1,43 @@
 class Charge:
     def __init__(self, charge):
-        self._id = charge['id']
-        self._chargeMode = charge['chargeMode']
-        self._created = charge['created']
-        self._email = charge['email']
-        self._liveMode = charge['liveMode']
-        self._status = charge['status']
-        self._trackId = charge['trackId']
-        self._value = charge['value']
-        self._currency = charge['currency']
-        self._responseCode = charge['responseCode']
+        self._charge = charge
 
     @property
     def id(self):
-        return self._id
+        return self._charge['id']
 
     @property
-    def chargeMode(self):
-        return self._chargeMode
+    def charge_mode(self):
+        return self._charge['chargeMode']
 
     @property
     def created(self):
-        return self._created
+        return self._charge['created']
 
     @property
     def email(self):
-        return self._email
+        return self._charge['email']
 
     @property
-    def liveMode(self):
-        return self._liveMode
+    def live_mode(self):
+        return self._charge['liveMode']
 
     @property
     def status(self):
-        return self._status
+        return self._charge['status']
 
     @property
-    def trackId(self):
-        return self._trackId
+    def track_id(self):
+        return self._charge['trackId']
 
     @property
     def value(self):
-        return self._value
+        return self._charge['value']
 
     @property
     def currency(self):
-        return self._currency
+        return self._charge['currency']
 
     @property
-    def responseCode(self):
-        return self._responseCode
+    def response_code(self):
+        return self._charge['responseCode']

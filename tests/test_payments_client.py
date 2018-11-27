@@ -89,9 +89,26 @@ class PaymentsClientTests(CheckoutSdkTestCase):
     def test_payments_history_response(self):
         payment = self.auth_card()
         # history on the previous auth request
-        response = self.client.history(payment.id)
+        history = self.client.history(payment.id)
+        self.assertEqual(history.http_response.status, 200)
+        self.assertTrue(len(history.charges) == 1)
 
-        self.assertEqual(response.http_response.status, 200)
+        self.assertIsNotNone(history.charges[0].id)
+        self.assertEqual(history.charges[0].value, 100)
+        self.assertEqual(history.charges[0].currency, 'USD')
+        self.assertIsNotNone(history.charges[0].created)
+        self.assertIsNotNone(history.charges[0].track_id)
+        self.assertIsNotNone(history.charges[0].email)
+        self.assertIsNotNone(history.charges[0].status)
+        self.assertIsNotNone(history.charges[0].response_code)
+
+        # history after capture
+        capture = self.client.capture(payment.id)
+        self.assertEqual(capture.http_response.status, 200)
+
+        history = self.client.history(payment.id)
+        self.assertEqual(history.http_response.status, 200)
+        self.assertTrue(len(history.charges) == 2)
 
     def test_payments_client_capture_full_amount_request(self):
         payment = self.auth_card(value=150)
