@@ -15,7 +15,7 @@ from enum import Enum
 class PaymentsClientTests(CheckoutSdkTestCase):
     def setUp(self):
         super().setUp()
-        self.http_client = HttpClient(Config(secret_key="sk_test_4576e25e-1e16-49a7-8f85-e91c3291fc09"))
+        self.http_client = HttpClient(Config())
         self.client = PaymentsClient(self.http_client)
 
     def tearDown(self):
