@@ -1,32 +1,40 @@
 class Card:
     def __init__(self, card):
-        self._id = card['id']
-        self._scheme = card['paymentMethod']
-        self._expiryMonth = card['expiryMonth']
-        self._expiryYear = card['expiryYear']
-        self._last4 = card['last4']
-        self._name = card['name']
+        self._card = card
 
     @property
     def id(self):
-        return self._id
+        return self._card['id']
 
     @property
     def scheme(self):
-        return self._scheme
+        return self._card['paymentMethod']
 
     @property
     def last4(self):
-        return self._last4
+        return self._card['last4']
 
     @property
-    def expiryMonth(self):
-        return self._expiryMonth
+    def expiry_month(self):
+        return self._card['expiryMonth']
 
     @property
-    def expiryYear(self):
-        return self._expiryYear
+    def expiry_year(self):
+        return self._card['expiryYear']
 
     @property
     def name(self):
-        return self._name
+        return self._card['name']
+
+    """
+    ******************************************************************
+    BACKWARDS COMPATIBILITY - Please use the snake_case versions above
+    ******************************************************************
+    """
+    @property
+    def expiryMonth(self):
+        return self._card['expiryMonth']
+
+    @property
+    def expiryYear(self):
+        return self._card['expiryYear']
