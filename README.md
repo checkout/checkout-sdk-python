@@ -100,6 +100,8 @@ try:
         print(charge.id)
         print(charge.created)
         print(charge.response_code)
+except sdk.errors.CheckoutSdkError as e:
+    print('{0.http_status} {0.error_code} {0.elapsed} {0.event_id} // {0.message}'.format(e))
 ```
 
 See [payment_history.py](https://github.com/checkout/checkout-sdk-python/blob/master/checkout_sdk/payments/payment_history.py) and [charge.py](https://github.com/checkout/checkout-sdk-python/blob/master/checkout_sdk/common/charge.py) for more info.
