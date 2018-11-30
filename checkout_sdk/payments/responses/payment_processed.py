@@ -4,7 +4,7 @@ from checkout_sdk.payments.responses import Payment
 
 class PaymentProcessed(Payment):
     def __init__(self, api_response):
-        super().__init__(api_response)
+        super().__init__(api_response, is_pending=False)
 
         self._processed_on = parser.parse(
             self._response.body.get('processed_on'))

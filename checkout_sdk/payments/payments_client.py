@@ -1,9 +1,17 @@
-import checkout_sdk as sdk
+from http import HTTPStatus
 
-from checkout_sdk import ApiClient, HttpMethod, Utils
+import checkout_sdk as sdk
+from checkout_sdk import ApiClient, HttpMethod, Validator
 from checkout_sdk.common import RequestDTO
-from checkout_sdk.payments import PaymentHelper, PaymentSource, Customer, ThreeDS
-from checkout_sdk.payments.responses import PaymentProcessed, PaymentPending, Capture, Void, Refund
+from checkout_sdk.payments import PaymentSource, Customer, ThreeDS
+from checkout_sdk.payments.responses import (
+    Payment,
+    PaymentProcessed,
+    PaymentPending,
+    Capture,
+    Void,
+    Refund
+)
 
 
 class PaymentsClient(ApiClient):
@@ -31,15 +39,16 @@ class PaymentsClient(ApiClient):
         self._log_info('Auth {} - {}{} - {}'.format(source_type, amount,
                                                     currency, reference if reference else '<no reference>'))
 
-        Utils.validate_dynamic_attribute(attribute=source, clazz=PaymentSource,
-                                         type_err_msg='Invalid payment source.',
-                                         missing_value_err_msg='Payment source missing.')
-        PaymentHelper.validate_transaction(
+        Validator.validate_dynamic_attribute(attribute=source, clazz=PaymentSource,
+                                             type_err_msg='Invalid payment source.',
+                                             missing_value_err_msg='Payment source missing.')
+        Validator.validate_transaction(
             amount=amount, currency=currency, payment_type=payment_type, reference=reference)
-        Utils.validate_dynamic_attribute(attribute=customer, clazz=Customer,
-                                         type_err_msg='Invalid customer.')
+        Validator.validate_dynamic_attribute(attribute=customer, clazz=Customer,
+                                             type_err_msg='Invalid customer.')
 
-        threeds = PaymentHelper.validate_and_set_threeds(threeds=threeds)
+        threeds = Validator.validate_and_set_boolean_shortcut(
+            threeds, ThreeDS, 'Invalid 3DS.')
 
         request = {
             'source': source.get_dict() if isinstance(source, RequestDTO) else source,
@@ -59,7 +68,7 @@ class PaymentsClient(ApiClient):
         http_response = self._send_http_request(
             'payments', HttpMethod.POST, request)
 
-        if PaymentHelper.is_pending_flow(http_response):
+        if http_response.status == HTTPStatus.ACCEPTED:
             return PaymentPending(http_response)
         else:
             return PaymentProcessed(http_response)
@@ -76,7 +85,7 @@ class PaymentsClient(ApiClient):
     def get(self, id):
         self._log_info('Get {}'.format(id))
 
-        Utils.validate_id(id)
+        Validator.validate_id(id)
 
         return PaymentProcessed(self._send_http_request('charges/{}'.format(id), HttpMethod.GET))
 
@@ -84,14 +93,14 @@ class PaymentsClient(ApiClient):
         self._log_info('{} - {} - {}'.format(action.capitalize(), id,
                                              track_id if track_id else '<no track id>'))
 
-        Utils.validate_id(id)
+        Validator.validate_id(id)
 
         request = {
             'trackId': track_id
         }
 
         if value is not None:
-            PaymentHelper.validate_transaction(amount=value)
+            Validator.validate_transaction(amount=value)
             request['value'] = value
 
         # add remaining properties

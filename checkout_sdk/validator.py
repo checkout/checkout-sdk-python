@@ -5,11 +5,17 @@ import pprint
 
 from http import HTTPStatus
 from checkout_sdk import errors, constants
-from checkout_sdk import Currency, PaymentType, ChargeMode, Utils
-from checkout_sdk.payments import ThreeDS
+from checkout_sdk import Currency, PaymentType, ChargeMode
 
 
-class PaymentHelper:
+class Validator:
+    @classmethod
+    def validate_id(cls, id):
+        if id is None:
+            raise ValueError('Invalid Id.')
+        if type(id) is not str:
+            raise TypeError('Id should be of string type.')
+
     @classmethod
     def validate_transaction(cls, amount, currency=None, payment_type=None, reference=None):
         if amount is None or (type(amount) is int and amount < 0):
@@ -29,16 +35,20 @@ class PaymentHelper:
         if reference is not None and type(reference) is not str:
             raise TypeError('Reference must be a string.')
 
+    # Some classes can be set via a bool value as shortcut
     @classmethod
-    def validate_and_set_threeds(cls, threeds):
-        # some sugar on ThreeDS
-        if type(threeds) is bool:
-            return ThreeDS(enabled=threeds)
+    def validate_and_set_boolean_shortcut(cls, attribute, clazz, type_err_msg):
+        if type(attribute) is bool:
+            return clazz(enabled=attribute)
         else:
-            Utils.validate_dynamic_attribute(
-                threeds, clazz=ThreeDS, type_err_msg='Invalid 3DS.')
-            return threeds
+            cls.validate_dynamic_attribute(
+                attribute, clazz=clazz, type_err_msg=type_err_msg)
+            return attribute
 
     @classmethod
-    def is_pending_flow(cls, http_response):
-        return http_response.status == HTTPStatus.ACCEPTED
+    def validate_dynamic_attribute(cls, attribute, clazz, type_err_msg, missing_value_err_msg=None):
+        if missing_value_err_msg is not None and attribute is None:
+            raise ValueError(missing_value_err_msg)
+        if attribute is not None and not (isinstance(attribute, dict) or isinstance(attribute, clazz)):
+            raise TypeError(
+                '{} Please provide a dictionary or valid class instance.'.format(type_err_msg))

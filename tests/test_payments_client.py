@@ -9,8 +9,19 @@ from checkout_sdk import HttpClient, Config, HttpMethod
 from tests.base import CheckoutSdkTestCase
 from enum import Enum
 
-from checkout_sdk.payments import PaymentsClient, CardSource, Customer, ThreeDS
-from checkout_sdk.payments.responses import ThreeDSEnrollment, Customer as CustomerResponse, Payment, PaymentPending, PaymentProcessed
+from checkout_sdk.payments import (
+    PaymentsClient,
+    CardSource,
+    Customer,
+    ThreeDS
+)
+from checkout_sdk.payments.responses import (
+    ThreeDSEnrollment,
+    Customer as CustomerResponse,
+    Payment,
+    PaymentPending,
+    PaymentProcessed
+)
 from checkout_sdk.common import Address, Phone
 
 
@@ -26,7 +37,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
 
     def test_bad_payment_response_init(self):
         with self.assertRaises(TypeError):
-            Payment(False)
+            Payment(None, None)
 
     def test_payments_client_full_card_non_3ds_auth_request_with_classes(self):
         payment = self.auth_card()

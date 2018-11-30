@@ -3,7 +3,7 @@ from checkout_sdk.payments.responses import Payment, Customer, ThreeDSEnrollment
 
 class PaymentPending(Payment):
     def __init__(self, api_response):
-        super().__init__(api_response)
+        super().__init__(api_response, is_pending=True)
 
         customer = api_response.body.get('customer')
         if customer is not None:

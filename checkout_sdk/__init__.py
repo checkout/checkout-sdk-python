@@ -31,7 +31,7 @@ if env_logging_level in logging_levels.keys():
 
 from checkout_sdk import constants
 from checkout_sdk.config import Config
-from checkout_sdk.utils import Utils
+from checkout_sdk.validator import Validator
 
 from checkout_sdk.http_client import HttpClient
 from checkout_sdk.api_client import ApiClient
