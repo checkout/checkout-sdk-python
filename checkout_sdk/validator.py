@@ -6,6 +6,7 @@ import pprint
 from http import HTTPStatus
 from checkout_sdk import errors, constants
 from checkout_sdk import Currency, PaymentType, ChargeMode
+from checkout_sdk.common import RequestDTO
 
 
 class Validator:
@@ -35,20 +36,26 @@ class Validator:
         if reference is not None and type(reference) is not str:
             raise TypeError('Reference must be a string.')
 
-    # Some classes can be set via a bool value as shortcut
     @classmethod
-    def validate_and_set_boolean_shortcut(cls, attribute, clazz, type_err_msg):
-        if type(attribute) is bool:
-            return clazz(enabled=attribute)
-        else:
-            cls.validate_dynamic_attribute(
-                attribute, clazz=clazz, type_err_msg=type_err_msg)
-            return attribute
+    def validate_and_set_dynamic_attribute(cls, arg, clazz, allow_boolean,
+                                           type_err_msg, missing_arg_err_msg=None):
+        if arg is None and missing_arg_err_msg is not None:
+            raise ValueError(missing_arg_err_msg)
 
-    @classmethod
-    def validate_dynamic_attribute(cls, attribute, clazz, type_err_msg, missing_value_err_msg=None):
-        if missing_value_err_msg is not None and attribute is None:
-            raise ValueError(missing_value_err_msg)
-        if attribute is not None and not (isinstance(attribute, dict) or isinstance(attribute, clazz)):
+        if arg is None or isinstance(arg, dict):
+            return arg
+
+        instance = None
+        if issubclass(clazz, RequestDTO):
+            # Some classes can be set via a bool value as shortcut
+            if allow_boolean and type(arg) is bool:
+                instance = clazz(enabled=arg)
+            elif isinstance(arg, clazz):
+                instance = arg
+
+        if instance is None:
             raise TypeError(
-                '{} Please provide a dictionary or valid class instance.'.format(type_err_msg))
+                '{} Please provide a dictionary or a subclass RequestDTO with matching instance.'
+                .format(type_err_msg))
+
+        return instance.get_dict()

@@ -3,7 +3,7 @@ from http import HTTPStatus
 import checkout_sdk as sdk
 from checkout_sdk import ApiClient, HttpMethod, Validator
 from checkout_sdk.common import RequestDTO
-from checkout_sdk.payments import PaymentSource, Customer, ThreeDS
+from checkout_sdk.payments import PaymentSource, Customer, ThreeDS, Risk
 from checkout_sdk.payments.responses import (
     Payment,
     PaymentProcessed,
@@ -29,6 +29,8 @@ class PaymentsClient(ApiClient):
                 capture_on=None,
                 # 3DS
                 threeds=None,
+                # Risk
+                risk=None,
                 # Misc
                 **kwargs
                 ):
@@ -39,27 +41,34 @@ class PaymentsClient(ApiClient):
         self._log_info('Auth {} - {}{} - {}'.format(source_type, amount,
                                                     currency, reference if reference else '<no reference>'))
 
-        Validator.validate_dynamic_attribute(attribute=source, clazz=PaymentSource,
-                                             type_err_msg='Invalid payment source.',
-                                             missing_value_err_msg='Payment source missing.')
         Validator.validate_transaction(
             amount=amount, currency=currency, payment_type=payment_type, reference=reference)
-        Validator.validate_dynamic_attribute(attribute=customer, clazz=Customer,
-                                             type_err_msg='Invalid customer.')
 
-        threeds = Validator.validate_and_set_boolean_shortcut(
-            threeds, ThreeDS, 'Invalid 3DS.')
+        source = Validator.validate_and_set_dynamic_attribute(
+            arg=source, clazz=PaymentSource, allow_boolean=False,
+            type_err_msg='Invalid payment source.',
+            missing_arg_err_msg='Payment source missing.')
+        customer = Validator.validate_and_set_dynamic_attribute(
+            arg=customer, clazz=Customer, allow_boolean=False,
+            type_err_msg='Invalid customer.')
+        threeds = Validator.validate_and_set_dynamic_attribute(
+            arg=threeds, clazz=ThreeDS, allow_boolean=True,
+            type_err_msg='Invalid 3DS settings.')
+        risk = Validator.validate_and_set_dynamic_attribute(
+            arg=risk, clazz=Risk, allow_boolean=True,
+            type_err_msg='Invalid risk settings.')
 
         request = {
-            'source': source.get_dict() if isinstance(source, RequestDTO) else source,
+            'source': source,
             'amount': amount,
             'currency': currency if not isinstance(currency, sdk.Currency) else currency.value,
             'payment_type': payment_type if not isinstance(payment_type, sdk.PaymentType) else payment_type.value,
             'reference': reference,
-            'customer': customer.get_dict() if isinstance(customer, RequestDTO) else customer,
+            'customer': customer,
             'capture': capture,
             'capture_on': capture_on,
-            '3ds': threeds.get_dict() if isinstance(threeds, RequestDTO) else threeds
+            '3ds': threeds,
+            'risk': risk
         }
 
         # add remaining properties
