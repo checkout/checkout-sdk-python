@@ -8,7 +8,7 @@ import checkout_sdk as sdk
 from http import HTTPStatus
 from tests.base import CheckoutSdkTestCase
 from checkout_sdk import errors, Validator
-from checkout_sdk.common import HttpResponse, Address
+from checkout_sdk.common import HttpResponse, Address, RequestDTO
 
 
 class DynamicClass:
@@ -62,6 +62,7 @@ class ValidatorTests(CheckoutSdkTestCase):
             Validator.validate_and_set_dynamic_attribute(
                 False, Address, False, 'type error')
 
+    """
     def test_validate_and_set_dynamic_attribute_with_boolean_shortcut(self):
         try:
             Validator.validate_and_set_dynamic_attribute(
@@ -69,6 +70,7 @@ class ValidatorTests(CheckoutSdkTestCase):
         except:
             self.fail(
                 'Validator.validate_and_set_dynamic_attribute raised an exception unexpectedly when using a boolean shortcut.')
+    """
 
     def test_validate_transaction(self):
         try:

@@ -1,3 +1,4 @@
+from checkout_sdk import constants
 from checkout_sdk.common import HttpResponse, Link
 
 
@@ -18,6 +19,14 @@ class Resource:
     def http_response(self):
         """Http response with status, headers, JSON body and elapsed time (ms)."""
         return self._response
+
+    @property
+    def request_id(self):
+        return self._response.headers.get(constants.REQUEST_ID_HEADER)
+
+    @property
+    def api_version(self):
+        return self._response.headers.get(constants.API_VERSION_HEADER)
 
     @property
     def links(self):

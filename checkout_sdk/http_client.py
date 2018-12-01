@@ -52,35 +52,36 @@ class HttpClient:
                 json=request,
                 headers=headers,
                 timeout=self.config.timeout/1000)
-            elapsed = '{0:.2f}'.format((time.time() - start)*1000)
+            elapsed = self._calc_elapsed_time(start)
 
             r.raise_for_status()
-            try:
-                body = r.json()
-            except ValueError:
-                body = None
+            body = r.json()
 
             return HttpResponse(r.status_code, r.headers, body, elapsed)
         except requests.exceptions.HTTPError as e:
             status_code_switch = {
-                400: lambda: errors.BadRequestError,
                 401: lambda: errors.AuthenticationError,
                 404: lambda: errors.ResourceNotFoundError,
-                422: lambda: errors.TooManyRequestsError,
-                500: lambda: errors.ApiError
+                422: lambda: errors.ValidationError,
+                429: lambda: errors.TooManyRequestsError
             }
             jsonResponse = e.response.json()
             errorCls = status_code_switch.get(e.response.status_code,
                                               errors.ApiError)()
             raise errorCls(
-                event_id=jsonResponse['eventId'],
+                request_id=e.response.headers.get(
+                    constants.REQUEST_ID_HEADER),
+                api_version=e.response.headers.get(
+                    constants.API_VERSION_HEADER),
                 http_status=e.response.status_code,
-                error_code=jsonResponse['errorCode'],
-                message=jsonResponse['message'],
+                error_type=jsonResponse.get('error_type'),
+                error_codes=jsonResponse.get('error_codes'),
                 elapsed=elapsed)
         except requests.exceptions.Timeout as e:
-            elapsed = time.time() - start
-            raise errors.Timeout(elapsed=elapsed)
+            elapsed = self._calc_elapsed_time(start)
+            raise errors.TimeoutError(elapsed=elapsed)
         except requests.exceptions.RequestException:
-            raise errors.ApiError(
-                message='Unexpected API connection error - please contact support@checkout.com')
+            raise IOError()
+
+    def _calc_elapsed_time(self, start):
+        return '{0:.2f}'.format((time.time() - start)*1000)

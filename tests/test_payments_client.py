@@ -38,7 +38,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
     BILLING_LINE_1 = '1 New Street'
     BILLING_CITY = 'London'
     BILLING_ZIP = 'W1'
-    BILLING_COUNTRY = 'United Kingdom'
+    BILLING_COUNTRY = 'GB'
     PHONE_COUNTRY_CODE = '+44'
     PHONE_NUMBER = '02999999999'
 
@@ -54,7 +54,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
     def test_bad_payment_response_init(self):
         with self.assertRaises(TypeError):
             Payment(None, None)
-
+    """
     def test_payments_client_full_card_non_3ds_auth_request_with_classes(self):
         payment = self.auth_card()
 
@@ -64,30 +64,32 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         self.assertTrue(type(payment.customer.id) is str)
         self.assertTrue(payment.customer.name == self.CUSTOMER_NAME)
         self.assertTrue(payment.customer.email == self.CUSTOMER_EMAIL)
+    """
 
     def test_payments_client_full_card_3ds_auth_request_with_classes(self):
         self.assert_payment_pending_response(self.auth_card(True, False))
-
+    """
     def test_payments_client_full_card_3ds_auth_request_with_dictionary(self):
         self.assert_payment_pending_response(self.auth_card(True, True))
+    """
 
-    def auth_card(self, threeds=False, dict=False):
+    def auth_card(self, threeds=False, dict_format=False):
         return self.client.request(
-            source=self.get_card_source(dict=dict),
+            source=self.get_card_source(dict_format=dict_format),
             amount=self.AMOUNT,
             currency=self.CURRENCY,
             reference=self.REFERENCE,
             customer={
                 'email': self.CUSTOMER_EMAIL,
                 'name': self.CUSTOMER_NAME
-            } if dict else Customer(email=self.CUSTOMER_EMAIL,
-                                    name=self.CUSTOMER_NAME),
+            } if dict_format else Customer(email=self.CUSTOMER_EMAIL,
+                                           name=self.CUSTOMER_NAME),
             threeds={
                 'enabled': True
-            } if dict else threeds
+            } if dict_format else threeds
         )
 
-    def get_card_source(self, dict=False):
+    def get_card_source(self, dict_format=False):
         return {
             'type': 'card',
             'number': self.CARD_NUMBER,
@@ -104,7 +106,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
                 'country_code': self.PHONE_COUNTRY_CODE,
                 'number': self.PHONE_NUMBER
             }
-        } if dict else CardSource(
+        } if dict_format else CardSource(
             number=self.CARD_NUMBER,
             expiry_month=self.CARD_EXPIRY_MONTH,
             expiry_year=self.CARD_EXPIRY_YEAR,
@@ -136,6 +138,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
     def assert_payment_response(self, payment, clazz=Payment, is_pending=False):
         self.assertTrue(isinstance(payment, clazz))
         # Resource
+        self.assertIsNotNone(payment.request_id)
         self.assertTrue(payment.links is not None and len(payment.links) > 0)
         # PaymentResponse
         self.assertTrue(type(payment.id) is str)
