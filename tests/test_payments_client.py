@@ -54,24 +54,17 @@ class PaymentsClientTests(CheckoutSdkTestCase):
     def test_bad_payment_response_init(self):
         with self.assertRaises(TypeError):
             Payment(None, None)
-    """
+
     def test_payments_client_full_card_non_3ds_auth_request_with_classes(self):
         payment = self.auth_card()
-
         self.assert_payment_response(payment, PaymentProcessed, False)
-        # PaymentProcessed
-        self.assertTrue(isinstance(payment.customer, CustomerResponse))
-        self.assertTrue(type(payment.customer.id) is str)
-        self.assertTrue(payment.customer.name == self.CUSTOMER_NAME)
-        self.assertTrue(payment.customer.email == self.CUSTOMER_EMAIL)
-    """
+        self.assert_customer(payment.customer)
 
     def test_payments_client_full_card_3ds_auth_request_with_classes(self):
         self.assert_payment_pending_response(self.auth_card(True, False))
-    """
+
     def test_payments_client_full_card_3ds_auth_request_with_dictionary(self):
         self.assert_payment_pending_response(self.auth_card(True, True))
-    """
 
     def auth_card(self, threeds=False, dict_format=False):
         return self.client.request(
@@ -85,7 +78,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
             } if dict_format else Customer(email=self.CUSTOMER_EMAIL,
                                            name=self.CUSTOMER_NAME),
             threeds={
-                'enabled': True
+                'enabled': threeds
             } if dict_format else threeds
         )
 
@@ -125,11 +118,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
 
     def assert_payment_pending_response(self, payment):
         self.assert_payment_response(payment, PaymentPending, True)
-        # PaymentPending
-        self.assertTrue(isinstance(payment.customer, CustomerResponse))
-        self.assertTrue(type(payment.customer.id) is str)
-        self.assertTrue(payment.customer.name == self.CUSTOMER_NAME)
-        self.assertTrue(payment.customer.email == self.CUSTOMER_EMAIL)
+        self.assert_customer(payment.customer)
         # 3DS
         self.assertTrue(isinstance(payment.threeds, ThreeDSEnrollment))
         self.assertTrue(payment.requires_redirect)
@@ -144,3 +133,9 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         self.assertTrue(type(payment.id) is str)
         self.assertTrue(type(payment.status) is str)
         self.assertTrue(payment.is_pending == is_pending)
+
+    def assert_customer(self, customer):
+        self.assertTrue(isinstance(customer, CustomerResponse))
+        self.assertIsNotNone(customer.id)
+        self.assertTrue(customer.name == self.CUSTOMER_NAME)
+        self.assertTrue(customer.email == self.CUSTOMER_EMAIL)

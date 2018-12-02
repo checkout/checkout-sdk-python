@@ -1,5 +1,6 @@
 from checkout_sdk.payments.responses.payment import Payment
 from checkout_sdk.payments.responses.customer import Customer
+from checkout_sdk.payments.responses.risk_assessment import RiskAssessment
 from checkout_sdk.payments.responses.threeds_enrollment import ThreeDSEnrollment
 
 from checkout_sdk.payments.responses.payment_processed import PaymentProcessed

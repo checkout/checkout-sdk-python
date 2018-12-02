@@ -1,5 +1,5 @@
 from dateutil import parser
-from checkout_sdk.payments.responses import Payment
+from checkout_sdk.payments.responses import Payment, Customer, RiskAssessment
 
 
 class PaymentProcessed(Payment):
@@ -9,6 +9,14 @@ class PaymentProcessed(Payment):
 
         self._processed_on = parser.parse(
             self._response.body.get('processed_on'))
+
+        customer = api_response.body.get('customer')
+        self._customer = Customer(
+            customer) if customer is not None else None
+
+        risk = api_response.body.get('risk')
+        self._risk = RiskAssessment(
+            risk) if risk is not None else None
 
     @property
     def action_id(self):
@@ -41,3 +49,15 @@ class PaymentProcessed(Payment):
     @property
     def response_summary(self):
         return self._response.body.get('response_summary')
+
+    @property
+    def scheme_id(self):
+        return self._response.body.get('scheme_id')
+
+    @property
+    def customer(self):
+        return self._customer
+
+    @property
+    def risk(self):
+        return self._risk

@@ -6,24 +6,12 @@ class PaymentPending(Payment):
         super().__init__(api_response, is_pending=True)
 
         customer = api_response.body.get('customer')
-        if customer is not None:
-            self._customer = Customer(
-                id=customer.get('id'),
-                email=customer.get('email'),
-                name=customer.get('name')
-            )
+        self._customer = Customer(
+            customer) if customer is not None else None
 
         threeds = api_response.body.get('3ds')
-        if threeds is not None:
-            self._threeds = ThreeDSEnrollment(
-                downgraded=threeds.get('downgraded'),
-                enrolled=threeds.get('enrolled'),
-                signature_valid=threeds.get('signature_valid'),
-                authentication_response=threeds.get('authentication_response'),
-                eci=threeds.get('eci'),
-                cryptogram=threeds.get('cavv'),
-                xid=threeds.get('xid')
-            )
+        self._threeds = ThreeDSEnrollment(
+            threeds) if threeds is not None else None
 
     @property
     def customer(self):
