@@ -6,7 +6,7 @@ name = "checkout_sdk"
 
 # defaults
 
-from checkout_sdk.enums import Currency, ChargeMode, HttpMethod, PaymentType
+from checkout_sdk.enums import Currency, HttpMethod, PaymentType
 
 default_currency = None
 default_capture = True

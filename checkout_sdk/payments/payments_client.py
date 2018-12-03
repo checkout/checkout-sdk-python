@@ -3,76 +3,49 @@ from http import HTTPStatus
 import checkout_sdk as sdk
 from checkout_sdk import ApiClient, HttpMethod, Validator
 from checkout_sdk.common import RequestDTO
-from checkout_sdk.payments import PaymentSource, Customer, ThreeDS, Risk
+from checkout_sdk.payments import PaymentSource, Customer
 from checkout_sdk.payments.responses import (
     Payment,
     PaymentProcessed,
-    PaymentPending,
-    Capture,
-    Void,
-    Refund
+    PaymentPending
 )
 
 
 class PaymentsClient(ApiClient):
-    def request(self,
-                # Source
-                source,
-                # Transaction
-                amount=0, currency=sdk.default_currency,
-                payment_type=sdk.default_payment_type,
-                reference=None,
-                # Customer
-                customer=None,
-                # Capture
-                capture=sdk.default_capture,
-                capture_on=None,
-                # 3DS
-                threeds=None,
-                # Risk
-                risk=None,
-                # Misc
-                **kwargs
-                ):
+    def request(self, *args, **kwargs):
+        if len(args) == 1 and isinstance(args[0], dict):
+            # dictionary approach - everything else is ignored
+            request = args[0]
+        else:
+            # parameter approach
+            request = kwargs
 
-        source_type = source.type if isinstance(
-            source, PaymentSource) else source.get('type', 'unknown')
+        # set defaults if attributes are missing
+        self._set_payment_request_defaults(request)
 
-        self._log_info('Auth {} - {}{} - {}'.format(source_type, amount,
-                                                    currency, reference if reference else '<no reference>'))
+        source = request.get('source')
+        amount = request.get('amount')
+        currency = request.get('currency')
+        payment_type = request.get('payment_type')
+        reference = request.get('reference')
+
+        source_type = source.type if isinstance(source, PaymentSource) \
+            else source.get('type', 'unknown') if source is not None else 'unknown'
+
+        self._log_info('Auth {} - {}{} - {}'.format(source_type,
+                                                    amount,
+                                                    currency,
+                                                    reference if reference is not None else '<no reference>'))
 
         Validator.validate_transaction(
-            amount=amount, currency=currency, payment_type=payment_type, reference=reference)
+            amount=amount,
+            currency=currency,
+            payment_type=payment_type,
+            reference=reference
+        )
 
-        source = Validator.validate_and_set_dynamic_attribute(
-            arg=source, clazz=PaymentSource, allow_boolean=False,
-            type_err_msg='Invalid payment source.',
-            missing_arg_err_msg='Payment source missing.')
-        customer = Validator.validate_and_set_dynamic_attribute(
-            arg=customer, clazz=Customer, allow_boolean=False,
-            type_err_msg='Invalid customer.')
-        threeds = Validator.validate_and_set_dynamic_attribute(
-            arg=threeds, clazz=ThreeDS, allow_boolean=True,
-            type_err_msg='Invalid 3DS settings.')
-        risk = Validator.validate_and_set_dynamic_attribute(
-            arg=risk, clazz=Risk, allow_boolean=True,
-            type_err_msg='Invalid risk settings.')
-
-        request = {
-            'source': source,
-            'amount': amount,
-            'currency': currency if not isinstance(currency, sdk.Currency) else currency.value,
-            'payment_type': payment_type if not isinstance(payment_type, sdk.PaymentType) else payment_type.value,
-            'reference': reference,
-            'customer': customer,
-            'capture': capture,
-            'capture_on': capture_on,
-            '3ds': threeds,
-            'risk': risk
-        }
-
-        # add remaining properties
-        request.update(kwargs)
+        # dynamic attributes
+        self._set_payment_request_dynamic_attributes(request)
 
         http_response = self._send_http_request(
             'payments', HttpMethod.POST, request)
@@ -81,6 +54,29 @@ class PaymentsClient(ApiClient):
             return PaymentPending(http_response)
         else:
             return PaymentProcessed(http_response)
+
+    def _set_payment_request_defaults(self, request):
+        request['currency'] = request.get(
+            'currency', sdk.default_currency)
+        request['payment_type'] = request.get(
+            'payment_type', sdk.default_payment_type)
+        request['capture'] = request.get(
+            'capture', sdk.default_capture)
+
+    def _set_payment_request_dynamic_attributes(self, request):
+        request['source'] = Validator.validate_and_set_dynamic_class_attribute(
+            arg=request.get('source'), clazz=PaymentSource,
+            type_err_msg='Invalid payment source.',
+            missing_arg_err_msg='Payment source missing.'
+        )
+        request['customer'] = Validator.validate_and_set_dynamic_class_attribute(
+            arg=request.get('customer'), clazz=Customer,
+            type_err_msg='Invalid customer.')
+        # for 3ds, due to Python name limitations, we try both '3ds' and 'threeds' attribute names
+        request['3ds'] = Validator.validate_and_set_dynamic_boolean_attribute(
+            arg=request.get('threeds', request.get('3ds')), type_err_msg='Invalid 3DS settings.')
+        request['risk'] = Validator.validate_and_set_dynamic_boolean_attribute(
+            arg=request.get('risk'), type_err_msg='Invalid risk settings.')
     """
     def capture(self, id, value=None, track_id=None, **kwargs):
         return Capture(self._getPaymentActionResponse(id, 'capture', value, track_id, **kwargs))

@@ -12,8 +12,7 @@ from enum import Enum
 from checkout_sdk.payments import (
     PaymentsClient,
     CardSource,
-    Customer,
-    ThreeDS
+    Customer
 )
 from checkout_sdk.payments.responses import (
     ThreeDSEnrollment,
@@ -61,7 +60,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         self.assert_customer_is_valid(payment.customer)
         self.asset_source_is_valid(payment.source)
 
-    def test_payments_client_full_card_3ds_auth_request_with_classes(self):
+    def test_payments_client_full_card_3ds_auth_request_with_kwargs(self):
         self.assert_payment_pending_response_is_valid(
             self.auth_card(True, False))
 
@@ -70,20 +69,30 @@ class PaymentsClientTests(CheckoutSdkTestCase):
             self.auth_card(True, True))
 
     def auth_card(self, threeds=False, dict_format=False):
-        return self.client.request(
-            source=self.get_card_source(dict_format=dict_format),
-            amount=self.AMOUNT,
-            currency=self.CURRENCY,
-            reference=self.REFERENCE,
-            customer={
-                'email': self.CUSTOMER_EMAIL,
-                'name': self.CUSTOMER_NAME
-            } if dict_format else Customer(email=self.CUSTOMER_EMAIL,
-                                           name=self.CUSTOMER_NAME),
-            threeds={
-                'enabled': threeds
-            } if dict_format else threeds
-        )
+        if dict_format:
+            return self.client.request({
+                'source': self.get_card_source(dict_format=True),
+                'amount': self.AMOUNT,
+                'currency': self.CURRENCY,
+                'reference': self.REFERENCE,
+                'customer': {
+                    'email': self.CUSTOMER_EMAIL,
+                    'name': self.CUSTOMER_NAME
+                },
+                '3ds': {
+                    'enabled': threeds
+                }
+            })
+        else:
+            return self.client.request(
+                source=self.get_card_source(dict_format=False),
+                amount=self.AMOUNT,
+                currency=self.CURRENCY,
+                reference=self.REFERENCE,
+                customer=Customer(email=self.CUSTOMER_EMAIL,
+                                  name=self.CUSTOMER_NAME),
+                threeds=threeds
+            )
 
     def get_card_source(self, dict_format=False):
         return {

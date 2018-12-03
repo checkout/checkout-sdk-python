@@ -11,11 +11,6 @@ from checkout_sdk import errors, Validator
 from checkout_sdk.common import HttpResponse, Address, RequestDTO
 
 
-class DynamicClass:
-    def __init__(self, enabled):
-        self.enabled = enabled
-
-
 class ValidatorTests(CheckoutSdkTestCase):
     VALID_ID = 'id'
     INVALID_ID = False
@@ -37,40 +32,38 @@ class ValidatorTests(CheckoutSdkTestCase):
 
     def test_validate_and_set_dynamic_attribute_dict(self):
         try:
-            Validator.validate_and_set_dynamic_attribute({
+            Validator.validate_and_set_dynamic_class_attribute({
                 'key': 'value'
-            }, None, False, None)
+            }, None, None)
         except Exception:
             self.fail(
                 'Validator.validate_and_set_dynamic_attribute raised an exception unexpectedly for a dictionary.')
 
     def test_validate_and_set_dynamic_attribute_class(self):
         try:
-            Validator.validate_and_set_dynamic_attribute(
-                Address(), Address, False, None)
+            Validator.validate_and_set_dynamic_class_attribute(
+                Address(), Address, None)
         except Exception:
             self.fail(
                 'Validator.validate_and_set_dynamic_attribute raised an exception unexpectedly for a valid class.')
 
     def test_validate_and_set_dynamic_attribute_with_missing_value(self):
         with self.assertRaises(ValueError):
-            Validator.validate_and_set_dynamic_attribute(
-                None, None, False, None, 'value error')
+            Validator.validate_and_set_dynamic_class_attribute(
+                None, None, None, 'value error')
 
     def test_validate_and_set_dynamic_attribute_with_wrong_type(self):
         with self.assertRaises(TypeError):
-            Validator.validate_and_set_dynamic_attribute(
-                False, Address, False, 'type error')
+            Validator.validate_and_set_dynamic_class_attribute(
+                False, Address, 'type error')
 
-    """
     def test_validate_and_set_dynamic_attribute_with_boolean_shortcut(self):
         try:
-            Validator.validate_and_set_dynamic_attribute(
-                True, DynamicClass, True, 'type error')
+            Validator.validate_and_set_dynamic_boolean_attribute(
+                True, 'type error')
         except:
             self.fail(
-                'Validator.validate_and_set_dynamic_attribute raised an exception unexpectedly when using a boolean shortcut.')
-    """
+                'Validator.validate_and_set_dynamic_boolean_attribute raised an exception unexpectedly when using a boolean shortcut.')
 
     def test_validate_transaction(self):
         try:

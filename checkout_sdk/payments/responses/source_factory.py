@@ -2,7 +2,7 @@ from checkout_sdk.payments.responses.card_source import CardSource
 
 source_classes = {
     'card': CardSource
-    # s APM will follow here
+    # APMs will follow here
 }
 
 

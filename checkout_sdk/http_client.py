@@ -47,7 +47,7 @@ class HttpClient:
 
         try:
             r = self._session.request(
-                method=method.value,
+                method=method,
                 url=url,
                 json=request,
                 headers=headers,

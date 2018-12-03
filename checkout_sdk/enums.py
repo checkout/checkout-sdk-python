@@ -1,32 +1,26 @@
-from enum import Enum
+# Not using Python Enum - the "value"/"name" proposition can make things unnecessarily confusing for an SDK.
+# KISS applies here.
 
 
-class ExtendedEnum(Enum):
+class CheckoutSdkEnum:
     @classmethod
     def has_value(cls, value):
-        return value is not None and any(str(value).lower() == str(item.value).lower() for item in cls)
-
-    def __str__(self):
-        return '{0.value}'.format(self)
+        return value is not None and any(str(value).lower() == str(item).lower()
+                                         for item in dir(cls) if not (item.startswith("__") or item == 'has_value'))
 
 
-class PaymentType(ExtendedEnum):
+class PaymentType(CheckoutSdkEnum):
     Regular = 'Regular'
     Recurring = 'Recurring'
     MOTO = 'MOTO'
 
 
-class ChargeMode(ExtendedEnum):
-    NonThreeD = 1
-    ThreeDS = 2
-
-
-class HttpMethod(ExtendedEnum):
+class HttpMethod(CheckoutSdkEnum):
     GET = 'GET'
     POST = 'POST'
 
 
-class Currency(ExtendedEnum):
+class Currency(CheckoutSdkEnum):
     ALL = "ALL"
     STN = "STN"
     EEK = "EEK"
