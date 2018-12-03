@@ -57,14 +57,17 @@ class PaymentsClientTests(CheckoutSdkTestCase):
 
     def test_payments_client_full_card_non_3ds_auth_request_with_classes(self):
         payment = self.auth_card()
-        self.assert_payment_response(payment, PaymentProcessed, False)
-        self.assert_customer(payment.customer)
+        self.assert_payment_response_is_valid(payment, PaymentProcessed, False)
+        self.assert_customer_is_valid(payment.customer)
+        self.asset_source_is_valid(payment.source)
 
     def test_payments_client_full_card_3ds_auth_request_with_classes(self):
-        self.assert_payment_pending_response(self.auth_card(True, False))
+        self.assert_payment_pending_response_is_valid(
+            self.auth_card(True, False))
 
     def test_payments_client_full_card_3ds_auth_request_with_dictionary(self):
-        self.assert_payment_pending_response(self.auth_card(True, True))
+        self.assert_payment_pending_response_is_valid(
+            self.auth_card(True, True))
 
     def auth_card(self, threeds=False, dict_format=False):
         return self.client.request(
@@ -116,26 +119,31 @@ class PaymentsClientTests(CheckoutSdkTestCase):
             )
         )
 
-    def assert_payment_pending_response(self, payment):
-        self.assert_payment_response(payment, PaymentPending, True)
-        self.assert_customer(payment.customer)
+    def assert_payment_pending_response_is_valid(self, payment):
+        self.assert_payment_response_is_valid(payment, PaymentPending, True)
+        self.assert_customer_is_valid(payment.customer)
         # 3DS
         self.assertTrue(isinstance(payment.threeds, ThreeDSEnrollment))
         self.assertTrue(payment.requires_redirect)
         self.assertTrue(payment.redirect_link is not None)
 
-    def assert_payment_response(self, payment, clazz=Payment, is_pending=False):
+    def assert_payment_response_is_valid(self, payment, clazz=Payment, is_pending=False):
         self.assertTrue(isinstance(payment, clazz))
         # Resource
         self.assertIsNotNone(payment.request_id)
         self.assertTrue(payment.links is not None and len(payment.links) > 0)
         # PaymentResponse
-        self.assertTrue(type(payment.id) is str)
-        self.assertTrue(type(payment.status) is str)
+        self.assertIsNotNone(payment.id)
+        self.assertIsNotNone(payment.status)
+        self.assertEqual(payment.reference, self.REFERENCE)
         self.assertTrue(payment.is_pending == is_pending)
 
-    def assert_customer(self, customer):
+    def assert_customer_is_valid(self, customer):
         self.assertTrue(isinstance(customer, CustomerResponse))
         self.assertIsNotNone(customer.id)
         self.assertTrue(customer.name == self.CUSTOMER_NAME)
         self.assertTrue(customer.email == self.CUSTOMER_EMAIL)
+
+    def asset_source_is_valid(self, source):
+        self.assertIsNotNone(source.id)
+        self.assertIsNotNone(source.type)

@@ -66,9 +66,9 @@ class HttpClient:
                 429: lambda: errors.TooManyRequestsError
             }
             jsonResponse = e.response.json()
-            errorCls = status_code_switch.get(e.response.status_code,
-                                              errors.ApiError)()
-            raise errorCls(
+            error_cls = status_code_switch.get(e.response.status_code,
+                                               errors.ApiError)()
+            raise error_cls(
                 request_id=e.response.headers.get(
                     constants.REQUEST_ID_HEADER),
                 api_version=e.response.headers.get(

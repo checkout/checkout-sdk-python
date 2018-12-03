@@ -1,14 +1,21 @@
 from dateutil import parser
-from checkout_sdk.payments.responses import Payment, Customer, RiskAssessment
+from checkout_sdk.payments.responses import (
+    Payment,
+    Customer,
+    RiskAssessment,
+    SourceFactory
+)
 
 
 class PaymentProcessed(Payment):
     def __init__(self, api_response):
-        print(api_response.body)
         super().__init__(api_response, is_pending=False)
 
         self._processed_on = parser.parse(
             self._response.body.get('processed_on'))
+
+        self._source = SourceFactory.create_source(
+            api_response.body.get('source'))
 
         customer = api_response.body.get('customer')
         self._customer = Customer(
@@ -53,6 +60,10 @@ class PaymentProcessed(Payment):
     @property
     def scheme_id(self):
         return self._response.body.get('scheme_id')
+
+    @property
+    def source(self):
+        return self._source
 
     @property
     def customer(self):

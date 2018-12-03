@@ -81,7 +81,7 @@ class PaymentsClient(ApiClient):
             return PaymentPending(http_response)
         else:
             return PaymentProcessed(http_response)
-
+    """
     def capture(self, id, value=None, track_id=None, **kwargs):
         return Capture(self._getPaymentActionResponse(id, 'capture', value, track_id, **kwargs))
 
@@ -117,3 +117,4 @@ class PaymentsClient(ApiClient):
 
         return self._send_http_request(
             'charges/{}/{}'.format(id, action), HttpMethod.POST, request)
+    """

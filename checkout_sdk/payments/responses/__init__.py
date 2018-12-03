@@ -3,6 +3,8 @@ from checkout_sdk.payments.responses.customer import Customer
 from checkout_sdk.payments.responses.risk_assessment import RiskAssessment
 from checkout_sdk.payments.responses.threeds_enrollment import ThreeDSEnrollment
 
+from checkout_sdk.payments.responses.source_factory import SourceFactory
+
 from checkout_sdk.payments.responses.payment_processed import PaymentProcessed
 from checkout_sdk.payments.responses.payment_pending import PaymentPending
 
