@@ -1,4 +1,4 @@
-#from dateutil import parser
+from dateutil import parser
 from checkout_sdk.payments.responses import (
     Payment,
     Customer,
@@ -11,7 +11,8 @@ class PaymentProcessed(Payment):
     def __init__(self, api_response):
         super().__init__(api_response, is_pending=False)
 
-        self._processed_on = self._response.body.get('processed_on')
+        self._processed_on = parser.parse(
+            self._response.body.get('processed_on'))
 
         self._source = SourceFactory.create_source(
             api_response.body.get('source'))

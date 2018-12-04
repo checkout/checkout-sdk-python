@@ -17,11 +17,9 @@ class CardSource(PaymentSource):
     # Dictionary to produce the JSON output
 
     def get_dict(self):
-        a = {
+        return {
+            **self.__dict__,
             'billing_address': self.billing_address.get_dict() if isinstance(self.billing_address, RequestDTO) else self.billing_address,
             'phone': self.phone.get_dict() if isinstance(self.phone, RequestDTO) else self.phone
         }
-        cp = self.__dict__.copy()
-        cp.update(a)
-        print(cp)
-        return cp
+
