@@ -1,6 +1,7 @@
 try:
     from http import HTTPStatus
 except ImportError:
+    # Python 3.4
     from checkout_sdk.enums import HTTPStatus
 
 import checkout_sdk as sdk
