@@ -1,8 +1,3 @@
-import unittest
-import os
-import tests
-import json
-
 import checkout_sdk as sdk
 
 from http import HTTPStatus

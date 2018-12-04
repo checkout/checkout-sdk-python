@@ -1,11 +1,5 @@
-import unittest
-import os
-import tests
-import json
-
 import checkout_sdk as sdk
 
-from checkout_sdk import constants
 from checkout_sdk import errors
 from tests.base import CheckoutSdkTestCase
 

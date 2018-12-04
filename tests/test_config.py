@@ -1,6 +1,4 @@
-import unittest
 import os
-import tests
 
 from unittest import mock
 from tests.base import CheckoutSdkTestCase
