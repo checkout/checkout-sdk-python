@@ -9,6 +9,7 @@ python:
   - "3.7-dev"
 
 install:
+  - pip install --upgrade pip
   - pip install codecov
   - pip install coverage
   - python setup.py clean --all
