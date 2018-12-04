@@ -22,6 +22,6 @@ class CardSource(PaymentSource):
             'phone': self.phone.get_dict() if isinstance(self.phone, RequestDTO) else self.phone
         }
         cp = self.__dict__.copy()
-        print(cp)
         cp.update(a)
+        print(cp)
         return cp
