@@ -15,7 +15,7 @@ setuptools.setup(
     author_email="support@checkout.com",
     description="Checkout.com Python SDK",
     long_description=long_description,
-    long_description_content_type="text/markdown",
+    # long_description_content_type="text/markdown",
     zip_safe=False,
     url="https://github.com/checkout/checkout-sdk-python",
     license='MIT',
