@@ -3,7 +3,6 @@ import datetime
 import checkout_sdk
 import pprint
 
-from http import HTTPStatus
 from checkout_sdk import errors, constants
 from checkout_sdk import Currency, PaymentType
 from checkout_sdk.common import RequestDTO

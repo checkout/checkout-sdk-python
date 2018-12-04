@@ -1,4 +1,4 @@
-from checkout_sdk.common.http_response import HttpResponse
+from checkout_sdk.common.http_response import HTTPResponse
 from checkout_sdk.common.link import Link
 
 from checkout_sdk.common.request_dto import RequestDTO

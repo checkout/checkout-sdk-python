@@ -1,12 +1,12 @@
 from checkout_sdk import constants
-from checkout_sdk.common import HttpResponse, Link
+from checkout_sdk.common import HTTPResponse, Link
 
 
 class Resource:
     def __init__(self, api_response):
-        if not isinstance(api_response, HttpResponse):
+        if not isinstance(api_response, HTTPResponse):
             raise TypeError(
-                'api_response must be a valid instance of HttpResponse')
+                'api_response must be a valid instance of HTTPResponse')
         self._response = api_response
 
         self._links = {}
@@ -17,7 +17,7 @@ class Resource:
 
     @property
     def http_response(self):
-        """Http response with status, headers, JSON body and elapsed time (ms)."""
+        """HTTP response with status, headers, JSON body and elapsed time (ms)."""
         return self._response
 
     @property

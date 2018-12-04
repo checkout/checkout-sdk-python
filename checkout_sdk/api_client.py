@@ -1,7 +1,7 @@
 import re
 import pprint
 
-from checkout_sdk import HttpMethod, logger
+from checkout_sdk import HTTPMethod, logger
 
 
 class ApiClient:

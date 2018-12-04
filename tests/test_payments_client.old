@@ -1,11 +1,6 @@
-import unittest
-import os
-import tests
-import json
-
 import checkout_sdk as sdk
 
-from checkout_sdk import HttpClient, Config, HttpMethod
+from checkout_sdk import HTTPClient, Config, HTTPMethod
 from tests.base import CheckoutSdkTestCase
 from enum import Enum
 
@@ -43,7 +38,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
 
     def setUp(self):
         super().setUp()
-        self.http_client = HttpClient(Config())
+        self.http_client = HTTPClient(Config())
         self.client = PaymentsClient(self.http_client)
 
     def tearDown(self):

@@ -1,4 +1,4 @@
-class HttpResponse:
+class HTTPResponse:
     def __init__(self, status, headers, body, elapsed):
         self.status = status
         self.headers = headers

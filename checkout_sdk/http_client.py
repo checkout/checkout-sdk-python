@@ -1,8 +1,8 @@
 import requests
 import time
 
-from checkout_sdk import errors, constants, HttpMethod
-from checkout_sdk.common import HttpResponse
+from checkout_sdk import errors, constants, HTTPMethod
+from checkout_sdk.common import HTTPResponse
 from urllib.parse import urljoin
 
 http_headers_default = {
@@ -10,11 +10,11 @@ http_headers_default = {
 }
 
 
-class HttpClient:
+class HTTPClient:
     def __init__(self, config):
         self.config = config
 
-        # init Http Session (for pooling)
+        # init HTTP Session (for pooling)
         self._session = requests.Session()
 
         # interceptor call is a mirror by default
@@ -38,7 +38,7 @@ class HttpClient:
     def close_session(self):
         self._session.close()
 
-    def send(self, path, method=HttpMethod.GET, request=None):
+    def send(self, path, method=HTTPMethod.GET, request=None):
         start = time.time()
 
         # call the interceptor as a hook to override the url, headers and/or request
@@ -57,7 +57,7 @@ class HttpClient:
             r.raise_for_status()
             body = r.json()
 
-            return HttpResponse(r.status_code, r.headers, body, elapsed)
+            return HTTPResponse(r.status_code, r.headers, body, elapsed)
         except requests.exceptions.HTTPError as e:
             status_code_switch = {
                 401: lambda: errors.AuthenticationError,
@@ -66,6 +66,7 @@ class HttpClient:
                 429: lambda: errors.TooManyRequestsError
             }
             jsonResponse = e.response.json()
+            print(jsonResponse)
             error_cls = status_code_switch.get(e.response.status_code,
                                                errors.ApiError)()
             raise error_cls(

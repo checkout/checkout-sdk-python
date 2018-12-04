@@ -15,9 +15,16 @@ class PaymentType(CheckoutSdkEnum):
     MOTO = 'MOTO'
 
 
-class HttpMethod(CheckoutSdkEnum):
+class HTTPMethod(CheckoutSdkEnum):
     GET = 'GET'
     POST = 'POST'
+
+
+# Python 3.4 does not support HTTPStatus
+class HTTPStatus(CheckoutSdkEnum):
+    OK = 200
+    CREATED = 201
+    ACCEPTED = 202
 
 
 class Currency(CheckoutSdkEnum):

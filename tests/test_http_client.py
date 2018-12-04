@@ -1,16 +1,15 @@
-import tests
 import json
 
 import checkout_sdk as sdk
 
-from checkout_sdk import Config, HttpClient, HttpMethod, errors, constants
+from checkout_sdk import Config, HTTPClient, HTTPMethod, errors, constants
 from tests.base import CheckoutSdkTestCase
 from unittest.mock import MagicMock, Mock, patch
 from urllib.parse import urljoin
 from requests import Session
 
 
-class HttpClientTests(CheckoutSdkTestCase):
+class HTTPClientTests(CheckoutSdkTestCase):
     RESPONSE_BODY = json.dumps({'key': 'value'})
     PATH = 'test'
     TIMEOUT = constants.DEFAULT_TIMEOUT
@@ -35,10 +34,10 @@ class HttpClientTests(CheckoutSdkTestCase):
 
     def test_http_client_get(self):
         config = Config()
-        http_client = HttpClient(config)
+        http_client = HTTPClient(config)
         self.set_mock_response(
             'client_get', http_client.headers, self.RESPONSE_BODY)
-        response = http_client.send(self.PATH, HttpMethod.GET)
+        response = http_client.send(self.PATH, HTTPMethod.GET)
 
         self.assertEqual(
             str(response), '{0.status} {0.elapsed}'.format(response))

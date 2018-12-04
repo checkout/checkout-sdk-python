@@ -1,7 +1,10 @@
-from http import HTTPStatus
+try:
+    from http import HTTPStatus
+except ImportError:
+    from checkout_sdk.enums import HTTPStatus
 
 import checkout_sdk as sdk
-from checkout_sdk import ApiClient, HttpMethod, Validator
+from checkout_sdk import ApiClient, HTTPMethod, Validator
 from checkout_sdk.common import RequestDTO
 from checkout_sdk.payments import PaymentSource, Customer
 from checkout_sdk.payments.responses import (
@@ -48,7 +51,7 @@ class PaymentsClient(ApiClient):
         self._set_payment_request_dynamic_attributes(request)
 
         http_response = self._send_http_request(
-            'payments', HttpMethod.POST, request)
+            'payments', HTTPMethod.POST, request)
 
         if http_response.status == HTTPStatus.ACCEPTED:
             return PaymentPending(http_response)
@@ -92,7 +95,7 @@ class PaymentsClient(ApiClient):
 
         Validator.validate_id(id)
 
-        return PaymentProcessed(self._send_http_request('charges/{}'.format(id), HttpMethod.GET))
+        return PaymentProcessed(self._send_http_request('charges/{}'.format(id), HTTPMethod.GET))
 
     def _getPaymentActionResponse(self, id, action, value, track_id, **kwargs):
         self._log_info('{} - {} - {}'.format(action.capitalize(), id,
@@ -112,5 +115,5 @@ class PaymentsClient(ApiClient):
         request.update(kwargs)
 
         return self._send_http_request(
-            'charges/{}/{}'.format(id, action), HttpMethod.POST, request)
+            'charges/{}/{}'.format(id, action), HTTPMethod.POST, request)
     """

@@ -1,9 +1,8 @@
 import checkout_sdk as sdk
 
-from http import HTTPStatus
 from tests.base import CheckoutSdkTestCase
 from checkout_sdk import errors, Validator
-from checkout_sdk.common import HttpResponse, Address, RequestDTO
+from checkout_sdk.common import HTTPResponse, Address, RequestDTO
 
 
 class ValidatorTests(CheckoutSdkTestCase):
