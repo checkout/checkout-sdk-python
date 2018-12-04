@@ -28,6 +28,10 @@ class ResourceNotFoundError(CheckoutSdkError):
     pass
 
 
+class NotAllowedError(CheckoutSdkError):
+    pass
+
+
 class TooManyRequestsError(CheckoutSdkError):
     pass
 

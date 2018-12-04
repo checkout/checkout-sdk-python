@@ -61,6 +61,7 @@ class HTTPClient:
         except requests.exceptions.HTTPError as e:
             status_code_switch = {
                 401: lambda: errors.AuthenticationError,
+                403: lambda: errors.NotAllowedError,
                 404: lambda: errors.ResourceNotFoundError,
                 422: lambda: errors.ValidationError,
                 429: lambda: errors.TooManyRequestsError

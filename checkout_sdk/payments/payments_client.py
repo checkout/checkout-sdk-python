@@ -11,7 +11,10 @@ from checkout_sdk.payments import PaymentSource, Customer
 from checkout_sdk.payments.responses import (
     Payment,
     PaymentProcessed,
-    PaymentPending
+    PaymentPending,
+    Capture,
+    Refund,
+    Void
 )
 
 
@@ -39,7 +42,8 @@ class PaymentsClient(ApiClient):
         self._log_info('Auth {} - {}{} - {}'.format(source_type,
                                                     amount,
                                                     currency,
-                                                    reference if reference is not None else '<no reference>'))
+                                                    reference if reference is not None
+                                                    else '<no reference>'))
 
         Validator.validate_transaction(
             amount=amount,
@@ -58,6 +62,45 @@ class PaymentsClient(ApiClient):
             return PaymentPending(http_response)
         else:
             return PaymentProcessed(http_response)
+
+    def capture(self, id, amount=None, reference=None, **kwargs):
+        return Capture(self._getPaymentActionResponse(id, 'capture', amount, reference, **kwargs))
+
+    def refund(self, id, amount=None, reference=None, **kwargs):
+        return Refund(self._getPaymentActionResponse(id, 'refund', amount, reference, **kwargs))
+
+    def void(self, id, reference=None, **kwargs):
+        return Void(self._getPaymentActionResponse(id, 'void', None, reference, **kwargs))
+
+    """
+    def get(self, id):
+        self._log_info('Get {}'.format(id))
+
+        Validator.validate_id(id)
+
+        return PaymentProcessed(self._send_http_request('charges/{}'.format(id), HTTPMethod.GET))
+    """
+
+    def _getPaymentActionResponse(self, id, action, amount, reference, **kwargs):
+        self._log_info('{} - {} - {}'.format(action.capitalize(), id,
+                                             reference if reference is not None
+                                             else '<no reference>'))
+
+        Validator.validate_id(id)
+
+        request = {
+            'reference': reference
+        }
+
+        if amount is not None:
+            Validator.validate_transaction(amount=amount)
+            request['amount'] = amount
+
+        # add remaining properties
+        request.update(kwargs)
+
+        return self._send_http_request(
+            'payments/{}/{}s'.format(id, action), HTTPMethod.POST, request)
 
     def _set_payment_request_defaults(self, request):
         request['currency'] = request.get(
@@ -81,40 +124,3 @@ class PaymentsClient(ApiClient):
             arg=request.get('threeds', request.get('3ds')), type_err_msg='Invalid 3DS settings.')
         request['risk'] = Validator.validate_and_set_dynamic_boolean_attribute(
             arg=request.get('risk'), type_err_msg='Invalid risk settings.')
-    """
-    def capture(self, id, value=None, track_id=None, **kwargs):
-        return Capture(self._getPaymentActionResponse(id, 'capture', value, track_id, **kwargs))
-
-    def void(self, id, track_id=None, **kwargs):
-        return Void(self._getPaymentActionResponse(id, 'void', None, track_id, **kwargs))
-
-    def refund(self, id, value=None, track_id=None, **kwargs):
-        return Refund(self._getPaymentActionResponse(id, 'refund', value, track_id, **kwargs))
-
-    def get(self, id):
-        self._log_info('Get {}'.format(id))
-
-        Validator.validate_id(id)
-
-        return PaymentProcessed(self._send_http_request('charges/{}'.format(id), HTTPMethod.GET))
-
-    def _getPaymentActionResponse(self, id, action, value, track_id, **kwargs):
-        self._log_info('{} - {} - {}'.format(action.capitalize(), id,
-                                             track_id if track_id else '<no track id>'))
-
-        Validator.validate_id(id)
-
-        request = {
-            'trackId': track_id
-        }
-
-        if value is not None:
-            Validator.validate_transaction(amount=value)
-            request['value'] = value
-
-        # add remaining properties
-        request.update(kwargs)
-
-        return self._send_http_request(
-            'charges/{}/{}'.format(id, action), HTTPMethod.POST, request)
-    """

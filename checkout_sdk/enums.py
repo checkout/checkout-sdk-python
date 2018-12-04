@@ -25,6 +25,7 @@ class HTTPStatus(CheckoutSdkEnum):
     OK = 200
     CREATED = 201
     ACCEPTED = 202
+    # will add more if ever needed - this is mainly to humour Python 3.4
 
 
 class Currency(CheckoutSdkEnum):

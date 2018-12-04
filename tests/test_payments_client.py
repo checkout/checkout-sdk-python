@@ -7,6 +7,8 @@ from enum import Enum
 from checkout_sdk.payments import (
     PaymentsClient,
     CardSource,
+    IdSource,
+    CustomerSource,
     Customer
 )
 from checkout_sdk.payments.responses import (
@@ -21,6 +23,7 @@ from checkout_sdk.common import Address, Phone
 
 class PaymentsClientTests(CheckoutSdkTestCase):
     REFERENCE = 'REF_01'
+    SUB_REFERENCE = 'SUB_REF'
     AMOUNT = 1000
     CURRENCY = sdk.Currency.USD
     CUSTOMER_EMAIL = 'test@user.com'
@@ -50,24 +53,94 @@ class PaymentsClientTests(CheckoutSdkTestCase):
             Payment(None, None)
 
     def test_payments_client_full_card_non_3ds_auth_request_with_kwargs(self):
-        payment = self.auth_card()
-        self.assert_payment_response_is_valid(payment, PaymentProcessed, False)
-        self.assert_customer_is_valid(payment.customer)
-        self.asset_source_is_valid(payment.source)
+        payment = self._auth_card()
+        self._assert_payment_response_is_valid(
+            payment, PaymentProcessed, False)
+        self.assertTrue(type(payment.approved) is bool)
+        self._assert_customer_is_valid(payment.customer)
+        self._asset_source_is_valid(payment.source)
 
     def test_payments_client_full_card_3ds_auth_request_with_kwargs(self):
-        self.assert_payment_pending_response_is_valid(
-            self.auth_card(True, False))
+        self._assert_payment_pending_response_is_valid(
+            self._auth_card(True, False))
 
     def test_payments_client_full_card_3ds_auth_request_with_dictionary(self):
-        self.assert_payment_pending_response_is_valid(
-            self.auth_card(True, True))
+        self._assert_payment_pending_response_is_valid(
+            self._auth_card(True, True))
 
-    def auth_card(self, threeds=False, dict_format=False):
+    def test_payments_client_void_request(self):
+        payment = self._auth_card()
+        # void the previous auth request
+        void = self.client.void(payment.id, reference=self.SUB_REFERENCE)
+        self.assertIsNotNone(void.action_id)
+        self.assertEqual(void.reference, self.SUB_REFERENCE)
+
+    def test_payments_client_capture_full_amount_request(self):
+        payment = self._auth_card()
+        # capture the previous auth request
+        capture = self.client.capture(payment.id,
+                                      reference=self.SUB_REFERENCE)
+        self.assertIsNotNone(capture.action_id)
+        self.assertEqual(capture.reference, self.SUB_REFERENCE)
+
+    def test_payments_client_capture_partial_amount_request(self):
+        PARTIAL_AMOUNT = int(self.AMOUNT / 2)
+        payment = self._auth_card()
+        # capture the previous auth request
+        capture = self.client.capture(payment.id,
+                                      reference=self.SUB_REFERENCE,
+                                      amount=PARTIAL_AMOUNT)
+        self.assertIsNotNone(capture.action_id)
+        self.assertEqual(capture.reference, self.SUB_REFERENCE)
+
+    def test_payments_client_refund_full_amount_request(self):
+        payment = self._auth_card()
+        # capture the previous auth request
+        self.client.capture(payment.id)
+        # refund the capture
+        refund = self.client.refund(payment.id,
+                                    reference=self.SUB_REFERENCE)
+        self.assertIsNotNone(refund.action_id)
+        self.assertEqual(refund.reference, self.SUB_REFERENCE)
+
+    def test_payments_client_refund_partial_amount_request(self):
+        PARTIAL_AMOUNT = int(self.AMOUNT / 2)
+        payment = self._auth_card()
+        # capture the previous auth request
+        self.client.capture(payment.id)
+        # refund the capture
+        refund = self.client.refund(payment.id,
+                                    reference=self.SUB_REFERENCE,
+                                    amount=PARTIAL_AMOUNT)
+        self.assertIsNotNone(refund.action_id)
+        self.assertEqual(refund.reference, self.SUB_REFERENCE)
+
+    def test_payments_client_non_3ds_auth_request_with_card_source_id(self):
+        payment = self._auth_card()
+        payment2 = self._auth_source(
+            IdSource(id=payment.source.id, cvv=self.CARD_CVV))
+
+        self._assert_payment_response_is_valid(
+            payment2, PaymentProcessed, False)
+        self.assertEqual(payment.source.id, payment2.source.id)
+
+    def test_payments_client_non_3ds_auth_request_with_customer_source_id(self):
+        payment = self._auth_card()
+        payment2 = self._auth_source(
+            CustomerSource(id=payment.customer.id))
+
+        self._assert_payment_response_is_valid(
+            payment2, PaymentProcessed, False)
+        self.assertEqual(payment.customer.id, payment2.customer.id)
+
+    def _auth_card(self, threeds=False, dict_format=False, amount=None):
+        if amount is None:
+            amount = self.AMOUNT
+
         if dict_format:
             return self.client.request({
-                'source': self.get_card_source(dict_format=True),
-                'amount': self.AMOUNT,
+                'source': self._get_card_source(dict_format=True),
+                'amount': amount,
                 'currency': self.CURRENCY,
                 'reference': self.REFERENCE,
                 'customer': {
@@ -80,8 +153,8 @@ class PaymentsClientTests(CheckoutSdkTestCase):
             })
         else:
             return self.client.request(
-                source=self.get_card_source(dict_format=False),
-                amount=self.AMOUNT,
+                source=self._get_card_source(dict_format=False),
+                amount=amount,
                 currency=self.CURRENCY,
                 reference=self.REFERENCE,
                 customer=Customer(email=self.CUSTOMER_EMAIL,
@@ -89,7 +162,15 @@ class PaymentsClientTests(CheckoutSdkTestCase):
                 threeds=threeds
             )
 
-    def get_card_source(self, dict_format=False):
+    def _auth_source(self, source):
+        return self.client.request({
+            'source': source,
+            'amount': self.AMOUNT,
+            'currency': self.CURRENCY,
+            'reference': self.REFERENCE
+        })
+
+    def _get_card_source(self, dict_format=False):
         return {
             'type': 'card',
             'number': self.CARD_NUMBER,
@@ -123,15 +204,15 @@ class PaymentsClientTests(CheckoutSdkTestCase):
             )
         )
 
-    def assert_payment_pending_response_is_valid(self, payment):
-        self.assert_payment_response_is_valid(payment, PaymentPending, True)
-        self.assert_customer_is_valid(payment.customer)
+    def _assert_payment_pending_response_is_valid(self, payment):
+        self._assert_payment_response_is_valid(payment, PaymentPending, True)
+        self._assert_customer_is_valid(payment.customer)
         # 3DS
         self.assertTrue(isinstance(payment.threeds, ThreeDSEnrollment))
         self.assertTrue(payment.requires_redirect)
         self.assertTrue(payment.redirect_link is not None)
 
-    def assert_payment_response_is_valid(self, payment, clazz=Payment, is_pending=False):
+    def _assert_payment_response_is_valid(self, payment, clazz=Payment, is_pending=False):
         self.assertTrue(isinstance(payment, clazz))
         # Resource
         self.assertIsNotNone(payment.request_id)
@@ -142,12 +223,12 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         self.assertEqual(payment.reference, self.REFERENCE)
         self.assertTrue(payment.is_pending == is_pending)
 
-    def assert_customer_is_valid(self, customer):
+    def _assert_customer_is_valid(self, customer):
         self.assertTrue(isinstance(customer, CustomerResponse))
         self.assertIsNotNone(customer.id)
         self.assertTrue(customer.name == self.CUSTOMER_NAME)
         self.assertTrue(customer.email == self.CUSTOMER_EMAIL)
 
-    def asset_source_is_valid(self, source):
+    def _asset_source_is_valid(self, source):
         self.assertIsNotNone(source.id)
         self.assertIsNotNone(source.type)
