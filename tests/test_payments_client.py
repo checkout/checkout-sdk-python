@@ -49,7 +49,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         with self.assertRaises(TypeError):
             Payment(None, None)
 
-    def test_payments_client_full_card_non_3ds_auth_request_with_classes(self):
+    def test_payments_client_full_card_non_3ds_auth_request_with_kwargs(self):
         payment = self.auth_card()
         self.assert_payment_response_is_valid(payment, PaymentProcessed, False)
         self.assert_customer_is_valid(payment.customer)
