@@ -1,19 +1,15 @@
 from checkout_sdk import constants
-from checkout_sdk.common import HTTPResponse, Link
+from checkout_sdk.common import ResponseDTO, HTTPResponse
 
 
-class Resource:
+class Resource(ResponseDTO):
     def __init__(self, api_response):
         if not isinstance(api_response, HTTPResponse):
             raise TypeError(
                 'api_response must be a valid instance of HTTPResponse')
         self._response = api_response
 
-        self._links = {}
-        links = self._response.body['_links']
-        for key in links:
-            self._links[key] = Link(links[key].get(
-                'href'), links[key].get('title'))
+        super().__init__(api_response.body)
 
     @property
     def http_response(self):
@@ -30,14 +26,14 @@ class Resource:
 
     @property
     def links(self):
-        return self._links
+        return self._links  # pylint: disable = no-member
 
     @property
     def self_link(self):
         return self.get_link('self')
 
     def has_link(self, relation):
-        return relation in self._links
+        return relation in self._links  # pylint: disable = no-member
 
     def get_link(self, relation):
-        return self._links.get(relation, None)
+        return self._links.get(relation, None)  # pylint: disable = no-member

@@ -8,3 +8,9 @@
 /.vscode
 .coverage
 DEPLOYME.md
+
+/requests
+/idna
+/chardet
+/certifi
+/urllib3

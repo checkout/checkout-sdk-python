@@ -1,5 +1,5 @@
-from checkout_sdk.payments.responses import PaymentAction
+from checkout_sdk.common import Resource
 
 
-class Refund(PaymentAction):
+class Refund(Resource):
     pass

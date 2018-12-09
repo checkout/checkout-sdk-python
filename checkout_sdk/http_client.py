@@ -60,16 +60,16 @@ class HTTPClient:
             return HTTPResponse(r.status_code, r.headers, body, elapsed)
         except requests.exceptions.HTTPError as e:
             status_code_switch = {
-                401: lambda: errors.AuthenticationError,
-                403: lambda: errors.NotAllowedError,
-                404: lambda: errors.ResourceNotFoundError,
-                422: lambda: errors.ValidationError,
-                429: lambda: errors.TooManyRequestsError
+                401: errors.AuthenticationError,
+                403: errors.NotAllowedError,
+                404: errors.ResourceNotFoundError,
+                422: errors.ValidationError,
+                429: errors.TooManyRequestsError
             }
             jsonResponse = e.response.json()
             print(jsonResponse)
             error_cls = status_code_switch.get(e.response.status_code,
-                                               errors.ApiError)()
+                                               errors.ApiError)
             raise error_cls(
                 request_id=e.response.headers.get(
                     constants.REQUEST_ID_HEADER),

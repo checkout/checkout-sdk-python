@@ -2,7 +2,7 @@ import checkout_sdk as sdk
 
 from tests.base import CheckoutSdkTestCase
 from checkout_sdk import errors, Validator
-from checkout_sdk.common import HTTPResponse, Address, RequestDTO
+from checkout_sdk.common import HTTPResponse
 
 
 class ValidatorTests(CheckoutSdkTestCase):
@@ -24,32 +24,24 @@ class ValidatorTests(CheckoutSdkTestCase):
         with self.assertRaises(TypeError):
             Validator.validate_id(self.INVALID_ID)
 
-    def test_validate_and_set_dynamic_attribute_dict(self):
+    def test_validate_complex_attribute(self):
         try:
-            Validator.validate_and_set_dynamic_class_attribute({
+            Validator.validate_complex_attribute({
                 'key': 'value'
-            }, None, None)
+            }, None)
         except Exception:
             self.fail(
                 'Validator.validate_and_set_dynamic_attribute raised an exception unexpectedly for a dictionary.')
 
-    def test_validate_and_set_dynamic_attribute_class(self):
-        try:
-            Validator.validate_and_set_dynamic_class_attribute(
-                Address(), Address, None)
-        except Exception:
-            self.fail(
-                'Validator.validate_and_set_dynamic_attribute raised an exception unexpectedly for a valid class.')
-
-    def test_validate_and_set_dynamic_attribute_with_missing_value(self):
+    def test_validate_complex_attribute_with_missing_value(self):
         with self.assertRaises(ValueError):
-            Validator.validate_and_set_dynamic_class_attribute(
-                None, None, None, 'value error')
+            Validator.validate_complex_attribute(
+                None, None, 'value error')
 
-    def test_validate_and_set_dynamic_attribute_with_wrong_type(self):
+    def test_validate_complex_attribute_with_wrong_type(self):
         with self.assertRaises(TypeError):
-            Validator.validate_and_set_dynamic_class_attribute(
-                False, Address, 'type error')
+            Validator.validate_complex_attribute(
+                False, 'type error')
 
     def test_validate_and_set_dynamic_attribute_with_boolean_shortcut(self):
         try:

@@ -6,8 +6,6 @@ except ImportError:
 
 import checkout_sdk as sdk
 from checkout_sdk import ApiClient, HTTPMethod, Validator
-from checkout_sdk.common import RequestDTO
-from checkout_sdk.payments import PaymentSource, Customer
 from checkout_sdk.payments.responses import (
     Payment,
     PaymentProcessed,
@@ -36,8 +34,8 @@ class PaymentsClient(ApiClient):
         payment_type = request.get('payment_type')
         reference = request.get('reference')
 
-        source_type = source.type if isinstance(source, PaymentSource) \
-            else source.get('type', 'unknown') if source is not None else 'unknown'
+        source_type = source.get(
+            'type', 'unknown') if source is not None else 'unknown'
 
         self._log_info('Auth {} - {}{} - {}'.format(source_type,
                                                     amount,
@@ -111,13 +109,15 @@ class PaymentsClient(ApiClient):
             'capture', sdk.default_capture)
 
     def _set_payment_request_dynamic_attributes(self, request):
-        request['source'] = Validator.validate_and_set_dynamic_class_attribute(
-            arg=request.get('source'), clazz=PaymentSource,
+        Validator.validate_complex_attribute(
+            arg=request.get('source'),
             type_err_msg='Invalid payment source.',
             missing_arg_err_msg='Payment source missing.'
         )
-        request['customer'] = Validator.validate_and_set_dynamic_class_attribute(
-            arg=request.get('customer'), clazz=Customer,
+        request['source'] = Validator.validate_and_set_source_type(
+            request.get('source'))
+        Validator.validate_complex_attribute(
+            arg=request.get('customer'),
             type_err_msg='Invalid customer.')
         # for 3ds, due to Python name limitations, we try both '3ds' and 'threeds' attribute names
         request['3ds'] = Validator.validate_and_set_dynamic_boolean_attribute(
