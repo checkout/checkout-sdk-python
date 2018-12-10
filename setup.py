@@ -19,7 +19,7 @@ setuptools.setup(
     zip_safe=False,
     url="https://github.com/checkout/checkout-sdk-python",
     license='MIT',
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(exclude=['tests', 'tests.*']),
     install_requires=[
         'requests >= 2.0.0',
         'python-dateutil >= 2.7.0'
