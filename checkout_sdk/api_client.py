@@ -2,8 +2,6 @@ import pprint
 
 from checkout_sdk import logger
 
-# pylint: disable=too-few-public-methods
-
 
 class ApiClient:
     def __init__(self, http_client):

@@ -1,5 +1,3 @@
-# pylint: disable=invalid-name, wrong-import-position
-
 import logging
 import os
 import sys

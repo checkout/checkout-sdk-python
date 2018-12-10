@@ -18,8 +18,6 @@ ENV_SETTINGS = {
     'sandbox': lambda: os.environ.get('CKO_SANDBOX', 'true').lower() in ['true', '1']
 }
 
-# pylint: disable=attribute-defined-outside-init, logging-format-interpolation
-
 
 class Config:
     def __init__(self, secret_key=None, sandbox=None,
@@ -37,8 +35,8 @@ class Config:
             self.api_base_url = API_BASE_URLS['sandbox'] if sandbox is True \
                 else API_BASE_URLS['production']
 
-        logger.info('{} - sk{}{}'.format(self.api_base_url, '*' * 6,
-                                         self.secret_key[-6:]))
+        logger.info('%s - sk%s%s', self.api_base_url, '*' * 6,
+                    self.secret_key[-6:])
 
     @property
     def secret_key(self):

@@ -1,4 +1,4 @@
-[TYPECHECK]
-#ignore-patterns=test_
-#ignored-classes=PaymentPending, PaymentProcessed, Capture, Void, Refund
-disable=C0111
+[MASTER]
+ignore-patterns=test_
+ignored-classes=PaymentPending, PaymentProcessed, Capture, Void, Refund
+disable=missing-docstring, too-few-public-methods, attribute-defined-outside-init, invalid-name, wrong-import-position,no-self-use
