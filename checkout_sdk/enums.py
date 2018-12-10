@@ -1,4 +1,5 @@
-# Not using Python Enum - the "value"/"name" proposition can make things unnecessarily confusing for an SDK.
+# Not using Python Enum
+# The "value"/"name" proposition can make things unnecessarily confusing for an SDK.
 # KISS applies here.
 
 
@@ -6,7 +7,8 @@ class CheckoutSdkEnum:
     @classmethod
     def has_value(cls, value):
         return value is not None and any(str(value).lower() == str(item).lower()
-                                         for item in dir(cls) if not (item.startswith("__") or item == 'has_value'))
+                                         for item in dir(cls)
+                                         if not (item.startswith("__") or item == 'has_value'))
 
 
 class PaymentType(CheckoutSdkEnum):

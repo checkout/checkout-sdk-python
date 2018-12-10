@@ -31,7 +31,7 @@ class ValidatorTests(CheckoutSdkTestCase):
             }, None)
         except Exception:
             self.fail(
-                'Validator.validate_and_set_dynamic_attribute raised an exception unexpectedly for a dictionary.')
+                'Validator.validate_and_set_dynamic_attr raised an exception unexpectedly for a dictionary.')
 
     def test_validate_complex_attribute_with_missing_value(self):
         with self.assertRaises(ValueError):
@@ -43,13 +43,13 @@ class ValidatorTests(CheckoutSdkTestCase):
             Validator.validate_complex_attribute(
                 False, 'type error')
 
-    def test_validate_and_set_dynamic_attribute_with_boolean_shortcut(self):
+    def test_validate_and_set_dynamic_attr_with_boolean_shortcut(self):
         try:
-            Validator.validate_and_set_dynamic_boolean_attribute(
+            Validator.validate_and_set_dynamic_attr(
                 True, 'type error')
         except:
             self.fail(
-                'Validator.validate_and_set_dynamic_boolean_attribute raised an exception unexpectedly when using a boolean shortcut.')
+                'Validator.validate_and_set_dynamic_attr raised an exception unexpectedly when using a boolean shortcut.')
 
     def test_validate_transaction(self):
         try:

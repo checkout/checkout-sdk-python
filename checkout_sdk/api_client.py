@@ -1,7 +1,8 @@
-import re
 import pprint
 
-from checkout_sdk import HTTPMethod, logger
+from checkout_sdk import logger
+
+# pylint: disable=too-few-public-methods
 
 
 class ApiClient:

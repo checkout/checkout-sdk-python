@@ -1,6 +1,8 @@
 from checkout_sdk import constants
 from checkout_sdk.common import ResponseDTO, HTTPResponse
 
+# pylint: disable=no-member
+
 
 class Resource(ResponseDTO):
     def __init__(self, api_response):
@@ -26,14 +28,14 @@ class Resource(ResponseDTO):
 
     @property
     def links(self):
-        return self._links  # pylint: disable = no-member
+        return self._links
 
     @property
     def self_link(self):
         return self.get_link('self')
 
     def has_link(self, relation):
-        return relation in self._links  # pylint: disable = no-member
+        return hasattr(self._links, relation)
 
     def get_link(self, relation):
-        return self._links.get(relation, None)  # pylint: disable = no-member
+        return getattr(self._links, relation, None)

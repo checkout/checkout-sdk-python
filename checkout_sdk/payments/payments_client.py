@@ -7,7 +7,6 @@ except ImportError:
 import checkout_sdk as sdk
 from checkout_sdk import ApiClient, HTTPMethod, Validator
 from checkout_sdk.payments.responses import (
-    Payment,
     PaymentProcessed,
     PaymentPending,
     Capture,
@@ -61,30 +60,24 @@ class PaymentsClient(ApiClient):
         else:
             return PaymentProcessed(http_response)
 
-    def capture(self, id, amount=None, reference=None, **kwargs):
-        return Capture(self._getPaymentActionResponse(id, 'capture', amount, reference, **kwargs))
+    def capture(self, payment_id, amount=None, reference=None, **kwargs):
+        return Capture(
+            self._get_payment_action_response(payment_id, 'capture', amount, reference, **kwargs))
 
-    def refund(self, id, amount=None, reference=None, **kwargs):
-        return Refund(self._getPaymentActionResponse(id, 'refund', amount, reference, **kwargs))
+    def refund(self, payment_id, amount=None, reference=None, **kwargs):
+        return Refund(
+            self._get_payment_action_response(payment_id, 'refund', amount, reference, **kwargs))
 
-    def void(self, id, reference=None, **kwargs):
-        return Void(self._getPaymentActionResponse(id, 'void', None, reference, **kwargs))
+    def void(self, payment_id, reference=None, **kwargs):
+        return Void(
+            self._get_payment_action_response(payment_id, 'void', None, reference, **kwargs))
 
-    """
-    def get(self, id):
-        self._log_info('Get {}'.format(id))
-
-        Validator.validate_id(id)
-
-        return PaymentProcessed(self._send_http_request('charges/{}'.format(id), HTTPMethod.GET))
-    """
-
-    def _getPaymentActionResponse(self, id, action, amount, reference, **kwargs):
-        self._log_info('{} - {} - {}'.format(action.capitalize(), id,
+    def _get_payment_action_response(self, payment_id, action, amount, reference, **kwargs):
+        self._log_info('{} - {} - {}'.format(action.capitalize(), payment_id,
                                              reference if reference is not None
                                              else '<no reference>'))
 
-        Validator.validate_id(id)
+        Validator.validate_id(payment_id)
 
         request = {
             'reference': reference
@@ -98,7 +91,7 @@ class PaymentsClient(ApiClient):
         request.update(kwargs)
 
         return self._send_http_request(
-            'payments/{}/{}s'.format(id, action), HTTPMethod.POST, request)
+            'payments/{}/{}s'.format(payment_id, action), HTTPMethod.POST, request)
 
     def _set_payment_request_defaults(self, request):
         request['currency'] = request.get(
@@ -120,7 +113,7 @@ class PaymentsClient(ApiClient):
             arg=request.get('customer'),
             type_err_msg='Invalid customer.')
         # for 3ds, due to Python name limitations, we try both '3ds' and 'threeds' attribute names
-        request['3ds'] = Validator.validate_and_set_dynamic_boolean_attribute(
+        request['3ds'] = Validator.validate_and_set_dynamic_attr(
             arg=request.get('threeds', request.get('3ds')), type_err_msg='Invalid 3DS settings.')
-        request['risk'] = Validator.validate_and_set_dynamic_boolean_attribute(
+        request['risk'] = Validator.validate_and_set_dynamic_attr(
             arg=request.get('risk'), type_err_msg='Invalid risk settings.')

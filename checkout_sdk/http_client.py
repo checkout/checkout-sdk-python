@@ -1,18 +1,18 @@
-import requests
 import time
+from urllib.parse import urljoin
+import requests
 
 from checkout_sdk import errors, constants, HTTPMethod
 from checkout_sdk.common import HTTPResponse
-from urllib.parse import urljoin
 
-http_headers_default = {
+HTTP_HEADERS_DEFAULTS = {
     'user-agent': 'checkout-sdk-python/{}'.format(constants.VERSION)
 }
 
 
 class HTTPClient:
     def __init__(self, config):
-        self.config = config
+        self._config = config
 
         # init HTTP Session (for pooling)
         self._session = requests.Session()
@@ -31,7 +31,7 @@ class HTTPClient:
 
     @property
     def headers(self):
-        headers = http_headers_default.copy()
+        headers = HTTP_HEADERS_DEFAULTS.copy()
         headers['authorization'] = self.config.secret_key
         return headers
 
@@ -46,7 +46,7 @@ class HTTPClient:
             urljoin(self.config.api_base_url, path), self.headers, request)
 
         try:
-            r = self._session.request(
+            response = self._session.request(
                 method=method,
                 url=url,
                 json=request,
@@ -54,11 +54,11 @@ class HTTPClient:
                 timeout=self.config.timeout/1000)
             elapsed = self._calc_elapsed_time(start)
 
-            r.raise_for_status()
-            body = r.json()
+            response.raise_for_status()
+            body = response.json()
 
-            return HTTPResponse(r.status_code, r.headers, body, elapsed)
-        except requests.exceptions.HTTPError as e:
+            return HTTPResponse(response.status_code, response.headers, body, elapsed)
+        except requests.exceptions.HTTPError as err:
             status_code_switch = {
                 401: errors.AuthenticationError,
                 403: errors.NotAllowedError,
@@ -66,22 +66,22 @@ class HTTPClient:
                 422: errors.ValidationError,
                 429: errors.TooManyRequestsError
             }
-            jsonResponse = e.response.json()
-            print(jsonResponse)
-            error_cls = status_code_switch.get(e.response.status_code,
+            json_response = err.response.json()
+            print(json_response)
+            error_cls = status_code_switch.get(err.response.status_code,
                                                errors.ApiError)
             raise error_cls(
-                request_id=e.response.headers.get(
+                request_id=err.response.headers.get(
                     constants.REQUEST_ID_HEADER),
-                api_version=e.response.headers.get(
+                api_version=err.response.headers.get(
                     constants.API_VERSION_HEADER),
-                http_status=e.response.status_code,
-                error_type=jsonResponse.get('error_type'),
-                error_codes=jsonResponse.get('error_codes'),
+                http_status=err.response.status_code,
+                error_type=json_response.get('error_type'),
+                error_codes=json_response.get('error_codes'),
                 elapsed=elapsed)
-        except requests.exceptions.Timeout as e:
+        except requests.exceptions.Timeout:
             elapsed = self._calc_elapsed_time(start)
-            raise errors.TimeoutError(elapsed=elapsed)
+            raise errors.ApiTimeoutError(elapsed=elapsed)
         except requests.exceptions.RequestException:
             raise IOError()
 

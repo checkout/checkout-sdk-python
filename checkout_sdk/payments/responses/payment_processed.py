@@ -1,4 +1,3 @@
-#from dateutil import parser
 from checkout_sdk.payments.responses import Payment
 
 

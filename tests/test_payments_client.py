@@ -1,16 +1,13 @@
 import checkout_sdk as sdk
-
-from checkout_sdk import HTTPClient, Config, HTTPMethod
-from tests.base import CheckoutSdkTestCase
-from enum import Enum
-
+from checkout_sdk import HTTPClient, Config
 from checkout_sdk.payments import PaymentsClient
-
 from checkout_sdk.payments.responses import (
     Payment,
     PaymentPending,
     PaymentProcessed
 )
+
+from tests.base import CheckoutSdkTestCase
 
 
 class PaymentsClientTests(CheckoutSdkTestCase):
@@ -48,10 +45,10 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         payment = self._auth_card()
         self._assert_payment_response_is_valid(
             payment, PaymentProcessed, False)
-        self.assertTrue(type(payment.approved) is bool)
+        self.assertTrue(isinstance(payment.approved, bool))
         self._assert_customer_is_valid(payment.customer)
         self._assert_source_is_valid(payment.source)
-    """
+
     def test_payments_client_full_card_3ds_auth_request_with_kwargs(self):
         self._assert_payment_pending_response_is_valid(
             self._auth_card(True, False))
@@ -76,12 +73,12 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         self.assertEqual(capture.reference, self.SUB_REFERENCE)
 
     def test_payments_client_capture_partial_amount_request(self):
-        PARTIAL_AMOUNT = int(self.AMOUNT / 2)
+        partial_amount = int(self.AMOUNT / 2)
         payment = self._auth_card()
         # capture the previous auth request
         capture = self.client.capture(payment.id,
                                       reference=self.SUB_REFERENCE,
-                                      amount=PARTIAL_AMOUNT)
+                                      amount=partial_amount)
         self.assertIsNotNone(capture.action_id)
         self.assertEqual(capture.reference, self.SUB_REFERENCE)
 
@@ -96,21 +93,23 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         self.assertEqual(refund.reference, self.SUB_REFERENCE)
 
     def test_payments_client_refund_partial_amount_request(self):
-        PARTIAL_AMOUNT = int(self.AMOUNT / 2)
+        partial_amount = int(self.AMOUNT / 2)
         payment = self._auth_card()
         # capture the previous auth request
         self.client.capture(payment.id)
         # refund the capture
         refund = self.client.refund(payment.id,
                                     reference=self.SUB_REFERENCE,
-                                    amount=PARTIAL_AMOUNT)
+                                    amount=partial_amount)
         self.assertIsNotNone(refund.action_id)
         self.assertEqual(refund.reference, self.SUB_REFERENCE)
 
     def test_payments_client_non_3ds_auth_request_with_card_source_id(self):
         payment = self._auth_card()
-        payment2 = self._auth_source(
-            IdSource(id=payment.source.id, cvv=self.CARD_CVV))
+        payment2 = self._auth_source({
+            'id': payment.source.id,
+            'cvv': self.CARD_CVV
+        })
 
         self._assert_payment_response_is_valid(
             payment2, PaymentProcessed, False)
@@ -118,13 +117,13 @@ class PaymentsClientTests(CheckoutSdkTestCase):
 
     def test_payments_client_non_3ds_auth_request_with_customer_source_id(self):
         payment = self._auth_card()
-        payment2 = self._auth_source(
-            CustomerSource(id=payment.customer.id))
+        payment2 = self._auth_source({
+            'id': payment.customer.id
+        })
 
         self._assert_payment_response_is_valid(
             payment2, PaymentProcessed, False)
         self.assertEqual(payment.customer.id, payment2.customer.id)
-    """
 
     def _auth_card(self, threeds=False, dict_format=False, amount=None):
         if amount is None:

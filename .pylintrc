@@ -1,0 +1,4 @@
+[TYPECHECK]
+#ignore-patterns=test_
+#ignored-classes=PaymentPending, PaymentProcessed, Capture, Void, Refund
+disable=C0111

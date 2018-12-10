@@ -1,13 +1,14 @@
+# pylint: disable=invalid-name, wrong-import-position
+
 import logging
 import os
 import sys
 
 name = "checkout_sdk"
 
-# defaults
-
 from checkout_sdk.enums import Currency, HTTPMethod, PaymentType
 
+# defaults
 default_currency = None
 default_capture = True
 default_payment_type = PaymentType.Regular
@@ -19,13 +20,13 @@ handler = logging.StreamHandler(stream=sys.stdout)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-logging_levels = {
+LOGGING_LEVELS = {
     'debug': logging.DEBUG,
     'info': logging.INFO
 }
 env_logging_level = str(os.environ.get('CKO_LOGGING', None)).lower()
-if env_logging_level in logging_levels.keys():
-    logger.setLevel(logging_levels[env_logging_level])
+if env_logging_level in LOGGING_LEVELS.keys():
+    logger.setLevel(LOGGING_LEVELS[env_logging_level])
 
 # class imports (order matters!)
 
@@ -38,5 +39,6 @@ from checkout_sdk.api_client import ApiClient
 from checkout_sdk.checkout_api import CheckoutApi
 
 
-def get_api(secret_key=None, sandbox=None, timeout=constants.DEFAULT_TIMEOUT, api_base_url=None):
+def get_api(secret_key=None, sandbox=None, timeout=constants.DEFAULT_TIMEOUT, api_base_url=None):  \
+        # pylint: disable = unused-argument
     return CheckoutApi(**locals())
