@@ -1,5 +1,3 @@
-# pylint: disable=too-few-public-methods
-
 
 class HTTPResponse:
     def __init__(self, status, headers, body, elapsed):

@@ -1,5 +1,3 @@
-# pylint: disable=too-few-public-methods
-
 
 class ResponseDTO:
     def __init__(self, kvp):

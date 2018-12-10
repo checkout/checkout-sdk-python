@@ -36,11 +36,11 @@ class PaymentsClient(ApiClient):
         source_type = source.get(
             'type', 'unknown') if source is not None else 'unknown'
 
-        self._log_info('Auth {} - {}{} - {}'.format(source_type,
-                                                    amount,
-                                                    currency,
-                                                    reference if reference is not None
-                                                    else '<no reference>'))
+        self._log_info('Auth {} - {}{} - {}'.format(
+            source_type,
+            amount,
+            currency,
+            reference if reference is not None else '<no reference>'))
 
         Validator.validate_transaction(
             amount=amount,
@@ -62,20 +62,24 @@ class PaymentsClient(ApiClient):
 
     def capture(self, payment_id, amount=None, reference=None, **kwargs):
         return Capture(
-            self._get_payment_action_response(payment_id, 'capture', amount, reference, **kwargs))
+            self._get_payment_action_response(payment_id, 'capture',
+                                              amount, reference, **kwargs))
 
     def refund(self, payment_id, amount=None, reference=None, **kwargs):
         return Refund(
-            self._get_payment_action_response(payment_id, 'refund', amount, reference, **kwargs))
+            self._get_payment_action_response(payment_id, 'refund',
+                                              amount, reference, **kwargs))
 
     def void(self, payment_id, reference=None, **kwargs):
         return Void(
-            self._get_payment_action_response(payment_id, 'void', None, reference, **kwargs))
+            self._get_payment_action_response(payment_id, 'void',
+                                              None, reference, **kwargs))
 
-    def _get_payment_action_response(self, payment_id, action, amount, reference, **kwargs):
-        self._log_info('{} - {} - {}'.format(action.capitalize(), payment_id,
-                                             reference if reference is not None
-                                             else '<no reference>'))
+    def _get_payment_action_response(self, payment_id, action,
+                                     amount, reference, **kwargs):
+        self._log_info('{} - {} - {}'.format(
+            action.capitalize(), payment_id,
+            reference if reference is not None else '<no reference>'))
 
         Validator.validate_id(payment_id)
 
@@ -91,7 +95,8 @@ class PaymentsClient(ApiClient):
         request.update(kwargs)
 
         return self._send_http_request(
-            'payments/{}/{}s'.format(payment_id, action), HTTPMethod.POST, request)
+            'payments/{}/{}s'.format(payment_id, action),
+            HTTPMethod.POST, request)
 
     def _set_payment_request_defaults(self, request):
         request['currency'] = request.get(
@@ -112,8 +117,11 @@ class PaymentsClient(ApiClient):
         Validator.validate_complex_attribute(
             arg=request.get('customer'),
             type_err_msg='Invalid customer.')
-        # for 3ds, due to Python name limitations, we try both '3ds' and 'threeds' attribute names
+        # for 3ds, due to Python name limitations,
+        # we try both '3ds' and 'threeds' attribute names
         request['3ds'] = Validator.validate_and_set_dynamic_attr(
-            arg=request.get('threeds', request.get('3ds')), type_err_msg='Invalid 3DS settings.')
+            arg=request.get(
+                'threeds',
+                request.get('3ds')), type_err_msg='Invalid 3DS settings.')
         request['risk'] = Validator.validate_and_set_dynamic_attr(
             arg=request.get('risk'), type_err_msg='Invalid risk settings.')

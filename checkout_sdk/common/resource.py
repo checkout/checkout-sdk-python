@@ -1,8 +1,6 @@
 from checkout_sdk import constants
 from checkout_sdk.common import ResponseDTO, HTTPResponse
 
-# pylint: disable=no-member
-
 
 class Resource(ResponseDTO):
     def __init__(self, api_response):
@@ -15,7 +13,10 @@ class Resource(ResponseDTO):
 
     @property
     def http_response(self):
-        """HTTP response with status, headers, JSON body and elapsed time (ms)."""
+        """
+        HTTP response with status, headers,
+        JSON body and elapsed time (ms).
+        """
         return self._response
 
     @property

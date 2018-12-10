@@ -10,12 +10,14 @@ class Validator:
             raise TypeError('Id should be of string type.')
 
     @classmethod
-    def validate_transaction(cls, amount, currency=None, payment_type=None, reference=None):
+    def validate_transaction(cls, amount, currency=None,
+                             payment_type=None, reference=None):
         if amount is None or (isinstance(amount, int) and amount < 0):
             raise ValueError('Amount must be greater or equal to zero.')
         if not isinstance(amount, int):
             raise TypeError('Amount must be an integer.')
-        if currency is not None and isinstance(currency, str) and not Currency.has_value(currency):
+        if currency is not None and isinstance(currency, str) \
+                and not Currency.has_value(currency):
             raise ValueError('Invalid currency.')
         if currency is not None and not isinstance(currency, str):
             raise TypeError('Currency should be a string.')
@@ -39,7 +41,8 @@ class Validator:
                 .format(type_err_msg))
 
     @classmethod
-    def validate_and_set_dynamic_attr(cls, arg, type_err_msg, missing_arg_err_msg=None):
+    def validate_and_set_dynamic_attr(cls, arg, type_err_msg,
+                                      missing_arg_err_msg=None):
         if arg is None and missing_arg_err_msg is not None:
             raise ValueError(missing_arg_err_msg)
 

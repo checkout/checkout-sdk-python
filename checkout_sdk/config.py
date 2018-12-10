@@ -12,10 +12,13 @@ API_BASE_URLS = {
     'production': 'https://api2.checkout.com/v2/'
 }
 
-# using lambda functions here so that env variables are read at the time of access
+# using lambda functions here so that
+# env variables are read at the time of access
 ENV_SETTINGS = {
-    'secret_key': lambda: os.environ.get('CKO_SECRET_KEY'),
-    'sandbox': lambda: os.environ.get('CKO_SANDBOX', 'true').lower() in ['true', '1']
+    'secret_key':
+        lambda: os.environ.get('CKO_SECRET_KEY'),
+    'sandbox':
+        lambda: os.environ.get('CKO_SANDBOX', 'true').lower() in ['true', '1']
 }
 
 
@@ -67,4 +70,5 @@ class Config:
             self._timeout = int(value)
         except ValueError:
             raise ValueError(
-                'Invalid timeout. Default is {} milliseconds'.format(constants.DEFAULT_TIMEOUT))
+                'Invalid timeout. Default is {} milliseconds'
+                .format(constants.DEFAULT_TIMEOUT))

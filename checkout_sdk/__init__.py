@@ -37,6 +37,6 @@ from checkout_sdk.api_client import ApiClient
 from checkout_sdk.checkout_api import CheckoutApi
 
 
-def get_api(secret_key=None, sandbox=None, timeout=constants.DEFAULT_TIMEOUT, api_base_url=None):  \
-        # pylint: disable = unused-argument
+def get_api(secret_key=None, sandbox=None,
+            timeout=constants.DEFAULT_TIMEOUT, api_base_url=None):
     return CheckoutApi(**locals())

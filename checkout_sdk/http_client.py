@@ -41,7 +41,8 @@ class HTTPClient:
     def send(self, path, method=HTTPMethod.GET, request=None):
         start = time.time()
 
-        # call the interceptor as a hook to override the url, headers and/or request
+        # call the interceptor as a hook to override
+        # the url, headers and/or request
         url, headers, request = self.interceptor(
             urljoin(self.config.api_base_url, path), self.headers, request)
 
@@ -57,7 +58,8 @@ class HTTPClient:
             response.raise_for_status()
             body = response.json()
 
-            return HTTPResponse(response.status_code, response.headers, body, elapsed)
+            return HTTPResponse(response.status_code,
+                                response.headers, body, elapsed)
         except requests.exceptions.HTTPError as err:
             status_code_switch = {
                 401: errors.AuthenticationError,

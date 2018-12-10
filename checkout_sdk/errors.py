@@ -2,8 +2,8 @@
 
 class CheckoutSdkError(Exception):
     def __init__(self, request_id=None, api_version=None,
-                 http_status=None, error_type=None, error_codes=None, elapsed=0):
-                 # pylint: disable=too-many-arguments
+                 http_status=None, error_type=None, error_codes=None,
+                 elapsed=0):
         super().__init__()
         self.request_id = request_id
         self.api_version = api_version
