@@ -15,10 +15,7 @@ class ResponseDTO:
             if isinstance(val, dict):
                 setattr(self, key, ResponseDTO(val))
             elif isinstance(val, list):
-                dto_list = []
-                for item in val:
-                    dto_list.append(ResponseDTO(item))
-                setattr(self, key, dto_list)
+                setattr(self, key, [ResponseDTO(item) for item in val])
             else:
                 setattr(self, key, val)
 
