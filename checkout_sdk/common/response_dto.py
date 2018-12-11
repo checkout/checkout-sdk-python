@@ -37,7 +37,8 @@ class ResponseDTO:
 
     def __setitem__(self, k, v):
         if self._read_only:
-            raise AttributeError(f'{self.__class__.__name__} is read-only.')
+            raise AttributeError(
+                '{} is read-only.'.format(self.__class__.__name__))
         else:
             if isinstance(v, dict):
                 self._kvp[k] = ResponseDTO(v, self._read_only)
