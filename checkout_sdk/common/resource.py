@@ -7,9 +7,9 @@ class Resource(ResponseDTO):
         if not isinstance(api_response, HTTPResponse):
             raise TypeError(
                 'api_response must be a valid instance of HTTPResponse')
-        self._response = api_response
 
         super().__init__(api_response.body)
+        self._response = api_response
 
     @property
     def http_response(self):

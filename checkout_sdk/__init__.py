@@ -10,6 +10,7 @@ from checkout_sdk.enums import Currency, HTTPMethod, PaymentType
 default_currency = None
 default_capture = True
 default_payment_type = PaymentType.Regular
+default_dto_immutable = True
 
 # logging
 logger = logging.getLogger('cko')
