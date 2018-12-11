@@ -21,8 +21,7 @@ setuptools.setup(
     license='MIT',
     packages=setuptools.find_packages(exclude=['tests', 'tests.*']),
     install_requires=[
-        'requests >= 2.0.0',
-        'python-dateutil >= 2.7.0'
+        'requests >= 2.0.0'
     ],
     test_suite='tests',
     classifiers=[

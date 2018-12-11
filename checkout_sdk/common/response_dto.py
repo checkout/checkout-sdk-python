@@ -22,9 +22,13 @@ class ResponseDTO:
         # this will in turn call __getitem__
         return self[k]
 
-    # instead of key error, return None if not found.
-    def __getitem__(self, arg):
-        return self._kvp.get(arg)
+    # KeyError if key does not exist
+    def __getitem__(self, k):
+        return self._kvp[k]
+
+    # safer option with fallback option (None as default)
+    def get(self, k, d=None):
+        return self._kvp.get(k, d)
 
     def __setattr__(self, k, v):
         # avoiding infinite loop here
