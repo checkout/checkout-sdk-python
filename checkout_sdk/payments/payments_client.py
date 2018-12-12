@@ -10,9 +10,7 @@ from checkout_sdk.common import ResponseDTO
 from checkout_sdk.payments.responses import (
     PaymentProcessed,
     PaymentPending,
-    Capture,
-    Refund,
-    Void
+    PaymentAction
 )
 
 
@@ -62,17 +60,17 @@ class PaymentsClient(ApiClient):
             return PaymentProcessed(http_response)
 
     def capture(self, payment_id, amount=None, reference=None, **kwargs):
-        return Capture(
+        return PaymentAction(
             self._get_payment_action_response(payment_id, 'capture',
                                               amount, reference, **kwargs))
 
     def refund(self, payment_id, amount=None, reference=None, **kwargs):
-        return Refund(
+        return PaymentAction(
             self._get_payment_action_response(payment_id, 'refund',
                                               amount, reference, **kwargs))
 
     def void(self, payment_id, reference=None, **kwargs):
-        return Void(
+        return PaymentAction(
             self._get_payment_action_response(payment_id, 'void',
                                               None, reference, **kwargs))
 
