@@ -125,6 +125,15 @@ class PaymentsClientTests(CheckoutSdkTestCase):
             payment2, PaymentProcessed, False)
         self.assertEqual(payment.customer.id, payment2.customer.id)
 
+    def test_payments_client_payment_actions_request(self):
+        payment = self._auth_card()
+        # capture the previous auth request
+        self.client.capture(payment.id)
+        # get all actions
+        actions = self.client.get_actions(payment.id)
+        self.assertTrue(len(actions) > 0)
+        self.assertIsNotNone(actions[0].id)
+
     def _auth_card(self, threeds=False, dict_format=False, amount=None):
         if amount is None:
             amount = self.AMOUNT
