@@ -52,7 +52,7 @@ class HTTPClient:
                 url=url,
                 json=request,
                 headers=headers,
-                timeout=self.config.timeout/1000)
+                timeout=self.config.timeout / 1000)
             elapsed = self._calc_elapsed_time(start)
 
             response.raise_for_status()
@@ -88,4 +88,4 @@ class HTTPClient:
             raise IOError()
 
     def _calc_elapsed_time(self, start):
-        return '{0:.2f}'.format((time.time() - start)*1000)
+        return '{0:.2f}'.format((time.time() - start) * 1000)

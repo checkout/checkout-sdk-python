@@ -1,7 +1,6 @@
 """
 Not using Python Enum
-The "value"/"name" proposition can make things
-unnecessarily confusing for an SDK.
+The value/name proposition can make things unnecessarily confusing for an SDK.
 KISS applies here.
 """
 
