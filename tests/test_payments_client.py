@@ -134,6 +134,21 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         self.assertTrue(len(actions) > 0)
         self.assertIsNotNone(actions[0].id)
 
+    def test_payments_client_non_3ds_get_request(self):
+        payment = self._auth_card()
+        # capture the previous auth request
+        self.client.capture(payment.id)
+        # get payment
+        payment2 = self.client.get(payment.id)
+        self._assert_payment_response_is_valid(
+            payment2, PaymentProcessed, False)
+
+    def test_payments_client_3ds_get_request(self):
+        payment = self._auth_card(threeds=True)
+        # get payment
+        payment2 = self.client.get(payment.id)
+        self._assert_payment_pending_response_is_valid(payment2)
+
     def _auth_card(self, threeds=False, dict_format=False, amount=None):
         if amount is None:
             amount = self.AMOUNT

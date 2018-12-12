@@ -21,6 +21,21 @@ class PaymentType(CheckoutSdkEnum):
     MOTO = 'MOTO'
 
 
+class PaymentStatus(CheckoutSdkEnum):
+    Authorized = 'Authorized'
+    Cancelled = 'Cancelled'
+    Captured = 'Captured'
+    Declined = 'Declined'
+    Expired = 'Expired'
+    PartiallyCaptured = 'Partially Captured'
+    PartiallyRefunded = 'Partially Refunded'
+    Pending = 'Pending'
+    Refunded = 'Refunded'
+    Voided = 'Voided'
+    CardVerified = 'Card Verified'
+    Chargeback = 'Chargeback'
+
+
 class HTTPMethod(CheckoutSdkEnum):
     GET = 'GET'
     POST = 'POST'

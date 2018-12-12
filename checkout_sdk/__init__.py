@@ -4,13 +4,13 @@ import sys
 
 name = "checkout_sdk"
 
-from checkout_sdk.enums import Currency, HTTPMethod, PaymentType
+from checkout_sdk.enums import Currency, HTTPMethod, PaymentType, PaymentStatus
 
 # defaults
 default_currency = None
 default_capture = True
 default_payment_type = PaymentType.Regular
-default_dto_immutable = True
+default_response_immutable = True
 
 # logging
 logger = logging.getLogger('cko')

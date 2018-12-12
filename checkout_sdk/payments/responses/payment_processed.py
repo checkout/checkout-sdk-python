@@ -6,7 +6,7 @@ class PaymentProcessed(Payment):
         super().__init__(api_response, is_pending=False)
 
     @property
-    def action_links(self):
+    def actions_link(self):
         return self.get_link('actions')
 
     @property
@@ -24,3 +24,11 @@ class PaymentProcessed(Payment):
     @property
     def void_link(self):
         return self.get_link('void')
+
+    @property
+    def can_refund(self):
+        return self.has_link('refund')
+
+    @property
+    def refund_link(self):
+        return self.get_link('refund')

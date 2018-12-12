@@ -5,7 +5,7 @@ except ImportError:
     from checkout_sdk.enums import HTTPStatus
 
 import checkout_sdk as sdk
-from checkout_sdk import ApiClient, HTTPMethod, Validator
+from checkout_sdk import ApiClient, HTTPMethod, Validator, PaymentStatus
 from checkout_sdk.common import ResponseDTO
 from checkout_sdk.payments.responses import (
     PaymentProcessed,
@@ -74,15 +74,27 @@ class PaymentsClient(ApiClient):
             self._get_payment_action_response(payment_id, 'void',
                                               None, reference, **kwargs))
 
+    def get(self, payment_id):
+        http_response = self._get_response(payment_id, 'get')
+
+        if http_response.body['status'] == PaymentStatus.Pending:
+            return PaymentPending(http_response)
+        else:
+            return PaymentProcessed(http_response)
+
     def get_actions(self, payment_id):
-        self._log_info('GET ACTIONS - {}'.format(payment_id))
+        http_response = self._get_response(
+            payment_id, 'get actions', '/actions')
+
+        return [ResponseDTO(item) for item in http_response.body]
+
+    def _get_response(self, payment_id, log_title, path=''):
+        self._log_info('{} - {}'.format(log_title.capitalize(), payment_id))
 
         Validator.validate_id(payment_id)
 
-        response = self._send_http_request(
-            'payments/{}/actions'.format(payment_id), HTTPMethod.GET)
-
-        return [ResponseDTO(item) for item in response.body]
+        return self._send_http_request(
+            'payments/{}{}'.format(payment_id, path), HTTPMethod.GET)
 
     def _get_payment_action_response(self, payment_id, action,
                                      amount, reference, **kwargs):
