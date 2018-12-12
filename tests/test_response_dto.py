@@ -16,8 +16,17 @@ class ResponseDTOTests(CheckoutSdkTestCase):
             "self": {
                 "href": "http://url"
             }
-        }
+        },
+        "dummy_array": [
+            {
+                "key1": "value1"
+            }
+        ]
     }
+
+    def test_dto_bad_type(self):
+        with self.assertRaises(TypeError):
+            dto = ResponseDTO(kvp=False)
 
     def test_dto_immutable(self):
         dto = ResponseDTO(kvp=None, read_only=True)
@@ -40,3 +49,7 @@ class ResponseDTOTests(CheckoutSdkTestCase):
         self.assertTrue(dto.source.id == dto['source']['id'])
         self.assertIsNotNone(dto._links)
         self.assertTrue(dto._links.self.href == dto['_links'].self['href'])
+        self.assertIsNotNone(dto.dummy_array[0].key1)
+        with self.assertRaises(KeyError):
+            dto.key_not_found
+        self.assertTrue(dto.get('key_not_found') is None)

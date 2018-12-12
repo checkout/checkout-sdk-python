@@ -4,7 +4,7 @@ import checkout_sdk
 class ResponseDTO:
     def __init__(self, kvp=None,
                  read_only=checkout_sdk.default_response_immutable):
-        if kvp and not isinstance(kvp, dict):
+        if kvp is not None and not isinstance(kvp, dict):
             raise TypeError('Dictionary expected')
 
         # load the DTO

@@ -40,9 +40,5 @@ class ApiError(CheckoutSdkError):
     pass
 
 
-class ServiceUnavailableError(CheckoutSdkError):
-    pass
-
-
 class ApiTimeoutError(CheckoutSdkError):
     pass
