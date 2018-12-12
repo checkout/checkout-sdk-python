@@ -4,6 +4,7 @@ from checkout_sdk import ApiClient, Utils, HttpMethod
 from checkout_sdk.payments import (
     PaymentHistory,
     PaymentProcessed,
+    AlternativePaymentProcessed,
     ThreeDSResponse,
     CaptureResponse,
     VoidResponse,
@@ -78,6 +79,28 @@ class PaymentsClient(ApiClient):
             return ThreeDSResponse(http_response)
         else:
             return PaymentProcessed(http_response)
+
+    def alternative_payment_request(self,
+                                    payment_provider_id, payment_token,
+                                    issuer_id=None, customer=None, *kwargs):
+        request = {
+            'localPayment': {
+                'lppId': payment_provider_id,
+                'userData': {}
+            },
+            'paymentToken': payment_token
+        }
+
+        if issuer_id is not None:
+            request['localPayment']['userData']['issuerId'] = issuer_id
+
+        if Utils.is_email(customer):
+            request['email'] = customer
+
+        request.update(kwargs)
+
+        http_response = self._send_http_request('charges/localpayment', HttpMethod.POST, request)
+        return AlternativePaymentProcessed(http_response)
 
     def capture(self, id, value=None, track_id=None, **kwargs):
         return CaptureResponse(self._getPaymentActionResponse(id, 'capture', value, track_id, **kwargs))

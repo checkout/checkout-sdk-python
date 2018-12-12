@@ -76,3 +76,9 @@ class Utils:
         # this is how a 3D response is detected currently
         return http_response.body.get('redirectUrl') is not None \
             and PAYMENT_TOKEN_REGEX.match(http_response.body.get('id')) is not None
+
+    @classmethod
+    def verify_alternative_payment_redirect_flow(cls, http_response):
+        return http_response.body.get('localPayment', {}).get('paymentUrl', None) is not None \
+            and PAYMENT_TOKEN_REGEX.match((http_response.body.get('id'))) is not None
+

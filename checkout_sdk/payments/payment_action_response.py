@@ -1,4 +1,4 @@
-from checkout_sdk.payments import PaymentResponse
+from checkout_sdk.payments import PaymentResponse, AlternativePaymentResponse
 
 
 class PaymentActionResponse(PaymentResponse):
@@ -18,6 +18,16 @@ class PaymentActionResponse(PaymentResponse):
     def value(self):
         return self._response.body['value']
 
+    @property
+    def response_code(self):
+        return self._response.body['responseCode']
+
+    @property
+    def approved(self):
+        return str(self.response_code).startswith('1')
+
+
+class AlternativePaymentActionResponse(AlternativePaymentResponse):
     @property
     def response_code(self):
         return self._response.body['responseCode']
