@@ -8,6 +8,7 @@ import checkout_sdk as sdk
 
 from checkout_sdk import HttpClient, Config, Utils
 from checkout_sdk.payments import PaymentsClient, PaymentResponse
+from checkout_sdk.tokens import TokensClient
 from tests.base import CheckoutSdkTestCase
 from enum import Enum
 
@@ -16,6 +17,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
     def setUp(self):
         super().setUp()
         self.http_client = HttpClient(Config())
+        self.token_client = TokensClient(self.http_client)
         self.client = PaymentsClient(self.http_client)
 
     def tearDown(self):
@@ -187,6 +189,18 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         self.assertTrue(response2.approved)
         self.assertEqual(response2.value, 80)
 
+    def test_alternative_payment_request(self):
+        token = self.token_client.request_payment_token(
+            value=100, currency=sdk.Currency.USD
+        )
+        payment = self.alternative_payment(
+            payment_token=token, payment_provider='lpp_19'  # Currently checks with PayPal provider
+        )
+
+        self.assertTrue(payment.approved)
+        self.assertTrue(payment.id.startswith('pay_tok'))
+        self.assertTrue(payment.requires_redirect)
+
     def auth_card(self, value=None, threeds=False, attempt_n3d=False):
         payment = self.client.request(
             card={
@@ -228,3 +242,11 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         )
 
         return payment
+
+    def alternative_payment(self, payment_token, payment_provider, issuer_id=None):
+        return self.client.alternative_payment_request(
+            payment_provider_id=payment_provider,
+            payment_token=payment_token,
+            issuer_id=issuer_id,
+            customer='joesmith@gmail.com',
+        )
