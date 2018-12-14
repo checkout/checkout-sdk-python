@@ -2,11 +2,17 @@ sudo: false
 
 language: python
 
-python:
-  - "3.4"
-  - "3.5"
-  - "3.6"
-  - "3.7-dev"
+matrix:
+  include:
+    - python: "2.7"
+    - python: "3.4"
+    - python: "3.5"
+    - python: "3.6"
+    - python: "3.7"
+      dist: xenial  # Work around for 3.7 issues with Travis
+      sudo: true    # See Github issue: https://github.com/travis-ci/travis-ci/issues/9069#issuecomment-425720905
+    - python: "pypy"
+    - python: "pypy3"
 
 install:
   - pip install --upgrade pip
