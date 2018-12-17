@@ -32,6 +32,8 @@ class ResponseDTOTests(CheckoutSdkTestCase):
         dto = ResponseDTO(kvp=None, read_only=True)
         with self.assertRaises(AttributeError):
             dto.dummy = 1
+        with self.assertRaises(KeyError):
+            dto['dummy'] = 1
 
     def test_dto_mutable(self):
         dto = ResponseDTO(kvp=None, read_only=False)

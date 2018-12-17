@@ -44,11 +44,14 @@ class ResponseDTO:
             super().__setattr__(k, v)
         else:
             # this will in turn call __setitem__
-            self[k] = v
+            try:
+                self[k] = v
+            except KeyError as err:
+                raise AttributeError(err)
 
     def __setitem__(self, k, v):
         if self._read_only:
-            raise AttributeError(
+            raise KeyError(
                 '{} is read-only.'.format(self.__class__.__name__))
         else:
             if isinstance(v, dict):
