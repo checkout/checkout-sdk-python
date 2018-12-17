@@ -194,7 +194,8 @@ class PaymentsClientTests(CheckoutSdkTestCase):
             value=100, currency=sdk.Currency.USD
         )
         payment = self.alternative_payment(
-            payment_token=token, payment_provider='lpp_19'  # Currently checks with PayPal provider
+            payment_token=token.id, payment_provider='lpp_19'  # Currently checks with PayPal
+            # provider
         )
 
         self.assertTrue(payment.approved)
