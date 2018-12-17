@@ -21,7 +21,13 @@ class ResponseDTO:
     # only called for attributes which are not declared directly
     def __getattr__(self, k):
         # this will in turn call __getitem__
-        return self[k]
+        # we catch KeyError to raise AttributeError
+        # this maintains expected behaviour
+        #   when used with getattr() and hasattr()
+        try:
+            return self[k]
+        except KeyError:
+            raise AttributeError
 
     # KeyError if key does not exist
     def __getitem__(self, k):

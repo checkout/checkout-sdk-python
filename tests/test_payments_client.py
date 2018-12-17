@@ -48,6 +48,12 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         self.assertTrue(isinstance(payment.approved, bool))
         self._assert_customer_is_valid(payment.customer)
         self._assert_source_is_valid(payment.source)
+        self.assertIsNotNone(payment.actions_link)
+        self.assertTrue(payment.can_capture ==
+                        (payment.capture_link is not None))
+        self.assertTrue(payment.can_refund ==
+                        (payment.refund_link is not None))
+        self.assertTrue(payment.can_void == (payment.void_link is not None))
 
     def test_payments_client_full_card_3ds_auth_request_with_kwargs(self):
         self._assert_payment_pending_response_is_valid(

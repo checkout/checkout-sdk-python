@@ -53,3 +53,4 @@ class ResponseDTOTests(CheckoutSdkTestCase):
         with self.assertRaises(KeyError):
             dto.key_not_found
         self.assertTrue(dto.get('key_not_found') is None)
+        self.assertTrue(dto.get('key_not_found', 1) == 1)

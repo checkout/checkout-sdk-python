@@ -14,6 +14,7 @@ From source:
 ### Requirements
 
 * Python 3.4+
+* Pypy 3
 
 ## Usage
 
@@ -50,7 +51,13 @@ sdk.default_response_immutable = True
 
 ### Payment Request
 
-#### Full Card
+The SDK will infer the `type` of the payment `source`, if not provided, as follows:
+- `type: "card"` if `number` attribute present.
+- `type: "customer"` if `email` attribute present or `id` attribute present and prefix is `cus_`.
+- `type: "token"` if `token` attribute present.
+- `type: "id"` if `id` attribute present and prefix is `src_`.
+
+#### Source type: `card`
 
 ``` python
 try:
@@ -72,6 +79,45 @@ except sdk.errors.CheckoutSdkError as e:
     print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
 ```
 
+#### Source type: `id`
+
+``` python
+try:
+    payment = api.payments.request(
+        source = {
+            'id': 'src_656buhl3fmbuvj27b3jz3ijfyt'
+            'cvv': '100'                                # source-related attribute
+        },
+        amount=100,                                     # cents
+        currency=sdk.Currency.USD,                      # or 'usd'
+        reference='pay_ref'
+    )
+    print(payment.id)
+except sdk.errors.CheckoutSdkError as e:
+    print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
+```
+
+#### Source type: `customer`
+
+``` python
+try:
+    payment = api.payments.request(
+        source = {
+            'id': 'cus_700buhl4hnbuvj27b3jz3ijzzz'
+            # or ...
+            'email': 'user@checkout.com'
+        },
+        amount=100,                                     # cents
+        currency=sdk.Currency.USD,                      # or 'usd'
+        reference='pay_ref'
+    )
+    print(payment.id)
+except sdk.errors.CheckoutSdkError as e:
+    print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
+```
+
+####
+
 ### Exception handling
 
 ``` python
@@ -85,7 +131,7 @@ class ApiTimeout(CheckoutSdkError):
 class ApiError(CheckoutSdkError):                       # 500 / fallback
 ```
 
-> The SDK will not do any offline business validations. Provided the values and types are correct, all business validations are handled at API level. On that note, expect `ValueError` and `TypeError` for incorrect usage.
+> The SDK will not do any offline business validations. Provided the values and types are correct, all business validations are handled at API level. `ValueError` and `TypeError` are thrown for incorrect usage.
 
 ### Logging
 

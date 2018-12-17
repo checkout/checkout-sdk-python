@@ -31,7 +31,7 @@ class ValidatorTests(CheckoutSdkTestCase):
             }, None)
         except Exception:
             self.fail(
-                'Validator.validate_and_set_dynamic_attr raised an exception unexpectedly for a dictionary.')
+                'Validator.validate_complex_attribute raised an exception unexpectedly for a dictionary.')
 
     def test_validate_complex_attribute_with_missing_value(self):
         with self.assertRaises(ValueError):
@@ -50,6 +50,14 @@ class ValidatorTests(CheckoutSdkTestCase):
         except:
             self.fail(
                 'Validator.validate_and_set_dynamic_attr raised an exception unexpectedly when using a boolean shortcut.')
+
+    def test_validate_and_set_dynamic_attr_fails_without_required_attribute(self):
+        with self.assertRaises(ValueError):
+            Validator.validate_and_set_dynamic_attr(None, None, 'Value error')
+
+    def test_validate_and_set_dynamic_attr_fails_with_bad_type(self):
+        with self.assertRaises(TypeError):
+            Validator.validate_and_set_dynamic_attr(1, 'Type error')
 
     def test_validate_transaction(self):
         try:
@@ -96,4 +104,16 @@ class ValidatorTests(CheckoutSdkTestCase):
 
     def test_validate_transaction_fails_with_wrong_payment_reference_type(self):
         with self.assertRaises(TypeError):
-            Validator.validate_transaction(100, 'usd', 2, False)
+            Validator.validate_transaction(100, 'usd', 'Regular', False)
+
+    def test_validate_source_type_fails_with_wrong_source_type_value(self):
+        with self.assertRaises(ValueError):
+            Validator.validate_and_set_source_type({
+                "type": "bad_type"
+            })
+
+    def test_validate_source_type_with_valid_source_type(self):
+        source = Validator.validate_and_set_source_type({
+            "type": "card"
+        })
+        self.assertTrue(source['type'] == 'card')
