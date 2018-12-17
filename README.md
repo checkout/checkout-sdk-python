@@ -57,7 +57,7 @@ The SDK will infer the `type` of the payment `source`, if not provided, as follo
 - `type: "token"` if `token` attribute present.
 - `type: "id"` if `id` attribute present and prefix is `src_`.
 
-#### Source type: `card`
+#### Source Type: `card`
 
 ``` python
 try:
@@ -79,13 +79,13 @@ except sdk.errors.CheckoutSdkError as e:
     print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
 ```
 
-#### Source type: `id`
+#### Source Type: `id`
 
 ``` python
 try:
     payment = api.payments.request(
         source = {
-            'id': 'src_656buhl3fmbuvj27b3jz3ijfyt'
+            'id': 'src_...'
             'cvv': '100'                                # source-related attribute
         },
         amount=100,                                     # cents
@@ -97,13 +97,32 @@ except sdk.errors.CheckoutSdkError as e:
     print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
 ```
 
-#### Source type: `customer`
+#### Source Type: `token`
 
 ``` python
 try:
     payment = api.payments.request(
         source = {
-            'id': 'cus_700buhl4hnbuvj27b3jz3ijzzz'
+            'token': 'tok_...'.
+            'billing_address': { ... },
+            'phone': { ... }
+        },
+        amount=100,                                     # cents
+        currency=sdk.Currency.USD,                      # or 'usd'
+        reference='pay_ref'
+    )
+    print(payment.id)
+except sdk.errors.CheckoutSdkError as e:
+    print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
+```
+
+#### Source Type: `customer`
+
+``` python
+try:
+    payment = api.payments.request(
+        source = {
+            'id': 'cus_...'
             # or ...
             'email': 'user@checkout.com'
         },
@@ -116,7 +135,49 @@ except sdk.errors.CheckoutSdkError as e:
     print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
 ```
 
-####
+### Payment Details
+
+#### Get Payment
+
+``` python
+try:
+    payment = api.payments.get('pay_...')
+    print(payment.id)
+except sdk.errors.CheckoutSdkError as e:
+    print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
+```
+
+#### Payment Actions
+
+``` python
+try:
+    actions = api.payments.get_actions('pay_...')
+    for action in actions:
+        print(action.id)
+        print(action.type)
+        print(action.response_code)
+        print(action.reference)
+except sdk.errors.CheckoutSdkError as e:
+    print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
+```
+
+### Payment Flow
+
+#### Capture, Void, Refund
+
+``` python
+try:
+    action = api.payments.capture('pay_...', amount=100, reference='CAPTURE')
+    # or ...
+    action = api.payments.void('pay_...', reference='VOID')
+    # or ...
+    action = api.payments.refund('pay_...', amount=100, reference='REFUND')
+
+    print(action.id)
+    print(action.get_link('payment').href)
+except sdk.errors.CheckoutSdkError as e:
+    print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
+```
 
 ### Exception handling
 
