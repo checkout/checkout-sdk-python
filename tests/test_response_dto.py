@@ -50,7 +50,9 @@ class ResponseDTOTests(CheckoutSdkTestCase):
         self.assertIsNotNone(dto._links)
         self.assertTrue(dto._links.self.href == dto['_links'].self['href'])
         self.assertIsNotNone(dto.dummy_array[0].key1)
+        with self.assertRaises(AttributeError):
+            dto.attribute_not_found
         with self.assertRaises(KeyError):
-            dto.key_not_found
+            dto['key_not_found']
         self.assertTrue(dto.get('key_not_found') is None)
         self.assertTrue(dto.get('key_not_found', 1) == 1)
