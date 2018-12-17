@@ -189,6 +189,18 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         self.assertTrue(response2.approved)
         self.assertEqual(response2.value, 80)
 
+    def test_alternative_payment_information(self):
+        info = self.client.alternative_payment_info()
+
+        self.assertTrue(isinstance(info, dict))
+        lookup_details = info.get('lookupDetails', None)
+        self.assertIsNotNone(lookup_details)
+        self.assertTrue(isinstance(lookup_details, list))
+
+        if len(lookup_details) > 0:
+            self.assertIsNotNone(lookup_details[0].get('tagName', None))
+            self.assertIsNotNone(lookup_details[0].get('values', None))
+
     def test_alternative_payment_request(self):
         token = self.token_client.request_payment_token(
             value=100, currency=sdk.Currency.EUR

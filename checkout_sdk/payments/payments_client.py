@@ -80,6 +80,11 @@ class PaymentsClient(ApiClient):
         else:
             return PaymentProcessed(http_response)
 
+    def alternative_payment_info(self):
+        alt_info_url = 'lookups/localpayments/lpp_9/tags/issuerid'
+        http_response = self._send_http_request(alt_info_url, HttpMethod.GET)
+        return http_response.body
+
     def alternative_payment_request(self,
                                     payment_provider_id, payment_token,
                                     issuer_id=None, customer=None, *kwargs):
