@@ -224,6 +224,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
     def _assert_payment_response_is_valid(self, payment, clazz=Payment, is_pending=False):
         self.assertTrue(isinstance(payment, clazz))
         # Resource
+        self.assertIsNotNone(payment.api_version)
         self.assertIsNotNone(payment.request_id)
         self.assertTrue(
             payment.links is not None and len(payment.links) > 0)

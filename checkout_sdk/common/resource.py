@@ -3,13 +3,13 @@ from checkout_sdk.common import ResponseDTO, HTTPResponse
 
 
 class Resource(ResponseDTO):
-    def __init__(self, api_response):
-        if not isinstance(api_response, HTTPResponse):
+    def __init__(self, http_response):
+        if not isinstance(http_response, HTTPResponse):
             raise TypeError(
-                'api_response must be a valid instance of HTTPResponse')
+                'http_response must be a valid instance of HTTPResponse')
 
-        super().__init__(api_response.body)
-        self._response = api_response
+        super().__init__(http_response.body)
+        self._response = http_response
 
     @property
     def http_response(self):
