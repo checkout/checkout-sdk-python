@@ -68,10 +68,14 @@ class HTTPClient:
                 422: errors.ValidationError,
                 429: errors.TooManyRequestsError
             }
-            json_response = err.response.json()
-            print(json_response)
+
+            try:
+                json_response = err.response.json()
+            except ValueError:
+                json_response = {}
             error_cls = status_code_switch.get(err.response.status_code,
                                                errors.ApiError)
+
             raise error_cls(
                 request_id=err.response.headers.get(
                     constants.REQUEST_ID_HEADER),

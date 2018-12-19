@@ -171,7 +171,8 @@ class PaymentsClientTests(CheckoutSdkTestCase):
                 },
                 '3ds': {
                     'enabled': threeds
-                }
+                },
+                'capture': False
             })
         else:
             return self.client.request(
@@ -183,7 +184,8 @@ class PaymentsClientTests(CheckoutSdkTestCase):
                     'email': self.CUSTOMER_EMAIL,
                     'name': self.CUSTOMER_NAME
                 },
-                threeds=threeds
+                threeds=threeds,
+                capture=False
             )
 
     def _auth_source(self, source):
