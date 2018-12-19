@@ -62,7 +62,7 @@ The SDK will infer the `type` of the payment `source`, if not provided, as follo
 ``` python
 try:
     payment = api.payments.request(
-        source = {
+        source={
             'number': '4242424242424242',
             'expiry_month': 6,
             'expiry_year': 2025,
@@ -84,7 +84,7 @@ except sdk.errors.CheckoutSdkError as e:
 ``` python
 try:
     payment = api.payments.request(
-        source = {
+        source={
             'id': 'src_...'
             'cvv': '100'                                # source-related attribute
         },
@@ -102,7 +102,7 @@ except sdk.errors.CheckoutSdkError as e:
 ``` python
 try:
     payment = api.payments.request(
-        source = {
+        source={
             'token': 'tok_...'.
             'billing_address': { ... },
             'phone': { ... }
@@ -121,7 +121,7 @@ except sdk.errors.CheckoutSdkError as e:
 ``` python
 try:
     payment = api.payments.request(
-        source = {
+        source={
             'id': 'cus_...'
             # or ...
             'email': 'user@checkout.com'
@@ -178,6 +178,63 @@ try:
 except sdk.errors.CheckoutSdkError as e:
     print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
 ```
+
+### 3DS Support
+
+#### Payment Request Example
+
+``` python
+try:
+    payment = api.payments.request(
+        source={
+            'number': '4242424242424242',
+            'expiry_month': 6,
+            'expiry_year': 2025,
+            'cvv': '100'
+        },
+        amount=100,                                     # cents
+        currency=sdk.Currency.USD,                      # or 'usd'
+        reference='pay_ref'
+        threeds=True
+    )
+    print(payment.is_pending)                           # True (always check this flag)
+    print(payment.requires_redirect)                    # True
+    print(payment.redirect_url)                         # ACS Url
+    print(payment.id)
+    print(payment.http_response.body)                   # JSON body
+except sdk.errors.CheckoutSdkError as e:
+    print('{0.http_status} {0.error_code} {0.elapsed} {0.event_id} // {0.message}'.format(e))
+```
+
+> **Important**: If you use the Checkout.com Risk Engine to upgrade to a 3DS flow (from N3D) depending on criteria, you must always check for `payment.is_pending` first.
+
+#### Payment Request Example With N3D Downgrade Option
+
+``` python
+try:
+    payment = api.payments.request(
+        source={
+            'number': '4242424242424242',
+            'expiry_month': 6,
+            'expiry_year': 2025,
+            'cvv': '100'
+        },
+        amount=100,                                     # cents
+        currency=sdk.Currency.USD,                      # or 'usd'
+        reference='pay_ref'
+        threeds={
+            'enabled': True,
+            'attempt_n3d': True
+        }
+    )
+    print(payment.is_pending)                           # False
+    print(payment.3ds.downgraded)                       # True
+    print(payment.id)
+except sdk.errors.CheckoutSdkError as e:
+    print('{0.http_status} {0.error_code} {0.elapsed} {0.event_id} // {0.message}'.format(e))
+```
+
+> **Important**: Value needs to be set to `5000` to simulate a `20153` response code on the Sandbox environment, which will then attempt an N3D charge.
 
 ### Exception handling
 
