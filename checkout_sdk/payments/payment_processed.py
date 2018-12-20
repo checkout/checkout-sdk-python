@@ -1,4 +1,4 @@
-from checkout_sdk.payments import PaymentActionResponse, AlternativePaymentActionResponse
+from checkout_sdk.payments import PaymentActionResponse
 from checkout_sdk.common import Customer, Card
 
 
@@ -25,16 +25,3 @@ class PaymentProcessed(PaymentActionResponse):
     @property
     def customer(self):
         return self._customer
-
-
-class AlternativePaymentProcessed(AlternativePaymentActionResponse):
-    def __int__(self, api_response):
-        super().__init__(api_response)
-
-    @property
-    def charge_mode(self):
-        return self._response.body['chargeMode']
-
-    @property
-    def live_mode(self):
-        return self._response.body['liveMode']

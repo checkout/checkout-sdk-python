@@ -51,8 +51,8 @@ class HttpClient:
                 url=url,
                 json=request,
                 headers=headers,
-                timeout=self.config.timeout/1000)
-            elapsed = '{0:.2f}'.format((time.time() - start)*1000)
+                timeout=self.config.timeout / 1000)
+            elapsed = '{0:.2f}'.format((time.time() - start) * 1000)
 
             r.raise_for_status()
             try:
@@ -83,7 +83,7 @@ class HttpClient:
                 message=jsonResponse['message'],
                 elapsed=elapsed,
                 json=jsonResponse)
-        except requests.exceptions.Timeout as e:
+        except requests.exceptions.Timeout:
             elapsed = time.time() - start
             raise errors.Timeout(elapsed=elapsed)
         except requests.exceptions.RequestException:

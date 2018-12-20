@@ -11,9 +11,3 @@ class PaymentResponse(ApiResponse):
     @property
     def requires_redirect(self):
         return Utils.verify_redirect_flow(self._response)
-
-
-class AlternativePaymentResponse(PaymentResponse):
-    @property
-    def requires_redirect(self):
-        return Utils.verify_alternative_payment_redirect_flow(self._response)

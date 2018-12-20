@@ -188,3 +188,8 @@ class Currency(ExtendedEnum):
     ZAR = "ZAR"
     GEL = "GEL"
     ZMW = "ZMW"
+
+
+class AlternativePaymentMethodId(ExtendedEnum):
+    IDEAL = "lpp_9"
+    SOFORT = "lpp_14"

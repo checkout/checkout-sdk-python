@@ -4,7 +4,7 @@ from checkout_sdk import ApiClient, Utils, HttpMethod
 from checkout_sdk.payments import (
     PaymentHistory,
     PaymentProcessed,
-    AlternativePaymentProcessed,
+    AlternativePaymentResponse,
     ThreeDSResponse,
     CaptureResponse,
     VoidResponse,
@@ -80,32 +80,42 @@ class PaymentsClient(ApiClient):
         else:
             return PaymentProcessed(http_response)
 
-    def alternative_payment_info(self):
-        alt_info_url = 'lookups/localpayments/lpp_9/tags/issuerid'
-        http_response = self._send_http_request(alt_info_url, HttpMethod.GET)
-        return http_response.body
+    def alternative_payment_info(self, apm_id):
+        switch_apm_id_urls = {
+            sdk.AlternativePaymentMethodId.IDEAL: 'lookups/localpayments/lpp_9/tags/issuerid'
+        }
+        url = switch_apm_id_urls.get(apm_id, None)
+        if url is None:
+            raise ValueError('Alternative payment method not supported')
+        else:
+            return self._send_http_request(url, HttpMethod.GET)
 
     def alternative_payment_request(self,
-                                    payment_provider_id, payment_token,
-                                    issuer_id=None, customer=None, *kwargs):
+                                    apm_id, payment_token,
+                                    user_data=None, customer=None, *kwargs):
+
+        Utils.validate_ap_transaction(
+            apm_id=apm_id, payment_token=payment_token, user_data=user_data)
+        Utils.validate_customer(customer=customer)
+
         request = {
             'localPayment': {
-                'lppId': payment_provider_id,
-                'userData': {}
+                'lppId': apm_id if not isinstance(apm_id, sdk.AlternativePaymentMethodId) else apm_id.value,
+                'userData': user_data
             },
             'paymentToken': payment_token
         }
 
-        if issuer_id is not None:
-            request['localPayment']['userData']['issuerId'] = issuer_id
-
         if Utils.is_email(customer):
             request['email'] = customer
+        else:
+            request['customerId'] = customer
 
         request.update(kwargs)
 
-        http_response = self._send_http_request('charges/localpayment', HttpMethod.POST, request)
-        return AlternativePaymentProcessed(http_response)
+        http_response = self._send_http_request(
+            'charges/localpayment', HttpMethod.POST, request)
+        return AlternativePaymentResponse(http_response)
 
     def capture(self, id, value=None, track_id=None, **kwargs):
         return CaptureResponse(self._getPaymentActionResponse(id, 'capture', value, track_id, **kwargs))

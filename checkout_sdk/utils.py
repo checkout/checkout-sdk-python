@@ -4,7 +4,7 @@ import checkout_sdk
 import pprint
 
 from checkout_sdk import errors, constants
-from checkout_sdk.enums import Currency, PaymentType, ChargeMode
+from checkout_sdk.enums import Currency, PaymentType, ChargeMode, AlternativePaymentMethodId
 
 EMAIL_REGEX = re.compile(r'^.+@.+$', re.IGNORECASE)
 PAYMENT_TOKEN_REGEX = re.compile(r'^pay_tok_', re.IGNORECASE)
@@ -67,18 +67,24 @@ class Utils:
                 'Charge mode should be of the correct enum type or an integer.')
 
     @classmethod
+    def validate_ap_transaction(cls, apm_id, payment_token, user_data=None):
+        if apm_id is None or (type(apm_id) is str and not AlternativePaymentMethodId.has_value(apm_id)):
+            raise ValueError('Invalid apm_id.')
+        if not (isinstance(apm_id, AlternativePaymentMethodId) or type(apm_id) is str):
+            raise TypeError(
+                'apm_id should be of the correct enum type or a string.')
+        if type(payment_token) is not str:
+            raise TypeError('Invalid payment token.')
+        if user_data is not None and type(user_data) is not dict:
+            raise TypeError('Invalid user data.')
+
+    @classmethod
     def mask_pan(cls, pan):
         left, right = (6, 4)
-        return pan[0:left].ljust(len(pan)-right, '*')+pan[-right:]
+        return pan[0:left].ljust(len(pan) - right, '*') + pan[-right:]
 
     @classmethod
     def verify_redirect_flow(cls, http_response):
-        # this is how a 3D response is detected currently
-        return http_response.body.get('redirectUrl') is not None \
-            and PAYMENT_TOKEN_REGEX.match(http_response.body.get('id')) is not None
-
-    @classmethod
-    def verify_alternative_payment_redirect_flow(cls, http_response):
-        return http_response.body.get('localPayment', {}).get('paymentUrl', None) is not None \
-            and PAYMENT_TOKEN_REGEX.match((http_response.body.get('id'))) is not None
-
+        # this is how a 3D or AP redirect flow is detected currently
+        return PAYMENT_TOKEN_REGEX.match(http_response.body.get('id')) is not None \
+            and (http_response.body.get('redirectUrl') is not None or http_response.body.get('localPayment', {}).get('paymentUrl') is not None)
