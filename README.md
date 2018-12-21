@@ -195,11 +195,11 @@ try:
         amount=100,                                     # cents
         currency=sdk.Currency.USD,                      # or 'usd'
         reference='pay_ref'
-        threeds=True
+        threeds=True                                    # shortcut for { 'enabled': True }
     )
     print(payment.is_pending)                           # True (always check this flag)
     print(payment.requires_redirect)                    # True
-    print(payment.redirect_url)                         # ACS Url
+    print(payment.redirect_url)                         # ACS url
     print(payment.id)
     print(payment.http_response.body)                   # JSON body
 except sdk.errors.CheckoutSdkError as e:
@@ -235,6 +235,67 @@ except sdk.errors.CheckoutSdkError as e:
 ```
 
 > **Important**: Value needs to be set to `5000` to simulate a `20153` response code on the Sandbox environment, which will then attempt an N3D charge.
+
+### API Response
+
+All API responses follow this format:
+
+``` python
+response = client.do_something(...)
+# Request Id and API version
+response.request_id
+response.api_version
+# HTTP response and attributes
+response.http_response.status
+response.http_response.headers
+response.http_response.body                             # JSON body
+response.http_response.elapsed
+# HATEOAS
+response.links
+response.self_link
+response.has_link(...)                                  # True | False
+response.get_link(...)                                  # href and title
+```
+
+#### Payload Attributes
+
+All attributes are dynamically mounted on the response as both class attributes and dictionary keys. Set the `sdk.default_response_immutable` default to `False` if you wish to be able to add your own attributes.
+
+``` json
+{
+    "id": "pay",
+    "source": {
+        "type": "card",
+        "number": "4242",
+        "billing_address": {
+            "city": "London"
+        }
+    },
+    "_links": {
+        "self": {
+            "href": "http://url"
+        }
+    },
+    "some_array": [
+        {
+            "key1": "value1"
+        }
+    ]
+}
+```
+
+``` python
+response = client.do_something(...)
+response.id == 'pay'
+response['id'] == 'pay'
+response.source.type == 'card'
+response['source']['type'] == 'card'
+response.source.billing_address.city == 'London'
+response.some_array[0].key1 == 'value1'
+# if `sdk.default_response_immutable` is False
+response.custom_attr1 = 'custom attribute 1'
+response['custom_attr2'] = 999
+```
 
 ### Exception handling
 
