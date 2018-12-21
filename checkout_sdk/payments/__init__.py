@@ -6,4 +6,6 @@ from checkout_sdk.payments.threeds_response import ThreeDSResponse
 from checkout_sdk.payments.capture_response import CaptureResponse
 from checkout_sdk.payments.void_response import VoidResponse
 from checkout_sdk.payments.refund_response import RefundResponse
+from checkout_sdk.payments.alternative_payment_response import AlternativePaymentResponse
+
 from checkout_sdk.payments.payments_client import PaymentsClient

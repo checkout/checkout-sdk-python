@@ -8,6 +8,7 @@ import checkout_sdk as sdk
 
 from checkout_sdk import HttpClient, Config, Utils
 from checkout_sdk.payments import PaymentsClient, PaymentResponse
+from checkout_sdk.tokens import TokensClient
 from tests.base import CheckoutSdkTestCase
 from enum import Enum
 
@@ -16,6 +17,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
     def setUp(self):
         super().setUp()
         self.http_client = HttpClient(Config())
+        self.token_client = TokensClient(self.http_client)
         self.client = PaymentsClient(self.http_client)
 
     def tearDown(self):
@@ -67,8 +69,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         payment = self.auth_card(threeds=True)
 
         self.assertTrue(payment.requires_redirect)
-        self.assertTrue(payment.charge_mode ==
-                        sdk.ChargeMode.ThreeDS.value)  # pylint: disable = no-member
+        self.assertTrue(payment.charge_mode == sdk.ChargeMode.ThreeDS.value)  # pylint: disable = no-member
 
     def test_payments_client_3d_full_card_auth_request_with_downgrade(self):
         # value 5000 will trigger 20153 (https://docs.checkout.com/docs/testing#section-response-codes)
@@ -187,8 +188,32 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         self.assertTrue(response2.approved)
         self.assertEqual(response2.value, 80)
 
+    def test_alternative_payment_information(self):
+        info = self.client.alternative_payment_info(sdk.AlternativePaymentMethodId.IDEAL)
+        self.assertIsNotNone(info.body)
+
+    def test_alternative_payment_information_with_unsupported_apm(self):
+        with self.assertRaises(ValueError):
+            self.client.alternative_payment_info('unsupported')
+
+    def test_alternative_payment_request(self):
+        token = self.token_client.request_payment_token(
+            value=100, currency=sdk.Currency.EUR
+        )
+        payment = self.client.alternative_payment_request(
+            apm_id=sdk.AlternativePaymentMethodId.IDEAL,
+            payment_token=token.id,
+            user_data={
+                'issuerId': 'INGBNL2A'
+            },
+            customer='joesmith@gmail.com'
+        )
+        self.assertTrue(payment.id.startswith('pay_tok'))
+        self.assertTrue(payment.requires_redirect)
+        self.assertIsNotNone(payment.redirect_url)
+
     def auth_card(self, value=None, threeds=False, attempt_n3d=False):
-        payment = self.client.request(
+        return self.client.request(
             card={
                 'number': '4242424242424242',
                 'expiryMonth': 6,
@@ -226,5 +251,3 @@ class PaymentsClientTests(CheckoutSdkTestCase):
                 "sku": "tee123"
             }]
         )
-
-        return payment

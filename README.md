@@ -91,7 +91,7 @@ except sdk.errors.CheckoutSdkError as e:
 
 ### Payment History
 
-#### Get Charge History
+#### Get History
 
 ```python
 try:

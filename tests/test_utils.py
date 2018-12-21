@@ -114,9 +114,52 @@ class UtilsTests(CheckoutSdkTestCase):
         with self.assertRaises(TypeError):
             Utils.validate_transaction(100, 'usd', 2, False)
 
-    def test_verify_redirect_flow(self):
+    def test_validate_ap_transaction(self):
+        try:
+            Utils.validate_ap_transaction(sdk.AlternativePaymentMethodId.IDEAL, 'pay_tok', {})
+        except Exception:
+            self.fail(
+                'Utils.validate_ap_transaction raised an exception unexpectedly when using enums')
+
+    def test_validate_ap_transaction_without_enums(self):
+        try:
+            Utils.validate_ap_transaction('lpp_14', 'pay_tok', {})
+        except Exception:
+            self.fail(
+                'Utils.validate_ap_transaction raised an exception unexpectedly when not using enums')
+
+    def test_validate_ap_transaction_fails_with_missing_value(self):
+        with self.assertRaises(ValueError):
+            Utils.validate_ap_transaction(None, None)
+
+    def test_validate_ap_transaction_fails_with_bad_value(self):
+        with self.assertRaises(ValueError):
+            Utils.validate_ap_transaction('xxx', 'pay_tok')
+
+    def test_validate_ap_transaction_fails_with_wrong_value_type(self):
+        with self.assertRaises(TypeError):
+            Utils.validate_ap_transaction(False, False)
+
+    def test_validate_ap_transaction_fails_with_wrong_payment_token_type(self):
+        with self.assertRaises(TypeError):
+            Utils.validate_ap_transaction(sdk.AlternativePaymentMethodId.IDEAL, False)
+
+    def test_validate_ap_transaction_fails_with_wrong_user_data_type(self):
+        with self.assertRaises(TypeError):
+            Utils.validate_ap_transaction(sdk.AlternativePaymentMethodId.IDEAL, 'pay_tok', 1)
+
+    def test_verify_redirect_flow_non_ap(self):
         http_response = HttpResponse(200, None, {
-            'redirectUrl': 'http',
-            'id': 'pay_tok_1'
+            'id': 'pay_tok_1',
+            'redirectUrl': 'http'
+        }, 0)
+        self.assertTrue(Utils.verify_redirect_flow(http_response))
+
+    def test_verify_redirect_flow_ap(self):
+        http_response = HttpResponse(200, None, {
+            'id': 'pay_tok_1',
+            'localPayment': {
+                'paymentUrl': 'http://www'
+            }
         }, 0)
         self.assertTrue(Utils.verify_redirect_flow(http_response))
