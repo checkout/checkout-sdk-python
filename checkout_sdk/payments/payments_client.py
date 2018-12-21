@@ -1,6 +1,7 @@
 import checkout_sdk as sdk
 
 from checkout_sdk import ApiClient, Utils, HttpMethod
+from checkout_sdk.common import ApiResponse
 from checkout_sdk.payments import (
     PaymentHistory,
     PaymentProcessed,
@@ -88,7 +89,7 @@ class PaymentsClient(ApiClient):
         if url is None:
             raise ValueError('Alternative payment method not supported')
         else:
-            return self._send_http_request(url, HttpMethod.GET)
+            return ApiResponse(self._send_http_request(url, HttpMethod.GET))
 
     def alternative_payment_request(self,
                                     apm_id, payment_token,

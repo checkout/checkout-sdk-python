@@ -63,7 +63,7 @@ try:
         },
         value=100,                                      # cents
         currency=sdk.Currency.USD,                      # or 'usd'
-        customer='customer@email.com'
+        customer='customer@email.com'                   # Email or Customer Id
     )
     print(payment.id)
     print(payment.card.id)
@@ -81,7 +81,7 @@ try:
         card='card_713A3978-AFB2-4D30-BF9A-BA55714DC309',
         value=100,                                      # cents
         currency=sdk.Currency.USD,                      # or 'usd'
-        customer='customer@email.com'
+        customer='customer@email.com'                   # Email or Customer Id
     )
     if payment.approved:
         # ...
@@ -160,7 +160,7 @@ except sdk.errors.CheckoutSdkError as e:
 
 > **Important**: Value needs to be set to `5000` to simulate a `20153` response code on the Sandbox environment, which will then attempt an N3D charge.
 
-### Tokens
+### Alternative Payments
 
 #### Payment Token Request
 
@@ -179,7 +179,40 @@ except sdk.errors.CheckoutSdkError as e:
     print('{0.http_status} {0.error_code} {0.elapsed} {0.event_id} // {0.message}'.format(e))
 ```
 
-> **Important**: The SDK only support payment token creation at present and intended for Alternative Payment Methods via Checkout.js.
+#### Requesting Alternative Payment
+
+``` python
+# first, create a payment token as per the above code sample
+try:
+    payment = self.client.alternative_payment_request(
+        apm_id=sdk.AlternativePaymentMethodId.IDEAL,
+        payment_token=token.id,
+        user_data={
+            'issuerId': 'INGBNL2A'
+        },
+        customer='joesmith@gmail.com'                   # Email or Customer Id
+    )
+    print(payment.requires_redirect)                    # True
+    print(payment.id)                                   # Payment Token
+    print(payment.redirect_url)                         # Alternative Payment Url
+    print(payment.http_response.body)                   # JSON body
+except sdk.errors.CheckoutSdkError as e:
+    print('{0.http_status} {0.error_code} {0.elapsed} {0.event_id} // {0.message}'.format(e))
+```
+
+#### Alternative Payment Info
+
+> **Important**: Only **iDEAL** is supported at the moment when using alternative payment info.
+
+``` python
+try:
+    info = self.client.alternative_payment_info(
+        apm_id=sdk.AlternativePaymentMethodId.IDEAL
+    )
+    print(info.http_response.body)                      # JSON body
+except sdk.errors.CheckoutSdkError as e:
+    print('{0.http_status} {0.error_code} {0.elapsed} {0.event_id} // {0.message}'.format(e))
+```
 
 ### Exception handling
 
