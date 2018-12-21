@@ -44,8 +44,6 @@ class BadRequestError(CheckoutSdkError):
                     errors) else ''
                 index = index + 1
 
-            print(self._errors)
-
     @property
     def validation_error(self):
         return self.error_code == constants.VALIDATION_ERROR_CODE

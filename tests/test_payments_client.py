@@ -188,9 +188,13 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         self.assertTrue(response2.approved)
         self.assertEqual(response2.value, 80)
 
-    def test_alternative_payment_information_ideal(self):
+    def test_alternative_payment_information(self):
         info = self.client.alternative_payment_info(sdk.AlternativePaymentMethodId.IDEAL)
         self.assertIsNotNone(info.body)
+
+    def test_alternative_payment_information_with_unsupported_apm(self):
+        with self.assertRaises(ValueError):
+            self.client.alternative_payment_info('unsupported')
 
     def test_alternative_payment_request(self):
         token = self.token_client.request_payment_token(

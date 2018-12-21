@@ -113,9 +113,8 @@ class PaymentsClient(ApiClient):
 
         request.update(kwargs)
 
-        http_response = self._send_http_request(
-            'charges/localpayment', HttpMethod.POST, request)
-        return AlternativePaymentResponse(http_response)
+        return AlternativePaymentResponse(
+            self._send_http_request('charges/localpayment', HttpMethod.POST, request))
 
     def capture(self, id, value=None, track_id=None, **kwargs):
         return CaptureResponse(self._getPaymentActionResponse(id, 'capture', value, track_id, **kwargs))
