@@ -106,14 +106,20 @@ class ValidatorTests(CheckoutSdkTestCase):
         with self.assertRaises(TypeError):
             Validator.validate_transaction(100, 'usd', 'Regular', False)
 
-    def test_validate_source_type_fails_with_wrong_source_type_value(self):
+    def test_validate_source_type_fails_with_no_identifiable_source_type(self):
         with self.assertRaises(ValueError):
             Validator.validate_and_set_source_type({
-                "type": "bad_type"
+                "key1": "value1"
             })
 
-    def test_validate_source_type_with_valid_source_type(self):
+    def test_validate_source_type_with_given_source_type(self):
         source = Validator.validate_and_set_source_type({
-            "type": "card"
+            "type": "payment"
+        })
+        self.assertTrue(source['type'] == 'payment')
+
+    def test_validate_source_type_with_inferable_source_type(self):
+        source = Validator.validate_and_set_source_type({
+            "number": "4242"
         })
         self.assertTrue(source['type'] == 'card')

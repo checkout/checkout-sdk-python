@@ -57,6 +57,11 @@ The SDK will infer the `type` of the payment `source`, if not provided, as follo
 - `type: "token"` if `token` attribute present.
 - `type: "id"` if `id` attribute present and prefix is `src_`.
 
+**Important**
+- If the `type` is not provided and cannot be inferred, a `ValueError` is thrown.
+- All `type` values are accepted in the SDK and validated at API level.
+- When using alternative payment methods (APMs), a `type` must be provided. See example below.
+
 #### Source Type: `card`
 
 ``` python
@@ -135,6 +140,28 @@ except sdk.errors.CheckoutSdkError as e:
     print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
 ```
 
+#### Source Type: Alternative Payment Method (APM)
+
+``` python
+try:
+    payment = api.payments.request(
+        source={
+            'type': 'ideal',
+            'issuer_id': 'INGBNL2A'                     # source-related attribute
+        },
+        amount=100,                                     # cents
+        currency=sdk.Currency.EUR,                      # or 'eur'
+        reference='pay_apm_ref'
+    )
+    print(payment.is_pending)                           # True
+    print(payment.requires_redirect)                    # True
+    print(payment.redirect_link.href)                   # APM url
+    print(payment.id)
+    print(payment.http_response.body)                   # JSON body
+except sdk.errors.CheckoutSdkError as e:
+    print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
+```
+
 ### Payment Details
 
 #### Get Payment
@@ -199,7 +226,7 @@ try:
     )
     print(payment.is_pending)                           # True (always check this flag)
     print(payment.requires_redirect)                    # True
-    print(payment.redirect_url)                         # ACS url
+    print(payment.redirect_link.href)                   # ACS url
     print(payment.id)
     print(payment.http_response.body)                   # JSON body
 except sdk.errors.CheckoutSdkError as e:
@@ -235,6 +262,8 @@ except sdk.errors.CheckoutSdkError as e:
 ```
 
 > **Important**: Value needs to be set to `5000` to simulate a `20153` response code on the Sandbox environment, which will then attempt an N3D charge.
+
+
 
 ### API Response
 

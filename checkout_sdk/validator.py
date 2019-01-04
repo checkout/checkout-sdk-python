@@ -74,7 +74,7 @@ class Validator:
                     # we have a match - we now set the type accordingly
                     source['type'] = key
                     return source
-        elif source_type in source_type_switch:
+        else:
             return source
 
         # if we got here, no match found

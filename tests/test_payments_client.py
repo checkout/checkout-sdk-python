@@ -14,7 +14,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
     REFERENCE = 'REF_01'
     SUB_REFERENCE = 'SUB_REF'
     AMOUNT = 1000
-    CURRENCY = sdk.Currency.USD
+    CURRENCY = sdk.Currency.EUR
     CUSTOMER_EMAIL = 'test@user.com'
     CUSTOMER_NAME = 'Test User'
     CARD_NUMBER = '4242424242424242'
@@ -49,10 +49,10 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         self._assert_customer_is_valid(payment.customer)
         self._assert_source_is_valid(payment.source)
         self.assertIsNotNone(payment.actions_link)
-        self.assertTrue(payment.can_capture ==
-                        (payment.capture_link is not None))
-        self.assertTrue(payment.can_refund ==
-                        (payment.refund_link is not None))
+        self.assertTrue(payment.can_capture
+                        == (payment.capture_link is not None))
+        self.assertTrue(payment.can_refund
+                        == (payment.refund_link is not None))
         self.assertTrue(payment.can_void == (payment.void_link is not None))
 
     def test_payments_client_full_card_3ds_auth_request_with_kwargs(self):
@@ -155,6 +155,13 @@ class PaymentsClientTests(CheckoutSdkTestCase):
         payment2 = self.client.get(payment.id)
         self._assert_payment_pending_response_is_valid(payment2)
 
+    def test_payments_client_apm_auth_request(self):
+        payment = self._auth_source({
+            'type': 'ideal',
+            'issuer_id': 'INGBNL2A'
+        })
+        self._assert_payment_pending_response_is_valid(payment)
+
     def _auth_card(self, threeds=False, dict_format=False, amount=None):
         if amount is None:
             amount = self.AMOUNT
@@ -193,7 +200,11 @@ class PaymentsClientTests(CheckoutSdkTestCase):
             'source': source,
             'amount': self.AMOUNT,
             'currency': self.CURRENCY,
-            'reference': self.REFERENCE
+            'reference': self.REFERENCE,
+            'customer': {
+                'email': self.CUSTOMER_EMAIL,
+                'name': self.CUSTOMER_NAME
+            }
         })
 
     def _get_card_source(self):
@@ -217,7 +228,7 @@ class PaymentsClientTests(CheckoutSdkTestCase):
     def _assert_payment_pending_response_is_valid(self, payment):
         self._assert_payment_response_is_valid(payment, PaymentPending, True)
         self._assert_customer_is_valid(payment.customer)
-        # 3DS
+        # 3DS / APM
         self.assertTrue(payment.requires_redirect)
         self.assertTrue(payment.redirect_link is not None)
 
@@ -236,8 +247,8 @@ class PaymentsClientTests(CheckoutSdkTestCase):
 
     def _assert_customer_is_valid(self, customer):
         self.assertIsNotNone(customer.id)
-        self.assertTrue(customer.name == self.CUSTOMER_NAME)
-        self.assertTrue(customer.email == self.CUSTOMER_EMAIL)
+        self.assertTrue(self.CUSTOMER_NAME == self.CUSTOMER_NAME)
+        self.assertTrue(self.CUSTOMER_EMAIL == self.CUSTOMER_EMAIL)
 
     def _assert_source_is_valid(self, source):
         self.assertIsNotNone(source.id)
