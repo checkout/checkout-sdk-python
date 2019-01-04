@@ -247,8 +247,8 @@ class PaymentsClientTests(CheckoutSdkTestCase):
 
     def _assert_customer_is_valid(self, customer):
         self.assertIsNotNone(customer.id)
-        self.assertTrue(self.CUSTOMER_NAME == self.CUSTOMER_NAME)
-        self.assertTrue(self.CUSTOMER_EMAIL == self.CUSTOMER_EMAIL)
+        self.assertTrue(customer.name == self.CUSTOMER_NAME)
+        self.assertTrue(customer.email == self.CUSTOMER_EMAIL)
 
     def _assert_source_is_valid(self, source):
         self.assertIsNotNone(source.id)
