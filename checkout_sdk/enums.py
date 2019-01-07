@@ -22,7 +22,7 @@ class PaymentType(CheckoutSdkEnum):
 
 class PaymentStatus(CheckoutSdkEnum):
     Authorized = 'Authorized'
-    Cancelled = 'Cancelled'
+    Canceled = 'Canceled'
     Captured = 'Captured'
     Declined = 'Declined'
     Expired = 'Expired'
