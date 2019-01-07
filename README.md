@@ -5,7 +5,7 @@
 
 ## Installation
 
-    pip install checkout-sdk==2.0b6
+    pip install checkout-sdk==2.0b7
 
 From source:
 
