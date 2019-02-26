@@ -19,7 +19,7 @@ class CardListResponse(ApiResponse):
         super().__init__(api_response)
         self._cards = []
         for card_data in api_response.body['data']:
-            self._cards.append(Card(api_response.body))
+            self._cards.append(Card(card_data))
 
     @property
     def cards(self):
