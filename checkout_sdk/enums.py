@@ -25,6 +25,7 @@ class ChargeMode(ExtendedEnum):
 class HttpMethod(ExtendedEnum):
     GET = 'GET'
     POST = 'POST'
+    DELETE = 'DELETE'
 
 
 class Currency(ExtendedEnum):
