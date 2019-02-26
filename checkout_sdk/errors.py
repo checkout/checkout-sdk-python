@@ -24,7 +24,8 @@ class CheckoutSdkError(Exception):
 class AuthenticationError(CheckoutSdkError):
     def __init__(self, **kwargs):
         message = kwargs.pop(
-            'message', 'Authentication error. Secret key might be missing or expired.')
+            'message',
+            'Authentication error. Secret key might be missing or expired.')
         super().__init__(message=message, **kwargs)
 
 
@@ -56,14 +57,16 @@ class BadRequestError(CheckoutSdkError):
 class ResourceNotFoundError(CheckoutSdkError):
     def __init__(self, **kwargs):
         message = kwargs.pop(
-            'message', 'Resource not found. Please check the identifier and retry.')
+            'message',
+            'Resource not found. Please check the identifier and retry.')
         super().__init__(message=message, **kwargs)
 
 
 class Timeout(CheckoutSdkError):
     def __init__(self, **kwargs):
         message = kwargs.pop(
-            'message', 'The request timed out. Considering adjust the "timeout" setting.')
+            'message',
+            'The request timed out. Considering adjust the "timeout" setting.')
         super().__init__(message=message, **kwargs)
 
 
@@ -77,4 +80,10 @@ class TooManyRequestsError(CheckoutSdkError):
 class ApiError(CheckoutSdkError):
     def __init__(self, **kwargs):
         message = kwargs.pop('message', 'General API error.')
+        super().__init__(message=message, **kwargs)
+
+
+class InvalidSignatureError(CheckoutSdkError):
+    def __init__(self, **kwargs):
+        message = kwargs.pop('message', 'Invalid event signature.')
         super().__init__(message=message, **kwargs)

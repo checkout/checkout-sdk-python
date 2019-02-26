@@ -181,6 +181,38 @@ except sdk.errors.CheckoutSdkError as e:
 
 > **Important**: The SDK only support payment token creation at present and intended for Alternative Payment Methods via Checkout.js.
 
+
+### Webhooks
+
+#### Event management
+
+``` python
+try:
+    secret_key = os.environ['CKO_SECRET_KEY']
+    request_signature = request.META.get('HTTP_CKO_SIGNATURE', '')
+    body = request.body
+    event = webhooks.parse(body, secret_key, request_signature)
+    print(event.id)
+    print(event.event_type)
+    
+except sdk.errors.InvalidSignatureError as e:
+    print('Invalid event signature.')
+```
+
+#### Signature validation
+
+``` python
+try:
+    secret_key = os.environ['CKO_SECRET_KEY']
+    request_signature = request.META.get('HTTP_CKO_SIGNATURE', '')
+    body = request.body
+    verify_signature(body, secret_key, request_signature)
+    
+except sdk.errors.InvalidSignatureError as e:
+    print('Invalid event signature.')
+```
+
+
 ### Exception handling
 
 ``` python
