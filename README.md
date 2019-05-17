@@ -62,24 +62,21 @@ The SDK will infer the `type` of the payment `source`, if not provided, as follo
 - All `type` values are accepted in the SDK and validated at API level.
 - When using alternative payment methods (APMs), a `type` must be provided. See example below.
 
-#### Source Type: `card`
+#### Source Type: `token`
 
 ``` python
 try:
     payment = api.payments.request(
         source={
-            'number': '4242424242424242',
-            'expiry_month': 6,
-            'expiry_year': 2025,
-            'cvv': '100'
+            'token': 'tok_...'.
+            'billing_address': { ... },
+            'phone': { ... }
         },
         amount=100,                                     # cents
         currency=sdk.Currency.USD,                      # or 'usd'
         reference='pay_ref'
     )
     print(payment.id)
-    print(payment.is_pending)                           # False
-    print(payment.http_response.body)                   # JSON body
 except sdk.errors.CheckoutSdkError as e:
     print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
 ```
@@ -102,21 +99,25 @@ except sdk.errors.CheckoutSdkError as e:
     print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
 ```
 
-#### Source Type: `token`
+#### Source Type: `card`
+[Fully PCI Compliant Merchants only](https://docs.checkout.com/docs/pci-compliance "Checkout.com")
 
 ``` python
 try:
     payment = api.payments.request(
         source={
-            'token': 'tok_...'.
-            'billing_address': { ... },
-            'phone': { ... }
+            'number': '4242424242424242',
+            'expiry_month': 6,
+            'expiry_year': 2025,
+            'cvv': '100'
         },
         amount=100,                                     # cents
         currency=sdk.Currency.USD,                      # or 'usd'
         reference='pay_ref'
     )
     print(payment.id)
+    print(payment.is_pending)                           # False
+    print(payment.http_response.body)                   # JSON body
 except sdk.errors.CheckoutSdkError as e:
     print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
 ```
