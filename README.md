@@ -63,6 +63,7 @@ The SDK will infer the `type` of the payment `source`, if not provided, as follo
 - When using alternative payment methods (APMs), a `type` must be provided. See example below.
 
 #### Source Type: `token`
+A card token can be obtained using one of Checkout.com's JavaScript frontend solutions such as [Frames](https://docs.checkout.com/docs/frames "Frames") or any of the [mobile SDKs](https://docs.checkout.com/docs/sdks#section-mobile-sdk-libraries "Mobile SDKs")
 
 ``` python
 try:
@@ -100,7 +101,7 @@ except sdk.errors.CheckoutSdkError as e:
 ```
 
 #### Source Type: `card`
-[Fully PCI Compliant Merchants only](https://docs.checkout.com/docs/pci-compliance "Checkout.com")
+[Fully PCI Compliant](https://docs.checkout.com/docs/pci-compliance) merchants only
 
 ``` python
 try:
