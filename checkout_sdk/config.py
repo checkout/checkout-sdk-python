@@ -8,8 +8,8 @@ SECRET_KEY_REGEX = re.compile(
 HTTP_PROTOCOL_REGEX = re.compile(r'^http(s)?', re.IGNORECASE)
 
 API_BASE_URLS = {
-    'sandbox': 'https://sandbox.checkout.com/api2/',
-    'production': 'https://api2.checkout.com/v2/'
+    'sandbox': 'https://api.sandbox.checkout.com/',
+    'production': 'https://api.checkout.com/'
 }
 
 # using lambda functions here so that
