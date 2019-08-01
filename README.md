@@ -149,7 +149,8 @@ try:
     payment = api.payments.request(
         source={
             'type': 'ideal',
-            'issuer_id': 'INGBNL2A'                     # source-related attribute
+            'bic': 'INGBNL2A'                     # source-related attribute
+            'description': 'test ideal description'
         },
         amount=100,                                     # cents
         currency=sdk.Currency.EUR,                      # or 'eur'

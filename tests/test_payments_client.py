@@ -158,7 +158,8 @@ class PaymentsClientTests(CheckoutSdkTestCase):
     def test_payments_client_apm_auth_request(self):
         payment = self._auth_source({
             'type': 'ideal',
-            'issuer_id': 'INGBNL2A'
+            'bic': 'INGBNL2A',
+            'description': 'test ideal description'
         })
         self._assert_payment_pending_response_is_valid(payment)
 
