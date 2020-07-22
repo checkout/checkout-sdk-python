@@ -1,0 +1,17 @@
+{
+  "id": "install",
+  "isDocsHomePage": false,
+  "title": "Install",
+  "description": "Installing the SDK",
+  "source": "@site/docs/install.md",
+  "permalink": "/checkout-sdk-python/install",
+  "sidebar": "someSidebar",
+  "previous": {
+    "title": "Getting Started",
+    "permalink": "/checkout-sdk-python/getting_started"
+  },
+  "next": {
+    "title": "Initialize",
+    "permalink": "/checkout-sdk-python/initialize"
+  }
+}

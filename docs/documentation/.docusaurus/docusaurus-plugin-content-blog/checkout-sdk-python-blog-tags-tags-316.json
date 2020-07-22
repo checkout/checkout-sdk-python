@@ -1,0 +1,37 @@
+{
+  "blog": {
+    "allTagsPath": "/checkout-sdk-python/blog/tags",
+    "slug": "blog",
+    "name": "blog",
+    "count": 2,
+    "permalink": "/checkout-sdk-python/blog/tags/blog"
+  },
+  "docusaurus": {
+    "allTagsPath": "/checkout-sdk-python/blog/tags",
+    "slug": "docusaurus",
+    "name": "docusaurus",
+    "count": 5,
+    "permalink": "/checkout-sdk-python/blog/tags/docusaurus"
+  },
+  "facebook": {
+    "allTagsPath": "/checkout-sdk-python/blog/tags",
+    "slug": "facebook",
+    "name": "facebook",
+    "count": 1,
+    "permalink": "/checkout-sdk-python/blog/tags/facebook"
+  },
+  "hello": {
+    "allTagsPath": "/checkout-sdk-python/blog/tags",
+    "slug": "hello",
+    "name": "hello",
+    "count": 2,
+    "permalink": "/checkout-sdk-python/blog/tags/hello"
+  },
+  "hola": {
+    "allTagsPath": "/checkout-sdk-python/blog/tags",
+    "slug": "hola",
+    "name": "hola",
+    "count": 1,
+    "permalink": "/checkout-sdk-python/blog/tags/hola"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "errors",
+  "isDocsHomePage": false,
+  "title": "Error Handling",
+  "description": "Exception handling",
+  "source": "@site/docs/errors.md",
+  "permalink": "/checkout-sdk-python/errors",
+  "sidebar": "someSidebar",
+  "previous": {
+    "title": "Testing",
+    "permalink": "/checkout-sdk-python/testing"
+  },
+  "next": {
+    "title": "Logging",
+    "permalink": "/checkout-sdk-python/logging"
+  }
+}

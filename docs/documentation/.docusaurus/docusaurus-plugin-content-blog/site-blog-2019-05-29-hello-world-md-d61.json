@@ -1,0 +1,27 @@
+{
+  "permalink": "/checkout-sdk-python/blog/hello-world",
+  "source": "@site/blog/2019-05-29-hello-world.md",
+  "description": "Welcome to this blog. This blog is created with Docusaurus 2 alpha.",
+  "date": "2019-05-29T00:00:00.000Z",
+  "tags": [
+    {
+      "label": "hello",
+      "permalink": "/checkout-sdk-python/blog/tags/hello"
+    },
+    {
+      "label": "docusaurus",
+      "permalink": "/checkout-sdk-python/blog/tags/docusaurus"
+    }
+  ],
+  "title": "Hello",
+  "readingTime": 0.12,
+  "truncated": true,
+  "prevItem": {
+    "title": "Welcome",
+    "permalink": "/checkout-sdk-python/blog/welcome"
+  },
+  "nextItem": {
+    "title": "Hola",
+    "permalink": "/checkout-sdk-python/blog/hola"
+  }
+}

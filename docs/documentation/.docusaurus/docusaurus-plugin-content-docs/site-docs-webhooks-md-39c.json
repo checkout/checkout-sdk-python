@@ -1,0 +1,8 @@
+{
+  "id": "webhooks",
+  "isDocsHomePage": false,
+  "title": "Webhooks",
+  "description": "export const Highlight = ({children, color}) => (",
+  "source": "@site/docs/webhooks.md",
+  "permalink": "/checkout-sdk-python/webhooks"
+}

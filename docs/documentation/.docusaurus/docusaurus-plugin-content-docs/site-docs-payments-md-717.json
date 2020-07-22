@@ -1,0 +1,13 @@
+{
+  "id": "payments",
+  "isDocsHomePage": false,
+  "title": "Payments",
+  "description": "The Checkout.com Payments API provides a unified integration experience for a variety of payment methods.",
+  "source": "@site/docs/payments.md",
+  "permalink": "/checkout-sdk-python/payments",
+  "sidebar": "someSidebar",
+  "previous": {
+    "title": "Logging",
+    "permalink": "/checkout-sdk-python/logging"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "id": "sources",
+  "isDocsHomePage": false,
+  "title": "Sources",
+  "description": "export const Highlight = ({children, color}) => (",
+  "source": "@site/docs/sources.md",
+  "permalink": "/checkout-sdk-python/sources"
+}

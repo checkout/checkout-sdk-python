@@ -1,0 +1,14 @@
+{
+  "id": "getting_started",
+  "isDocsHomePage": false,
+  "title": "Getting Started",
+  "description": "The Checkout.com SDK for Python makes it easy for Python developers to use Checkout.com APIs from their Python server.",
+  "source": "@site/docs/getting_started.md",
+  "permalink": "/checkout-sdk-python/getting_started",
+  "sidebar_label": "Getting Started",
+  "sidebar": "someSidebar",
+  "next": {
+    "title": "Install",
+    "permalink": "/checkout-sdk-python/install"
+  }
+}

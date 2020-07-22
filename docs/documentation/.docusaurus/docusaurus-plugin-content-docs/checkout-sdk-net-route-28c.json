@@ -1,0 +1,100 @@
+{
+  "docsSidebars": {
+    "someSidebar": [
+      {
+        "collapsed": true,
+        "type": "category",
+        "label": "Getting Started",
+        "items": [
+          {
+            "type": "link",
+            "label": "Getting Started",
+            "href": "/checkout-sdk-net/getting_started"
+          },
+          {
+            "type": "link",
+            "label": "Install",
+            "href": "/checkout-sdk-net/install"
+          },
+          {
+            "type": "link",
+            "label": "Initialize",
+            "href": "/checkout-sdk-net/initialize"
+          },
+          {
+            "type": "link",
+            "label": ".Net Core",
+            "href": "/checkout-sdk-net/net-core"
+          },
+          {
+            "type": "link",
+            "label": "Testing",
+            "href": "/checkout-sdk-net/testing"
+          },
+          {
+            "type": "link",
+            "label": "Error Handling",
+            "href": "/checkout-sdk-net/errors"
+          },
+          {
+            "type": "link",
+            "label": "Logging",
+            "href": "/checkout-sdk-net/logging"
+          }
+        ]
+      },
+      {
+        "collapsed": true,
+        "type": "category",
+        "label": "API",
+        "items": [
+          {
+            "type": "link",
+            "label": "Payments",
+            "href": "/checkout-sdk-net/payments"
+          },
+          {
+            "type": "link",
+            "label": "Sources",
+            "href": "/checkout-sdk-net/sources"
+          },
+          {
+            "type": "link",
+            "label": "Tokens",
+            "href": "/checkout-sdk-net/tokens"
+          },
+          {
+            "type": "link",
+            "label": "Webhooks",
+            "href": "/checkout-sdk-net/webhooks"
+          },
+          {
+            "type": "link",
+            "label": "Disputes",
+            "href": "/checkout-sdk-net/disputes"
+          },
+          {
+            "type": "link",
+            "label": "Files",
+            "href": "/checkout-sdk-net/files"
+          }
+        ]
+      }
+    ]
+  },
+  "permalinkToSidebar": {
+    "/checkout-sdk-net/disputes": "someSidebar",
+    "/checkout-sdk-net/errors": "someSidebar",
+    "/checkout-sdk-net/files": "someSidebar",
+    "/checkout-sdk-net/getting_started": "someSidebar",
+    "/checkout-sdk-net/initialize": "someSidebar",
+    "/checkout-sdk-net/install": "someSidebar",
+    "/checkout-sdk-net/logging": "someSidebar",
+    "/checkout-sdk-net/net-core": "someSidebar",
+    "/checkout-sdk-net/payments": "someSidebar",
+    "/checkout-sdk-net/sources": "someSidebar",
+    "/checkout-sdk-net/testing": "someSidebar",
+    "/checkout-sdk-net/tokens": "someSidebar",
+    "/checkout-sdk-net/webhooks": "someSidebar"
+  }
+}

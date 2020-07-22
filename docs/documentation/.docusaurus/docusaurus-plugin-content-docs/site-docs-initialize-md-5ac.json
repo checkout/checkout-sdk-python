@@ -1,0 +1,17 @@
+{
+  "id": "initialize",
+  "isDocsHomePage": false,
+  "title": "Initialize",
+  "description": "Initialisation",
+  "source": "@site/docs/initialize.md",
+  "permalink": "/checkout-sdk-python/initialize",
+  "sidebar": "someSidebar",
+  "previous": {
+    "title": "Install",
+    "permalink": "/checkout-sdk-python/install"
+  },
+  "next": {
+    "title": "Testing",
+    "permalink": "/checkout-sdk-python/testing"
+  }
+}

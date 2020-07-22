@@ -1,0 +1,8 @@
+{
+  "id": "disputes",
+  "isDocsHomePage": false,
+  "title": "Disputes",
+  "description": "export const Highlight = ({children, color}) => (",
+  "source": "@site/docs/disputes.md",
+  "permalink": "/checkout-sdk-python/disputes"
+}

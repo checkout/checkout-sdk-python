@@ -1,0 +1,23 @@
+{
+  "permalink": "/checkout-sdk-python/blog/2020/04/14/blog-plugin",
+  "source": "@site/blog/2020-04-14-blog-plugin.md",
+  "description": "You can use our blog plugin to do your posts",
+  "date": "2020-04-14T00:00:00.000Z",
+  "tags": [
+    {
+      "label": "blog",
+      "permalink": "/checkout-sdk-python/blog/tags/blog"
+    },
+    {
+      "label": "docusaurus",
+      "permalink": "/checkout-sdk-python/blog/tags/docusaurus"
+    }
+  ],
+  "title": "Blog Plugin",
+  "readingTime": 0.145,
+  "truncated": true,
+  "nextItem": {
+    "title": "A large blog post",
+    "permalink": "/checkout-sdk-python/blog/2020/04/14/large-blog-post"
+  }
+}

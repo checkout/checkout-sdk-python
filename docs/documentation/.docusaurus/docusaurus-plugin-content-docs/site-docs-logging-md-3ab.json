@@ -1,0 +1,17 @@
+{
+  "id": "logging",
+  "isDocsHomePage": false,
+  "title": "Logging",
+  "description": "Logging",
+  "source": "@site/docs/logging.md",
+  "permalink": "/checkout-sdk-python/logging",
+  "sidebar": "someSidebar",
+  "previous": {
+    "title": "Error Handling",
+    "permalink": "/checkout-sdk-python/errors"
+  },
+  "next": {
+    "title": "Payments",
+    "permalink": "/checkout-sdk-python/payments"
+  }
+}

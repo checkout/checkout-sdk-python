@@ -1,0 +1,37 @@
+{
+  "blog": {
+    "allTagsPath": "/checkout-sdk-net/blog/tags",
+    "slug": "blog",
+    "name": "blog",
+    "count": 2,
+    "permalink": "/checkout-sdk-net/blog/tags/blog"
+  },
+  "docusaurus": {
+    "allTagsPath": "/checkout-sdk-net/blog/tags",
+    "slug": "docusaurus",
+    "name": "docusaurus",
+    "count": 5,
+    "permalink": "/checkout-sdk-net/blog/tags/docusaurus"
+  },
+  "facebook": {
+    "allTagsPath": "/checkout-sdk-net/blog/tags",
+    "slug": "facebook",
+    "name": "facebook",
+    "count": 1,
+    "permalink": "/checkout-sdk-net/blog/tags/facebook"
+  },
+  "hello": {
+    "allTagsPath": "/checkout-sdk-net/blog/tags",
+    "slug": "hello",
+    "name": "hello",
+    "count": 2,
+    "permalink": "/checkout-sdk-net/blog/tags/hello"
+  },
+  "hola": {
+    "allTagsPath": "/checkout-sdk-net/blog/tags",
+    "slug": "hola",
+    "name": "hola",
+    "count": 1,
+    "permalink": "/checkout-sdk-net/blog/tags/hola"
+  }
+}

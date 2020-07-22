@@ -1,0 +1,17 @@
+{
+  "id": "net-core",
+  "isDocsHomePage": false,
+  "title": ".Net Core",
+  "description": "If you are using the SDK in a .NET Core application and make use of either the Microsoft Dependency Injection or Configuration libraries you can use the CheckoutSDK.Extensions.Microsoft package.",
+  "source": "@site/docs/net-core.md",
+  "permalink": "/checkout-sdk-python/net-core",
+  "sidebar": "someSidebar",
+  "previous": {
+    "title": "Initialize",
+    "permalink": "/checkout-sdk-python/initialize"
+  },
+  "next": {
+    "title": "Testing",
+    "permalink": "/checkout-sdk-python/testing"
+  }
+}

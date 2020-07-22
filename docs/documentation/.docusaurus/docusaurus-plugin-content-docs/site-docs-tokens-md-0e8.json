@@ -1,0 +1,8 @@
+{
+  "id": "tokens",
+  "isDocsHomePage": false,
+  "title": "Tokens",
+  "description": "export const Highlight = ({children, color}) => (",
+  "source": "@site/docs/tokens.md",
+  "permalink": "/checkout-sdk-python/tokens"
+}

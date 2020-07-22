@@ -1,0 +1,17 @@
+{
+  "id": "testing",
+  "isDocsHomePage": false,
+  "title": "Testing",
+  "description": "Testing",
+  "source": "@site/docs/testing.md",
+  "permalink": "/checkout-sdk-python/testing",
+  "sidebar": "someSidebar",
+  "previous": {
+    "title": "Initialize",
+    "permalink": "/checkout-sdk-python/initialize"
+  },
+  "next": {
+    "title": "Error Handling",
+    "permalink": "/checkout-sdk-python/errors"
+  }
+}

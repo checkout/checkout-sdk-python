@@ -1,0 +1,64 @@
+{
+  "docsSidebars": {
+    "someSidebar": [
+      {
+        "collapsed": true,
+        "type": "category",
+        "label": "Getting Started",
+        "items": [
+          {
+            "type": "link",
+            "label": "Getting Started",
+            "href": "/checkout-sdk-python/getting_started"
+          },
+          {
+            "type": "link",
+            "label": "Install",
+            "href": "/checkout-sdk-python/install"
+          },
+          {
+            "type": "link",
+            "label": "Initialize",
+            "href": "/checkout-sdk-python/initialize"
+          },
+          {
+            "type": "link",
+            "label": "Testing",
+            "href": "/checkout-sdk-python/testing"
+          },
+          {
+            "type": "link",
+            "label": "Error Handling",
+            "href": "/checkout-sdk-python/errors"
+          },
+          {
+            "type": "link",
+            "label": "Logging",
+            "href": "/checkout-sdk-python/logging"
+          }
+        ]
+      },
+      {
+        "collapsed": true,
+        "type": "category",
+        "label": "API",
+        "items": [
+          {
+            "type": "link",
+            "label": "Payments",
+            "href": "/checkout-sdk-python/payments"
+          }
+        ]
+      }
+    ]
+  },
+  "permalinkToSidebar": {
+    "/checkout-sdk-python/errors": "someSidebar",
+    "/checkout-sdk-python/getting_started": "someSidebar",
+    "/checkout-sdk-python/initialize": "someSidebar",
+    "/checkout-sdk-python/install": "someSidebar",
+    "/checkout-sdk-python/logging": "someSidebar",
+    "/checkout-sdk-python/payments": "someSidebar",
+    "/checkout-sdk-python/testing": "someSidebar"
+  }
+}

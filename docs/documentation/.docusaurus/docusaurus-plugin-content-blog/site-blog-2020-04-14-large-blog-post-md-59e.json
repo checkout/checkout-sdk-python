@@ -1,0 +1,27 @@
+{
+  "permalink": "/checkout-sdk-python/blog/2020/04/14/large-blog-post",
+  "source": "@site/blog/2020-04-14-large-blog-post.md",
+  "description": "Hello, this is an example",
+  "date": "2020-04-14T00:00:00.000Z",
+  "tags": [
+    {
+      "label": "blog",
+      "permalink": "/checkout-sdk-python/blog/tags/blog"
+    },
+    {
+      "label": "docusaurus",
+      "permalink": "/checkout-sdk-python/blog/tags/docusaurus"
+    }
+  ],
+  "title": "A large blog post",
+  "readingTime": 4.085,
+  "truncated": true,
+  "prevItem": {
+    "title": "Blog Plugin",
+    "permalink": "/checkout-sdk-python/blog/2020/04/14/blog-plugin"
+  },
+  "nextItem": {
+    "title": "Welcome",
+    "permalink": "/checkout-sdk-python/blog/welcome"
+  }
+}
