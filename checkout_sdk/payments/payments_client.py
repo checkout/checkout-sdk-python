@@ -27,6 +27,8 @@ class PaymentsClient(ApiClient):
         self._set_payment_request_defaults(request)
 
         source = request.get('source')
+        # 20-Sep-11, supporting destination. 
+        destination = request.get('destination')
         amount = request.get('amount')
         currency = request.get('currency')
         payment_type = request.get('payment_type')
@@ -34,9 +36,11 @@ class PaymentsClient(ApiClient):
 
         source_type = source.get(
             'type', 'unknown') if source is not None else 'unknown'
+        destination_type = destination.get( 
+            'type', 'unknown') if destination is not None else 'unknown'
 
-        self._log_info('Auth {} - {}{} - {}'.format(
-            source_type,
+        self._log_info('Auth src:{}/dest:{} - {}{} - {}'.format(
+            source_type, destination_type,
             amount,
             currency,
             reference if reference is not None else '<no reference>'))
@@ -128,13 +132,29 @@ class PaymentsClient(ApiClient):
             'capture', sdk.default_capture)
 
     def _set_payment_request_dynamic_attributes(self, request):
-        Validator.validate_complex_attribute(
-            arg=request.get('source'),
-            type_err_msg='Invalid payment source.',
-            missing_arg_err_msg='Payment source missing.'
-        )
-        request['source'] = Validator.validate_and_set_source_type(
-            request.get('source'))
+        
+        if request.get('source') is not None:
+            self._log_debug('Source: {}'.format(request.get('source')))
+
+            Validator.validate_complex_attribute(
+                arg=request.get('source'),
+                type_err_msg='Invalid payment source.',
+            )
+            request['source'] = Validator.validate_and_set_source_type(
+                request.get('source'))
+
+        elif request.get('destination') is not None:    
+            self._log_debug('Destination: {}'.format(request.get('destination')))
+
+            Validator.validate_complex_attribute(
+                arg=request.get('destination'),
+                type_err_msg='Invalid payment destination.',
+            )
+            request['destination'] = Validator.validate_and_set_source_type(
+                request.get('destination'))
+        else:
+            raise ValueError("Payment Source or Destination is missing") 
+        
         Validator.validate_complex_attribute(
             arg=request.get('customer'),
             type_err_msg='Invalid customer.')
