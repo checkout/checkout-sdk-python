@@ -251,7 +251,7 @@ try:
         },
         amount=100,                                     # cents
         currency=sdk.Currency.USD,                      # or 'usd'
-        reference='pay_ref'
+        reference='pay_ref',
         threeds={
             'enabled': True,
             'attempt_n3d': True
