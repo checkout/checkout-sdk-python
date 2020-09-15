@@ -224,7 +224,7 @@ try:
         },
         amount=100,                                     # cents
         currency=sdk.Currency.USD,                      # or 'usd'
-        reference='pay_ref'
+        reference='pay_ref',
         threeds=True                                    # shortcut for { 'enabled': True }
     )
     print(payment.is_pending)                           # True (always check this flag)
@@ -258,7 +258,7 @@ try:
         }
     )
     print(payment.is_pending)                           # False
-    print(payment.3ds.downgraded)                       # True
+    print(payment.['3ds'].downgraded)                   # True
     print(payment.id)
 except sdk.errors.CheckoutSdkError as e:
     print('{0.http_status} {0.error_code} {0.elapsed} {0.event_id} // {0.message}'.format(e))
