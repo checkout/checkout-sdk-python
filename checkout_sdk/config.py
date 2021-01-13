@@ -5,6 +5,8 @@ from checkout_sdk import constants, logger
 
 SECRET_KEY_REGEX = re.compile(
     r'^sk_(test_)?(\w{8})-(\w{4})-(\w{4})-(\w{4})-(\w{12})$', re.IGNORECASE)
+PUBLIC_KEY_REGEX = re.compile(
+    r'^pk_(test_)?(\w{8})-(\w{4})-(\w{4})-(\w{4})-(\w{12})$', re.IGNORECASE)
 HTTP_PROTOCOL_REGEX = re.compile(r'^http(s)?', re.IGNORECASE)
 
 API_BASE_URLS = {
@@ -17,6 +19,8 @@ API_BASE_URLS = {
 ENV_SETTINGS = {
     'secret_key':
         lambda: os.environ.get('CKO_SECRET_KEY'),
+    'public_key':
+        lambda: os.environ.get('CKO_PUBLIC_KEY'),
     'sandbox':
         lambda: os.environ.get('CKO_SANDBOX', 'true').lower() in ['true', '1']
 }
@@ -24,9 +28,12 @@ ENV_SETTINGS = {
 
 class Config:
     def __init__(self, secret_key=None, sandbox=None,
-                 timeout=constants.DEFAULT_TIMEOUT, api_base_url=None):
+                 timeout=constants.DEFAULT_TIMEOUT, api_base_url=None,
+                 public_key=None):
         self.secret_key = \
             secret_key if secret_key else ENV_SETTINGS['secret_key']()
+        self.public_key = \
+            public_key if public_key else ENV_SETTINGS['public_key']()
         self.timeout = timeout
         # use custom api_base_url if local dev, integration testing, etc
         # else `sandbox` determines the URL
@@ -51,6 +58,17 @@ class Config:
             self._secret_key = value
         else:
             raise ValueError('Invalid secret key.')
+
+    @property
+    def public_key(self):
+        return self._public_key
+
+    @public_key.setter
+    def public_key(self, value):
+        if PUBLIC_KEY_REGEX.match(value or ''):
+            self._public_key = value
+        else:
+            raise ValueError('Invalid public key.')
 
     @property
     def api_base_url(self):

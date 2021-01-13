@@ -40,11 +40,14 @@ class HTTPClient:
 
     def send(self, path, method=HTTPMethod.GET, request=None):
         start = time.time()
+        dyn_headers = self.headers
+        if 'tokens' in path:
+            dyn_headers['authorization'] = self.config.public_key
 
         # call the interceptor as a hook to override
         # the url, headers and/or request
         url, headers, request = self.interceptor(
-            urljoin(self.config.api_base_url, path), self.headers, request)
+            urljoin(self.config.api_base_url, path), dyn_headers, request)
 
         try:
             response = self._session.request(
