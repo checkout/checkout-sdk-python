@@ -1,7 +1,7 @@
 import os
 import checkout_sdk as sdk
 from checkout_sdk import HTTPClient, Config
-from checkout_sdk.tokens import TokensClient
+from checkout_sdk.vaults import TokensClient
 from datetime import datetime
 
 from tests.base import CheckoutSdkTestCase

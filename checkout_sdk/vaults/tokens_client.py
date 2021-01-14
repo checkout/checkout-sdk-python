@@ -7,9 +7,7 @@ except ImportError:
 import checkout_sdk as sdk
 from checkout_sdk import ApiClient, HTTPMethod, Validator, PaymentStatus
 from checkout_sdk.common import ResponseDTO
-from checkout_sdk.tokens.responses import (
-    Token
-)
+from checkout_sdk.vaults.responses import Token
 
 
 class TokensClient(ApiClient):
