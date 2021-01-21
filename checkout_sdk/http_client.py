@@ -14,6 +14,8 @@ class HTTPClient:
     def __init__(self, config):
         self._config = config
 
+        self._headers = HTTP_HEADERS_DEFAULTS.copy()
+
         # init HTTP Session (for pooling)
         self._session = requests.Session()
 
@@ -31,24 +33,30 @@ class HTTPClient:
 
     @property
     def headers(self):
-        headers = HTTP_HEADERS_DEFAULTS.copy()
-        headers['authorization'] = self.config.secret_key
-        return headers
+        return self._headers
+
+    @headers.setter
+    def headers(self, value):
+        self._headers = value
 
     def close_session(self):
         self._session.close()
 
-    def send(self, path, method=HTTPMethod.GET, request=None):
+    def send(self, path, method=HTTPMethod.GET, request=None, headers=None):
         start = time.time()
-        dyn_headers = self.headers
+        if headers is not None:
+            req_headers = headers
+        else:
+            req_headers = self.headers
         if 'tokens' in path:
-            dyn_headers['authorization'] = self.config.public_key
+            req_headers['authorization'] = self.config.public_key
+        else:
+            req_headers['authorization'] = self.config.secret_key
 
         # call the interceptor as a hook to override
         # the url, headers and/or request
         url, headers, request = self.interceptor(
-            urljoin(self.config.api_base_url, path), dyn_headers, request)
-
+            urljoin(self.config.api_base_url, path), req_headers, request)
         try:
             response = self._session.request(
                 method=method,

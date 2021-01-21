@@ -38,6 +38,7 @@ class PaymentStatus(CheckoutSdkEnum):
 class HTTPMethod(CheckoutSdkEnum):
     GET = 'GET'
     POST = 'POST'
+    PATCH = 'PATCH'
 
 
 # Python 3.4 does not support HTTPStatus
