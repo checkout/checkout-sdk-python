@@ -53,7 +53,8 @@ class ExchangeClientTests(CheckoutSdkTestCase):
         headers = {
             'cko-provider': self.PROVIDER,
             'cko-source-id': instrument.id,
-            'cko-authorization': os.environ['CKO_SECRET_KEY']
+            'cko-authorization': os.environ['CKO_SECRET_KEY'],
+            'authorization': os.environ['CKO_SECRET_KEY']
         }
 
         requestDTO = {
@@ -62,7 +63,7 @@ class ExchangeClientTests(CheckoutSdkTestCase):
             'amount': self.AMOUNT,
             'currency': self.CURRENCY,
         }
-        payment = self.client.request(requestDTO)
+        payment = self.client.request('payments',requestDTO)
         self.assertTrue(payment.approved)
         self.assertEqual(payment.amount, self.AMOUNT)
     

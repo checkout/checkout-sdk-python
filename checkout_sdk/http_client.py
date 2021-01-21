@@ -48,10 +48,10 @@ class HTTPClient:
             req_headers = headers
         else:
             req_headers = self.headers
-        if 'tokens' in path:
-            req_headers['authorization'] = self.config.public_key
-        else:
-            req_headers['authorization'] = self.config.secret_key
+            if 'tokens' in path:
+                req_headers['authorization'] = self.config.public_key
+            else:
+                req_headers['authorization'] = self.config.secret_key
 
         # call the interceptor as a hook to override
         # the url, headers and/or request
