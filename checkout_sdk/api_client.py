@@ -7,8 +7,8 @@ class ApiClient:
     def __init__(self, http_client):
         self._http_client = http_client
 
-    def _send_http_request(self, url, method, request=None):
-        response = self._http_client.send(url, method, request)
+    def _send_http_request(self, url, method, request=None, headers=None):
+        response = self._http_client.send(url, method, request, headers)
         self._log_info(response)  # http status, elapsed
         self._log_debug('HTTP response:\n' + pprint.pformat(response.body))
         return response
