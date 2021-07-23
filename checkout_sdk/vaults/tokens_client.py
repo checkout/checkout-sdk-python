@@ -18,21 +18,27 @@ class TokensClient(ApiClient):
         else:
             # parameter approach
             request = kwargs
-
-        number = request['number']
-        last4 = number[-4:]
-        source_type = request['type']
-        expiry_month = request['expiry_month']
-        expiry_year = request['expiry_year']
-
-        # todo: insert validation here for cards
-        # todo: insert log here
-        self._log_info('Token src:{} - {} {}/{}'.format(
-            source_type,
-            last4,
-            expiry_month,
-            expiry_year
-        ))
+ 
+        source_type = request.get('type')
+        if(source_type == 'card'):
+            number = request.get('number')
+            last4 = number[-4:]
+            expiry_month = request.get('expiry_month')
+            expiry_year = request.get('expiry_year')
+            # todo: insert validation here for cards
+            self._log_debug('Token src:{} - {} {}/{}'.format(
+                source_type,
+                last4,
+                expiry_month,
+                expiry_year
+            ))
+        elif(source_type == 'applepay' or source_type == 'googlepay'):
+            token_data = request.get('token_data')
+            self._log_debug('Token src:{} - {}'.format(
+                source_type,
+                token_data
+            ))
+        
 
         http_response = self._send_http_request(
             'tokens', HTTPMethod.POST, request)
