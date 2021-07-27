@@ -38,8 +38,7 @@ api = sdk.get_api()
 ``` python
 import checkout_sdk as sdk
 
-api = sdk.get_api(secret_key='<your secret key>')       # default sandbox = True
-token_api = sdk.get_token_api(public_key='<your public key>') #default sandbox = True
+api = sdk.get_api(secret_key='<your secret key>', public_key='<your public key>')       # default sandbox = True
 ```
 
 ### Setting defaults
@@ -61,7 +60,7 @@ sdk.default_response_immutable = True
 A card token can be obtained using token api
 ``` python
 try:
-    data = token_api.payments.request(
+    data = api.tokens.request(
         type='card',
         number='4242424242424242',
         expiry_month='10',
@@ -80,7 +79,7 @@ except sdk.errors.CheckoutSdkError as e:
 Token can be obtained by exchanging the token_data from `googlepay` \ `applepay` using token api
 ```python
 try:
-    data = token_api.payments.request(
+    data = api.tokens.request(
         type='googlepay',
         token_data={...} # get this token data from googlepay
         )
@@ -91,7 +90,7 @@ except sdk.errors.CheckoutSdkError as e:
 
 ```python
 try:
-    data = token_api.payments.request(
+    data = api.tokens.request(
         type='applepay',
         token_data={...} # get this token data from applepay
         )
