@@ -36,8 +36,6 @@ from checkout_sdk.validator import Validator
 from checkout_sdk.http_client import HTTPClient
 from checkout_sdk.api_client import ApiClient
 from checkout_sdk.checkout_api import CheckoutApi
-from checkout_sdk.checkout_token_api import CheckoutTokenApi
-
 
 def get_api(secret_key=None, sandbox=None,
             timeout=constants.DEFAULT_TIMEOUT, api_base_url=None, public_key=None):
