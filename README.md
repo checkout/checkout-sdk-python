@@ -5,7 +5,7 @@
 
 ## Installation
 
-    pip install checkout-sdk==2.0b8
+    pip install checkout-sdk==2.0b9
 
 From source:
 
@@ -21,6 +21,7 @@ From source:
 ### Using environment variables
 
 ``` python
+os.environ['CKO_PUBLIC_KEY'] = '<your public key>'
 os.environ['CKO_SECRET_KEY'] = '<your secret key>'
 os.environ['CKO_SANDBOX'] = 'True|true|1'               # else is False (Production)
 os.environ['CKO_LOGGING'] = 'debug|DEBUG|info|INFO'
@@ -38,6 +39,7 @@ api = sdk.get_api()
 import checkout_sdk as sdk
 
 api = sdk.get_api(secret_key='<your secret key>')       # default sandbox = True
+token_api = sdk.get_token_api(public_key='<your public key>') #default sandbox = True
 ```
 
 ### Setting defaults
@@ -48,6 +50,56 @@ sdk.default_capture = True
 sdk.default_payment_type = sdk.PaymentType.Regular
 sdk.default_response_immutable = True
 ```
+
+### Token Request
+
+**Important**
+- If the `type` is not provided and cannot be inferred, a `ValueError` is thrown.
+- All `type` values are accepted in the SDK and validated at API level.
+
+#### Type: `card`
+A card token can be obtained using token api
+``` python
+try:
+    data = token_api.payments.request(
+        type='card',
+        number='4242424242424242',
+        expiry_month='10',
+        expiry_year='2025',
+        name='John Doe',
+        cvv='100',
+        billing_address= {...},
+        phone={...}
+        )
+    print(data.token)
+except sdk.errors.CheckoutSdkError as e:
+    print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
+```
+
+#### Type: `googlepay`/`applepay`
+Token can be obtained by exchanging the token_data from `googlepay` \ `applepay` using token api
+```python
+try:
+    data = token_api.payments.request(
+        type='googlepay',
+        token_data={...} # get this token data from googlepay
+        )
+    print(data.token)
+except sdk.errors.CheckoutSdkError as e:
+    print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
+``` 
+
+```python
+try:
+    data = token_api.payments.request(
+        type='applepay',
+        token_data={...} # get this token data from applepay
+        )
+    print(data.token)
+except sdk.errors.CheckoutSdkError as e:
+    print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
+```
+
 
 ### Payment Request
 
