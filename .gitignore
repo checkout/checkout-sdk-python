@@ -8,3 +8,4 @@
 /.vscode
 .coverage
 DEPLOYME.md
+code/app.py
