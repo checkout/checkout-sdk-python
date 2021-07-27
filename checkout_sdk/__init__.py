@@ -40,9 +40,5 @@ from checkout_sdk.checkout_token_api import CheckoutTokenApi
 
 
 def get_api(secret_key=None, sandbox=None,
-            timeout=constants.DEFAULT_TIMEOUT, api_base_url=None):
+            timeout=constants.DEFAULT_TIMEOUT, api_base_url=None, public_key=None):
     return CheckoutApi(**locals())
-
-def get_token_api(public_key=None, sandbox=None,
-            timeout=constants.DEFAULT_TIMEOUT, api_base_url=None):
-    return CheckoutTokenApi(**locals())
