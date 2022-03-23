@@ -1,419 +1,184 @@
 # Checkout.com Python SDK
 
-[![Build Status](https://travis-ci.org/checkout/checkout-sdk-python.svg?branch=unified-payments)](https://travis-ci.org/checkout/checkout-sdk-python)
-[![codecov](https://codecov.io/gh/checkout/checkout-sdk-python/branch/unified-payments/graph/badge.svg)](https://codecov.io/gh/checkout/checkout-sdk-python)
+![build-status](https://github.com/checkout/checkout-sdk-python/workflows/build-main/badge.svg)
+[![GitHub license](https://img.shields.io/github/license/checkout/checkout-sdk-python.svg)](https://github.com/checkout/checkout-sdk-python/blob/main/LICENSE.md)
 
-## Installation
+## Getting started
 
-    pip install checkout-sdk==2.0b9
-
-From source:
-
-    python setup.py install
-
-### Requirements
-
-* Python 3.4+
-* Pypy 3
-
-## Usage
-
-### Using environment variables
-
-``` python
-os.environ['CKO_PUBLIC_KEY'] = '<your public key>'
-os.environ['CKO_SECRET_KEY'] = '<your secret key>'
-os.environ['CKO_SANDBOX'] = 'True|true|1'               # else is False (Production)
-os.environ['CKO_LOGGING'] = 'debug|DEBUG|info|INFO'
-
-# ...
-
-import checkout_sdk as sdk
-
-api = sdk.get_api()
+```
+# Requires Python > 3.6
+pip install checkout-sdk==3.0.0b1
 ```
 
-### Using initialisation values
+Please check in [GitHub releases](https://github.com/checkout/checkout-sdk-python/releases) for all the versions
+available.
 
-``` python
-import checkout_sdk as sdk
+## How to use the SDK
 
-api = sdk.get_api(secret_key='<your secret key>', public_key='<your public key>')       # default sandbox = True
-```
+This SDK can be used with two different pair of API keys provided by Checkout. However, using different API keys imply
+using specific API features. Please find in the table below the types of keys that can be used within this SDK.
 
-### Setting defaults
+| Account System | Public Key (example)                    | Secret Key (example)                    |
+|----------------|-----------------------------------------|-----------------------------------------|
+| default        | pk_g650ff27-7c42-4ce1-ae90-5691a188ee7b | sk_gk3517a8-3z01-45fq-b4bd-4282384b0a64 |
+| Four           | pk_pkhpdtvabcf7hdgpwnbhw7r2uic          | sk_m73dzypy7cf3gf5d2xr4k7sxo4e          |
 
-``` python
-sdk.default_currency = sdk.Currency.EUR
-sdk.default_capture = True
-sdk.default_payment_type = sdk.PaymentType.Regular
-sdk.default_response_immutable = True
-```
+Note: sandbox keys have a `test_` or `sbox_` identifier, for Default and Four accounts respectively.
 
-### Token Request
+If you don't have your own API keys, you can sign up for a test
+account [here](https://www.checkout.com/get-test-account).
 
-**Important**
-- If the `type` is not provided and cannot be inferred, a `ValueError` is thrown.
-- All `type` values are accepted in the SDK and validated at API level.
+**PLEASE NEVER SHARE OR PUBLISH YOUR CHECKOUT CREDENTIALS.**
 
-#### Type: `card`
-A card token can be obtained using token api
-``` python
-try:
-    data = api.tokens.request(
-        type='card',
-        number='4242424242424242',
-        expiry_month='10',
-        expiry_year='2025',
-        name='John Doe',
-        cvv='100',
-        billing_address= {...},
-        phone={...}
-        )
-    print(data.token)
-except sdk.errors.CheckoutSdkError as e:
-    print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
-```
+## Default
 
-#### Type: `googlepay`/`applepay`
-Token can be obtained by exchanging the token_data from `googlepay` \ `applepay` using token api
-```python
-try:
-    data = api.tokens.request(
-        type='googlepay',
-        token_data={...} # get this token data from googlepay
-        )
-    print(data.token)
-except sdk.errors.CheckoutSdkError as e:
-    print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
-``` 
+Default keys client instantiation can be done as follows:
 
 ```python
-try:
-    data = api.tokens.request(
-        type='applepay',
-        token_data={...} # get this token data from applepay
-        )
-    print(data.token)
-except sdk.errors.CheckoutSdkError as e:
-    print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
+import checkout_sdk
+from checkout_sdk.environment import Environment
+
+
+def default():
+    checkout_api = checkout_sdk.DefaultSdk() \
+        .secret_key('secret_key') \
+        .public_key('public_key') \
+        .environment(Environment.sandbox()) \
+        .build()
+
+    payments_client = checkout_api.payments
+    payments_client.refund_payment('payment_id')
+
 ```
 
+### Four
 
-### Payment Request
-
-The SDK will infer the `type` of the payment `source`, if not provided, as follows:
-- `type: "card"` if `number` attribute present.
-- `type: "customer"` if `email` attribute present or `id` attribute present and prefix is `cus_`.
-- `type: "token"` if `token` attribute present.
-- `type: "id"` if `id` attribute present and prefix is `src_`.
-
-**Important**
-- If the `type` is not provided and cannot be inferred, a `ValueError` is thrown.
-- All `type` values are accepted in the SDK and validated at API level.
-- When using alternative payment methods (APMs), a `type` must be provided. See example below.
-
-#### Source Type: `token`
-A card token can be obtained using one of Checkout.com's JavaScript frontend solutions such as [Frames](https://docs.checkout.com/docs/frames "Frames") or any of the [mobile SDKs](https://docs.checkout.com/docs/sdks#section-mobile-sdk-libraries "Mobile SDKs")
-
-``` python
-try:
-    payment = api.payments.request(
-        source={
-            'token': 'tok_...'.
-            'billing_address': { ... },
-            'phone': { ... }
-        },
-        amount=100,                                     # cents
-        currency=sdk.Currency.USD,                      # or 'usd'
-        reference='pay_ref'
-    )
-    print(payment.id)
-except sdk.errors.CheckoutSdkError as e:
-    print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
-```
-
-#### Source Type: `id`
-
-``` python
-try:
-    payment = api.payments.request(
-        source={
-            'id': 'src_...'
-            'cvv': '100'                                # source-related attribute
-        },
-        amount=100,                                     # cents
-        currency=sdk.Currency.USD,                      # or 'usd'
-        reference='pay_ref'
-    )
-    print(payment.id)
-except sdk.errors.CheckoutSdkError as e:
-    print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
-```
-
-#### Source Type: `card`
-[Fully PCI Compliant](https://docs.checkout.com/docs/pci-compliance) merchants only
-
-``` python
-try:
-    payment = api.payments.request(
-        source={
-            'number': '4242424242424242',
-            'expiry_month': 6,
-            'expiry_year': 2025,
-            'cvv': '100'
-        },
-        amount=100,                                     # cents
-        currency=sdk.Currency.USD,                      # or 'usd'
-        reference='pay_ref'
-    )
-    print(payment.id)
-    print(payment.is_pending)                           # False
-    print(payment.http_response.body)                   # JSON body
-except sdk.errors.CheckoutSdkError as e:
-    print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
-```
-
-#### Source Type: `customer`
-
-``` python
-try:
-    payment = api.payments.request(
-        source={
-            'id': 'cus_...'
-            # or ...
-            'email': 'user@checkout.com'
-        },
-        amount=100,                                     # cents
-        currency=sdk.Currency.USD,                      # or 'usd'
-        reference='pay_ref'
-    )
-    print(payment.id)
-except sdk.errors.CheckoutSdkError as e:
-    print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
-```
-
-#### Source Type: Alternative Payment Method (APM)
-
-``` python
-try:
-    payment = api.payments.request(
-        source={
-            'type': 'ideal',
-            'bic': 'INGBNL2A'                     # source-related attribute
-            'description': 'test ideal description'
-        },
-        amount=100,                                     # cents
-        currency=sdk.Currency.EUR,                      # or 'eur'
-        reference='pay_apm_ref'
-    )
-    print(payment.is_pending)                           # True
-    print(payment.requires_redirect)                    # True
-    print(payment.redirect_link.href)                   # APM url
-    print(payment.id)
-    print(payment.http_response.body)                   # JSON body
-except sdk.errors.CheckoutSdkError as e:
-    print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
-```
-
-### Payment Details
-
-#### Get Payment
-
-``` python
-try:
-    payment = api.payments.get('pay_...')
-    print(payment.id)
-except sdk.errors.CheckoutSdkError as e:
-    print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
-```
-
-#### Payment Actions
-
-``` python
-try:
-    actions = api.payments.get_actions('pay_...')
-    for action in actions:
-        print(action.id)
-        print(action.type)
-        print(action.response_code)
-        print(action.reference)
-except sdk.errors.CheckoutSdkError as e:
-    print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
-```
-
-### Payment Flow
-
-#### Capture, Void, Refund
-
-``` python
-try:
-    action = api.payments.capture('pay_...', amount=100, reference='CAPTURE')
-    # or ...
-    action = api.payments.void('pay_...', reference='VOID')
-    # or ...
-    action = api.payments.refund('pay_...', amount=100, reference='REFUND')
-
-    print(action.id)
-    print(action.get_link('payment').href)
-except sdk.errors.CheckoutSdkError as e:
-    print('{0.http_status} {0.error_type} {0.elapsed} {0.request_id}'.format(e))
-```
-
-### 3DS Support
-
-#### Payment Request Example
-
-``` python
-try:
-    payment = api.payments.request(
-        source={
-            'number': '4242424242424242',
-            'expiry_month': 6,
-            'expiry_year': 2025,
-            'cvv': '100'
-        },
-        amount=100,                                     # cents
-        currency=sdk.Currency.USD,                      # or 'usd'
-        reference='pay_ref',
-        threeds=True                                    # shortcut for { 'enabled': True }
-    )
-    print(payment.is_pending)                           # True (always check this flag)
-    print(payment.requires_redirect)                    # True
-    print(payment.redirect_link.href)                   # ACS url
-    print(payment.id)
-    print(payment.http_response.body)                   # JSON body
-except sdk.errors.CheckoutSdkError as e:
-    print('{0.http_status} {0.error_code} {0.elapsed} {0.event_id} // {0.message}'.format(e))
-```
-
-> **Important**: If you use the Checkout.com Risk Engine to upgrade to a 3DS flow (from N3D) depending on criteria, you must always check for `payment.is_pending` first.
-
-#### Payment Request Example With N3D Downgrade Option
-
-``` python
-try:
-    payment = api.payments.request(
-        source={
-            'number': '4242424242424242',
-            'expiry_month': 6,
-            'expiry_year': 2025,
-            'cvv': '100'
-        },
-        amount=100,                                     # cents
-        currency=sdk.Currency.USD,                      # or 'usd'
-        reference='pay_ref',
-        threeds={
-            'enabled': True,
-            'attempt_n3d': True
-        }
-    )
-    print(payment.is_pending)                           # False
-    print(payment.['3ds'].downgraded)                   # True
-    print(payment.id)
-except sdk.errors.CheckoutSdkError as e:
-    print('{0.http_status} {0.error_code} {0.elapsed} {0.event_id} // {0.message}'.format(e))
-```
-
-> **Important**: Value needs to be set to `5000` to simulate a `20153` response code on the Sandbox environment, which will then attempt an N3D charge.
-
-
-
-### API Response
-
-All API responses follow this format:
-
-``` python
-response = client.do_something(...)
-# Request Id and API version
-response.request_id
-response.api_version
-# HTTP response and attributes
-response.http_response.status
-response.http_response.headers
-response.http_response.body                             # JSON body
-response.http_response.elapsed
-# HATEOAS
-response.links
-response.self_link
-response.has_link(...)                                  # True | False
-response.get_link(...)                                  # href and title
-```
-
-#### Payload Attributes
-
-All attributes are dynamically mounted on the response as both class attributes and dictionary keys. Set the `sdk.default_response_immutable` default to `False` if you wish to be able to add your own attributes.
-
-``` json
-{
-    "id": "pay",
-    "source": {
-        "type": "card",
-        "number": "4242",
-        "billing_address": {
-            "city": "London"
-        }
-    },
-    "_links": {
-        "self": {
-            "href": "http://url"
-        }
-    },
-    "some_array": [
-        {
-            "key1": "value1"
-        }
-    ]
-}
-```
-
-``` python
-response = client.do_something(...)
-response.id == 'pay'
-response['id'] == 'pay'
-response.source.type == 'card'
-response['source']['type'] == 'card'
-response.source.billing_address.city == 'London'
-response.some_array[0].key1 == 'value1'
-# if `sdk.default_response_immutable` is False
-response.custom_attr1 = 'custom attribute 1'
-response['custom_attr2'] = 999
-```
-
-### Exception handling
-
-``` python
-class CheckoutSdkError(Exception):                      # catch all
-class AuthenticationError(CheckoutSdkError):            # 401
-class NotAllowedError(CheckoutSdkError):                # 403
-class ResourceNotFoundError(CheckoutSdkError):          # 404
-class ValidationError(CheckoutSdkError):                # 422
-class TooManyRequestsError(CheckoutSdkError):           # 429
-class ApiTimeout(CheckoutSdkError):
-class ApiError(CheckoutSdkError):                       # 500 / fallback
-```
-
-> The SDK will not do any offline business validations. Provided the values and types are correct, all business validations are handled at API level. `ValueError` and `TypeError` are thrown for incorrect usage.
-
-### Logging
+If your pair of keys matches the Four type, this is how the SDK should be used:
 
 ```python
-os.environ['CKO_LOGGING'] = 'debug|DEBUG|info|INFO'
+import checkout_sdk
+from checkout_sdk.environment import Environment
+
+
+def four():
+    checkout_api = checkout_sdk.FourSdk() \
+        .secret_key('secret_key') \
+        .public_key('public_key') \
+        .environment(Environment.sandbox()) \
+        .build()
+
+    payments_client = checkout_api.payments
+    payments_client.refund_payment('payment_id')
 ```
 
-or ...
+The SDK supports client credentials OAuth, when initialized as follows:
+
+```python
+import checkout_sdk
+from checkout_sdk.environment import Environment
+from checkout_sdk.four.oauth_scopes import OAuthScopes
+
+def oauth():
+    checkout_api = checkout_sdk.OAuthSdk() \
+        .client_credentials(client_id='client_id', client_secret='client_secret') \
+        .environment(Environment.sandbox()) \
+        .scopes([OAuthScopes.GATEWAY_PAYMENT_REFUNDS, OAuthScopes.FILES]) \
+        .build()
+
+    payments_client = checkout_api.payments
+    payments_client.refund_payment('payment_id')
+
+```
+
+## Logging
+
+Checkout SDK custom logger can be enabled and configured through Python's logging module:
 
 ```python
 import logging
-logging.getLogger('cko').setLevel(logging.DEBUG)
+logging.basicConfig()
+logging.getLogger('checkout').setLevel(logging.INFO)
 ```
 
-### Test Suite
+## HttpClient
 
-The tests currently need a Sandbox account. This will eventually be replaced by the incoming Checkout.com Mock API.
+Checkout SDK uses `requests` library to perform http operations, and you can provide your own custom http client implementing `HttpClientBuilderInterface`
+
+```python
+import requests
+from requests import Session
+
+import checkout_sdk
+from checkout_sdk.environment import Environment
+from checkout_sdk.four.oauth_scopes import OAuthScopes
+from checkout_sdk.http_client_interface import HttpClientBuilderInterface
+
+
+class CustomHttpClientBuilder(HttpClientBuilderInterface):
+
+    def get_client(self) -> Session:
+        session = requests.Session()
+        session.max_redirects = 5
+        return session
+
+
+def oauth():
+    checkout_api = checkout_sdk.OAuthSdk() \
+        .client_credentials(client_id='client_id', client_secret='client_secret') \
+        .environment(Environment.sandbox()) \
+        .http_client_builder(CustomHttpClientBuilder()) \
+        .scopes([OAuthScopes.GATEWAY_PAYMENT_REFUNDS, OAuthScopes.FILES]) \
+        .build()
+
+    payments_client = checkout_api.payments
+    payments_client.refund_payment('payment_id')
 
 ```
-export CKO_SECRET_KEY="<your secret key>"
-export CKO_LOGGING="info|debug"
-python setup.py test
+
+## Exception handling
+
+All the API responses that do not fall in the 2** status codes will cause a `CheckoutApiException`. The exception encapsulates
+the `request_id`, `http_status_code` and a dictionary of `error_details`, if available.
+
+```python
+try:
+    api.customers.get("customer_id")
+except CheckoutApiException as err:
+    request_id = err.request_id
+    http_status_code = err.http_status_code
+    error_details = err.error_details
 ```
+
+* [API Reference (Default)](https://api-reference.checkout.com/)
+* [API Reference (Four)](https://api-reference.checkout.com/preview/crusoe/)
+* [Official Docs (Default)](https://docs.checkout.com/)
+* [Official Docs (Four)](https://docs.checkout.com/four)
+
+## Building from source
+
+Once you checkout the code from GitHub, the project can be built using `pip`:
+
+```
+# install the latest version pip
+python -m pip install --upgrade pip
+
+# install project dependencies
+pip install -r requirements-dev.txt
+
+# run unit and integration tests
+python -m pytest
+```
+
+The execution of integration tests require the following environment variables set in your system:
+
+* For Default account systems: `CHECKOUT_PUBLIC_KEY` & `CHECKOUT_SECRET_KEY`
+* For Four account systems: `CHECKOUT_FOUR_PUBLIC_KEY` & `CHECKOUT_FOUR_SECRET_KEY`
+* For Four account systems (OAuth): `CHECKOUT_FOUR_OAUTH_CLIENT_ID` & `CHECKOUT_FOUR_OAUTH_CLIENT_SECRET`
+
+## Code of Conduct
+
+Please refer to [Code of Conduct](CODE_OF_CONDUCT.md)
+
+## Licensing
+
+[MIT](LICENSE.md)

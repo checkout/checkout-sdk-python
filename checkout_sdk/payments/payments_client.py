@@ -1,168 +1,41 @@
-try:
-    from http import HTTPStatus
-except ImportError:
-    # Python 3.4
-    from checkout_sdk.enums import HTTPStatus
+from __future__ import absolute_import
 
-import checkout_sdk as sdk
-from checkout_sdk import ApiClient, HTTPMethod, Validator, PaymentStatus
-from checkout_sdk.common import ResponseDTO
-from checkout_sdk.payments.responses import (
-    PaymentProcessed,
-    PaymentPending,
-    PaymentAction
-)
+from checkout_sdk.api_client import ApiClient
+from checkout_sdk.authorization_type import AuthorizationType
+from checkout_sdk.checkout_configuration import CheckoutConfiguration
+from checkout_sdk.client import Client
+from checkout_sdk.payments.payments import PaymentRequest, PayoutRequest, CaptureRequest, RefundRequest, VoidRequest
 
 
-class PaymentsClient(ApiClient):
-    def request(self, *args, **kwargs):
-        if len(args) == 1 and isinstance(args[0], dict):
-            # dictionary approach - everything else is ignored
-            request = args[0]
-        else:
-            # parameter approach
-            request = kwargs
+class PaymentsClient(Client):
+    __PAYMENTS_PATH = 'payments'
 
-        # set defaults if attributes are missing
-        self._set_payment_request_defaults(request)
+    def __init__(self, api_client: ApiClient, configuration: CheckoutConfiguration):
+        super().__init__(api_client=api_client,
+                         configuration=configuration,
+                         authorization_type=AuthorizationType.SECRET_KEY)
 
-        source = request.get('source')
-        # 20-Sep-11, supporting destination. 
-        destination = request.get('destination')
-        amount = request.get('amount')
-        currency = request.get('currency')
-        payment_type = request.get('payment_type')
-        reference = request.get('reference')
+    def request_payment(self, payment_request: PaymentRequest, idempotency_key: str = None):
+        return self._api_client.post(self.__PAYMENTS_PATH, self._sdk_authorization(), payment_request, idempotency_key)
 
-        source_type = source.get(
-            'type', 'unknown') if source is not None else 'unknown'
-        destination_type = destination.get( 
-            'type', 'unknown') if destination is not None else 'unknown'
+    def request_payout(self, payout_request: PayoutRequest, idempotency_key: str = None):
+        return self._api_client.post(self.__PAYMENTS_PATH, self._sdk_authorization(), payout_request, idempotency_key)
 
-        self._log_info('Auth src:{}/dest:{} - {}{} - {}'.format(
-            source_type, destination_type,
-            amount,
-            currency,
-            reference if reference is not None else '<no reference>'))
+    def get_payment_details(self, payment_id: str):
+        return self._api_client.get(self.build_path(self.__PAYMENTS_PATH, payment_id), self._sdk_authorization())
 
-        Validator.validate_transaction(
-            amount=amount,
-            currency=currency,
-            payment_type=payment_type,
-            reference=reference
-        )
+    def get_payment_actions(self, payment_id: str):
+        return self._api_client.get(self.build_path(self.__PAYMENTS_PATH, payment_id, 'actions'),
+                                    self._sdk_authorization())
 
-        # dynamic attributes
-        self._set_payment_request_dynamic_attributes(request)
+    def capture_payment(self, payment_id: str, capture_request: CaptureRequest = None, idempotency_key: str = None):
+        return self._api_client.post(self.build_path(self.__PAYMENTS_PATH, payment_id, 'captures'),
+                                     self._sdk_authorization(), capture_request, idempotency_key)
 
-        http_response = self._send_http_request(
-            'payments', HTTPMethod.POST, request)
+    def refund_payment(self, payment_id: str, refund_request: RefundRequest = None, idempotency_key: str = None):
+        return self._api_client.post(self.build_path(self.__PAYMENTS_PATH, payment_id, 'refunds'),
+                                     self._sdk_authorization(), refund_request, idempotency_key)
 
-        if http_response.status == HTTPStatus.ACCEPTED:
-            return PaymentPending(http_response)
-        else:
-            return PaymentProcessed(http_response)
-
-    def capture(self, payment_id, amount=None, reference=None, **kwargs):
-        return PaymentAction(
-            self._get_payment_action_response(payment_id, 'capture',
-                                              amount, reference, **kwargs))
-
-    def refund(self, payment_id, amount=None, reference=None, **kwargs):
-        return PaymentAction(
-            self._get_payment_action_response(payment_id, 'refund',
-                                              amount, reference, **kwargs))
-
-    def void(self, payment_id, reference=None, **kwargs):
-        return PaymentAction(
-            self._get_payment_action_response(payment_id, 'void',
-                                              None, reference, **kwargs))
-
-    def get(self, payment_id):
-        http_response = self._get_response(payment_id, 'get')
-
-        if http_response.body['status'] == PaymentStatus.Pending:
-            return PaymentPending(http_response)
-        else:
-            return PaymentProcessed(http_response)
-
-    def get_actions(self, payment_id):
-        http_response = self._get_response(
-            payment_id, 'get actions', '/actions')
-
-        return [ResponseDTO(item) for item in http_response.body]
-
-    def _get_response(self, payment_id, log_title, path=''):
-        self._log_info('{} - {}'.format(log_title.capitalize(), payment_id))
-
-        Validator.validate_id(payment_id)
-
-        return self._send_http_request(
-            'payments/{}{}'.format(payment_id, path), HTTPMethod.GET)
-
-    def _get_payment_action_response(self, payment_id, action,
-                                     amount, reference, **kwargs):
-        self._log_info('{} - {} - {}'.format(
-            action.capitalize(), payment_id,
-            reference if reference is not None else '<no reference>'))
-
-        Validator.validate_id(payment_id)
-
-        request = {
-            'reference': reference
-        }
-
-        if amount is not None:
-            Validator.validate_transaction(amount=amount)
-            request['amount'] = amount
-
-        # add remaining properties
-        request.update(kwargs)
-
-        return self._send_http_request(
-            'payments/{}/{}s'.format(payment_id, action),
-            HTTPMethod.POST, request)
-
-    def _set_payment_request_defaults(self, request):
-        request['currency'] = request.get(
-            'currency', sdk.default_currency)
-        request['payment_type'] = request.get(
-            'payment_type', sdk.default_payment_type)
-        request['capture'] = request.get(
-            'capture', sdk.default_capture)
-
-    def _set_payment_request_dynamic_attributes(self, request):
-        
-        if request.get('source') is not None:
-            self._log_debug('Source: {}'.format(request.get('source')))
-
-            Validator.validate_complex_attribute(
-                arg=request.get('source'),
-                type_err_msg='Invalid payment source.',
-            )
-            request['source'] = Validator.validate_and_set_source_type(
-                request.get('source'))
-
-        elif request.get('destination') is not None:    
-            self._log_debug('Destination: {}'.format(request.get('destination')))
-
-            Validator.validate_complex_attribute(
-                arg=request.get('destination'),
-                type_err_msg='Invalid payment destination.',
-            )
-            request['destination'] = Validator.validate_and_set_source_type(
-                request.get('destination'))
-        else:
-            raise ValueError("Payment Source or Destination is missing") 
-        
-        Validator.validate_complex_attribute(
-            arg=request.get('customer'),
-            type_err_msg='Invalid customer.')
-        # for 3ds, due to Python name limitations,
-        # we try both '3ds' and 'threeds' attribute names
-        request['3ds'] = Validator.validate_and_set_dynamic_attr(
-            arg=request.get(
-                'threeds',
-                request.get('3ds')), type_err_msg='Invalid 3DS settings.')
-        request['risk'] = Validator.validate_and_set_dynamic_attr(
-            arg=request.get('risk'), type_err_msg='Invalid risk settings.')
+    def void_payment(self, payment_id: str, void_request: VoidRequest = None, idempotency_key: str = None):
+        return self._api_client.post(self.build_path(self.__PAYMENTS_PATH, payment_id, 'voids'),
+                                     self._sdk_authorization(), void_request, idempotency_key)
