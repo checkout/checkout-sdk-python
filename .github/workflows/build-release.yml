@@ -1,0 +1,54 @@
+name: build-release
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - checkout_sdk/properties.py
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main' && ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - id: setup-python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+      - id: install-tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install wheel
+          pip install twine
+          pip install build
+      - id: install-project-dependencies
+        run: |
+          pip install -r requirements-dev.txt
+      - id: testing
+        env:
+          CHECKOUT_SECRET_KEY: ${{ secrets.IT_CHECKOUT_SECRET_KEY }}
+          CHECKOUT_PUBLIC_KEY: ${{ secrets.IT_CHECKOUT_PUBLIC_KEY }}
+          CHECKOUT_FOUR_SECRET_KEY: ${{ secrets.IT_CHECKOUT_FOUR_SECRET_KEY }}
+          CHECKOUT_FOUR_PUBLIC_KEY: ${{ secrets.IT_CHECKOUT_FOUR_PUBLIC_KEY }}
+          CHECKOUT_FOUR_OAUTH_CLIENT_ID: ${{ secrets.IT_CHECKOUT_FOUR_OAUTH_CLIENT_ID }}
+          CHECKOUT_FOUR_OAUTH_CLIENT_SECRET: ${{ secrets.IT_CHECKOUT_FOUR_OAUTH_CLIENT_SECRET }}
+        run: python -m pytest -x --import-mode=append tests/
+      - id: read-version
+        run: echo "CURRENT_VERSION=$(grep -o '".*"' checkout_sdk/properties.py | sed 's/"//g' | tr -d \\n)" >> $GITHUB_ENV
+      - id: print-version
+        run: echo "Releasing $CURRENT_VERSION"
+      - id: build-dist
+        run: python -m build
+      - id: upload-dist
+        run: twine upload dist/* -u ${{ secrets.PY_PI_USER }} -p ${{ secrets.PY_PI_PW }}
+      - id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.CURRENT_VERSION }}
+          release_name: ${{ env.CURRENT_VERSION }}
+          body: ${{ github.event.head_commit.message }}
+          draft: false
+          prerelease: false

@@ -1,0 +1,41 @@
+name: build-main
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    if: "!contains(github.event.commits[0].message, 'Release')"
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        python-version:
+          [
+            '3.6',
+            '3.10',
+            'pypy-3.7',
+          ]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Upgrade pip and virtualenv to latest
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+      - name: Lint with flake8
+        run: flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
+      - name: Run unit tests
+        env:
+          CHECKOUT_SECRET_KEY: ${{ secrets.IT_CHECKOUT_SECRET_KEY }}
+          CHECKOUT_PUBLIC_KEY: ${{ secrets.IT_CHECKOUT_PUBLIC_KEY }}
+          CHECKOUT_FOUR_SECRET_KEY: ${{ secrets.IT_CHECKOUT_FOUR_SECRET_KEY }}
+          CHECKOUT_FOUR_PUBLIC_KEY: ${{ secrets.IT_CHECKOUT_FOUR_PUBLIC_KEY }}
+          CHECKOUT_FOUR_OAUTH_CLIENT_ID: ${{ secrets.IT_CHECKOUT_FOUR_OAUTH_CLIENT_ID }}
+          CHECKOUT_FOUR_OAUTH_CLIENT_SECRET: ${{ secrets.IT_CHECKOUT_FOUR_OAUTH_CLIENT_SECRET }}
+        run: python -m pytest -x --import-mode=append tests/
