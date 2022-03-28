@@ -181,6 +181,7 @@ class PaymentRequest:
     marketplace: MarketplaceData
     processing: ProcessingSettings
     metadata: dict
+    items: list  # four/Product
 
 
 # Payout Request Source

@@ -34,3 +34,16 @@ class MarketplaceDataSubEntity:
 class MarketplaceData:
     sub_entity_id: str
     sub_entities: list  # MarketplaceDataSubEntity
+
+
+class Product:
+    name: str
+    quantity: int
+    unit_price: int
+    reference: str
+    image_url: str
+    url: str
+    total_amount: int
+    tax_amount: int
+    discount_amount: int
+    sku: str
