@@ -8,7 +8,8 @@ import urllib3
 from requests import HTTPError, Session, ConnectionError
 
 from checkout_sdk.authorization_type import AuthorizationType
-from checkout_sdk.exception import CheckoutAuthorizationException
+from checkout_sdk.environment import Environment
+from checkout_sdk.exception import CheckoutAuthorizationException, CheckoutArgumentException
 from checkout_sdk.four.oauth_access_token import OAuthAccessToken
 from checkout_sdk.platform_type import PlatformType
 from checkout_sdk.sdk_authorization import SdkAuthorization
@@ -20,16 +21,33 @@ class FourOAuthSdkCredentials(SdkCredentials, metaclass=ABCMeta):
     __http_client: Session
     __scopes: list
 
-    def __init__(self, http_client: Session, client_id, client_secret, authorization_uri, scopes: list):
+    def __init__(self,
+                 http_client: Session,
+                 environment: Environment,
+                 client_id: str,
+                 client_secret: str,
+                 authorization_uri: str,
+                 scopes: list):
+        self.validate_arguments(environment, client_id, client_secret, authorization_uri)
         self.__http_client = http_client
         self.__client_id = client_id
         self.__client_secret = client_secret
-        self.__authorization_uri = authorization_uri
+        self.__authorization_uri = authorization_uri if authorization_uri else environment.authorization_uri
         self.__scopes = scopes
 
     @staticmethod
-    def init(http_client: Session, client_id, client_secret, authorization_uri, scopes: list):
-        credentials = FourOAuthSdkCredentials(http_client, client_id, client_secret, authorization_uri, scopes)
+    def validate_arguments(environment: Environment, client_id: str, client_secret: str, authorization_uri: str):
+        if not client_id or not client_secret:
+            raise CheckoutArgumentException(
+                "Invalid OAuth 'client_id' or 'client_secret'")
+        if not environment and not authorization_uri:
+            raise CheckoutArgumentException(
+                "Invalid configuration. Please specify an 'environment' or a specific OAuth 'authorization_uri'")
+
+    @staticmethod
+    def init(http_client: Session, environment: Environment, client_id, client_secret, authorization_uri, scopes: list):
+        credentials = FourOAuthSdkCredentials(http_client, environment, client_id, client_secret, authorization_uri,
+                                              scopes)
         credentials.get_access_token()
         return credentials
 
