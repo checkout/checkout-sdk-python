@@ -448,6 +448,7 @@ class PaymentSourceType(str, Enum):
     P24 = 'p24'
     BENEFITPAY = 'benefitpay'
     BANCONTACT = 'bancontact'
+    TAMARA = 'tamara'
 
 
 class ChallengeIndicator(str, Enum):

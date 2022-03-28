@@ -91,6 +91,8 @@ class ThreeDsRequest:
 
 class ProcessingSettings:
     aft: bool
+    tax_amount: int
+    shipping_amount: int
 
 
 # Request Source

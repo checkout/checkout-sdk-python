@@ -19,6 +19,7 @@ class CustomerRequest:
     id: str
     email: str
     name: str
+    phone: Phone
 
 
 class Product:
