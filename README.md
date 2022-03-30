@@ -2,6 +2,7 @@
 
 ![build-status](https://github.com/checkout/checkout-sdk-python/workflows/build-main/badge.svg)
 [![GitHub license](https://img.shields.io/github/license/checkout/checkout-sdk-python.svg)](https://github.com/checkout/checkout-sdk-python/blob/main/LICENSE.md)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=checkout_checkout-sdk-python&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=checkout_checkout-sdk-python)
 
 ## Getting started
 
