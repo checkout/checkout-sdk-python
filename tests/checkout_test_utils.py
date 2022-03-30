@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import logging
 import time
 import uuid
 from pathlib import Path
@@ -14,6 +15,8 @@ LAST_NAME = 'Test'
 SUCCESS_URL = 'https://testing.checkout.com/sucess'
 FAILURE_URL = 'https://testing.checkout.com/failure'
 
+_logger = logging.getLogger('checkout')
+
 
 def retriable(callback, predicate=None, **kwargs):
     current_attempt = 1
@@ -26,7 +29,7 @@ def retriable(callback, predicate=None, **kwargs):
             if predicate(response):
                 return response
         except CheckoutApiException as ex:
-            print(
+            _logger.warning(
                 'Request/Predicate failed with error ({}) - retry ({})/({})'.format(ex, current_attempt, max_attempts))
         current_attempt += 1
         time.sleep(2)
