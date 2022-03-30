@@ -11,6 +11,7 @@ from checkout_sdk.marketplace.marketplace_client import MarketplaceClient
 from checkout_sdk.payments.hosted.hosted_payments_client import HostedPaymentsClient
 from checkout_sdk.payments.links.payments_client import PaymentsLinksClient
 from checkout_sdk.payments.payments_client_four import PaymentsClient
+from checkout_sdk.risk.risk_client import RiskClient
 from checkout_sdk.sessions.sessions_client import SessionsClient
 from checkout_sdk.tokens.tokens_client import TokensClient
 
@@ -37,5 +38,6 @@ class CheckoutApi(CheckoutApmApi):
         self.forex = ForexClient(api_client=base_api_client, configuration=configuration)
         self.hosted_payments = HostedPaymentsClient(api_client=base_api_client, configuration=configuration)
         self.payments_links = PaymentsLinksClient(api_client=base_api_client, configuration=configuration)
+        self.risk = RiskClient(api_client=base_api_client, configuration=configuration)
         self.marketplace = MarketplaceClient(api_client=base_api_client, files_client=_files_api_client(configuration),
                                              configuration=configuration)
