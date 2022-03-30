@@ -4,7 +4,7 @@ import time
 import uuid
 from pathlib import Path
 
-from checkout_sdk.common.common import Address, Phone
+from checkout_sdk.common.common import Address, Phone, CustomerRequest
 from checkout_sdk.common.enums import Country
 from checkout_sdk.exception import CheckoutException, CheckoutApiException
 
@@ -76,6 +76,13 @@ def random_email() -> str:
 
 def new_idempotency_key() -> str:
     return 'ik-' + new_uuid()
+
+
+def common_customer_request() -> CustomerRequest:
+    request = CustomerRequest()
+    request.email = random_email()
+    request.name = 'Name'
+    return request
 
 
 class VisaCard:
