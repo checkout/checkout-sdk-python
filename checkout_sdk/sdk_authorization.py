@@ -17,4 +17,4 @@ class SdkAuthorization:
         if PlatformType.FOUR == self.platform_type or \
                 PlatformType.FOUR_OAUTH == self.platform_type:
             return 'Bearer ' + self.credential
-        raise CheckoutAuthorizationException("Invalid platform type")
+        raise CheckoutAuthorizationException('Invalid platform type')

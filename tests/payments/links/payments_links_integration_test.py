@@ -13,7 +13,9 @@ def test_should_create_and_get_payment_link(default_api):
 
     response = default_api.payments_links.create_payment_link(request)
 
-    assert_response(response, 'id',
+    assert_response(response,
+                    'http_response',
+                    'id',
                     'reference',
                     'expires_on',
                     '_links',
@@ -22,13 +24,16 @@ def test_should_create_and_get_payment_link(default_api):
                     'warnings')
 
     for warning in response['warnings']:
-        assert_response(warning, 'code',
+        assert_response(warning,
+                        'code',
                         'value',
                         'description')
 
     hosted_details = default_api.payments_links.get_payment_link(response['id'])
 
-    assert_response(hosted_details, 'id',
+    assert_response(hosted_details,
+                    'http_response',
+                    'id',
                     'reference',
                     'status',
                     'amount',

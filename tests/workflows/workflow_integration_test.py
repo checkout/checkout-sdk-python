@@ -9,7 +9,9 @@ def test__should_create_and_get_workflows(four_api):
 
     workflow_response = four_api.workflows.get_workflow(workflow['id'])
 
-    assert_response(workflow_response, 'id',
+    assert_response(workflow_response,
+                    'http_response',
+                    'id',
                     'name',
                     'active',
                     'actions',
@@ -51,7 +53,9 @@ def test__should_create_and_update_workflow(four_api):
 
     update_workflow_response = four_api.workflows.update_workflow(workflow['id'], update_workflow_request)
 
-    assert_response(update_workflow_response, 'name',
+    assert_response(update_workflow_response,
+                    'http_response',
+                    'name',
                     'active')
 
     assert update_workflow_request.name == update_workflow_response['name']
@@ -65,7 +69,9 @@ def test__should_update_workflow_action(four_api):
 
     workflow_response = four_api.workflows.get_workflow(workflow['id'])
 
-    assert_response(workflow_response, 'id',
+    assert_response(workflow_response,
+                    'http_response',
+                    'id',
                     'name',
                     'active',
                     'actions',
@@ -97,7 +103,9 @@ def test__should_update_workflow_condition(four_api):
 
     workflow_response = four_api.workflows.get_workflow(workflow['id'])
 
-    assert_response(workflow_response, 'id',
+    assert_response(workflow_response,
+                    'http_response',
+                    'id',
                     'name',
                     'active',
                     'actions',
@@ -109,20 +117,20 @@ def test__should_update_workflow_condition(four_api):
     assert condition_event is not None
 
     condition_request = EventWorkflowConditionRequest()
-    condition_request.events = {'gateway': ["card_verified",
-                                            "card_verification_declined",
-                                            "payment_approved",
-                                            "payment_pending",
-                                            "payment_declined",
-                                            "payment_voided",
-                                            "payment_captured",
-                                            "payment_refunded"],
-                                'dispute': ["dispute_canceled",
-                                            "dispute_evidence_required",
-                                            "dispute_expired",
-                                            "dispute_lost",
-                                            "dispute_resolved",
-                                            "dispute_won"]}
+    condition_request.events = {'gateway': ['card_verified',
+                                            'card_verification_declined',
+                                            'payment_approved',
+                                            'payment_pending',
+                                            'payment_declined',
+                                            'payment_voided',
+                                            'payment_captured',
+                                            'payment_refunded'],
+                                'dispute': ['dispute_canceled',
+                                            'dispute_evidence_required',
+                                            'dispute_expired',
+                                            'dispute_lost',
+                                            'dispute_resolved',
+                                            'dispute_won']}
 
     four_api.workflows.update_workflow_condition(workflow['id'], condition_event['id'], condition_request)
 

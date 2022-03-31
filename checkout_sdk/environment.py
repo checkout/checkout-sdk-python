@@ -12,13 +12,13 @@ class Environment:
     @staticmethod
     def sandbox():
         return Environment(base_uri='https://api.sandbox.checkout.com/',
-                           authorization_uri="https://access.sandbox.checkout.com/connect/token",
+                           authorization_uri='https://access.sandbox.checkout.com/connect/token',
                            files_uri='https://files.sandbox.checkout.com/',
                            is_sandbox=True)
 
     @staticmethod
     def production():
         return Environment(base_uri='https://api.checkout.com/',
-                           authorization_uri="https://access.checkout.com/connect/token",
+                           authorization_uri='https://access.checkout.com/connect/token',
                            files_uri='https://files.checkout.com/',
                            is_sandbox=False)

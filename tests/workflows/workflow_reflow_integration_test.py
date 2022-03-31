@@ -92,7 +92,8 @@ def __get_subject_event(four_api: CheckoutApi, subject_id: str):
                          subject_id=subject_id)
 
     approved_event = __find_payment_approved(response)
-    assert_response(approved_event, 'id',
+    assert_response(approved_event,
+                    'id',
                     'type',
                     'timestamp')
 

@@ -17,7 +17,7 @@ def create_workflow(four_api):
     signature.method = 'HMACSHA256'
 
     action_request = WebhookWorkflowActionRequest()
-    action_request.url = "https://google.com/fail"
+    action_request.url = 'https://google.com/fail'
     action_request.headers = {}
     action_request.signature = signature
 
@@ -25,24 +25,24 @@ def create_workflow(four_api):
     entity_condition_request.entities = [__WORKFLOW_ENTITY_ID]
 
     event_condition_request = EventWorkflowConditionRequest()
-    event_condition_request.events = {'gateway': ["payment_approved",
-                                                  "payment_declined",
-                                                  "card_verification_declined",
-                                                  "card_verified",
-                                                  "payment_authorization_incremented",
-                                                  "payment_authorization_increment_declined",
-                                                  "payment_capture_declined",
-                                                  "payment_captured",
-                                                  "payment_refund_declined",
-                                                  "payment_refunded",
-                                                  "payment_void_declined",
-                                                  "payment_voided"],
-                                      'dispute': ["dispute_canceled",
-                                                  "dispute_evidence_required",
-                                                  "dispute_expired",
-                                                  "dispute_lost",
-                                                  "dispute_resolved",
-                                                  "dispute_won"]}
+    event_condition_request.events = {'gateway': ['payment_approved',
+                                                  'payment_declined',
+                                                  'card_verification_declined',
+                                                  'card_verified',
+                                                  'payment_authorization_incremented',
+                                                  'payment_authorization_increment_declined',
+                                                  'payment_capture_declined',
+                                                  'payment_captured',
+                                                  'payment_refund_declined',
+                                                  'payment_refunded',
+                                                  'payment_void_declined',
+                                                  'payment_voided'],
+                                      'dispute': ['dispute_canceled',
+                                                  'dispute_evidence_required',
+                                                  'dispute_expired',
+                                                  'dispute_lost',
+                                                  'dispute_resolved',
+                                                  'dispute_won']}
 
     processing_channel_condition_request = ProcessingChannelWorkflowConditionRequest()
     processing_channel_condition_request.processing_channels = [__PROCESSING_CHANNEL_ID]

@@ -8,7 +8,7 @@ from checkout_sdk.tokens.tokens import WalletTokenRequest, CardTokenRequest
 
 
 class TokensClient(Client):
-    __TOKENS = "tokens"
+    __TOKENS = 'tokens'
 
     def __init__(self, api_client: ApiClient, configuration: CheckoutConfiguration):
         super().__init__(api_client=api_client,

@@ -12,6 +12,7 @@ def test_should_create_and_get_customer(default_api):
     customer_id = create_customer(default_api, email)
     response = default_api.customers.get(customer_id)
     assert_response(response,
+                    'http_response',
                     'email',
                     'name',
                     'phone')
@@ -29,6 +30,7 @@ def test_should_create_and_update_customer(default_api):
 
     response_update = default_api.customers.get(customer_id)
     assert_response(response_update,
+                    'http_response',
                     'email',
                     'name',
                     'phone')
@@ -44,7 +46,7 @@ def test_should_create_and_delete_customer(default_api):
         default_api.customers.get(customer_id)
         pytest.fail()
     except CheckoutApiException as err:
-        assert err.args[0] == "The API response status code (404) does not indicate success."
+        assert err.args[0] == 'The API response status code (404) does not indicate success.'
 
 
 def create_customer(default_api, email):
