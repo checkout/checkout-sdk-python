@@ -15,6 +15,7 @@ def test_should_full_capture_card_payment(four_api):
                                  payment_id=payment_response['id'],
                                  capture_request=capture_request)
     assert_response(capture_response,
+                    'http_response',
                     'reference',
                     'action_id',
                     '_links')
@@ -31,6 +32,7 @@ def test_should_partially_capture_card_payment(four_api):
                                  payment_id=payment_response['id'],
                                  capture_request=capture_request)
     assert_response(capture_response,
+                    'http_response',
                     'reference',
                     'action_id',
                     '_links')

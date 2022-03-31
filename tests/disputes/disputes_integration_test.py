@@ -20,6 +20,7 @@ def test_should_query_disputes(default_api):
 
     response = default_api.disputes.query(query)
     assert_response(response,
+                    'http_response',
                     'limit',
                     'total_count',
                     'from',
@@ -44,6 +45,7 @@ def test_should_upload_file(default_api):
 
     file_details = default_api.disputes.get_file_details(response['id'])
     assert_response(file_details,
+                    'http_response',
                     'id',
                     'filename',
                     'purpose',
@@ -88,6 +90,7 @@ def test_should_test_full_disputes_workflow(default_api):
 
     evidence = default_api.disputes.get_evidence(dispute_id)
     assert_response(evidence,
+                    'http_response',
                     'proof_of_delivery_or_service_file',
                     'proof_of_delivery_or_service_text',
                     'invoice_or_receipt_file',

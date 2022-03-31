@@ -77,7 +77,7 @@ class FourOAuthSdkCredentials(SdkCredentials, metaclass=ABCMeta):
             response.raise_for_status()
         except HTTPError as err:
             errors = json.loads(err.response.text)
-            message = 'OAuth client_credentials authentication failed with error: ({})'.format(errors["error"])
+            message = 'OAuth client_credentials authentication failed with error: ({})'.format(errors['error'])
             raise CheckoutAuthorizationException(message)
         except ConnectionError:
             raise CheckoutAuthorizationException(

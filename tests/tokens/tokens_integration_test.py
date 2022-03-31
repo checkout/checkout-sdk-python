@@ -15,6 +15,7 @@ def test_should_create_card_token(default_api):
     response = default_api.tokens.request_card_token(request)
 
     assert_response(response,
+                    'http_response',
                     'token',
                     'type',
                     'expires_on',

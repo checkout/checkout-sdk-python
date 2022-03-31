@@ -7,12 +7,14 @@ from tests.payments.four.payments_four_test_utils import make_card_payment
 def test_should_get_payment_actions(four_api):
     payment_response = make_card_payment(four_api, capture=True)
 
-    payment_actions = retriable(callback=four_api.payments.get_payment_actions,
-                                predicate=there_are_two_payment_actions,
-                                payment_id=payment_response['id'])
-    assert type(payment_actions) is list
-    assert payment_actions.__len__() > 0
-    for action in payment_actions:
+    response = retriable(callback=four_api.payments.get_payment_actions,
+                         predicate=there_are_two_payment_actions,
+                         payment_id=payment_response['id'])
+    assert_response(response, 'http_response')
+    actions = response['items']
+    assert type(actions) is list
+    assert actions.__len__() > 0
+    for action in actions:
         assert_response(action,
                         'amount',
                         'approved',

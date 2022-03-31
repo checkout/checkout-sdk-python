@@ -4,13 +4,15 @@ from tests.workflows.workflows_test_utils import create_workflow, clean_workflow
 
 
 def test_should_get_event_types(four_api):
-    event_types = four_api.workflows.get_event_types()
+    response = four_api.workflows.get_event_types()
 
-    assert event_types is not None
-    assert event_types.__len__() == 8
+    results = response['items']
+    assert results is not None
+    assert results.__len__() == 8
 
-    for event_type in event_types:
-        assert_response(event_type, 'id',
+    for event_type in results:
+        assert_response(event_type,
+                        'id',
                         'description',
                         'display_name',
                         'events')

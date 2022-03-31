@@ -16,7 +16,9 @@ def test_should_create_and_get_payment_link(four_api):
 
     response = four_api.payments_links.create_payment_link(request)
 
-    assert_response(response, 'id',
+    assert_response(response,
+                    'http_response',
+                    'id',
                     'reference',
                     'expires_on',
                     '_links',
@@ -25,13 +27,17 @@ def test_should_create_and_get_payment_link(four_api):
                     'warnings')
 
     for warning in response['warnings']:
-        assert_response(warning, 'code',
+        assert_response(warning,
+                        'http_response',
+                        'code',
                         'value',
                         'description')
 
     hosted_details = four_api.payments_links.get_payment_link(response['id'])
 
-    assert_response(hosted_details, 'id',
+    assert_response(hosted_details,
+                    'http_response',
+                    'id',
                     'reference',
                     'status',
                     'amount',

@@ -32,6 +32,7 @@ def test_should_request_ideal_payment(four_api):
     payment_response = retriable(callback=four_api.payments.request_payment,
                                  payment_request=payment_request)
     assert_response(payment_response,
+                    'http_response',
                     'id',
                     'status',
                     '_links',
@@ -41,6 +42,7 @@ def test_should_request_ideal_payment(four_api):
     payment_details = retriable(callback=four_api.payments.get_payment_details,
                                 payment_id=payment_response['id'])
     assert_response(payment_details,
+                    'http_response',
                     'id',
                     'requested_on',
                     'source',
@@ -62,6 +64,7 @@ def test_should_request_sofort_payment(four_api):
     payment_response = retriable(callback=four_api.payments.request_payment,
                                  payment_request=payment_request)
     assert_response(payment_response,
+                    'http_response',
                     'id',
                     'status',
                     '_links',
@@ -71,6 +74,7 @@ def test_should_request_sofort_payment(four_api):
     payment_details = retriable(callback=four_api.payments.get_payment_details,
                                 payment_id=payment_response['id'])
     assert_response(payment_details,
+                    'http_response',
                     'id',
                     'requested_on',
                     'source',
@@ -129,7 +133,7 @@ def test_should_request_tamara_payment():
     payment_request.processing = processing_settings
     payment_request.processing_channel_id = 'pc_zs5fqhybzc2e3jmq3efvybybpq'
     payment_request.customer = customer_request
-    payment_request.reference = "ORD-5023-4E89"
+    payment_request.reference = 'ORD-5023-4E89'
     payment_request.items = [product]
 
     preview_api = checkout_sdk.OAuthSdk() \

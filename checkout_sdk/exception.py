@@ -29,12 +29,16 @@ class CheckoutAuthorizationException(CheckoutException):
 
 
 class CheckoutApiException(CheckoutException):
-    request_id: str
     http_status_code: int
+    http_response: dict
+    request_id: str
     error_details: dict
 
-    def __init__(self, request_id: str = None, http_status_code: int = None, error_details: dict = None):
-        self.request_id = request_id
-        self.http_status_code = http_status_code
-        self.error_details = error_details
-        super().__init__('The API response status code ({}) does not indicate success.'.format(http_status_code))
+    def __init__(self, response):
+        self.http_status_code = response.status_code
+        self.http_response = response
+        if response.text:
+            payload = response.json()
+            self.request_id = payload['request_id'] if 'request_id' in payload else None
+            self.error_details = payload['error_codes'] if 'error_codes' in payload else None
+        super().__init__('The API response status code ({}) does not indicate success.'.format(response.status_code))

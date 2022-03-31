@@ -21,11 +21,11 @@ def test_try_complete_sessions(oauth_api: CheckoutApi):
         oauth_api.sessions.complete_session(session_id)
         pytest.fail()
     except CheckoutApiException as err:
-        assert err.args[0] == "The API response status code (403) does not indicate success."
-        assert err.error_details['error_codes'][0] == 'update_not_allowed_due_to_state'
+        assert err.args[0] == 'The API response status code (403) does not indicate success.'
+        assert err.error_details[0] == 'update_not_allowed_due_to_state'
 
     try:
         oauth_api.sessions.complete_session(session_id, session_secret)
         pytest.fail()
     except CheckoutApiException as err:
-        assert err.error_details['error_codes'][0] == 'update_not_allowed_due_to_state'
+        assert err.error_details[0] == 'update_not_allowed_due_to_state'

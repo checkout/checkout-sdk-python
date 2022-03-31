@@ -16,6 +16,7 @@ from tests.checkout_test_utils import assert_response, phone, VisaCard, address,
 def test_should_create_and_get_instrument(four_api):
     create_instrument_response = create_token_instrument(four_api)
     assert_response(create_instrument_response,
+                    'http_response',
                     'bin',
                     'card_category',
                     'card_type',
@@ -36,6 +37,7 @@ def test_should_create_and_get_instrument(four_api):
     get_instrument_response = four_api.instruments.get(create_instrument_response['id'])
 
     assert_response(get_instrument_response,
+                    'http_response',
                     'bin',
                     'card_category',
                     'card_type',
@@ -84,6 +86,7 @@ def test_should_create_and_update_instrument(four_api):
     assert get_instrument_response['expiry_month'] == 12
 
     assert_response(create_instrument_response,
+                    'http_response',
                     'scheme',
                     'bin',
                     'card_category',

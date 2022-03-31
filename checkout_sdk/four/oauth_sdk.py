@@ -9,9 +9,9 @@ from checkout_sdk.four.oauth_credentials import FourOAuthSdkCredentials
 
 
 class OAuthSdk(CheckoutSdkBuilder, metaclass=ABCMeta):
-    _client_id: str = ""
-    _client_secret: str = ""
-    _authorization_uri: str = ""
+    _client_id: str = ''
+    _client_secret: str = ''
+    _authorization_uri: str = ''
     _scopes: list = []
 
     def __init__(self):

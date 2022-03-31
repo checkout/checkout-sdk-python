@@ -34,7 +34,7 @@ def test_should_pre_capture_and_authenticate_customer(four_api):
     customer_response = four_api.customers.create(customer)
 
     source_prism = CustomerSourcePrism()
-    source_prism.id = customer_response["id"]
+    source_prism.id = customer_response['id']
 
     authentication_assessment_request(four_api, source_prism)
     pre_capture_assessment_request(four_api, source_prism)
@@ -57,13 +57,13 @@ def test_should_pre_capture_and_authenticate_id(four_api):
     account_holder.phone = phone()
 
     instrument_request = CreateTokenInstrumentRequest()
-    instrument_request.token = card_token_response["token"]
+    instrument_request.token = card_token_response['token']
     instrument_request.account_holder = account_holder
 
     instrument_response = four_api.instruments.create(instrument_request)
 
     source_prism = IdSourcePrism()
-    source_prism.id = instrument_response["id"]
+    source_prism.id = instrument_response['id']
     source_prism.cvv = VisaCard.cvv
 
     authentication_assessment_request(four_api, source_prism)
@@ -83,7 +83,7 @@ def test_should_pre_capture_and_authenticate_token(four_api):
     card_token_response = four_api.tokens.request_card_token(card_token_request)
 
     token_source = RiskRequestTokenSource()
-    token_source.token = card_token_response["token"]
+    token_source.token = card_token_response['token']
     token_source.phone = phone()
     token_source.billing_address = address()
 
@@ -98,8 +98,8 @@ def authentication_assessment_request(api_client: CheckoutApi, request_source: R
     request.customer = common_customer_request()
     request.payment = get_risk_payment()
     request.shipping = get_risk_shipping_details()
-    request.reference = "ORD-1011-87AH"
-    request.description = "Set of 3 masks"
+    request.reference = 'ORD-1011-87AH'
+    request.description = 'Set of 3 masks'
     request.amount = 6540
     request.currency = Currency.GBP
     request.device = get_device()
@@ -111,11 +111,12 @@ def authentication_assessment_request(api_client: CheckoutApi, request_source: R
     response = api_client.risk.request_pre_authentication_risk_scan(request)
 
     assert_response(response,
-                    "assessment_id",
-                    "result",
-                    "result.decision",
-                    "result.details",
-                    "_links")
+                    'http_response',
+                    'assessment_id',
+                    'result',
+                    'result.decision',
+                    'result.details',
+                    '_links')
 
 
 def pre_capture_assessment_request(api_client: CheckoutApi, request_source: RiskPaymentRequestSource):
@@ -123,9 +124,9 @@ def pre_capture_assessment_request(api_client: CheckoutApi, request_source: Risk
     authentication_result.attempted = True
     authentication_result.challenged = True
     authentication_result.liability_shifted = True
-    authentication_result.method = "3ds"
+    authentication_result.method = '3ds'
     authentication_result.succeeded = True
-    authentication_result.version = "2.0"
+    authentication_result.version = '2.0'
 
     authorization_result = AuthorizationResult()
     authorization_result.avs_code = 'Y'
@@ -150,11 +151,12 @@ def pre_capture_assessment_request(api_client: CheckoutApi, request_source: Risk
     response = api_client.risk.request_pre_capture_risk_scan(request)
 
     assert_response(response,
-                    "assessment_id",
-                    "result",
-                    "result.decision",
-                    "result.details",
-                    "_links")
+                    'http_response',
+                    'assessment_id',
+                    'result',
+                    'result.decision',
+                    'result.details',
+                    '_links')
 
 
 def get_risk_shipping_details() -> RiskShippingDetails:
@@ -165,23 +167,23 @@ def get_risk_shipping_details() -> RiskShippingDetails:
 
 def get_device() -> Device:
     location = Location()
-    location.longitude = "0.1313"
-    location.latitude = "51.5107"
+    location.longitude = '0.1313'
+    location.latitude = '51.5107'
 
     device = Device()
     device.location = location
-    device.type = "Phone"
-    device.os = "ISO"
-    device.model = "iPhone X"
+    device.type = 'Phone'
+    device.os = 'ISO'
+    device.model = 'iPhone X'
     device.date = datetime.now(timezone.utc)
-    device.user_agent = "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, " \
-                        "like Gecko) Version/11.0 Mobile/15A372 Safari/604.1 "
-    device.fingerprint = "34304a9e3fg09302"
+    device.user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, ' \
+                        'like Gecko) Version/11.0 Mobile/15A372 Safari/604.1 '
+    device.fingerprint = '34304a9e3fg09302'
     return device
 
 
 def get_risk_payment() -> RiskPayment:
     risk_payment = RiskPayment()
-    risk_payment.psp = "CheckoutSdk.com"
-    risk_payment.id = "78453878"
+    risk_payment.psp = 'CheckoutSdk.com'
+    risk_payment.id = '78453878'
     return risk_payment

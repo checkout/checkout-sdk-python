@@ -8,11 +8,11 @@ from pathlib import Path
 from requests.exceptions import HTTPError
 
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
-from checkout_sdk.exception import CheckoutApiException, CheckoutArgumentException
+from checkout_sdk.exception import CheckoutApiException, CheckoutException
 from checkout_sdk.files.files import FileRequest
 from checkout_sdk.json_serializer import JsonSerializer
-from checkout_sdk.sdk_authorization import SdkAuthorization
 from checkout_sdk.properties import VERSION
+from checkout_sdk.sdk_authorization import SdkAuthorization
 
 
 def get_file_request(file_request: FileRequest, multipart_file=None):
@@ -105,7 +105,7 @@ class ApiClient:
                 headers.pop('Content-Type')
                 files, json_body = get_file_request(file_request, multipart_file)
 
-            self._logger.info(method + " " + path)
+            self._logger.info(method + ' ' + path)
 
             response = self._http_client.request(method=method, url=base_uri, headers=headers, params=params_dict,
                                                  data=json_body, files=files)
@@ -113,15 +113,17 @@ class ApiClient:
             response.raise_for_status()
         except HTTPError as err:
             self._logger.error(err)
-            if err.response.content:
-                response = err.response.json()
-                raise CheckoutApiException(response['request_id'] if 'request_id' in response else None,
-                                           err.response.status_code,
-                                           response)
-            raise CheckoutApiException(http_status_code=err.response.status_code)
+            raise CheckoutApiException(err.response)
         except OSError as err:
             error = err.strerror
-            raise CheckoutArgumentException(error)
+            raise CheckoutException(error)
 
+        to_return = dict()
+        to_return['http_response'] = response
         if response.text:
-            return response.json()
+            response_json = response.json()
+            if isinstance(response_json, list):
+                to_return['items'] = response_json
+            else:
+                to_return.update(response_json)
+        return to_return

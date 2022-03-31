@@ -19,6 +19,7 @@ def test_should_refund_card_payment(four_api):
                                 refund_request=refund_request)
 
     assert_response(refund_response,
+                    'http_response',
                     'reference',
                     'action_id',
                     '_links')
@@ -26,6 +27,7 @@ def test_should_refund_card_payment(four_api):
     payment = retriable(callback=four_api.payments.get_payment_details,
                         payment_id=payment_response['id'])
     assert_response(payment,
+                    'http_response',
                     'balances.total_authorized',
                     'balances.total_captured',
                     'balances.total_refunded')
