@@ -40,7 +40,8 @@ def test_should_create_and_update_customer(four_api):
 
 def test_should_create_and_delete_customer(four_api):
     customer_id = create_customer(four_api, random_email())
-    four_api.customers.delete(customer_id)
+    response = four_api.customers.delete(customer_id)
+    assert_response(response, 'http_response')
 
     try:
         four_api.customers.get(customer_id)

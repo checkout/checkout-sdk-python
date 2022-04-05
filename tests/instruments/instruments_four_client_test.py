@@ -26,8 +26,8 @@ class TestInstrumentsClient:
         assert client.update('instrument_id', UpdateCardInstrumentRequest()) == 'response'
 
     def test_should_delete_instrument(self, mocker, client: InstrumentsClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.delete')
-        client.delete('instrument_id')
+        mocker.patch('checkout_sdk.api_client.ApiClient.delete', return_value='response')
+        assert client.delete('instrument_id') == 'response'
 
     def test_should_get_bank_account_field_formatting(self, mocker, client: InstrumentsClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')

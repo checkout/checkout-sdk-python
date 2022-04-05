@@ -24,5 +24,5 @@ class TestCustomersClient:
         assert client.update('customer_id', CustomerRequest()) == 'response'
 
     def test_should_delete_customer(self, mocker, client: CustomersClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.delete')
-        client.delete('customer_id')
+        mocker.patch('checkout_sdk.api_client.ApiClient.delete', return_value='response')
+        assert client.delete('customer_id') == 'response'

@@ -25,17 +25,17 @@ class DisputesClient(FilesClient):
         return self._api_client.get(self.build_path(self.__DISPUTES_PATH, dispute_id), self._sdk_authorization())
 
     def accept(self, dispute_id: str):
-        self._api_client.post(self.build_path(self.__DISPUTES_PATH, dispute_id, self.__ACCEPT_PATH),
-                              self._sdk_authorization())
+        return self._api_client.post(self.build_path(self.__DISPUTES_PATH, dispute_id, self.__ACCEPT_PATH),
+                                     self._sdk_authorization())
 
     def put_evidence(self, dispute_id: str, dispute_evidence_request: DisputeEvidenceRequest):
-        self._api_client.put(self.build_path(self.__DISPUTES_PATH, dispute_id, self.__EVIDENCE_PATH),
-                             self._sdk_authorization(), dispute_evidence_request)
+        return self._api_client.put(self.build_path(self.__DISPUTES_PATH, dispute_id, self.__EVIDENCE_PATH),
+                                    self._sdk_authorization(), dispute_evidence_request)
 
     def get_evidence(self, dispute_id: str):
         return self._api_client.get(self.build_path(self.__DISPUTES_PATH, dispute_id, self.__EVIDENCE_PATH),
                                     self._sdk_authorization())
 
     def submit_evidence(self, dispute_id: str):
-        self._api_client.post(self.build_path(self.__DISPUTES_PATH, dispute_id, self.__EVIDENCE_PATH),
-                              self._sdk_authorization())
+        return self._api_client.post(self.build_path(self.__DISPUTES_PATH, dispute_id, self.__EVIDENCE_PATH),
+                                     self._sdk_authorization())

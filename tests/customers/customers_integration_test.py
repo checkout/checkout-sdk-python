@@ -40,7 +40,8 @@ def test_should_create_and_update_customer(default_api):
 
 def test_should_create_and_delete_customer(default_api):
     customer_id = create_customer(default_api, random_email())
-    default_api.customers.delete(customer_id)
+    response = default_api.customers.delete(customer_id)
+    assert_response(response, 'http_response')
 
     try:
         default_api.customers.get(customer_id)

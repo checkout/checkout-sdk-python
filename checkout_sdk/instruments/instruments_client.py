@@ -28,4 +28,4 @@ class InstrumentsClient(Client):
             update_instrument_request)
 
     def delete(self, instrument_id: str):
-        self._api_client.delete(self.build_path(self.__INSTRUMENTS, instrument_id), self._sdk_authorization())
+        return self._api_client.delete(self.build_path(self.__INSTRUMENTS, instrument_id), self._sdk_authorization())
