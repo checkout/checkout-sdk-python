@@ -50,6 +50,16 @@ class Purpose(str, Enum):
     MEDICAL_TREATMENT = 'medical_treatment'
 
 
+class FundTransferType(str, Enum):
+    AA = 'AA'
+    PP = 'PP'
+    FT = 'FT'
+    FD = 'FD'
+    PD = 'PD'
+    LO = 'LO'
+    OG = 'OG'
+
+
 class BillingDescriptor:
     name: str
     city: str
@@ -238,6 +248,7 @@ class PaymentRequest:
 class PayoutRequest:
     destination: RequestDestination
     amount: int
+    fund_transfer_type: FundTransferType
     currency: Currency
     payment_type: PaymentType
     reference: str
