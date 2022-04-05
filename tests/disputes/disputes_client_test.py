@@ -21,20 +21,20 @@ class TestDisputesClient:
         assert client.get_dispute_details('dispute_id') == 'response'
 
     def test_should_accept_dispute(self, mocker, client: DisputesClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.post')
-        client.accept('customer_id')
+        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        assert client.accept('customer_id') == 'response'
 
     def test_should_put_evidence(self, mocker, client: DisputesClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.put')
-        client.put_evidence('dispute_id', DisputeEvidenceRequest())
+        mocker.patch('checkout_sdk.api_client.ApiClient.put', return_value='response')
+        assert client.put_evidence('dispute_id', DisputeEvidenceRequest()) == 'response'
 
     def test_should_get_evidence(self, mocker, client: DisputesClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
         assert client.get_evidence('dispute_id') == 'response'
 
     def test_should_submit_evidence(self, mocker, client: DisputesClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.post')
-        client.submit_evidence('dispute_id')
+        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        assert client.submit_evidence('dispute_id') == 'response'
 
     def test_should_upload_file(self, mocker, client: DisputesClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.submit_file', return_value='response')

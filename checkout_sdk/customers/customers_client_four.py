@@ -26,4 +26,4 @@ class CustomersClient(Client):
                                       customer_request)
 
     def delete(self, customer_id: str):
-        self._api_client.delete(self.build_path(self.__CUSTOMERS_PATH, customer_id), self._sdk_authorization())
+        return self._api_client.delete(self.build_path(self.__CUSTOMERS_PATH, customer_id), self._sdk_authorization())

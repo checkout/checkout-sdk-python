@@ -86,7 +86,8 @@ def test_should_test_full_disputes_workflow(default_api):
 
     dispute_id = query_response['data'][0]['id']
 
-    default_api.disputes.put_evidence(dispute_id, evidence_request)
+    put_response = default_api.disputes.put_evidence(dispute_id, evidence_request)
+    assert_response(put_response, 'http_response')
 
     evidence = default_api.disputes.get_evidence(dispute_id)
     assert_response(evidence,

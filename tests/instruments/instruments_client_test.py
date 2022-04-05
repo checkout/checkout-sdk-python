@@ -24,5 +24,5 @@ class TestInstrumentsClient:
         assert client.update('instrument_id', UpdateInstrumentRequest()) == 'response'
 
     def test_should_delete_instrument(self, mocker, client: InstrumentsClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.delete')
-        client.delete('instrument_id')
+        mocker.patch('checkout_sdk.api_client.ApiClient.delete', return_value='response')
+        assert client.delete('instrument_id') == 'response'
