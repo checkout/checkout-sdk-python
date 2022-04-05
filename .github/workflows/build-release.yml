@@ -1,6 +1,10 @@
 name: build-release
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - checkout_sdk/properties.py
 
 jobs:
   deploy:
