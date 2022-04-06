@@ -2,9 +2,10 @@ from __future__ import absolute_import
 
 import os
 
+from checkout_sdk.common.enums import Currency
 from checkout_sdk.files.files import FileRequest
 from checkout_sdk.marketplace.marketplace import OnboardEntityRequest, ContactDetails, Profile, Individual, \
-    DateOfBirth, Identification, CreateTransferRequest, TransferType, TransferSource, TransferDestination
+    DateOfBirth, Identification, CreateTransferRequest, TransferType, TransferSource, TransferDestination, BalancesQuery
 from tests.checkout_test_utils import assert_response, phone, address, new_uuid, get_project_root
 
 
@@ -80,3 +81,16 @@ def test_should_initiate_transfer_of_funds(oauth_api):
     response = oauth_api.marketplace.initiate_transfer_of_funds(transfer_request)
     assert_response(response, 'id', 'status')
     assert 'pending' == response.status
+
+
+def test_should_retrieve_entity_balances(oauth_api):
+    query = BalancesQuery()
+    query.query = "currency:" + Currency.GBP.value
+
+    response = oauth_api.marketplace.retrieve_entity_balances('ent_kidtcgc3ge5unf4a5i6enhnr5m', query)
+    assert_response(response, 'data')
+    assert response.data.__len__() > 0
+    for balance in response.data:
+        assert_response(balance, 'descriptor',
+                        'holding_currency',
+                        'balances')

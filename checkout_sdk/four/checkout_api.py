@@ -29,6 +29,10 @@ def _transfers_api_client(configuration: CheckoutConfiguration) -> ApiClient:
     return ApiClient(configuration, configuration.environment.transfers_uri)
 
 
+def _balances_api_client(configuration: CheckoutConfiguration) -> ApiClient:
+    return ApiClient(configuration, configuration.environment.balances_uri)
+
+
 class CheckoutApi(CheckoutApmApi):
 
     def __init__(self, configuration: CheckoutConfiguration):
@@ -48,4 +52,5 @@ class CheckoutApi(CheckoutApmApi):
         self.marketplace = MarketplaceClient(api_client=base_api_client,
                                              files_client=_files_api_client(configuration),
                                              transfers_client=_transfers_api_client(configuration),
+                                             balances_client=_balances_api_client(configuration),
                                              configuration=configuration)

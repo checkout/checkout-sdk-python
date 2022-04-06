@@ -6,7 +6,7 @@ from checkout_sdk.checkout_configuration import CheckoutConfiguration
 from checkout_sdk.client import Client
 from checkout_sdk.files.files import FileRequest
 from checkout_sdk.marketplace.marketplace import OnboardEntityRequest, MarketplacePaymentInstrument, \
-    CreateTransferRequest
+    CreateTransferRequest, BalancesQuery
 
 
 class MarketplaceClient(Client):
@@ -15,16 +15,19 @@ class MarketplaceClient(Client):
     __ENTITIES_PATH = 'entities'
     __FILES_PATH = 'files'
     __TRANSFERS_PATH = 'transfers'
+    __BALANCES_PATH = 'balances'
 
     def __init__(self, api_client: ApiClient,
                  files_client: ApiClient,
                  transfers_client: ApiClient,
+                 balances_client: ApiClient,
                  configuration: CheckoutConfiguration):
         super().__init__(api_client=api_client,
                          configuration=configuration,
                          authorization_type=AuthorizationType.OAUTH)
         self.__files_client = files_client
         self.__transfers_client = transfers_client
+        self.__balances_client = balances_client
 
     def create_entity(self, onboard_entity_request: OnboardEntityRequest):
         return self._api_client.post(self.build_path(self.__MARKETPLACE_PATH, self.__ENTITIES_PATH),
@@ -49,3 +52,7 @@ class MarketplaceClient(Client):
 
     def initiate_transfer_of_funds(self, create_transfer_request: CreateTransferRequest):
         return self.__transfers_client.post(self.__TRANSFERS_PATH, self._sdk_authorization(), create_transfer_request)
+
+    def retrieve_entity_balances(self, entity_id: str, balances_query: BalancesQuery):
+        return self.__balances_client.get(self.build_path(self.__BALANCES_PATH, entity_id), self._sdk_authorization(),
+                                          balances_query)

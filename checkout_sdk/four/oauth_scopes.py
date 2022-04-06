@@ -38,3 +38,5 @@ class OAuthScopes(str, Enum):
     TRANSFERS = 'transfers'
     TRANSFERS_CREATE = 'transfers:create'
     TRANSFERS_VIEW = 'transfers:view'
+    BALANCES = 'balances'
+    BALANCES_VIEW = 'balances:view'
