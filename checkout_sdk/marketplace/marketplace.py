@@ -161,3 +161,9 @@ class CreateTransferRequest:
     transfer_type: TransferType
     source: TransferSource
     destination: TransferDestination
+
+
+# Balances
+
+class BalancesQuery:
+    query: str
