@@ -59,7 +59,7 @@ def create_workflow(four_api):
 
     assert_response(response, 'id')
 
-    __WORKFLOWS.append(response['id'])
+    __WORKFLOWS.append(response.id)
 
     return response
 

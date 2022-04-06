@@ -33,7 +33,7 @@ def test_should_create_get_and_update_onboard_entity(oauth_api):
 
     assert_response(create_entity_response, 'id', 'reference')
 
-    get_entity_response = oauth_api.marketplace.get_entity(create_entity_response['id'])
+    get_entity_response = oauth_api.marketplace.get_entity(create_entity_response.id)
 
     assert_response(get_entity_response,
                     'id',
@@ -49,11 +49,11 @@ def test_should_create_get_and_update_onboard_entity(oauth_api):
 
     onboard_entity_request.individual.first_name = 'John'
 
-    update_response = oauth_api.marketplace.update_entity(create_entity_response['id'], onboard_entity_request)
+    update_response = oauth_api.marketplace.update_entity(create_entity_response.id, onboard_entity_request)
 
     assert_response(update_response, 'id')
 
-    assert create_entity_response['id'] == update_response['id']
+    assert create_entity_response.id == update_response.id
 
 
 def test_should_upload_file(oauth_api):

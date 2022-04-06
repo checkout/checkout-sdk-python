@@ -73,7 +73,7 @@ def make_token_payment(four_api: CheckoutApi):
     assert card_token_response is not None
 
     request_token_source = RequestTokenSource()
-    request_token_source.token = card_token_response['token']
+    request_token_source.token = card_token_response.token
 
     customer_request = CustomerRequest()
     customer_request.email = random_email()

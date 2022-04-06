@@ -32,7 +32,7 @@ def test_should_request_baloto_payment(default_api):
     assert_response(payment_response, 'id')
 
     payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response['id'])
+                                payment_id=payment_response.id)
     assert_response(payment_details,
                     'id',
                     'source',
@@ -66,7 +66,7 @@ def test_should_request_boleto_payment(default_api, integration_type: Integratio
                     '_links')
 
     payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response['id'])
+                                payment_id=payment_response.id)
     assert_response(payment_details,
                     'id',
                     'source',
@@ -99,7 +99,7 @@ def test_should_request_fawry_payment(default_api):
                     '_links')
 
     payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response['id'])
+                                payment_id=payment_response.id)
     assert_response(payment_details,
                     'id',
                     'source',
@@ -124,7 +124,7 @@ def test_should_request_giropay_payment(default_api):
                     '_links')
 
     payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response['id'])
+                                payment_id=payment_response.id)
     assert_response(payment_details,
                     'id',
                     'source',
@@ -151,7 +151,7 @@ def test_should_request_ideal_payment(default_api):
                     '_links')
 
     payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response['id'])
+                                payment_id=payment_response.id)
     assert_response(payment_details,
                     'id',
                     'source',
@@ -182,7 +182,7 @@ def test_should_request_oxxo_payment(default_api):
                     '_links')
 
     payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response['id'])
+                                payment_id=payment_response.id)
     assert_response(payment_details,
                     'id',
                     'source',
@@ -213,7 +213,7 @@ def test_should_request_pagofacil_payment(default_api):
                     '_links')
 
     payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response['id'])
+                                payment_id=payment_response.id)
     assert_response(payment_details,
                     'id',
                     'source',
@@ -244,7 +244,7 @@ def test_should_request_rapipago_payment(default_api):
                     '_links')
 
     payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response['id'])
+                                payment_id=payment_response.id)
     assert_response(payment_details,
                     'id',
                     'source',
@@ -267,7 +267,7 @@ def test_should_request_sofort_payment(default_api):
                     '_links')
 
     payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response['id'])
+                                payment_id=payment_response.id)
     assert_response(payment_details,
                     'id',
                     'source',

@@ -16,7 +16,7 @@ def test_should_create_and_get_customer(four_api):
                     'email',
                     'name',
                     'phone')
-    assert email == response['email']
+    assert email == response.email
 
 
 def test_should_create_and_update_customer(four_api):
@@ -35,7 +35,7 @@ def test_should_create_and_update_customer(four_api):
                     'name',
                     'phone')
 
-    assert customer_request.name == response_update['name']
+    assert customer_request.name == response_update.name
 
 
 def test_should_create_and_delete_customer(four_api):
@@ -58,4 +58,4 @@ def create_customer(four_api, email):
 
     customer_response = four_api.customers.create(customer_request)
     assert_response(customer_response, 'id')
-    return customer_response['id']
+    return customer_response.id

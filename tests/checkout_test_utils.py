@@ -43,12 +43,12 @@ def assert_response(obj, *argv: str):
             # 'a.b.c' to 'a','b','c'
             props = prop.split('.')
             # value('a')
-            nested_prop = obj[props[0]]
+            nested_prop = getattr(obj, props[0])
             # collect to 'b.c'
             joined = str.join('.', props[1:])
             assert_response(nested_prop, joined)
         else:
-            assert obj[prop] is not None
+            assert hasattr(obj, prop) is not False
 
 
 def address() -> Address:

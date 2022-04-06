@@ -16,7 +16,7 @@ def test_should_increment_payment_authorization(four_api):
     authorization_request.amount = 5
     authorization_request.reference = new_uuid()
 
-    void_response = four_api.payments.increment_payment_authorization(payment_response['id'], authorization_request)
+    void_response = four_api.payments.increment_payment_authorization(payment_response.id, authorization_request)
     assert_response(void_response,
                     'http_response',
                     'amount',
@@ -41,15 +41,15 @@ def test_should_increment_payment_authorization_idempotently(four_api):
 
     idempotency_key = new_idempotency_key()
 
-    increment_response_1 = four_api.payments.increment_payment_authorization(payment_response['id'],
+    increment_response_1 = four_api.payments.increment_payment_authorization(payment_response.id,
                                                                              authorization_request, idempotency_key)
     assert_response(increment_response_1)
 
-    increment_response_2 = four_api.payments.increment_payment_authorization(payment_response['id'],
+    increment_response_2 = four_api.payments.increment_payment_authorization(payment_response.id,
                                                                              authorization_request, idempotency_key)
     assert_response(increment_response_2)
 
-    assert increment_response_1['action_id'] == increment_response_2['action_id']
+    assert increment_response_1.action_id == increment_response_2.action_id
 
 
 def make_authorization_estimated_payment(four_api: CheckoutApi):

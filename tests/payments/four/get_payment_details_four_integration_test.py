@@ -10,7 +10,7 @@ def test_should_get_payment_details(four_api):
     payment_response = make_card_payment(four_api, capture_on=datetime.now(timezone.utc))
 
     payment = retriable(callback=four_api.payments.get_payment_details,
-                        payment_id=payment_response['id'])
+                        payment_id=payment_response.id)
     assert_response(payment,
                     'http_response',
                     'id',

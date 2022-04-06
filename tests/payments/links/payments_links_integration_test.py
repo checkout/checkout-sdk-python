@@ -23,13 +23,13 @@ def test_should_create_and_get_payment_link(default_api):
                     '_links.redirect',
                     'warnings')
 
-    for warning in response['warnings']:
+    for warning in response.warnings:
         assert_response(warning,
                         'code',
                         'value',
                         'description')
 
-    hosted_details = default_api.payments_links.get_payment_link(response['id'])
+    hosted_details = default_api.payments_links.get_payment_link(response.id)
 
     assert_response(hosted_details,
                     'http_response',

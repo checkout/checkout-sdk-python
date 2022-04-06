@@ -8,6 +8,7 @@ from pathlib import Path
 from requests.exceptions import HTTPError
 
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
+from checkout_sdk.checkout_response import ResponseWrapper
 from checkout_sdk.exception import CheckoutApiException, CheckoutException
 from checkout_sdk.files.files import FileRequest
 from checkout_sdk.json_serializer import JsonSerializer
@@ -118,12 +119,7 @@ class ApiClient:
             error = err.strerror
             raise CheckoutException(error)
 
-        to_return = dict()
-        to_return['http_response'] = response
         if response.text:
-            response_json = response.json()
-            if isinstance(response_json, list):
-                to_return['items'] = response_json
-            else:
-                to_return.update(response_json)
-        return to_return
+            return ResponseWrapper(response, response.json())
+        else:
+            return ResponseWrapper(http_response=response)

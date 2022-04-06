@@ -40,7 +40,7 @@ def test_should_request_ideal_payment(four_api):
                     '_links.redirect')
 
     payment_details = retriable(callback=four_api.payments.get_payment_details,
-                                payment_id=payment_response['id'])
+                                payment_id=payment_response.id)
     assert_response(payment_details,
                     'http_response',
                     'id',
@@ -72,7 +72,7 @@ def test_should_request_sofort_payment(four_api):
                     '_links.redirect')
 
     payment_details = retriable(callback=four_api.payments.get_payment_details,
-                                payment_id=payment_response['id'])
+                                payment_id=payment_response.id)
     assert_response(payment_details,
                     'http_response',
                     'id',

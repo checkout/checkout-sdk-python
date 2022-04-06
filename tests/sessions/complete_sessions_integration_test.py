@@ -14,8 +14,8 @@ def test_try_complete_sessions(oauth_api: CheckoutApi):
     request_session_response = oauth_api.sessions.request_session(session_request)
     assert_response(request_session_response, 'id', 'session_secret')
 
-    session_id = request_session_response['id']
-    session_secret = request_session_response['session_secret']
+    session_id = request_session_response.id
+    session_secret = request_session_response.session_secret
 
     try:
         oauth_api.sessions.complete_session(session_id)

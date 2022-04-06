@@ -29,7 +29,7 @@ def test_should_create_and_get_klarna_session(default_api):
                     'client_token',
                     'payment_method_categories')
 
-    create_response = default_api.klarna.get_credit_session(create_response['session_id'])
+    create_response = default_api.klarna.get_credit_session(create_response.session_id)
     assert_response(create_response,
                     'http_response',
                     'client_token',
