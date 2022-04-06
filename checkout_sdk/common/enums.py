@@ -449,6 +449,7 @@ class PaymentSourceType(str, Enum):
     BENEFITPAY = 'benefitpay'
     BANCONTACT = 'bancontact'
     TAMARA = 'tamara'
+    PROVIDER_TOKEN = "provider_token"
 
 
 class ChallengeIndicator(str, Enum):

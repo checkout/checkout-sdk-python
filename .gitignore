@@ -9,3 +9,4 @@ venv/
 dist
 build
 checkout_sdk.egg-info
+htmlcov
