@@ -30,10 +30,12 @@ class SessionSourceType(str, Enum):
     CARD = 'card'
     ID = 'id'
     TOKEN = 'token'
+    NETWORK_TOKEN = 'network_token'
 
 
 class AuthenticationType(str, Enum):
     REGULAR = 'regular'
+    RECURRING = 'recurring'
 
 
 class Category(str, Enum):
@@ -52,8 +54,18 @@ class TransactionType(str, Enum):
 class UIElements(str, Enum):
     TEXT = 'text'
     SINGLE_SELECT = 'single_select'
+    MULTI_SELECT = 'multi_select'
     OOB = 'oob'
     HTML_OTHER = 'html_other'
+
+
+class SessionScheme(str, Enum):
+    VISA = 'visa'
+    MASTERCARD = 'mastercard'
+    JCB = 'jcb'
+    AMEX = 'amex'
+    DINERS = 'diners'
+    CARTES_BANCAIRES = 'cartes_bancaires'
 
 
 class SdkEphemeralPublicKey:
@@ -91,7 +103,7 @@ class AppSession(ChannelData):
     sdk_encrypted_data: str
     sdk_transaction_id: str
     sdk_interface_type: SdkInterfaceType
-    sdk_ui_elements: list
+    sdk_ui_elements: list  # UIElements
 
     def __init__(self):
         super().__init__(ChannelType.APP)
@@ -144,6 +156,7 @@ class SessionSource:
     home_phone: Phone
     mobile_phone: Phone
     work_phone: Phone
+    scheme: SessionScheme
 
     def __init__(self, type_p: SessionSourceType):
         self.type = type_p
@@ -174,8 +187,18 @@ class SessionTokenSource(SessionSource):
         super().__init__(SessionSourceType.TOKEN)
 
 
+class NetworkTokenSource(SessionSource):
+    token: str
+    expiry_month: int
+    expiry_year: int
+    name: str
+
+    def __init__(self):
+        super().__init__(SessionSourceType.NETWORK_TOKEN)
+
+
 class SessionRequest:
-    session_source: SessionSource
+    source: SessionSource
     amount: int
     currency: Currency
     processing_channel_id: str
