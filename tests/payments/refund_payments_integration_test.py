@@ -15,7 +15,7 @@ def test_should_refund_card_payment(default_api):
     refund_request.amount = 2
 
     refund_response = retriable(callback=default_api.payments.refund_payment,
-                                payment_id=payment_response['id'],
+                                payment_id=payment_response.id,
                                 refund_request=refund_request)
 
     assert_response(refund_response,
@@ -34,15 +34,15 @@ def test_should_refund_card_payment_idempotently(default_api):
     idempotency_key = new_idempotency_key()
 
     refund_response_1 = retriable(callback=default_api.payments.refund_payment,
-                                  payment_id=payment_response['id'],
+                                  payment_id=payment_response.id,
                                   refund_request=refund_request,
                                   idempotency_key=idempotency_key)
     assert_response(refund_response_1)
 
     refund_response_2 = retriable(callback=default_api.payments.refund_payment,
-                                  payment_id=payment_response['id'],
+                                  payment_id=payment_response.id,
                                   refund_request=refund_request,
                                   idempotency_key=idempotency_key)
     assert_response(refund_response_2)
 
-    assert refund_response_1['action_id'] == refund_response_2['action_id']
+    assert refund_response_1.action_id == refund_response_2.action_id

@@ -12,7 +12,7 @@ def test_should_full_capture_card_payment(four_api):
     capture_request.reference = new_uuid()
 
     capture_response = retriable(callback=four_api.payments.capture_payment,
-                                 payment_id=payment_response['id'],
+                                 payment_id=payment_response.id,
                                  capture_request=capture_request)
     assert_response(capture_response,
                     'http_response',
@@ -29,7 +29,7 @@ def test_should_partially_capture_card_payment(four_api):
     capture_request.amount = 5
 
     capture_response = retriable(callback=four_api.payments.capture_payment,
-                                 payment_id=payment_response['id'],
+                                 payment_id=payment_response.id,
                                  capture_request=capture_request)
     assert_response(capture_response,
                     'http_response',
@@ -48,15 +48,15 @@ def test_should_full_capture_card_payment_idempotently(four_api):
     idempotency_key = new_idempotency_key()
 
     capture_response_1 = retriable(callback=four_api.payments.capture_payment,
-                                   payment_id=payment_response['id'],
+                                   payment_id=payment_response.id,
                                    capture_request=capture_request,
                                    idempotency_key=idempotency_key)
     assert_response(capture_response_1, 'action_id')
 
     capture_response_2 = retriable(callback=four_api.payments.capture_payment,
-                                   payment_id=payment_response['id'],
+                                   payment_id=payment_response.id,
                                    capture_request=capture_request,
                                    idempotency_key=idempotency_key)
     assert_response(capture_response_2, 'action_id')
 
-    assert capture_response_1['action_id'] == capture_response_2['action_id']
+    assert capture_response_1.action_id == capture_response_2.action_id

@@ -34,7 +34,7 @@ def test_should_request_payout(default_api):
                     'customer.id')
 
     payment = retriable(callback=default_api.payments.get_payment_details,
-                        payment_id=payout_response['id'])
+                        payment_id=payout_response.id)
 
     assert_response(payment,
                     'destination',

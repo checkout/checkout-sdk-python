@@ -10,9 +10,9 @@ def test__should_reflow_by_event(four_api):
 
     payment = make_card_payment(four_api)
 
-    payment_event = __get_subject_event(four_api, payment['id'])
+    payment_event = __get_subject_event(four_api, payment.id)
 
-    four_api.workflows.reflow_by_event(payment_event['id'])
+    four_api.workflows.reflow_by_event(payment_event.id)
 
     clean_workflows(four_api)
 
@@ -23,7 +23,7 @@ def test__should_reflow_by_subject(four_api):
     payment = make_card_payment(four_api)
 
     retriable(callback=four_api.workflows.reflow_by_subject,
-              subject_id=payment['id'])
+              subject_id=payment.id)
 
     clean_workflows(four_api)
 
@@ -33,11 +33,11 @@ def test_should_reflow_by_event_and_workflow(four_api):
 
     payment = make_card_payment(four_api)
 
-    payment_event = __get_subject_event(four_api, payment['id'])
+    payment_event = __get_subject_event(four_api, payment.id)
 
     retriable(callback=four_api.workflows.reflow_by_event_and_workflow,
-              event_id=payment_event['id'],
-              workflow_id=workflow['id'])
+              event_id=payment_event.id,
+              workflow_id=workflow.id)
 
     clean_workflows(four_api)
 
@@ -47,11 +47,11 @@ def test_should_reflow_by_events(four_api):
 
     payment = make_card_payment(four_api)
 
-    payment_event = __get_subject_event(four_api, payment['id'])
+    payment_event = __get_subject_event(four_api, payment.id)
 
     request = ReflowByEventsRequest()
-    request.events = [payment_event['id']]
-    request.workflows = [workflow['id']]
+    request.events = [payment_event.id]
+    request.workflows = [workflow.id]
 
     retriable(callback=four_api.workflows.reflow,
               reflow_request=request)
@@ -65,8 +65,8 @@ def test_reflow_by_subject_and_workflow(four_api):
     payment = make_card_payment(four_api)
 
     retriable(callback=four_api.workflows.reflow_by_subject_and_workflow,
-              subject_id=payment['id'],
-              workflow_id=workflow['id'])
+              subject_id=payment.id,
+              workflow_id=workflow.id)
 
     clean_workflows(four_api)
 
@@ -77,8 +77,8 @@ def test__should_reflow_subjects(four_api):
     payment = make_card_payment(four_api)
 
     request = ReflowBySubjectsRequest()
-    request.subjects = [payment['id']]
-    request.workflows = [workflow['id']]
+    request.subjects = [payment.id]
+    request.workflows = [workflow.id]
 
     retriable(callback=four_api.workflows.reflow,
               reflow_request=request)
@@ -101,8 +101,8 @@ def __get_subject_event(four_api: CheckoutApi, subject_id: str):
 
 
 def __payment_is_approved(response) -> bool:
-    return 'data' in response and response['data'].__len__() == 1 and __find_payment_approved(response) is not None
+    return hasattr(response, 'data') and response.data.__len__() == 1 and __find_payment_approved(response) is not None
 
 
 def __find_payment_approved(response):
-    return next((event for event in response['data'] if event['type'] == 'payment_approved'), None)
+    return next((event for event in response.data if event.type == 'payment_approved'), None)

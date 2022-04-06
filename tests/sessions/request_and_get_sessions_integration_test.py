@@ -15,8 +15,8 @@ def test_request_and_get_card_session_browser_session(oauth_api: CheckoutApi):
     request_session_response = oauth_api.sessions.request_session(session_request)
     assert_response(request_session_response, 'id', 'session_secret')
 
-    session_id = request_session_response['id']
-    session_secret = request_session_response['session_secret']
+    session_id = request_session_response.id
+    session_secret = request_session_response.session_secret
 
     assert_response(oauth_api.sessions.get_session_details(session_id), 'id', 'session_secret')
     assert_response(oauth_api.sessions.get_session_details(session_id, session_secret), 'id')
@@ -30,8 +30,8 @@ def test_request_and_get_card_session_app_session(oauth_api: CheckoutApi):
     request_session_response = oauth_api.sessions.request_session(session_request)
     assert_response(request_session_response, 'id', 'session_secret')
 
-    session_id = request_session_response['id']
-    session_secret = request_session_response['session_secret']
+    session_id = request_session_response.id
+    session_secret = request_session_response.session_secret
 
     assert_response(oauth_api.sessions.get_session_details(session_id), 'id', 'session_secret')
     assert_response(oauth_api.sessions.get_session_details(session_id, session_secret), 'id')

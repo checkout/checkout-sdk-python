@@ -12,7 +12,7 @@ def test_should_void_card_payment(default_api):
     void_request.reference = new_uuid()
 
     void_response = retriable(callback=default_api.payments.void_payment,
-                              payment_id=payment_response['id'],
+                              payment_id=payment_response.id,
                               void_request=void_request)
     assert_response(void_response,
                     'reference',
@@ -29,15 +29,15 @@ def test_should_void_card_payment_idempotently(default_api):
     idempotency_key = new_idempotency_key()
 
     void_response_1 = retriable(callback=default_api.payments.void_payment,
-                                payment_id=payment_response['id'],
+                                payment_id=payment_response.id,
                                 void_request=void_request,
                                 idempotency_key=idempotency_key)
     assert_response(void_response_1)
 
     void_response_2 = retriable(callback=default_api.payments.void_payment,
-                                payment_id=payment_response['id'],
+                                payment_id=payment_response.id,
                                 void_request=void_request,
                                 idempotency_key=idempotency_key)
     assert_response(void_response_2)
 
-    assert void_response_1['action_id'] == void_response_2['action_id']
+    assert void_response_1.action_id == void_response_2.action_id

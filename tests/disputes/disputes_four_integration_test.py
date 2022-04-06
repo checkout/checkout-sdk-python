@@ -25,8 +25,8 @@ def test_should_query_disputes(four_api):
                     'total_count',
                     'from',
                     'to')
-    if 'data' in response:
-        assert_response(response['data'][0],
+    if response.data:
+        assert_response(response.data[0],
                         'id',
                         'category',
                         'status',
@@ -43,7 +43,7 @@ def test_should_upload_file(four_api):
     response = four_api.disputes.upload_file(request)
     assert_response(response, 'id', '_links')
 
-    file_details = four_api.disputes.get_file_details(response['id'])
+    file_details = four_api.disputes.get_file_details(response.id)
     assert_response(file_details,
                     'http_response',
                     'id',
@@ -59,13 +59,13 @@ def test_should_test_full_disputes_workflow(four_api):
     payment = make_card_payment(four_api, amount=1040, capture=True)
 
     query = DisputesQueryFilter()
-    query.payment_id = payment['id']
+    query.payment_id = payment.id
 
     query_response = retriable(callback=four_api.disputes.query,
                                predicate=there_are_disputes,
                                query=query)
     assert_response(query_response, 'data')
-    assert payment['id'] == query_response['data'][0]['payment_id']
+    assert payment.id == query_response.data[0].payment_id
 
     request = FileRequest()
     request.file = os.path.join(get_project_root(), 'tests', 'resources', 'checkout_sdk.jpeg')
@@ -75,16 +75,16 @@ def test_should_test_full_disputes_workflow(four_api):
     assert_response(upload_file_response, 'id', '_links')
 
     evidence_request = DisputeEvidenceRequest()
-    evidence_request.proof_of_delivery_or_service_file = upload_file_response['id']
+    evidence_request.proof_of_delivery_or_service_file = upload_file_response.id
     evidence_request.proof_of_delivery_or_service_text = 'proof of delivery or service text'
-    evidence_request.invoice_or_receipt_file = upload_file_response['id']
+    evidence_request.invoice_or_receipt_file = upload_file_response.id
     evidence_request.invoice_or_receipt_text = 'Copy of the invoice'
-    evidence_request.customer_communication_file = upload_file_response['id']
+    evidence_request.customer_communication_file = upload_file_response.id
     evidence_request.customer_communication_text = 'Copy of an email exchange with the cardholder'
-    evidence_request.additional_evidence_file = upload_file_response['id']
+    evidence_request.additional_evidence_file = upload_file_response.id
     evidence_request.additional_evidence_text = 'Scanned document'
 
-    dispute_id = query_response['data'][0]['id']
+    dispute_id = query_response.data[0].id
 
     four_api.disputes.put_evidence(dispute_id, evidence_request)
 
@@ -102,4 +102,4 @@ def test_should_test_full_disputes_workflow(four_api):
 
 
 def there_are_disputes(response) -> bool:
-    return 'total_count' in response and response['total_count'] > 0
+    return response.total_count is not None and response.total_count > 0

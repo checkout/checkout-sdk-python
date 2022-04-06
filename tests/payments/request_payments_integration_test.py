@@ -48,7 +48,7 @@ def test_should_request_card_payment(default_api):
                     'processing.acquirer_transaction_id',
                     'processing.retrieval_reference_number')
 
-    assert payment_response['source']['type'] == 'card'
+    assert payment_response.source.type == 'card'
 
 
 def test_should_request_card_3ds_payment(default_api):
@@ -108,7 +108,7 @@ def test_should_request_card_3ds_payment_n3d(default_api):
                     'processing.acquirer_transaction_id',
                     'processing.retrieval_reference_number')
 
-    assert payment_response['source']['type'] == 'card'
+    assert payment_response.source.type == 'card'
 
 
 def test_should_request_token_payment(default_api):
@@ -152,7 +152,7 @@ def test_should_request_token_payment(default_api):
                     'processing.acquirer_transaction_id',
                     'processing.retrieval_reference_number')
 
-    assert payment_response['source']['type'] == 'card'
+    assert payment_response.source.type == 'card'
 
 
 def test_should_request_payment_idempotently(default_api):
@@ -163,4 +163,4 @@ def test_should_request_payment_idempotently(default_api):
     payment_response_2 = make_card_payment(default_api, capture_on=None, idempotency_key=idempotency_key)
     assert_response(payment_response_2)
 
-    assert payment_response_1['action_id'] == payment_response_2['action_id']
+    assert payment_response_1.action_id == payment_response_2.action_id

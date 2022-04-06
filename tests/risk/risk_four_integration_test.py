@@ -34,7 +34,7 @@ def test_should_pre_capture_and_authenticate_customer(four_api):
     customer_response = four_api.customers.create(customer)
 
     source_prism = CustomerSourcePrism()
-    source_prism.id = customer_response['id']
+    source_prism.id = customer_response.id
 
     authentication_assessment_request(four_api, source_prism)
     pre_capture_assessment_request(four_api, source_prism)
@@ -57,13 +57,13 @@ def test_should_pre_capture_and_authenticate_id(four_api):
     account_holder.phone = phone()
 
     instrument_request = CreateTokenInstrumentRequest()
-    instrument_request.token = card_token_response['token']
+    instrument_request.token = card_token_response.token
     instrument_request.account_holder = account_holder
 
     instrument_response = four_api.instruments.create(instrument_request)
 
     source_prism = IdSourcePrism()
-    source_prism.id = instrument_response['id']
+    source_prism.id = instrument_response.id
     source_prism.cvv = VisaCard.cvv
 
     authentication_assessment_request(four_api, source_prism)
@@ -83,7 +83,7 @@ def test_should_pre_capture_and_authenticate_token(four_api):
     card_token_response = four_api.tokens.request_card_token(card_token_request)
 
     token_source = RiskRequestTokenSource()
-    token_source.token = card_token_response['token']
+    token_source.token = card_token_response.token
     token_source.phone = phone()
     token_source.billing_address = address()
 

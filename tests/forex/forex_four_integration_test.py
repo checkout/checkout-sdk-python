@@ -22,6 +22,6 @@ def test_should_request_quote(oauth_api):
                     'destination_amount',
                     'rate',
                     'expires_on')
-    assert quote_request.source_currency == response['source_currency']
-    assert quote_request.source_amount == response['source_amount']
-    assert quote_request.destination_currency == response['destination_currency']
+    assert quote_request.source_currency == response.source_currency
+    assert quote_request.source_amount == response.source_amount
+    assert quote_request.destination_currency == response.destination_currency

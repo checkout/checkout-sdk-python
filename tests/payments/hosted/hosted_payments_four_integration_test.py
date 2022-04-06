@@ -25,7 +25,7 @@ def test_should_create_and_get_hosted_payments_page_details(four_api):
                     '_links.self',
                     '_links.redirect')
 
-    hosted_details = four_api.hosted_payments.get_hosted_payments_page_details(response['id'])
+    hosted_details = four_api.hosted_payments.get_hosted_payments_page_details(response.id)
 
     assert_response(hosted_details,
                     'http_response',

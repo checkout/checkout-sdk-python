@@ -34,7 +34,7 @@ def test_should_create_and_get_instrument(four_api):
                     'product_type',
                     'type')
 
-    get_instrument_response = four_api.instruments.get(create_instrument_response['id'])
+    get_instrument_response = four_api.instruments.get(create_instrument_response.id)
 
     assert_response(get_instrument_response,
                     'http_response',
@@ -65,7 +65,7 @@ def test_should_create_and_update_instrument(four_api):
     update_instrument_request.expiry_month = 12
 
     update_customer_request = UpdateCustomerRequest()
-    update_customer_request.id = create_instrument_response['customer']['id']
+    update_customer_request.id = create_instrument_response.customer.id
     update_customer_request.default = True
     update_instrument_request.customer = update_customer_request
 
@@ -76,14 +76,14 @@ def test_should_create_and_update_instrument(four_api):
     account_holder.billing_address = address()
     update_instrument_request.account_holder = account_holder
 
-    four_api.instruments.update(create_instrument_response['id'], update_instrument_request)
+    four_api.instruments.update(create_instrument_response.id, update_instrument_request)
 
-    get_instrument_response = four_api.instruments.get(create_instrument_response['id'])
+    get_instrument_response = four_api.instruments.get(create_instrument_response.id)
 
     assert get_instrument_response is not None
-    assert get_instrument_response['name'] == 'new name'
-    assert get_instrument_response['expiry_year'] == 2026
-    assert get_instrument_response['expiry_month'] == 12
+    assert get_instrument_response.name == 'new name'
+    assert get_instrument_response.expiry_year == 2026
+    assert get_instrument_response.expiry_month == 12
 
     assert_response(create_instrument_response,
                     'http_response',
@@ -110,10 +110,10 @@ def test_should_create_and_update_instrument(four_api):
 def test_should_create_and_delete_instrument(four_api):
     create_instrument_response = create_token_instrument(four_api)
 
-    four_api.instruments.delete(create_instrument_response['id'])
+    four_api.instruments.delete(create_instrument_response.id)
 
     with pytest.raises(CheckoutApiException):
-        four_api.instruments.get(create_instrument_response['id'])
+        four_api.instruments.get(create_instrument_response.id)
 
 
 def test_should_get_bank_account_field_formatting(oauth_api):
@@ -123,10 +123,10 @@ def test_should_get_bank_account_field_formatting(oauth_api):
 
     response = oauth_api.instruments.get_bank_account_field_formatting(Country.GB, Currency.GBP, query)
     assert_response(response, 'sections')
-    assert response['sections'].__len__() == 3
-    for section in response['sections']:
+    assert response.sections.__len__() == 3
+    for section in response.sections:
         assert_response(section, 'name', 'fields')
-        for field in section['fields']:
+        for field in section.fields:
             assert_response(field, 'id', 'display', 'type')
 
 
@@ -155,7 +155,7 @@ def create_token_instrument(four_api):
     customer.phone = phone()
 
     create_instrument_request = CreateTokenInstrumentRequest()
-    create_instrument_request.token = card_token_response['token']
+    create_instrument_request.token = card_token_response.token
     create_instrument_request.account_holder = account_holder
     create_instrument_request.customer = customer
 

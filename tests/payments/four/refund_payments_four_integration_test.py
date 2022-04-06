@@ -15,7 +15,7 @@ def test_should_refund_card_payment(four_api):
     refund_request.amount = 2
 
     refund_response = retriable(callback=four_api.payments.refund_payment,
-                                payment_id=payment_response['id'],
+                                payment_id=payment_response.id,
                                 refund_request=refund_request)
 
     assert_response(refund_response,
@@ -25,7 +25,7 @@ def test_should_refund_card_payment(four_api):
                     '_links')
 
     payment = retriable(callback=four_api.payments.get_payment_details,
-                        payment_id=payment_response['id'])
+                        payment_id=payment_response.id)
     assert_response(payment,
                     'http_response',
                     'balances.total_authorized',
@@ -43,15 +43,15 @@ def test_should_refund_card_payment_idempotently(four_api):
     idempotency_key = new_idempotency_key()
 
     refund_response_1 = retriable(callback=four_api.payments.refund_payment,
-                                  payment_id=payment_response['id'],
+                                  payment_id=payment_response.id,
                                   refund_request=refund_request,
                                   idempotency_key=idempotency_key)
     assert_response(refund_response_1)
 
     refund_response_2 = retriable(callback=four_api.payments.refund_payment,
-                                  payment_id=payment_response['id'],
+                                  payment_id=payment_response.id,
                                   refund_request=refund_request,
                                   idempotency_key=idempotency_key)
     assert_response(refund_response_2)
 
-    assert refund_response_1['action_id'] == refund_response_2['action_id']
+    assert refund_response_1.action_id == refund_response_2.action_id
