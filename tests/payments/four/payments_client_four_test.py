@@ -1,8 +1,10 @@
 import pytest
 
+from checkout_sdk.common.common_four import AccountHolder
 from checkout_sdk.payments.payments import RefundRequest, VoidRequest
 from checkout_sdk.payments.payments_client_four import PaymentsClient
-from checkout_sdk.payments.payments_four import PaymentRequest, PayoutRequest, CaptureRequest, AuthorizationRequest
+from checkout_sdk.payments.payments_four import PaymentRequest, PayoutRequest, CaptureRequest, AuthorizationRequest, \
+    RequestProviderTokenSource
 
 
 @pytest.fixture(scope='class')
@@ -68,3 +70,16 @@ class TestPaymentsClient:
         mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
         assert client.increment_payment_authorization('payment_id', AuthorizationRequest(),
                                                       'idempotency_key') == 'response'
+
+    # sources
+    def test_should_request_provider_token_source_payment(self, mocker, client: PaymentsClient):
+        source = RequestProviderTokenSource()
+        source.token = 'token'
+        source.payment_method = 'method'
+        source.account_holder = AccountHolder()
+
+        request = PaymentRequest()
+        request.source = source
+
+        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        assert client.request_payment(request, 'idempotency_key') == 'response'

@@ -155,6 +155,15 @@ class PaymentRequestIdSource(PaymentRequestSource):
         super().__init__(PaymentSourceType.ID)
 
 
+class RequestProviderTokenSource(PaymentRequestSource):
+    payment_method: str
+    token: str
+    account_holder: AccountHolder
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.PROVIDER_TOKEN)
+
+
 # Request Payment
 class PaymentRequest:
     source: PaymentRequestSource
