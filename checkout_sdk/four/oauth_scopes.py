@@ -35,3 +35,6 @@ class OAuthScopes(str, Enum):
     RISK = 'risk'
     RISK_ASSESSMENT = 'risk:assessment'
     RISK_SETTINGS = 'risk:settings'
+    TRANSFERS = 'transfers'
+    TRANSFERS_CREATE = 'transfers:create'
+    TRANSFERS_VIEW = 'transfers:view'

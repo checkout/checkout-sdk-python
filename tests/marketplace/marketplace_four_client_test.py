@@ -1,13 +1,16 @@
 import pytest
 
 from checkout_sdk.files.files import FileRequest
-from checkout_sdk.marketplace.marketplace import OnboardEntityRequest, MarketplacePaymentInstrument
+from checkout_sdk.marketplace.marketplace import OnboardEntityRequest, MarketplacePaymentInstrument, \
+    CreateTransferRequest
 from checkout_sdk.marketplace.marketplace_client import MarketplaceClient
 
 
 @pytest.fixture(scope='class')
 def client(mock_sdk_configuration, mock_api_client):
-    return MarketplaceClient(api_client=mock_api_client, files_client=mock_api_client,
+    return MarketplaceClient(api_client=mock_api_client,
+                             files_client=mock_api_client,
+                             transfers_client=mock_api_client,
                              configuration=mock_sdk_configuration)
 
 
@@ -32,3 +35,7 @@ class TestMarketplaceClient:
     def test_should_upload_file(self, mocker, client: MarketplaceClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.submit_file', return_value='response')
         assert client.upload_file(FileRequest()) == 'response'
+
+    def test_should_initiate_transfer_of_funds(self, mocker, client: MarketplaceClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        assert client.initiate_transfer_of_funds(CreateTransferRequest()) == 'response'
