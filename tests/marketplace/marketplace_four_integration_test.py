@@ -3,8 +3,8 @@ from __future__ import absolute_import
 import os
 
 from checkout_sdk.files.files import FileRequest
-from checkout_sdk.marketplace.marketplace import OnboardEntityRequest, ContactDetails, Profile, Individual, DateOfBirth, \
-    Identification, CreateTransferRequest, TransferType, TransferSource, TransferDestination
+from checkout_sdk.marketplace.marketplace import OnboardEntityRequest, ContactDetails, Profile, Individual, \
+    DateOfBirth, Identification, CreateTransferRequest, TransferType, TransferSource, TransferDestination
 from tests.checkout_test_utils import assert_response, phone, address, new_uuid, get_project_root
 
 
@@ -79,4 +79,4 @@ def test_should_initiate_transfer_of_funds(oauth_api):
 
     response = oauth_api.marketplace.initiate_transfer_of_funds(transfer_request)
     assert_response(response, 'id', 'status')
-    assert 'pending' == response['status']
+    assert 'pending' == response.status
