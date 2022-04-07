@@ -8,35 +8,35 @@ from checkout_sdk.common.common import CustomerRequest, Address, Phone
 from checkout_sdk.common.common_four import AccountHolder, BankDetails, MarketplaceData
 from checkout_sdk.common.enums import PaymentSourceType, Currency, Country
 from checkout_sdk.common.enums_four import AccountType
-from checkout_sdk.payments.payments import PaymentType, ShippingDetails, ThreeDsRequest, RiskRequest, PaymentRecipient, \
-    ProcessingSettings, PaymentDestinationType
+from checkout_sdk.payments.payments import PaymentType, ShippingDetails, ThreeDsRequest, RiskRequest, \
+    PaymentRecipient, ProcessingSettings, PaymentDestinationType
 
 
 class AuthorizationType(str, Enum):
-    FINAL = 'Final',
+    FINAL = 'Final'
     ESTIMATED = 'Estimated'
     INCREMENTAL = 'Incremental'
 
 
 class CaptureType(str, Enum):
-    NON_FINAL = 'NonFinal',
+    NON_FINAL = 'NonFinal'
     FINAL = 'Final'
 
 
 class InstructionScheme(str, Enum):
-    SWIFT = 'swift',
+    SWIFT = 'swift'
     LOCAL = 'local'
     INSTANT = 'instant'
 
 
 class PaymentSenderType(str, Enum):
-    INDIVIDUAL = 'individual',
+    INDIVIDUAL = 'individual'
     CORPORATE = 'corporate'
     INSTRUMENT = 'instrument'
 
 
 class IdentificationType(str, Enum):
-    PASSPORT = 'passport',
+    PASSPORT = 'passport'
     DRIVING_LICENSE = 'driving_licence'
     NATIONAL_ID = 'national_id'
 

@@ -37,4 +37,4 @@ class SepaSourceRequest(SourceRequest):
     source_data: SourceData
 
     def __init__(self):
-        super(SepaSourceRequest, self).__init__(SourceType.SEPA)
+        super().__init__(SourceType.SEPA)

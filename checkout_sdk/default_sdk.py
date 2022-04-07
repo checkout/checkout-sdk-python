@@ -25,7 +25,7 @@ class DefaultStaticKeys(StaticKeysBuilder, metaclass=ABCMeta):
 class DefaultSdk(DefaultStaticKeys):
 
     def __init__(self):
-        super(DefaultSdk, self).__init__()
+        super().__init__()
 
     def build(self):
         validate_secret_key(self._SECRET_KEY_PATTERN, self._secret_key)

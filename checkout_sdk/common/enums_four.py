@@ -4,19 +4,19 @@ from enum import Enum
 
 
 class AccountType(str, Enum):
-    SAVINGS = 'savings',
-    CURRENT = 'current',
-    CASH = 'cash',
+    SAVINGS = 'savings'
+    CURRENT = 'current'
+    CASH = 'cash'
 
 
 class AccountHolderType(str, Enum):
-    INDIVIDUAL = 'individual',
+    INDIVIDUAL = 'individual'
     CORPORATE = 'corporate'
     INSTRUMENT = 'instrument'
 
 
 class AccountHolderIdentification(str, Enum):
-    PASSPORT = 'passport',
+    PASSPORT = 'passport'
     DRIVING_LICENSE = 'driving_licence'
     NATIONAL_ID = 'national_id'
     COMPANY_REGISTRATION = 'company_registration'

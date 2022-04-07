@@ -8,44 +8,44 @@ from checkout_sdk.common.enums import Currency, PaymentSourceType, ChallengeIndi
 
 
 class Exemption(str, Enum):
-    LOW_VALUE = 'low_value',
+    LOW_VALUE = 'low_value'
     SECURE_CORPORATE_PAYMENT = 'secure_corporate_payment'
     TRUSTED_LISTING = 'trusted_listing'
     TRANSACTION_RISK_ASSESSMENT = 'transaction_risk_assessment'
 
 
 class PaymentDestinationType(str, Enum):
-    BANK_ACCOUNT = 'bank_account',
+    BANK_ACCOUNT = 'bank_account'
     CARD = 'card'
     ID = 'id'
     TOKEN = 'token'
 
 
 class PaymentType(str, Enum):
-    REGULAR = 'Regular',
+    REGULAR = 'Regular'
     RECURRING = 'Recurring'
     MOTO = 'MOTO'
     INSTALLMENT = 'Installment'
 
 
 class Purpose(str, Enum):
-    DONATIONS = 'donations',
+    DONATIONS = 'donations'
     EDUCATION = 'education'
     EMERGENCY_NEED = 'emergency_need'
     EXPATRIATION = 'expatriation'
-    FAMILY_SUPPORT = 'family_support',
+    FAMILY_SUPPORT = 'family_support'
     GIFTS = 'gifts'
     INCOME = 'income'
     INSURANCE = 'insurance'
-    INVESTMENT = 'investment',
+    INVESTMENT = 'investment'
     IT_SERVICES = 'it_services'
     LEISURE = 'leisure'
     LOAN_PAYMENT = 'loan_payment'
-    OTHER = 'other',
+    OTHER = 'other'
     PENSION = 'pension'
     ROYALTIES = 'royalties'
     SAVINGS = 'savings'
-    TRAVEL_AND_TOURISM = 'travel_and_tourism',
+    TRAVEL_AND_TOURISM = 'travel_and_tourism'
     FINANCIAL_SERVICES = 'financial_services'
     MEDICAL_TREATMENT = 'medical_treatment'
 

@@ -24,7 +24,7 @@ class FourStaticKeys(StaticKeysBuilder, metaclass=ABCMeta):
 class FourSdk(FourStaticKeys):
 
     def __init__(self):
-        super(FourSdk, self).__init__()
+        super().__init__()
 
     def build(self):
         validate_secret_key(self._SECRET_KEY_PATTERN, self._secret_key)

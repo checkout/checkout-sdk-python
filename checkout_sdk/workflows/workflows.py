@@ -2,13 +2,13 @@ from enum import Enum
 
 
 class WorkflowConditionType(str, Enum):
-    EVENT = 'event',
-    ENTITY = 'entity',
-    PROCESSING_CHANNEL = 'processing_channel',
+    EVENT = 'event'
+    ENTITY = 'entity'
+    PROCESSING_CHANNEL = 'processing_channel'
 
 
 class WorkflowActionType(str, Enum):
-    WEBHOOK = 'webhook',
+    WEBHOOK = 'webhook'
 
 
 class WorkflowConditionRequest:
@@ -22,21 +22,21 @@ class EventWorkflowConditionRequest(WorkflowConditionRequest):
     events: dict
 
     def __init__(self):
-        super(EventWorkflowConditionRequest, self).__init__(WorkflowConditionType.EVENT)
+        super().__init__(WorkflowConditionType.EVENT)
 
 
 class EntityWorkflowConditionRequest(WorkflowConditionRequest):
     entities: list
 
     def __init__(self):
-        super(EntityWorkflowConditionRequest, self).__init__(WorkflowConditionType.ENTITY)
+        super().__init__(WorkflowConditionType.ENTITY)
 
 
 class ProcessingChannelWorkflowConditionRequest(WorkflowConditionRequest):
     processing_channels: list
 
     def __init__(self):
-        super(ProcessingChannelWorkflowConditionRequest, self).__init__(WorkflowConditionType.PROCESSING_CHANNEL)
+        super().__init__(WorkflowConditionType.PROCESSING_CHANNEL)
 
 
 class WorkflowActionRequest:
@@ -57,7 +57,7 @@ class WebhookWorkflowActionRequest(WorkflowActionRequest):
     signature: WebhookSignature
 
     def __init__(self):
-        super(WebhookWorkflowActionRequest, self).__init__(WorkflowActionType.WEBHOOK)
+        super().__init__(WorkflowActionType.WEBHOOK)
 
 
 class CreateWorkflowRequest:

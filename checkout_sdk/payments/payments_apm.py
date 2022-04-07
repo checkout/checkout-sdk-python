@@ -7,7 +7,7 @@ from checkout_sdk.payments.payments import RequestSource
 
 
 class IntegrationType(str, Enum):
-    DIRECT = 'direct',
+    DIRECT = 'direct'
     REDIRECT = 'redirect'
 
 

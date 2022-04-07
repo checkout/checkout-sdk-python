@@ -5,54 +5,54 @@ from checkout_sdk.common.enums import Currency, ChallengeIndicator
 
 
 class ChannelType(str, Enum):
-    BROWSER = 'browser',
+    BROWSER = 'browser'
     APP = 'app'
 
 
 class SdkInterfaceType(str, Enum):
-    NATIVE = 'native',
-    HTML = 'html',
+    NATIVE = 'native'
+    HTML = 'html'
     BOTH = 'both'
 
 
 class ThreeDsMethodCompletion(str, Enum):
-    Y = 'y',
-    N = 'n',
+    Y = 'y'
+    N = 'n'
     U = 'u'
 
 
 class CompletionInfoType(str, Enum):
-    HOSTED = 'hosted',
-    NON_HOSTED = 'non_hosted',
+    HOSTED = 'hosted'
+    NON_HOSTED = 'non_hosted'
 
 
 class SessionSourceType(str, Enum):
-    CARD = 'card',
-    ID = 'id',
-    TOKEN = 'token',
+    CARD = 'card'
+    ID = 'id'
+    TOKEN = 'token'
 
 
 class AuthenticationType(str, Enum):
-    REGULAR = 'regular',
+    REGULAR = 'regular'
 
 
 class Category(str, Enum):
-    PAYMENT = 'payment',
-    NON_PAYMENT = 'nonPayment',
+    PAYMENT = 'payment'
+    NON_PAYMENT = 'nonPayment'
 
 
 class TransactionType(str, Enum):
-    GOODS_SERVICE = 'goods_service',
-    CHECK_ACCEPTANCE = 'check_acceptance',
-    ACCOUNT_FUNDING = 'account_funding',
-    QUASHI_CARD_TRANSACTION = 'quashi_card_transaction',
-    PREPAID_ACTIVATION_AND_LOAD = 'prepaid_activation_and_load',
+    GOODS_SERVICE = 'goods_service'
+    CHECK_ACCEPTANCE = 'check_acceptance'
+    ACCOUNT_FUNDING = 'account_funding'
+    QUASHI_CARD_TRANSACTION = 'quashi_card_transaction'
+    PREPAID_ACTIVATION_AND_LOAD = 'prepaid_activation_and_load'
 
 
 class UIElements(str, Enum):
-    TEXT = 'text',
-    SINGLE_SELECT = 'single_select',
-    OOB = 'oob',
+    TEXT = 'text'
+    SINGLE_SELECT = 'single_select'
+    OOB = 'oob'
     HTML_OTHER = 'html_other'
 
 

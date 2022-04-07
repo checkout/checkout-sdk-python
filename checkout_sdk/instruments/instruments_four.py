@@ -100,11 +100,11 @@ class UpdateBankAccountInstrumentRequest(UpdateInstrumentRequest):
 
 
 class PaymentNetwork(str, Enum):
-    LOCAL = 'local',
-    SEPA = 'sepa',
-    FPS = 'Fps',
-    ACH = 'Ach',
-    FEDWIRE = 'Fedwire',
+    LOCAL = 'local'
+    SEPA = 'sepa'
+    FPS = 'Fps'
+    ACH = 'Ach'
+    FEDWIRE = 'Fedwire'
     SWIFT = 'Swift'
 
 

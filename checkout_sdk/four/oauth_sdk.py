@@ -15,7 +15,7 @@ class OAuthSdk(CheckoutSdkBuilder, metaclass=ABCMeta):
     _scopes: list = []
 
     def __init__(self):
-        super(OAuthSdk, self).__init__()
+        super().__init__()
 
     def client_credentials(self, client_id: str, client_secret: str):
         self._client_id = client_id

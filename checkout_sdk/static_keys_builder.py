@@ -29,7 +29,7 @@ class StaticKeysBuilder(CheckoutSdkBuilder, metaclass=ABCMeta):
     _secret_key: str = None
 
     def __init__(self):
-        super(StaticKeysBuilder, self).__init__()
+        super().__init__()
 
     def secret_key(self, secret_key):
         self._secret_key = secret_key
