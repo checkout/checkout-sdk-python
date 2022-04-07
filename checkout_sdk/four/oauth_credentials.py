@@ -52,9 +52,8 @@ class FourOAuthSdkCredentials(SdkCredentials, metaclass=ABCMeta):
         return credentials
 
     def get_authorization(self, authorization_type: AuthorizationType):
-        if AuthorizationType.SECRET_KEY_OR_OAUTH == authorization_type or \
-                AuthorizationType.PUBLIC_KEY_OR_OAUTH == authorization_type or \
-                AuthorizationType.OAUTH == authorization_type:
+        if authorization_type in (
+                AuthorizationType.SECRET_KEY_OR_OAUTH, AuthorizationType.PUBLIC_KEY_OR_OAUTH, AuthorizationType.OAUTH):
             return SdkAuthorization(PlatformType.FOUR_OAUTH, self.get_access_token().token)
 
         raise CheckoutAuthorizationException.invalid_authorization(authorization_type=authorization_type)
@@ -78,10 +77,10 @@ class FourOAuthSdkCredentials(SdkCredentials, metaclass=ABCMeta):
         except HTTPError as err:
             errors = json.loads(err.response.text)
             message = 'OAuth client_credentials authentication failed with error: ({})'.format(errors['error'])
-            raise CheckoutAuthorizationException(message)
-        except ConnectionError:
+            raise CheckoutAuthorizationException(message) from err
+        except ConnectionError as err:
             raise CheckoutAuthorizationException(
-                'Unable to establish connection to host: ({})'.format(self.__authorization_uri))
+                'Unable to establish connection to host: ({})'.format(self.__authorization_uri)) from err
 
         response_json = response.json()
         self.__access_token = OAuthAccessToken(token=response_json['access_token'],

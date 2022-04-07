@@ -20,7 +20,8 @@ def get_file_request(file_request: FileRequest, multipart_file=None):
     key_file = 'file' if multipart_file is None else multipart_file
     file_name = Path(file_request.file).name
     mime_type = mimetypes.MimeTypes().guess_type(file_name)[0]
-    files = {key_file: (file_name, open(file_request.file, 'rb'), mime_type)}
+    files = {key_file:
+                 (file_name, open(file_request.file, 'rb'), mime_type)}
     json_body = [('purpose', file_request.purpose)]
     return files, json_body
 
@@ -108,16 +109,20 @@ class ApiClient:
 
             self._logger.info(method + ' ' + path)
 
-            response = self._http_client.request(method=method, url=base_uri, headers=headers, params=params_dict,
-                                                 data=json_body, files=files)
+            response = self._http_client.request(method=method,
+                                                 url=base_uri,
+                                                 headers=headers,
+                                                 params=params_dict,
+                                                 data=json_body,
+                                                 files=files)
 
             response.raise_for_status()
         except HTTPError as err:
             self._logger.error(err)
-            raise CheckoutApiException(err.response)
+            raise CheckoutApiException(err.response) from err
         except OSError as err:
             error = err.strerror
-            raise CheckoutException(error)
+            raise CheckoutException(error) from err
 
         if response.text:
             return ResponseWrapper(response, response.json())

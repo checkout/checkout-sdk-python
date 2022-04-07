@@ -6,7 +6,7 @@ from checkout_sdk.authorization_type import AuthorizationType
 class CheckoutException(Exception):
 
     def __init__(self, message=None):
-        super(CheckoutException, self).__init__(message)
+        super().__init__(message)
 
 
 class CheckoutArgumentException(CheckoutException):
@@ -16,7 +16,7 @@ class CheckoutArgumentException(CheckoutException):
 class CheckoutAuthorizationException(CheckoutException):
 
     def __init__(self, message=None):
-        super(CheckoutAuthorizationException, self).__init__(message)
+        super().__init__(message)
 
     @staticmethod
     def invalid_authorization(authorization_type: AuthorizationType):
@@ -41,4 +41,5 @@ class CheckoutApiException(CheckoutException):
             payload = response.json()
             self.request_id = payload['request_id'] if 'request_id' in payload else None
             self.error_details = payload['error_codes'] if 'error_codes' in payload else None
-        super().__init__('The API response status code ({}) does not indicate success.'.format(response.status_code))
+        super().__init__('The API response status code ({}) does not indicate success.'
+                         .format(response.status_code))

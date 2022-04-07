@@ -6,8 +6,8 @@ from checkout_sdk.common.common import Address, Phone
 
 
 class TokenType(str, Enum):
-    CARD = 'card',
-    APPLE_PAY = 'applepay',
+    CARD = 'card'
+    APPLE_PAY = 'applepay'
     GOOGLE_PAY = 'googlepay'
 
 
