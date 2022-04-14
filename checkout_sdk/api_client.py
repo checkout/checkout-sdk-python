@@ -29,7 +29,6 @@ class ApiClient:
     _logger = logging.getLogger('checkout')
 
     def __init__(self, configuration: CheckoutConfiguration, base_uri: str):
-        self._configuration = configuration
         self._http_client = configuration.http_client
         self._base_uri = base_uri
 
