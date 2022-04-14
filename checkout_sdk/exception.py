@@ -21,11 +21,11 @@ class CheckoutAuthorizationException(CheckoutException):
     @staticmethod
     def invalid_authorization(authorization_type: AuthorizationType):
         raise CheckoutAuthorizationException(
-            'Operation requires ' + authorization_type.value[0] + ' authorization type')
+            'Operation requires ' + authorization_type.name + ' authorization type')
 
     @staticmethod
     def invalid_key(key_type: AuthorizationType):
-        raise CheckoutAuthorizationException('%s is required for this operation' % key_type.value[0])
+        raise CheckoutAuthorizationException('%s is required for this operation' % key_type.name)
 
 
 class CheckoutApiException(CheckoutException):
