@@ -154,9 +154,7 @@ def pre_capture_assessment_request(api_client: CheckoutApi, request_source: Risk
                     'http_response',
                     'assessment_id',
                     'result',
-                    'result.decision',
-                    'result.details',
-                    '_links')
+                    'result.decision')
 
 
 def get_risk_shipping_details() -> RiskShippingDetails:
