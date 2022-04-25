@@ -5,6 +5,7 @@ from checkout_sdk.checkout_apm_api import CheckoutApmApi
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
 from checkout_sdk.customers.customers_client import CustomersClient
 from checkout_sdk.disputes.disputes_client import DisputesClient
+from checkout_sdk.events.events_client import EventsClient
 from checkout_sdk.instruments.instruments_client import InstrumentsClient
 from checkout_sdk.payments.hosted.hosted_payments_client import HostedPaymentsClient
 from checkout_sdk.payments.links.payments_client import PaymentsLinksClient
@@ -29,3 +30,4 @@ class CheckoutApi(CheckoutApmApi):
         self.payments_links = PaymentsLinksClient(api_client=api_client, configuration=configuration)
         self.risk = RiskClient(api_client=api_client, configuration=configuration)
         self.webhooks = WebhooksClient(api_client=api_client, configuration=configuration)
+        self.events = EventsClient(api_client=api_client, configuration=configuration)
