@@ -1,8 +1,9 @@
 import pytest
 
+from checkout_sdk.common.enums import Currency
 from checkout_sdk.files.files import FileRequest
 from checkout_sdk.marketplace.marketplace import OnboardEntityRequest, MarketplacePaymentInstrument, \
-    CreateTransferRequest, BalancesQuery
+    CreateTransferRequest, BalancesQuery, UpdateScheduleRequest
 from checkout_sdk.marketplace.marketplace_client import MarketplaceClient
 
 
@@ -44,3 +45,11 @@ class TestMarketplaceClient:
     def test_should_retrieve_entity_balances(self, mocker, client: MarketplaceClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
         assert client.retrieve_entity_balances('entity_id', BalancesQuery()) == 'response'
+
+    def test_should_update_payout_schedule(self, mocker, client: MarketplaceClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.put', return_value='response')
+        assert client.update_payout_schedule('entity_id', Currency.USD, UpdateScheduleRequest()) == 'response'
+
+    def test_should_retrieve_payout_schedule(self, mocker, client: MarketplaceClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        assert client.retrieve_payout_schedule('entity_id') == 'response'

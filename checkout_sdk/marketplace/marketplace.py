@@ -139,6 +139,54 @@ class MarketplacePaymentInstrument:
     bank: BankDetails
 
 
+class ScheduleFrequency(str, Enum):
+    WEEKLY = 'weekly'
+    DAILY = 'daily'
+    MONTHLY = 'monthly'
+
+
+class DaySchedule(str, Enum):
+    MONDAY = 'monday'
+    TUESDAY = 'tuesday'
+    WEDNESDAY = 'wednesday'
+    THURSDAY = 'thursday'
+    FRIDAY = 'friday'
+    SATURDAY = 'saturday'
+    SUNDAY = 'sunday'
+
+
+class ScheduleRequest:
+    frequency: ScheduleFrequency
+
+    def __init__(self, frequency_p: ScheduleFrequency):
+        self.frequency = frequency_p
+
+
+class ScheduleFrequencyDailyRequest(ScheduleRequest):
+    def __init__(self):
+        super().__init__(ScheduleFrequency.DAILY)
+
+
+class ScheduleFrequencyMonthlyRequest(ScheduleRequest):
+    by_month_day: DaySchedule
+
+    def __init__(self):
+        super().__init__(ScheduleFrequency.MONTHLY)
+
+
+class ScheduleFrequencyWeeklyRequest(ScheduleRequest):
+    by_day: DaySchedule
+
+    def __init__(self):
+        super().__init__(ScheduleFrequency.WEEKLY)
+
+
+class UpdateScheduleRequest:
+    enabled: bool
+    threshold: int
+    recurrence: ScheduleRequest
+
+
 # Transfers
 
 class TransferType(str, Enum):
