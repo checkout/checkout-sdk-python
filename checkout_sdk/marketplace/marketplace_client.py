@@ -4,9 +4,10 @@ from checkout_sdk.api_client import ApiClient
 from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
 from checkout_sdk.client import Client
+from checkout_sdk.common.enums import Currency
 from checkout_sdk.files.files import FileRequest
 from checkout_sdk.marketplace.marketplace import OnboardEntityRequest, MarketplacePaymentInstrument, \
-    CreateTransferRequest, BalancesQuery
+    CreateTransferRequest, BalancesQuery, UpdateScheduleRequest
 
 
 class MarketplaceClient(Client):
@@ -16,6 +17,7 @@ class MarketplaceClient(Client):
     __FILES_PATH = 'files'
     __TRANSFERS_PATH = 'transfers'
     __BALANCES_PATH = 'balances'
+    __PAYOUT_SCHEDULES_PATH = 'payout-schedules'
 
     def __init__(self, api_client: ApiClient,
                  files_client: ApiClient,
@@ -56,3 +58,14 @@ class MarketplaceClient(Client):
     def retrieve_entity_balances(self, entity_id: str, balances_query: BalancesQuery):
         return self.__balances_client.get(self.build_path(self.__BALANCES_PATH, entity_id), self._sdk_authorization(),
                                           balances_query)
+
+    def update_payout_schedule(self, entity_id: str, currency: Currency,
+                               update_schedule_request: UpdateScheduleRequest):
+        return self._api_client.put(
+            self.build_path(self.__MARKETPLACE_PATH, self.__ENTITIES_PATH, entity_id, self.__PAYOUT_SCHEDULES_PATH),
+            self._sdk_authorization(), {currency: update_schedule_request})
+
+    def retrieve_payout_schedule(self, entity_id: str):
+        return self._api_client.get(
+            self.build_path(self.__MARKETPLACE_PATH, self.__ENTITIES_PATH, entity_id, self.__PAYOUT_SCHEDULES_PATH),
+            self._sdk_authorization())

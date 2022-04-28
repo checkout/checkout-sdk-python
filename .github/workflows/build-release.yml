@@ -33,6 +33,8 @@ jobs:
           CHECKOUT_FOUR_PUBLIC_KEY: ${{ secrets.IT_CHECKOUT_FOUR_PUBLIC_KEY }}
           CHECKOUT_FOUR_OAUTH_CLIENT_ID: ${{ secrets.IT_CHECKOUT_FOUR_OAUTH_CLIENT_ID }}
           CHECKOUT_FOUR_OAUTH_CLIENT_SECRET: ${{ secrets.IT_CHECKOUT_FOUR_OAUTH_CLIENT_SECRET }}
+          CHECKOUT_FOUR_OAUTH_PAYOUT_SCHEDULE_CLIENT_ID: ${{ secrets.IT_CHECKOUT_FOUR_OAUTH_PAYOUT_SCHEDULE_CLIENT_ID }}
+          CHECKOUT_FOUR_OAUTH_PAYOUT_SCHEDULE_CLIENT_SECRET: ${{ secrets.IT_CHECKOUT_FOUR_OAUTH_PAYOUT_SCHEDULE_CLIENT_SECRET }}
         run: python -m pytest -x --import-mode=append tests/
       - id: read-version
         run: echo "CURRENT_VERSION=$(grep -o '".*"' checkout_sdk/properties.py | sed 's/"//g' | tr -d \\n)" >> $GITHUB_ENV
