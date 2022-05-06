@@ -1,19 +1,15 @@
 from __future__ import absolute_import
 
+from datetime import datetime
 from enum import Enum
 
 from checkout_sdk.common.enums import Country, PaymentSourceType
-from checkout_sdk.payments.payments import RequestSource
+from checkout_sdk.payments.payments import RequestSource, Payer
 
 
 class IntegrationType(str, Enum):
     DIRECT = 'direct'
     REDIRECT = 'redirect'
-
-
-class BalotoPayer:
-    name: str
-    email: str
 
 
 class FawryProduct:
@@ -37,20 +33,41 @@ class KlarnaProduct:
     total_tax_amount: int
 
 
-class Payer:
-    name: str
-    email: str
-    document: str
+class GiroPayInfoFields:
+    label: str
+    text: str
+
+
+class RequestAlipaySource(RequestSource):
+    def __init__(self):
+        super().__init__(PaymentSourceType.ALIPAY)
 
 
 class RequestBalotoSource(RequestSource):
     integration_type: IntegrationType = IntegrationType.REDIRECT
     country: Country
     description: str
-    payer: BalotoPayer
+    payer: Payer
 
     def __init__(self):
         super().__init__(PaymentSourceType.BALOTO)
+
+
+class RequestBancontactSource(RequestSource):
+    payment_country: Country
+    account_holder_name: str
+    billing_descriptor: str
+    language: str
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.BANCONTACT)
+
+
+class RequestBenefitPaySource(RequestSource):
+    integration_type: str
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.BENEFITPAY)
 
 
 class RequestBoletoSource(RequestSource):
@@ -63,10 +80,20 @@ class RequestBoletoSource(RequestSource):
         super().__init__(PaymentSourceType.BOLETO)
 
 
+class RequestEpsSource(RequestSource):
+    purpose: str
+    bic: str
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.EPS)
+
+
 class RequestFawrySource(RequestSource):
     description: str
+    customer_profile_id: str
     customer_mobile: str
     customer_email: str
+    expires_on: datetime
     products: list  # FawryProduct
 
     def __init__(self):
@@ -75,6 +102,8 @@ class RequestFawrySource(RequestSource):
 
 class RequestGiropaySource(RequestSource):
     purpose: str
+    bic: str
+    info_fields: list  # GiroPayInfoFields
 
     def __init__(self):
         super().__init__(PaymentSourceType.GIROPAY)
@@ -93,13 +122,42 @@ class RequestKlarnaSource(RequestSource):
     authorization_token: str
     locale: str
     purchase_country: Country
+    auto_capture: bool
+    billing_address: dict
+    shipping_address: dict
     tax_amount: int
-    billing_address: str
-    customer: KlarnaCustomer
     products: list  # KlarnaProduct
+    customer: KlarnaCustomer
+    merchant_reference1: str
+    merchant_reference2: str
+    merchant_data: str
+    attachment: dict
 
     def __init__(self):
         super().__init__(PaymentSourceType.KLARNA)
+
+
+class RequestKnetSource(RequestSource):
+    language: str
+    user_defined_field1: str
+    user_defined_field2: str
+    user_defined_field3: str
+    user_defined_field4: str
+    user_defined_field5: str
+    card_token: str
+    ptlf: str
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.KNET)
+
+
+class RequestMultiBancoSource(RequestSource):
+    payment_country: Country
+    account_holder_name: str
+    billing_descriptor: str
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.MULTIBANCO)
 
 
 class RequestOxxoSource(RequestSource):
@@ -112,6 +170,16 @@ class RequestOxxoSource(RequestSource):
         super().__init__(PaymentSourceType.OXXO)
 
 
+class RequestP24Source(RequestSource):
+    payment_country: Country
+    account_holder_name: str
+    account_holder_email: str
+    billing_descriptor: str
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.P24)
+
+
 class RequestPagoFacilSource(RequestSource):
     integration_type: IntegrationType = IntegrationType.REDIRECT
     country: Country
@@ -120,6 +188,31 @@ class RequestPagoFacilSource(RequestSource):
 
     def __init__(self):
         super().__init__(PaymentSourceType.PAGOFACIL)
+
+
+class RequestPayPalSource(RequestSource):
+    invoice_number: str
+    recipient_name: str
+    logo_url: str
+    stc: dict
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.PAYPAL)
+
+
+class RequestPoliSource(RequestSource):
+    def __init__(self):
+        super().__init__(PaymentSourceType.POLI)
+
+
+class RequestQPaySource(RequestSource):
+    quantity: int
+    description: str
+    language: str
+    national_id: str
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.QPAY)
 
 
 class RequestRapiPagoSource(RequestSource):
@@ -140,6 +233,8 @@ class RequestSepaSource(RequestSource):
 
 
 class RequestSofortSource(RequestSource):
+    countryCode: Country
+    languageCode: str
 
     def __init__(self):
         super().__init__(PaymentSourceType.SOFORT)

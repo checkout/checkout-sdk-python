@@ -8,6 +8,7 @@ from pathlib import Path
 from checkout_sdk.common.common import Address, Phone, CustomerRequest
 from checkout_sdk.common.enums import Country
 from checkout_sdk.exception import CheckoutException, CheckoutApiException
+from checkout_sdk.payments.payments import Payer
 
 NAME = 'Integration Test'
 FIRST_NAME = 'Integration'
@@ -98,3 +99,11 @@ class VisaCard:
 
 def get_project_root() -> Path:
     return Path(__file__).parent.parent
+
+
+def get_payer():
+    payer = Payer()
+    payer.email = random_email()
+    payer.name = NAME
+    payer.document = '53033315550'
+    return payer

@@ -99,10 +99,27 @@ class ThreeDsRequest:
     challenge_indicator: ChallengeIndicator
 
 
+class Payer:
+    name: str
+    email: str
+    document: str
+
+
+class Installments:
+    count: str
+
+
+class DLocalProcessingSettings:
+    country: Country
+    payer: Payer
+    installments: Installments
+
+
 class ProcessingSettings:
     aft: bool
     tax_amount: int
     shipping_amount: int
+    dlocal: DLocalProcessingSettings
 
 
 # Request Source
