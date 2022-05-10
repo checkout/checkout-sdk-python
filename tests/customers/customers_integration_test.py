@@ -12,7 +12,7 @@ def test_should_create_and_get_customer(default_api):
     customer_id = create_customer(default_api, email)
     response = default_api.customers.get(customer_id)
     assert_response(response,
-                    'http_response',
+                    'http_metadata',
                     'email',
                     'name',
                     'phone')
@@ -30,7 +30,7 @@ def test_should_create_and_update_customer(default_api):
 
     response_update = default_api.customers.get(customer_id)
     assert_response(response_update,
-                    'http_response',
+                    'http_metadata',
                     'email',
                     'name',
                     'phone')
@@ -41,7 +41,7 @@ def test_should_create_and_update_customer(default_api):
 def test_should_create_and_delete_customer(default_api):
     customer_id = create_customer(default_api, random_email())
     response = default_api.customers.delete(customer_id)
-    assert_response(response, 'http_response')
+    assert_response(response, 'http_metadata')
 
     try:
         default_api.customers.get(customer_id)

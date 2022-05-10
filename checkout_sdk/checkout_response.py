@@ -1,8 +1,8 @@
 class ResponseWrapper:
 
-    def __init__(self, http_response=None, data=None):
-        if http_response is not None:
-            setattr(self, 'http_response', http_response)
+    def __init__(self, http_metadata=None, data=None):
+        if http_metadata is not None:
+            setattr(self, 'http_metadata', http_metadata)
         if data is not None:
             if self._is_collection(data):
                 setattr(self, 'items', self._wrap(data))

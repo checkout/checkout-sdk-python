@@ -14,6 +14,7 @@ from checkout_sdk.files.files import FileRequest
 from checkout_sdk.json_serializer import JsonSerializer
 from checkout_sdk.properties import VERSION
 from checkout_sdk.sdk_authorization import SdkAuthorization
+from checkout_sdk.utils import map_to_http_metadata
 
 
 def get_file_request(file_request: FileRequest, multipart_file=None):
@@ -122,7 +123,8 @@ class ApiClient:
             error = err.strerror
             raise CheckoutException(error) from err
 
+        http_metadata = map_to_http_metadata(response)
         if response.text:
-            return ResponseWrapper(response, response.json())
+            return ResponseWrapper(http_metadata, response.json())
         else:
-            return ResponseWrapper(http_response=response)
+            return ResponseWrapper(http_metadata)

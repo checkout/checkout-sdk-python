@@ -12,7 +12,7 @@ from tests.checkout_test_utils import assert_response, phone, VisaCard, address,
 def test_should_create_and_get_instrument(default_api):
     create_instrument_response = create_token_instrument(default_api)
     assert_response(create_instrument_response,
-                    'http_response',
+                    'http_metadata',
                     'bin',
                     'card_category',
                     'card_type',
@@ -33,7 +33,7 @@ def test_should_create_and_get_instrument(default_api):
     get_instrument_response = default_api.instruments.get(create_instrument_response.id)
 
     assert_response(get_instrument_response,
-                    'http_response',
+                    'http_metadata',
                     'bin',
                     'card_category',
                     'card_type',

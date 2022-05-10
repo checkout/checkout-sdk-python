@@ -14,7 +14,7 @@ def test_should_create_and_get_hosted_payments_page_details(default_api):
     response = default_api.hosted_payments.create_hosted_payments_page_session(request)
 
     assert_response(response,
-                    'http_response',
+                    'http_metadata',
                     'id',
                     'reference',
                     '_links',
@@ -24,7 +24,7 @@ def test_should_create_and_get_hosted_payments_page_details(default_api):
     hosted_details = default_api.hosted_payments.get_hosted_payments_page_details(response.id)
 
     assert_response(hosted_details,
-                    'http_response',
+                    'http_metadata',
                     'id',
                     'reference',
                     'status',

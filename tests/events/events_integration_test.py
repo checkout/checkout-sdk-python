@@ -63,11 +63,11 @@ def test_should_retrieve_events_by_payment_id_and_retrieve_event_by_id_and_get_n
 
     retry_webhook = default_api.events.retry_webhook(events.data[0].id, webhook.id)
 
-    assert_response(retry_webhook, 'http_response')
+    assert_response(retry_webhook, 'http_metadata')
 
     retry_all_webhooks = default_api.events.retry_all_webhooks(events.data[0].id)
 
-    assert_response(retry_all_webhooks, 'http_response')
+    assert_response(retry_all_webhooks, 'http_metadata')
 
 
 def __events_has_data(response) -> bool:

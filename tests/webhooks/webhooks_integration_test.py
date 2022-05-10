@@ -76,8 +76,8 @@ def test_full_webhook_operations(default_api):
 
     # Delete webhook
     remove_webhook = default_api.webhooks.remove_webhook(webhook.id)
-    assert_response(remove_webhook, 'http_response')
-    assert 200 == remove_webhook.http_response.status_code
+    assert_response(remove_webhook, 'http_metadata')
+    assert 200 == remove_webhook.http_metadata.status_code
 
 
 def register_webhook(default_api: CheckoutApi, url: str):

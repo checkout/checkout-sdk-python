@@ -10,7 +10,7 @@ def test_should_get_payment_actions(four_api):
     response = retriable(callback=four_api.payments.get_payment_actions,
                          predicate=there_are_two_payment_actions,
                          payment_id=payment_response.id)
-    assert_response(response, 'http_response')
+    assert_response(response, 'http_metadata')
     actions = response.items
     assert type(actions) is list
     assert actions.__len__() > 0
