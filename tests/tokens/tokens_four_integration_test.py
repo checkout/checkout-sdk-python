@@ -15,7 +15,7 @@ def test_should_create_card_token(four_api):
     response = four_api.tokens.request_card_token(card_token_request)
 
     assert_response(response,
-                    'http_response',
+                    'http_metadata',
                     'token',
                     'type',
                     'expires_on',

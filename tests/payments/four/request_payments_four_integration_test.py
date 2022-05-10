@@ -8,7 +8,7 @@ def test_should_request_card_payment(four_api):
     payment_response = make_card_payment(four_api)
 
     assert_response(payment_response,
-                    'http_response',
+                    'http_metadata',
                     'id',
                     'processed_on',
                     'reference',
@@ -52,7 +52,7 @@ def test_should_request_card_3ds_payment(four_api):
     payment_response = make_3ds_card_payment(four_api, False)
 
     assert_response(payment_response,
-                    'http_response',
+                    'http_metadata',
                     'id',
                     'reference',
                     'status',
@@ -68,7 +68,7 @@ def test_should_request_card_3ds_payment_n3d(four_api):
     payment_response = make_3ds_card_payment(four_api, True)
 
     assert_response(payment_response,
-                    'http_response',
+                    'http_metadata',
                     'id',
                     'processed_on',
                     'reference',
@@ -112,7 +112,7 @@ def test_should_request_token_payment(four_api):
     payment_response = make_token_payment(four_api)
 
     assert_response(payment_response,
-                    'http_response',
+                    'http_metadata',
                     'id',
                     'processed_on',
                     'reference',

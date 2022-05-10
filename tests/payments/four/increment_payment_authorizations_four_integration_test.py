@@ -18,7 +18,7 @@ def test_should_increment_payment_authorization(four_api):
 
     void_response = four_api.payments.increment_payment_authorization(payment_response.id, authorization_request)
     assert_response(void_response,
-                    'http_response',
+                    'http_metadata',
                     'amount',
                     'action_id',
                     'currency',

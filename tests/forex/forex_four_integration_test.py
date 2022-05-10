@@ -14,7 +14,7 @@ def test_should_request_quote(oauth_api):
 
     response = oauth_api.forex.request_quote(quote_request)
     assert_response(response,
-                    'http_response',
+                    'http_metadata',
                     'id',
                     'source_currency',
                     'source_amount',

@@ -14,7 +14,7 @@ def test_should_create_and_get_payment_link(default_api):
     response = default_api.payments_links.create_payment_link(request)
 
     assert_response(response,
-                    'http_response',
+                    'http_metadata',
                     'id',
                     'reference',
                     'expires_on',
@@ -32,7 +32,7 @@ def test_should_create_and_get_payment_link(default_api):
     hosted_details = default_api.payments_links.get_payment_link(response.id)
 
     assert_response(hosted_details,
-                    'http_response',
+                    'http_metadata',
                     'id',
                     'reference',
                     'status',

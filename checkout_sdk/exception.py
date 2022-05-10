@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 from checkout_sdk.authorization_type import AuthorizationType
+from checkout_sdk.utils import map_to_http_metadata
 
 
 class CheckoutException(Exception):
@@ -29,17 +30,13 @@ class CheckoutAuthorizationException(CheckoutException):
 
 
 class CheckoutApiException(CheckoutException):
-    http_status_code: int
-    http_response: dict
-    request_id: str
+    http_metadata: dict
     error_details: dict
 
     def __init__(self, response):
-        self.http_status_code = response.status_code
-        self.http_response = response
+        self.http_metadata = map_to_http_metadata(response)
         if response.text:
             payload = response.json()
-            self.request_id = payload['request_id'] if 'request_id' in payload else None
             self.error_details = payload['error_codes'] if 'error_codes' in payload else None
         super().__init__('The API response status code ({}) does not indicate success.'
                          .format(response.status_code))

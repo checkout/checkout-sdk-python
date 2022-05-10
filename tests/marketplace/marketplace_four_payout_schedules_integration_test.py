@@ -33,13 +33,13 @@ def test_should_update_and_retrieve_weekly_payout_schedules(payout_schedules_api
     payout_schedule = payout_schedules_api.marketplace.update_payout_schedule(
         'ent_sdioy6bajpzxyl3utftdp7legq', Currency.USD, schedule_request)
 
-    assert_response(payout_schedule, 'http_response')
-    assert payout_schedule.http_response.status_code == 200
+    assert_response(payout_schedule, 'http_metadata')
+    assert payout_schedule.http_metadata.status_code == 200
 
     retrieve_payout_schedule = payout_schedules_api.marketplace.retrieve_payout_schedule(
         'ent_sdioy6bajpzxyl3utftdp7legq')
 
-    assert_response(retrieve_payout_schedule, 'http_response',
+    assert_response(retrieve_payout_schedule, 'http_metadata',
                     'USD',
                     'USD.enabled',
                     'USD.recurrence',
@@ -58,13 +58,13 @@ def test_should_update_and_retrieve_daily_payout_schedules(payout_schedules_api)
     payout_schedule = payout_schedules_api.marketplace.update_payout_schedule(
         'ent_sdioy6bajpzxyl3utftdp7legq', Currency.USD, schedule_request)
 
-    assert_response(payout_schedule, 'http_response')
-    assert payout_schedule.http_response.status_code == 200
+    assert_response(payout_schedule, 'http_metadata')
+    assert payout_schedule.http_metadata.status_code == 200
 
     retrieve_payout_schedule = payout_schedules_api.marketplace.retrieve_payout_schedule(
         'ent_sdioy6bajpzxyl3utftdp7legq')
 
-    assert_response(retrieve_payout_schedule, 'http_response',
+    assert_response(retrieve_payout_schedule, 'http_metadata',
                     'USD',
                     'USD.enabled',
                     'USD.recurrence',
@@ -83,13 +83,13 @@ def test_should_update_and_retrieve_montly_payout_schedules(payout_schedules_api
     payout_schedule = payout_schedules_api.marketplace.update_payout_schedule(
         'ent_sdioy6bajpzxyl3utftdp7legq', Currency.USD, schedule_request)
 
-    assert_response(payout_schedule, 'http_response')
-    assert payout_schedule.http_response.status_code == 200
+    assert_response(payout_schedule, 'http_metadata')
+    assert payout_schedule.http_metadata.status_code == 200
 
     retrieve_payout_schedule = payout_schedules_api.marketplace.retrieve_payout_schedule(
         'ent_sdioy6bajpzxyl3utftdp7legq')
 
-    assert_response(retrieve_payout_schedule, 'http_response',
+    assert_response(retrieve_payout_schedule, 'http_metadata',
                     'USD',
                     'USD.enabled',
                     'USD.recurrence',

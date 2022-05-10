@@ -111,7 +111,7 @@ def authentication_assessment_request(api_client: CheckoutApi, request_source: R
     response = api_client.risk.request_pre_authentication_risk_scan(request)
 
     assert_response(response,
-                    'http_response',
+                    'http_metadata',
                     'assessment_id',
                     'result',
                     'result.decision',
@@ -151,7 +151,7 @@ def pre_capture_assessment_request(api_client: CheckoutApi, request_source: Risk
     response = api_client.risk.request_pre_capture_risk_scan(request)
 
     assert_response(response,
-                    'http_response',
+                    'http_metadata',
                     'assessment_id',
                     'result',
                     'result.decision')

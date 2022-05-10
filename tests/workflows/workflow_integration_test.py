@@ -10,7 +10,7 @@ def test__should_create_and_get_workflows(four_api):
     workflow_response = four_api.workflows.get_workflow(workflow.id)
 
     assert_response(workflow_response,
-                    'http_response',
+                    'http_metadata',
                     'id',
                     'name',
                     'active',
@@ -54,7 +54,7 @@ def test__should_create_and_update_workflow(four_api):
     update_workflow_response = four_api.workflows.update_workflow(workflow.id, update_workflow_request)
 
     assert_response(update_workflow_response,
-                    'http_response',
+                    'http_metadata',
                     'name',
                     'active')
 
@@ -70,7 +70,7 @@ def test__should_update_workflow_action(four_api):
     workflow_response = four_api.workflows.get_workflow(workflow.id)
 
     assert_response(workflow_response,
-                    'http_response',
+                    'http_metadata',
                     'id',
                     'name',
                     'active',
@@ -104,7 +104,7 @@ def test__should_update_workflow_condition(four_api):
     workflow_response = four_api.workflows.get_workflow(workflow.id)
 
     assert_response(workflow_response,
-                    'http_response',
+                    'http_metadata',
                     'id',
                     'name',
                     'active',

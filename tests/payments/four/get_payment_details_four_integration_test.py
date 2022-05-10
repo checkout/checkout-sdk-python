@@ -12,7 +12,7 @@ def test_should_get_payment_details(four_api):
     payment = retriable(callback=four_api.payments.get_payment_details,
                         payment_id=payment_response.id)
     assert_response(payment,
-                    'http_response',
+                    'http_metadata',
                     'id',
                     'requested_on',
                     'amount',
