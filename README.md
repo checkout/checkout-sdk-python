@@ -41,6 +41,7 @@ from checkout_sdk.environment import Environment
 
 
 def default():
+    # public key is optional, only required for operations related with tokens
     checkout_api = checkout_sdk.DefaultSdk() \
         .secret_key('secret_key') \
         .public_key('public_key') \
@@ -62,6 +63,7 @@ from checkout_sdk.environment import Environment
 
 
 def four():
+    # public key is optional, only required for operations related with tokens
     checkout_api = checkout_sdk.FourSdk() \
         .secret_key('secret_key') \
         .public_key('public_key') \
@@ -143,7 +145,7 @@ the `request_id`, `http_status_code` and a dictionary of `error_details`, if ava
 
 ```python
 try:
-    api.customers.get("customer_id")
+    checkout_api.customers.get("customer_id")
 except CheckoutApiException as err:
     request_id = err.request_id
     http_status_code = err.http_status_code
