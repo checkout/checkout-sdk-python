@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from checkout_sdk.four.checkout_api import CheckoutApi
 from checkout_sdk.sessions.sessions import ThreeDsMethodCompletionRequest, ThreeDsMethodCompletion
-from tests.checkout_test_utils import assert_response
+from tests.checkout_test_utils import assert_response, retriable
 from tests.sessions.sessions_test_utils import get_hosted_session, get_browser_session
 
 
@@ -12,7 +12,11 @@ def test_update_card_session_using_id_browser_session(oauth_api: CheckoutApi):
 
     session_id = request_session_response.id
 
-    assert_response(oauth_api.sessions.update_session(session_id, get_browser_session()), 'id', 'session_secret')
+    update_session = retriable(callback=oauth_api.sessions.update_session,
+                               session_id=session_id,
+                               channel_data=get_browser_session())
+
+    assert_response(update_session, 'id', 'session_secret')
 
 
 def test_update_card_session_using_session_secret_browser_session(oauth_api: CheckoutApi):
@@ -22,7 +26,12 @@ def test_update_card_session_using_session_secret_browser_session(oauth_api: Che
     session_id = request_session_response.id
     session_secret = request_session_response.session_secret
 
-    assert_response(oauth_api.sessions.update_session(session_id, get_browser_session(), session_secret), 'id')
+    update_session = retriable(callback=oauth_api.sessions.update_session,
+                               session_id=session_id,
+                               channel_data=get_browser_session(),
+                               session_secret=session_secret)
+
+    assert_response(update_session, 'id')
 
 
 def test_update_3ds_method_completion_indicator_session_id(oauth_api: CheckoutApi):
@@ -34,8 +43,11 @@ def test_update_3ds_method_completion_indicator_session_id(oauth_api: CheckoutAp
     three_ds_request = ThreeDsMethodCompletionRequest()
     three_ds_request.three_ds_method_completion = ThreeDsMethodCompletion.Y
 
-    assert_response(oauth_api.sessions.update_3ds_method_completion(session_id, three_ds_request), 'id',
-                    'session_secret')
+    update_session = retriable(callback=oauth_api.sessions.update_3ds_method_completion,
+                               session_id=session_id,
+                               three_ds_method_completion_request=three_ds_request)
+
+    assert_response(update_session, 'id', 'session_secret')
 
 
 def test_update_3ds_method_completion_indicator_session_secret(oauth_api: CheckoutApi):
@@ -48,4 +60,9 @@ def test_update_3ds_method_completion_indicator_session_secret(oauth_api: Checko
     three_ds_request = ThreeDsMethodCompletionRequest()
     three_ds_request.three_ds_method_completion = ThreeDsMethodCompletion.Y
 
-    assert_response(oauth_api.sessions.update_3ds_method_completion(session_id, three_ds_request, session_secret), 'id')
+    update_session = retriable(callback=oauth_api.sessions.update_3ds_method_completion,
+                               session_id=session_id,
+                               three_ds_method_completion_request=three_ds_request,
+                               session_secret=session_secret)
+
+    assert_response(update_session, 'id')

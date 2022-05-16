@@ -52,8 +52,9 @@ class MarketplaceClient(Client):
         return self.__files_client.submit_file(self.__FILES_PATH, self._sdk_authorization(), file_request,
                                                multipart_file='path')
 
-    def initiate_transfer_of_funds(self, create_transfer_request: CreateTransferRequest):
-        return self.__transfers_client.post(self.__TRANSFERS_PATH, self._sdk_authorization(), create_transfer_request)
+    def initiate_transfer_of_funds(self, create_transfer_request: CreateTransferRequest, idempotency_key: str = None):
+        return self.__transfers_client.post(self.__TRANSFERS_PATH, self._sdk_authorization(), create_transfer_request,
+                                            idempotency_key)
 
     def retrieve_entity_balances(self, entity_id: str, balances_query: BalancesQuery):
         return self.__balances_client.get(self.build_path(self.__BALANCES_PATH, entity_id), self._sdk_authorization(),
