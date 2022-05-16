@@ -3,10 +3,11 @@ from __future__ import absolute_import
 import os
 
 from checkout_sdk.common.enums import Currency
+from checkout_sdk.exception import CheckoutApiException
 from checkout_sdk.files.files import FileRequest
 from checkout_sdk.marketplace.marketplace import OnboardEntityRequest, ContactDetails, Profile, Individual, \
     DateOfBirth, Identification, CreateTransferRequest, TransferType, TransferSource, TransferDestination, BalancesQuery
-from tests.checkout_test_utils import assert_response, phone, address, new_uuid, get_project_root
+from tests.checkout_test_utils import assert_response, phone, address, new_uuid, get_project_root, new_idempotency_key
 
 
 def test_should_create_get_and_update_onboard_entity(oauth_api):
@@ -81,6 +82,30 @@ def test_should_initiate_transfer_of_funds(oauth_api):
     response = oauth_api.marketplace.initiate_transfer_of_funds(transfer_request)
     assert_response(response, 'id', 'status')
     assert 'pending' == response.status
+
+
+def test_should_initiate_transfer_of_funds_idempotently(oauth_api):
+    transfer_source = TransferSource()
+    transfer_source.id = 'ent_kidtcgc3ge5unf4a5i6enhnr5m'
+    transfer_source.amount = 100
+
+    transfer_destination = TransferDestination()
+    transfer_destination.id = 'ent_w4jelhppmfiufdnatam37wrfc4'
+
+    transfer_request = CreateTransferRequest()
+    transfer_request.transfer_type = TransferType.COMMISSION
+    transfer_request.source = transfer_source
+    transfer_request.destination = transfer_destination
+
+    idempotency_key = new_idempotency_key()
+
+    response = oauth_api.marketplace.initiate_transfer_of_funds(transfer_request, idempotency_key)
+    assert_response(response, 'id', 'status')
+
+    try:
+        oauth_api.marketplace.initiate_transfer_of_funds(transfer_request, idempotency_key)
+    except CheckoutApiException as err:
+        assert err.args[0] == 'The API response status code (409) does not indicate success.'
 
 
 def test_should_retrieve_entity_balances(oauth_api):
