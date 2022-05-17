@@ -192,6 +192,7 @@ class NetworkTokenSource(SessionSource):
     expiry_month: int
     expiry_year: int
     name: str
+    email: str
 
     def __init__(self):
         super().__init__(SessionSourceType.NETWORK_TOKEN)
