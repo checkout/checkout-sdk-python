@@ -2,8 +2,8 @@ from enum import Enum
 
 from checkout_sdk.common.common import Phone, Address
 from checkout_sdk.common.common_four import AccountHolder
-from checkout_sdk.common.enums import Currency, Country, InstrumentType
-from checkout_sdk.common.enums_four import AccountType, AccountHolderType, AccountHolderIdentification
+from checkout_sdk.common.enums import Currency, InstrumentType, Country
+from checkout_sdk.common.enums_four import AccountType
 
 
 class ContactDetails:
@@ -94,28 +94,6 @@ class InstrumentDocument:
     file_id: str
 
 
-class ResidentialStatusType(str, Enum):
-    RESIDENT = 'resident'
-    NON_RESIDENT = 'non_resident'
-
-
-class MarketplaceAccountHolderIdentification:
-    type: AccountHolderIdentification
-    number: str
-    issuing_country: Country
-
-
-class MarketplaceAccountHolder(AccountHolder):
-    type: AccountHolderType
-    company_name: str
-    tax_id: str
-    date_of_birth: DateOfBirth
-    country_of_birth: Country
-    residential_status: ResidentialStatusType
-    identification: MarketplaceAccountHolderIdentification
-    email: str
-
-
 class BankDetails:
     name: str
     branch: str
@@ -135,7 +113,7 @@ class MarketplacePaymentInstrument:
     currency: Currency
     country: Country
     document: InstrumentDocument
-    account_holder: MarketplaceAccountHolder
+    account_holder: AccountHolder
     bank: BankDetails
 
 

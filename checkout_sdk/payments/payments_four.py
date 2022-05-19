@@ -164,6 +164,18 @@ class RequestProviderTokenSource(PaymentRequestSource):
         super().__init__(PaymentSourceType.PROVIDER_TOKEN)
 
 
+class RequestBankAccountSource(PaymentRequestSource):
+    payment_method: str
+    account_type: str
+    country: Country
+    account_number: str
+    bank_code: str
+    account_holder: AccountHolder
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.BANK_ACCOUNT)
+
+
 # Request Payment
 class PaymentRequest:
     source: PaymentRequestSource

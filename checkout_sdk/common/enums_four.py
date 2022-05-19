@@ -15,7 +15,7 @@ class AccountHolderType(str, Enum):
     INSTRUMENT = 'instrument'
 
 
-class AccountHolderIdentification(str, Enum):
+class AccountHolderIdentificationType(str, Enum):
     PASSPORT = 'passport'
     DRIVING_LICENSE = 'driving_licence'
     NATIONAL_ID = 'national_id'
