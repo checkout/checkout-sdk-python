@@ -25,3 +25,9 @@ class RequestTamaraSource(PaymentRequestSource):
 
     def __init__(self):
         super().__init__(PaymentSourceType.TAMARA)
+
+
+class RequestPayPalSource(PaymentRequestSource):
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.PAYPAL)

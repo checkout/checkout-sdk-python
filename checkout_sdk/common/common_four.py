@@ -1,4 +1,19 @@
+from enum import Enum
+
 from checkout_sdk.common.common import Address, Phone
+from checkout_sdk.common.enums import Country
+from checkout_sdk.common.enums_four import AccountHolderIdentificationType, AccountHolderType
+
+
+class ResidentialStatusType(str, Enum):
+    RESIDENT = 'resident'
+    NON_RESIDENT = 'non_resident'
+
+
+class AccountHolderIdentification:
+    type: AccountHolderIdentificationType
+    number: str
+    issuing_country: Country
 
 
 class AccountHolder:
@@ -6,6 +21,14 @@ class AccountHolder:
     last_name: str
     billing_address: Address
     phone: Phone
+    type: AccountHolderType
+    company_name: str
+    tax_id: str
+    date_of_birth: str
+    country_of_birth: Country
+    residential_status: ResidentialStatusType
+    identification: AccountHolderIdentification
+    email: str
 
 
 class BankDetails:
