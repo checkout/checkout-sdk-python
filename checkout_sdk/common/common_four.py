@@ -17,16 +17,16 @@ class AccountHolderIdentification:
 
 
 class AccountHolder:
+    type: AccountHolderType
     first_name: str
     last_name: str
-    billing_address: Address
-    phone: Phone
-    type: AccountHolderType
     company_name: str
     tax_id: str
     date_of_birth: str
     country_of_birth: Country
     residential_status: ResidentialStatusType
+    billing_address: Address
+    phone: Phone
     identification: AccountHolderIdentification
     email: str
 
