@@ -116,7 +116,7 @@ def authentication_assessment_request(api_client: CheckoutApi, request_source: R
                     'assessment_id',
                     'result',
                     'result.decision',
-                    'result.details',
+                    # 'result.details',
                     '_links')
 
 
@@ -156,7 +156,7 @@ def pre_capture_assessment_request(api_client: CheckoutApi, request_source: Risk
                     'assessment_id',
                     'result',
                     'result.decision',
-                    'result.details',
+                    # 'result.details',
                     '_links')
 
 

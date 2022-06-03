@@ -65,6 +65,25 @@ class FundTransferType(str, Enum):
     OG = 'OG'
 
 
+class PreferredSchema(str, Enum):
+    VISA = 'visa'
+    MASTERCARD = 'mastercard'
+    CARTES_BANCAIRES = 'cartes_bancaires'
+
+
+class ProductType(str, Enum):
+    QR_CODE = 'QR Code'
+    IN_APP = 'In-App'
+    OFFICIAL_ACCOUNT = 'Official Account'
+    MINI_PROGRAM = 'Mini Program'
+
+
+class ThreeDSFlowType(str, Enum):
+    CHALLENGED = 'challenged'
+    FRICTIONLESS = 'frictionless'
+    FRICTIONLESS_DELEGATED = 'frictionless_delegated'
+
+
 class BillingDescriptor:
     name: str
     city: str
@@ -102,6 +121,15 @@ class ThreeDsRequest:
     version: str
     exemption: Exemption
     challenge_indicator: ChallengeIndicator
+    # Only available in Four
+    status: str
+    authentication_date: datetime
+    authentication_amount: int
+    flow_type: ThreeDSFlowType
+    status_reason_code: str
+    challenge_cancel_reason: str
+    score: str
+    cryptogram_algorithm: str
 
 
 class Payer:
@@ -124,6 +152,11 @@ class ProcessingSettings:
     aft: bool
     tax_amount: int
     shipping_amount: int
+    preferred_scheme: PreferredSchema
+    product_type: ProductType
+    open_id: str
+    original_order_amount: int
+    receipt_id: str
     dlocal: DLocalProcessingSettings
 
 
