@@ -3,7 +3,7 @@ from __future__ import absolute_import
 import pytest
 
 from checkout_sdk.common.common import CustomerRequest, Product
-from checkout_sdk.common.enums import Country, Currency, PaymentSourceType
+from checkout_sdk.common.enums import Currency, PaymentSourceType
 from checkout_sdk.payments.links.payments_links import PaymentLinkRequest
 from checkout_sdk.payments.payments import BillingInformation, PaymentRecipient, ThreeDsRequest, ProcessingSettings, \
     RiskRequest, ShippingDetails
@@ -69,9 +69,7 @@ def create_payment_link_request():
 
     recipient = PaymentRecipient()
     recipient.account_number = '123456789'
-    recipient.country = Country.ES
     recipient.dob = '1985-05-18'
-    recipient.first_name = 'It'
     recipient.last_name = 'Testing'
     recipient.zip = '12345'
 
