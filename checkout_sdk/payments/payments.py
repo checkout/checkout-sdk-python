@@ -98,9 +98,7 @@ class PaymentRecipient:
     dob: str
     account_number: str
     zip: str
-    first_name: str
     last_name: str
-    country: Country
 
 
 class ShippingDetails:
