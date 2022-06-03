@@ -68,6 +68,26 @@ class SessionScheme(str, Enum):
     CARTES_BANCAIRES = 'cartes_bancaires'
 
 
+class AuthenticationMethod(str, Enum):
+    NO_AUTHENTICATION = 'no_authentication'
+    OWN_CREDENTIALS = 'own_credentials'
+    FEDERATED_ID = 'federated_id'
+    ISSUER_CREDENTIALS = 'issuer_credentials'
+    THIRD_PARTY_AUTHENTICATION = 'third_party_authentication'
+    FIDO = 'fido'
+
+
+class DeliveryTimeframe(str, Enum):
+    ELECTRONIC_DELIVERY = 'electronic_delivery'
+    SAME_DAY = 'same_day'
+    OVERNIGHT = 'overnight'
+    TWO_DAY_OR_MORE = 'two_day_or_more'
+
+
+class ShippingIndicator(str, Enum):
+    VISA = 'visa'
+
+
 class SdkEphemeralPublicKey:
     kty: str
     crv: str
@@ -156,7 +176,7 @@ class SessionSource:
     home_phone: Phone
     mobile_phone: Phone
     work_phone: Phone
-    scheme: SessionScheme
+    email: str
 
     def __init__(self, type_p: SessionSourceType):
         self.type = type_p
@@ -167,7 +187,8 @@ class SessionCardSource(SessionSource):
     expiry_month: int
     expiry_year: int
     name: str
-    email: str
+    scheme: SessionScheme
+    stored: bool
 
     def __init__(self):
         super().__init__(SessionSourceType.CARD)
@@ -192,10 +213,34 @@ class NetworkTokenSource(SessionSource):
     expiry_month: int
     expiry_year: int
     name: str
-    email: str
+    stored: bool
 
     def __init__(self):
         super().__init__(SessionSourceType.NETWORK_TOKEN)
+
+
+class CardholderAccountInfo:
+    purchase_count: int
+    account_age: str
+    add_card_attempts: int
+    shipping_address_age: str
+    account_name_matches_shipping_name: bool
+    suspicious_account_activity: bool
+    transactions_today: int
+    authentication_method: AuthenticationMethod
+
+
+class MerchantRiskInfo:
+    delivery_email: str
+    delivery_timeframe: DeliveryTimeframe
+    is_preorder: bool
+    is_reorder: bool
+    shipping_indicator: ShippingIndicator
+
+
+class Recurring:
+    days_between_payments: int
+    expiry: str
 
 
 class SessionRequest:
@@ -206,13 +251,18 @@ class SessionRequest:
     marketplace: SessionMarketplaceData
     authentication_type: AuthenticationType
     authentication_category: Category
+    account_info: CardholderAccountInfo
     challenge_indicator: ChallengeIndicator
     billing_descriptor: SessionsBillingDescriptor
     reference: str
+    merchant_risk_info: MerchantRiskInfo
+    prior_transaction_reference: str
     transaction_type: TransactionType
     shipping_address: SessionAddress
+    shipping_address_matches_billing: bool
     completion: Completion
     channel_data: ChannelData
+    recurring: Recurring
 
 
 class ThreeDsMethodCompletionRequest:
