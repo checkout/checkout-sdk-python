@@ -66,7 +66,7 @@ def test_should_upload_file(oauth_api):
     assert_response(response, 'id', '_links')
 
 
-def test_should_initiate_transfer_of_funds(oauth_api):
+def test_should_initiate_and_get_transfer_of_funds(oauth_api):
     transfer_source = TransferSource()
     transfer_source.id = 'ent_kidtcgc3ge5unf4a5i6enhnr5m'
     transfer_source.amount = 100
@@ -82,6 +82,15 @@ def test_should_initiate_transfer_of_funds(oauth_api):
     response = oauth_api.marketplace.initiate_transfer_of_funds(transfer_request)
     assert_response(response, 'id', 'status')
     assert 'pending' == response.status
+
+    transfer_response = oauth_api.marketplace.retrieve_a_transfer(response.id)
+
+    assert_response(transfer_response, "id",
+                    'source',
+                    'destination',
+                    'status',
+                    'requested_on',
+                    'transfer_type')
 
 
 def test_should_initiate_transfer_of_funds_idempotently(oauth_api):
