@@ -42,6 +42,10 @@ class TestMarketplaceClient:
         mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
         assert client.initiate_transfer_of_funds(CreateTransferRequest(), 'idempotency_key') == 'response'
 
+    def test_should_retrieve_a_transfer(self, mocker, client: MarketplaceClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        assert client.retrieve_a_transfer('transfer_id') == 'response'
+
     def test_should_retrieve_entity_balances(self, mocker, client: MarketplaceClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
         assert client.retrieve_entity_balances('entity_id', BalancesQuery()) == 'response'

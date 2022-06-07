@@ -56,6 +56,10 @@ class MarketplaceClient(Client):
         return self.__transfers_client.post(self.__TRANSFERS_PATH, self._sdk_authorization(), create_transfer_request,
                                             idempotency_key)
 
+    def retrieve_a_transfer(self, transfer_id):
+        return self.__transfers_client.get(self.build_path(self.__TRANSFERS_PATH, transfer_id),
+                                           self._sdk_authorization())
+
     def retrieve_entity_balances(self, entity_id: str, balances_query: BalancesQuery):
         return self.__balances_client.get(self.build_path(self.__BALANCES_PATH, entity_id), self._sdk_authorization(),
                                           balances_query)
