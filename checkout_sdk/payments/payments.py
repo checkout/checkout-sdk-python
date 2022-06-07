@@ -84,6 +84,17 @@ class ThreeDSFlowType(str, Enum):
     FRICTIONLESS_DELEGATED = 'frictionless_delegated'
 
 
+class PayPalShippingPreference(str, Enum):
+    NO_SHIPPING = 'NO_SHIPPING'
+    SET_PROVIDED_ADDRESS = 'SET_PROVIDED_ADDRESS'
+    GET_FROM_FILE = 'GET_FROM_FILE'
+
+
+class PayPalUserAction(str, Enum):
+    PAY_NOW = 'PAY_NOW'
+    CONTINUE = 'CONTINUE'
+
+
 class BillingDescriptor:
     name: str
     city: str
@@ -146,8 +157,59 @@ class DLocalProcessingSettings:
     installments: Installments
 
 
+class PayPalAirlineTicket:
+    number: str
+    issue_date: str
+    issuing_carrier_code: str
+    travel_agency_name: str
+    travel_agency_code: str
+
+
+class PayPalAirlinePassengerName:
+    full_name: str
+
+
+class PayPalAirlinePassenger:
+    name: PayPalAirlinePassengerName
+    date_of_birth: str
+    country_code: Country
+
+
+class PayPalAirlineFlightLegDetails:
+    flight_number: int
+    carrier_code: str
+    service_class: str
+    departure_date: str
+    departure_time: str
+    departure_airport: str
+    arrival_airport: str
+    stopover_code: str
+
+
+class PayPalAirlineData:
+    ticket: PayPalAirlineTicket
+    passenger: PayPalAirlinePassenger
+    flight_leg_details: list  # PayPalAirlineFlightLegDetails
+
+
+class PayPalSupplementaryData:
+    airline: list  # PayPalAirlineData
+
+
+class PayPalProcessingSettings:
+    invoice_id: str
+    brand_name: str
+    locale: str
+    shipping_preference: PayPalShippingPreference
+    user_action: PayPalUserAction
+    set_transaction_context: dict
+    supplementary_data: PayPalSupplementaryData
+
+
 class ProcessingSettings:
     aft: bool
+    dlocal: DLocalProcessingSettings
+    # Only available on Four
     tax_amount: int
     shipping_amount: int
     preferred_scheme: PreferredSchema
@@ -155,7 +217,7 @@ class ProcessingSettings:
     open_id: str
     original_order_amount: int
     receipt_id: str
-    dlocal: DLocalProcessingSettings
+    PayPal: PayPalProcessingSettings
 
 
 # Request Source

@@ -1,3 +1,5 @@
+import pytest
+
 from checkout_sdk.events.events import RetrieveEventsRequest
 from tests.checkout_test_utils import assert_response, retriable
 from tests.payments.payments_test_utils import make_card_payment
@@ -37,6 +39,7 @@ def test_should_retrieve_event_types(default_api):
     assert all_event_types.items[1].version == version_two_items.items[0].version
 
 
+@pytest.mark.skip(reason='unstable')
 def test_should_retrieve_events_by_payment_id_and_retrieve_event_by_id_and_get_notification(default_api):
     webhook = register_webhook(default_api, 'https://checkout.python.com/webhooks')
 

@@ -8,7 +8,9 @@ import checkout_sdk
 from checkout_sdk.common.common import Address, CustomerRequest, Phone
 from checkout_sdk.common.common_four import Product
 from checkout_sdk.common.enums import Currency, Country
-from checkout_sdk.payments.payment_apm_four import RequestIdealSource, RequestTamaraSource
+from checkout_sdk.exception import CheckoutApiException
+from checkout_sdk.payments.payment_apm_four import RequestIdealSource, RequestTamaraSource, \
+    PaymentRequestWeChatPaySource, RequestAlipayPlusHKSource, OsType
 from checkout_sdk.payments.payments import ProcessingSettings
 from checkout_sdk.payments.payments_apm import RequestSofortSource
 from checkout_sdk.payments.payments_four import PaymentRequest
@@ -36,8 +38,7 @@ def test_should_request_ideal_payment(four_api):
                     'id',
                     'status',
                     '_links',
-                    '_links.self',
-                    '_links.redirect')
+                    '_links.self')
 
     payment_details = retriable(callback=four_api.payments.get_payment_details,
                                 payment_id=payment_response.id)
@@ -153,3 +154,38 @@ def test_should_request_tamara_payment():
                     'customer.name',
                     'customer.email',
                     'customer.phone')
+
+
+def test_should_request_we_chat_pay_payment(four_api):
+    payment_request = PaymentRequest()
+    payment_request.source = PaymentRequestWeChatPaySource()
+    payment_request.amount = 100
+    payment_request.currency = Currency.EUR
+    payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+
+    try:
+        four_api.payments.request_payment(payment_request)
+        pytest.fail()
+    except CheckoutApiException as err:
+        assert err.error_details[0] == 'payee_not_onboarded'
+
+
+def test_should_request_alipay_plus_payment(four_api):
+    source = RequestAlipayPlusHKSource()
+    source.os_type = OsType.IOS
+
+    payment_request = PaymentRequest()
+    payment_request.source = source
+    payment_request.amount = 100
+    payment_request.currency = Currency.EUR
+    payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+
+    try:
+        four_api.payments.request_payment(payment_request)
+        pytest.fail()
+    except CheckoutApiException as err:
+        assert err.args[0] == 'The API response status code (422) does not indicate success.'

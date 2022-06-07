@@ -70,3 +70,5 @@ class Product:
     tax_amount: int
     discount_amount: int
     sku: str
+    goods_id: str
+    wxpay_goods_id: str

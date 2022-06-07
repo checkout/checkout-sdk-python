@@ -189,6 +189,7 @@ class PaymentRequest:
     capture: bool
     capture_on: datetime
     customer: CustomerRequest
+    billing_descriptor: BillingDescriptor
     shipping: ShippingDetails
     three_ds: ThreeDsRequest
     processing_channel_id: str
