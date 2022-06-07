@@ -451,6 +451,10 @@ class PaymentSourceType(str, Enum):
     TAMARA = 'tamara'
     PROVIDER_TOKEN = 'provider_token'
     BANK_ACCOUNT = 'bank_account'
+    WECHATPAY = 'wechatpay'
+    ALIPAY_HK = 'alipay_hk'
+    ALIPAY_CN = 'alipay_cn'
+    GCASH = 'gcash'
 
 
 class ChallengeIndicator(str, Enum):
