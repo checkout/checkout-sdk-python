@@ -8,7 +8,7 @@
 
 ```
 # Requires Python > 3.6
-pip install checkout-sdk==3.0.0b5
+pip install checkout-sdk==3.0.0b6
 ```
 
 Please check in [GitHub releases](https://github.com/checkout/checkout-sdk-python/releases) for all the versions
