@@ -8,8 +8,13 @@
 
 ```
 # Requires Python > 3.6
-pip install checkout-sdk==3.0.0b6
+pip install checkout-sdk==3.0.0b7
 ```
+
+> **Note**
+> We are close to release a stable version of Python SDK, however there are plans to rename Marketplace module to Accounts, 
+> and a re structure on accounts system `default` and `four` in favor to make `four/NAS` system the default one for SDK, these changes will be ready
+> at the end of July, sorry in advance for the inconvenience that these breaking changes could cause.
 
 Please check in [GitHub releases](https://github.com/checkout/checkout-sdk-python/releases) for all the versions
 available.
