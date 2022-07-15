@@ -10,8 +10,8 @@ from checkout_sdk.common.common_four import Product
 from checkout_sdk.common.enums import Currency, Country
 from checkout_sdk.exception import CheckoutApiException
 from checkout_sdk.payments.payment_apm_four import RequestIdealSource, RequestTamaraSource, \
-    PaymentRequestWeChatPaySource, RequestAlipayPlusHKSource, OsType
-from checkout_sdk.payments.payments import ProcessingSettings
+    PaymentRequestWeChatPaySource, RequestAlipayPlusHKSource
+from checkout_sdk.payments.payments import ProcessingSettings, OsType
 from checkout_sdk.payments.payments_apm import RequestSofortSource
 from checkout_sdk.payments.payments_four import PaymentRequest
 from tests.checkout_test_utils import assert_response, SUCCESS_URL, FAILURE_URL, retriable
