@@ -161,14 +161,14 @@ class ScheduleFrequencyDailyRequest(ScheduleRequest):
 
 
 class ScheduleFrequencyMonthlyRequest(ScheduleRequest):
-    by_month_day: DaySchedule
+    by_month_day: list  # int
 
     def __init__(self):
         super().__init__(ScheduleFrequency.MONTHLY)
 
 
 class ScheduleFrequencyWeeklyRequest(ScheduleRequest):
-    by_day: DaySchedule
+    by_day: list  # DaySchedule
 
     def __init__(self):
         super().__init__(ScheduleFrequency.WEEKLY)
