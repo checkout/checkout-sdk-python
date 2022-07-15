@@ -61,7 +61,7 @@ def test_should_create_get_and_update_onboard_entity(oauth_api):
 def test_should_upload_file(oauth_api):
     request = FileRequest()
     request.file = os.path.join(get_project_root(), 'tests', 'resources', 'checkout.jpeg')
-    request.purpose = 'identification'
+    request.purpose = 'identity_verification'
     response = oauth_api.marketplace.upload_file(request)
     assert_response(response, 'id', '_links')
 
