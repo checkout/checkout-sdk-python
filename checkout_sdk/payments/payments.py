@@ -84,15 +84,33 @@ class ThreeDSFlowType(str, Enum):
     FRICTIONLESS_DELEGATED = 'frictionless_delegated'
 
 
-class PayPalShippingPreference(str, Enum):
+class ShippingPreference(str, Enum):
     NO_SHIPPING = 'NO_SHIPPING'
     SET_PROVIDED_ADDRESS = 'SET_PROVIDED_ADDRESS'
     GET_FROM_FILE = 'GET_FROM_FILE'
 
 
-class PayPalUserAction(str, Enum):
+class UserAction(str, Enum):
     PAY_NOW = 'PAY_NOW'
     CONTINUE = 'CONTINUE'
+
+
+class MerchantInitiatedReason(str, Enum):
+    DELAYED_CHARGE = 'Delayed_charge'
+    RESUBMISSION = 'Resubmission'
+    NO_SHOW = 'No_show'
+    REAUTHORIZATION = 'Reauthorization'
+
+
+class TerminalType(str, Enum):
+    APP = 'APP'
+    WAP = 'WAP'
+    WEB = 'WEB'
+
+
+class OsType(str, Enum):
+    ANDROID = 'ANDROID'
+    IOS = 'IOS'
 
 
 class BillingDescriptor:
@@ -157,7 +175,7 @@ class DLocalProcessingSettings:
     installments: Installments
 
 
-class PayPalAirlineTicket:
+class AirlineTicket:
     number: str
     issue_date: str
     issuing_carrier_code: str
@@ -165,17 +183,17 @@ class PayPalAirlineTicket:
     travel_agency_code: str
 
 
-class PayPalAirlinePassengerName:
+class AirlinePassengerName:
     full_name: str
 
 
-class PayPalAirlinePassenger:
-    name: PayPalAirlinePassengerName
+class AirlinePassenger:
+    name: AirlinePassengerName
     date_of_birth: str
     country_code: Country
 
 
-class PayPalAirlineFlightLegDetails:
+class AirlineFlightLegDetails:
     flight_number: int
     carrier_code: str
     service_class: str
@@ -184,30 +202,18 @@ class PayPalAirlineFlightLegDetails:
     departure_airport: str
     arrival_airport: str
     stopover_code: str
+    fare_basis_code: str
 
 
-class PayPalAirlineData:
-    ticket: PayPalAirlineTicket
-    passenger: PayPalAirlinePassenger
-    flight_leg_details: list  # PayPalAirlineFlightLegDetails
-
-
-class PayPalSupplementaryData:
-    airline: list  # PayPalAirlineData
-
-
-class PayPalProcessingSettings:
-    invoice_id: str
-    brand_name: str
-    locale: str
-    shipping_preference: PayPalShippingPreference
-    user_action: PayPalUserAction
-    set_transaction_context: dict
-    supplementary_data: PayPalSupplementaryData
+class AirlineData:
+    ticket: AirlineTicket
+    passenger: AirlinePassenger
+    flight_leg_details: list  # AirlineFlightLegDetails
 
 
 class ProcessingSettings:
     aft: bool
+    merchant_initiated_reason: MerchantInitiatedReason
     dlocal: DLocalProcessingSettings
     # Only available on Four
     tax_amount: int
@@ -217,7 +223,15 @@ class ProcessingSettings:
     open_id: str
     original_order_amount: int
     receipt_id: str
-    PayPal: PayPalProcessingSettings
+    terminal_type: TerminalType
+    os_type: OsType
+    invoice_id: str
+    brand_name: str
+    locale: str
+    shipping_preference: ShippingPreference
+    user_action: UserAction
+    set_transaction_context: list  # dict
+    airline_data: list  # AirlineData
 
 
 # Request Source
@@ -235,6 +249,7 @@ class RequestCardSource(RequestSource):
     name: str
     cvv: str
     stored: bool
+    store_for_future_use: bool
     billing_address: Address
     phone: Phone
 
@@ -292,6 +307,7 @@ class RequestTokenSource(RequestSource):
     token: str
     billing_address: Address
     phone: Phone
+    store_for_future_use: bool
 
     def __init__(self):
         super().__init__(PaymentSourceType.TOKEN)

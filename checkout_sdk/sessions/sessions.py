@@ -189,6 +189,7 @@ class SessionCardSource(SessionSource):
     name: str
     scheme: SessionScheme
     stored: bool
+    store_for_future_use: bool
 
     def __init__(self):
         super().__init__(SessionSourceType.CARD)
@@ -203,6 +204,7 @@ class SessionIdSource(SessionSource):
 
 class SessionTokenSource(SessionSource):
     token: str
+    store_for_future_use: bool
 
     def __init__(self):
         super().__init__(SessionSourceType.TOKEN)
