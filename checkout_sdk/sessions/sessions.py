@@ -243,6 +243,12 @@ class Recurring:
     expiry: str
 
 
+class Installment:
+    number_of_payments: int
+    days_between_payments: int
+    expiry: str
+
+
 class SessionRequest:
     source: SessionSource
     amount: int
@@ -263,6 +269,7 @@ class SessionRequest:
     completion: Completion
     channel_data: ChannelData
     recurring: Recurring
+    installment: Installment
 
 
 class ThreeDsMethodCompletionRequest:
