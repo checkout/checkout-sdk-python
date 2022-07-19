@@ -4,10 +4,10 @@ from tests.checkout_test_utils import assert_response
 from tests.workflows.workflows_test_utils import create_workflow, clean_workflows
 
 
-def test__should_create_and_get_workflows(four_api):
-    workflow = create_workflow(four_api)
+def test__should_create_and_get_workflows(default_api):
+    workflow = create_workflow(default_api)
 
-    workflow_response = four_api.workflows.get_workflow(workflow.id)
+    workflow_response = default_api.workflows.get_workflow(workflow.id)
 
     assert_response(workflow_response,
                     'http_metadata',
@@ -33,7 +33,7 @@ def test__should_create_and_get_workflows(four_api):
         if condition.type == 'processing_channel':
             assert hasattr(condition, 'processing_channels') and condition.processing_channels.__len__() > 0
 
-    workflows = four_api.workflows.get_workflows()
+    workflows = default_api.workflows.get_workflows()
 
     for workflow in workflows.data:
         assert_response(workflow, 'id',
@@ -41,17 +41,17 @@ def test__should_create_and_get_workflows(four_api):
                         'active',
                         '_links')
 
-    clean_workflows(four_api)
+    clean_workflows(default_api)
 
 
-def test__should_create_and_update_workflow(four_api):
-    workflow = create_workflow(four_api)
+def test__should_create_and_update_workflow(default_api):
+    workflow = create_workflow(default_api)
 
     update_workflow_request = UpdateWorkflowRequest()
     update_workflow_request.name = 'python_testing_2'
     update_workflow_request.active = False
 
-    update_workflow_response = four_api.workflows.update_workflow(workflow.id, update_workflow_request)
+    update_workflow_response = default_api.workflows.update_workflow(workflow.id, update_workflow_request)
 
     assert_response(update_workflow_response,
                     'http_metadata',
@@ -61,13 +61,13 @@ def test__should_create_and_update_workflow(four_api):
     assert update_workflow_request.name == update_workflow_response.name
     assert update_workflow_request.active == update_workflow_response.active
 
-    clean_workflows(four_api)
+    clean_workflows(default_api)
 
 
-def test__should_update_workflow_action(four_api):
-    workflow = create_workflow(four_api)
+def test__should_update_workflow_action(default_api):
+    workflow = create_workflow(default_api)
 
-    workflow_response = four_api.workflows.get_workflow(workflow.id)
+    workflow_response = default_api.workflows.get_workflow(workflow.id)
 
     assert_response(workflow_response,
                     'http_metadata',
@@ -87,21 +87,21 @@ def test__should_update_workflow_action(four_api):
     action_request.url = 'https://google.com/fail/fake'
     action_request.signature = signature
 
-    four_api.workflows.update_workflow_action(workflow_response.id, action_id, action_request)
+    default_api.workflows.update_workflow_action(workflow_response.id, action_id, action_request)
 
-    workflow_updated = four_api.workflows.get_workflow(workflow_response.id)
+    workflow_updated = default_api.workflows.get_workflow(workflow_response.id)
     assert_response(workflow_updated, 'actions')
     action = workflow_updated.actions[0]
     assert action_id == action.id
     assert action_request.url == action.url
 
-    clean_workflows(four_api)
+    clean_workflows(default_api)
 
 
-def test__should_update_workflow_condition(four_api):
-    workflow = create_workflow(four_api)
+def test__should_update_workflow_condition(default_api):
+    workflow = create_workflow(default_api)
 
-    workflow_response = four_api.workflows.get_workflow(workflow.id)
+    workflow_response = default_api.workflows.get_workflow(workflow.id)
 
     assert_response(workflow_response,
                     'http_metadata',
@@ -132,9 +132,9 @@ def test__should_update_workflow_condition(four_api):
                                             'dispute_resolved',
                                             'dispute_won']}
 
-    four_api.workflows.update_workflow_condition(workflow.id, condition_event.id, condition_request)
+    default_api.workflows.update_workflow_condition(workflow.id, condition_event.id, condition_request)
 
-    workflow_updated = four_api.workflows.get_workflow(workflow.id)
+    workflow_updated = default_api.workflows.get_workflow(workflow.id)
 
     assert_response(workflow_updated, 'conditions')
 
@@ -145,4 +145,4 @@ def test__should_update_workflow_condition(four_api):
 
     assert condition_event_updated is not None
 
-    clean_workflows(four_api)
+    clean_workflows(default_api)

@@ -12,9 +12,8 @@ pip install checkout-sdk==3.0.0b7
 ```
 
 > **Note**
-> We are close to release a stable version of Python SDK, however there are plans to rename Marketplace module to Accounts, 
-> and a re structure on accounts system `default` and `four` in favor to make `four/NAS` system the default one for SDK, these changes will be ready
-> at the end of July, sorry in advance for the inconvenience that these breaking changes could cause.
+> Version 3.0.0 is Here! <br/><br/>
+> All the SDK structure was changed prioritizing NAS account systems and marking as `previous` ABC account systems <br/>
 
 Please check in [GitHub releases](https://github.com/checkout/checkout-sdk-python/releases) for all the versions
 available.
@@ -26,76 +25,81 @@ using specific API features. Please find in the table below the types of keys th
 
 | Account System | Public Key (example)                    | Secret Key (example)                    |
 |----------------|-----------------------------------------|-----------------------------------------|
-| default        | pk_g650ff27-7c42-4ce1-ae90-5691a188ee7b | sk_gk3517a8-3z01-45fq-b4bd-4282384b0a64 |
-| Four           | pk_pkhpdtvabcf7hdgpwnbhw7r2uic          | sk_m73dzypy7cf3gf5d2xr4k7sxo4e          |
+| default        | pk_pkhpdtvabcf7hdgpwnbhw7r2uic          | sk_m73dzypy7cf3gf5d2xr4k7sxo4e          |
+| Previous       | pk_g650ff27-7c42-4ce1-ae90-5691a188ee7b | sk_gk3517a8-3z01-45fq-b4bd-4282384b0a64 |
 
-Note: sandbox keys have a `test_` or `sbox_` identifier, for Default and Four accounts respectively.
+Note: sandbox keys have a `sbox_` or `test_` identifier, for Default and Previous accounts respectively.
 
 If you don't have your own API keys, you can sign up for a test
 account [here](https://www.checkout.com/get-test-account).
 
 **PLEASE NEVER SHARE OR PUBLISH YOUR CHECKOUT CREDENTIALS.**
 
-## Default
+### Default
 
 Default keys client instantiation can be done as follows:
 
 ```python
-import checkout_sdk
+from checkout_sdk.checkout_sdk import CheckoutSdk
 from checkout_sdk.environment import Environment
 
 
 def default():
     # public key is optional, only required for operations related with tokens
-    checkout_api = checkout_sdk.DefaultSdk() \
-        .secret_key('secret_key') \
-        .public_key('public_key') \
-        .environment(Environment.sandbox()) \
-        .build()
-
-    payments_client = checkout_api.payments
-    payments_client.refund_payment('payment_id')
-
-```
-
-### Four
-
-If your pair of keys matches the Four type, this is how the SDK should be used:
-
-```python
-import checkout_sdk
-from checkout_sdk.environment import Environment
-
-
-def four():
-    # public key is optional, only required for operations related with tokens
-    checkout_api = checkout_sdk.FourSdk() \
-        .secret_key('secret_key') \
-        .public_key('public_key') \
-        .environment(Environment.sandbox()) \
+    checkout_api = CheckoutSdk
+        .builder()
+        .secret_key('secret_key')
+        .public_key('public_key')
+        .environment(Environment.sandbox())
         .build()
 
     payments_client = checkout_api.payments
     payments_client.refund_payment('payment_id')
 ```
+
+### Default OAuth
 
 The SDK supports client credentials OAuth, when initialized as follows:
 
 ```python
-import checkout_sdk
+from checkout_sdk.checkout_sdk import CheckoutSdk
 from checkout_sdk.environment import Environment
-from checkout_sdk.four.oauth_scopes import OAuthScopes
+from checkout_sdk.oauth_scopes import OAuthScopes
+
 
 def oauth():
-    checkout_api = checkout_sdk.OAuthSdk() \
-        .client_credentials(client_id='client_id', client_secret='client_secret') \
-        .environment(Environment.sandbox()) \
-        .scopes([OAuthScopes.GATEWAY_PAYMENT_REFUNDS, OAuthScopes.FILES]) \
+    checkout_api = CheckoutSdk
+        .builder()
+        .oauth()
+        .client_credentials(client_id='client_id', client_secret='client_secret')
+        .environment(Environment.sandbox())
+        .scopes([OAuthScopes.GATEWAY_PAYMENT_REFUNDS, OAuthScopes.FILES])
         .build()
 
     payments_client = checkout_api.payments
     payments_client.refund_payment('payment_id')
+```
 
+### Previous
+
+If your pair of keys matches the Previous type, this is how the SDK should be used:
+
+```python
+from checkout_sdk.checkout_sdk import CheckoutSdk
+from checkout_sdk.environment import Environment
+
+def previous():
+    # public key is optional, only required for operations related with tokens
+    checkout_api = CheckoutSdk
+        .builder()
+        .previous()
+        .secret_key('secret_key')
+        .public_key('public_key')
+        .environment(Environment.sandbox())
+        .build()
+
+    payments_client = checkout_api.payments
+    payments_client.refund_payment('payment_id')
 ```
 
 ## Logging
@@ -117,8 +121,9 @@ import requests
 from requests import Session
 
 import checkout_sdk
+from checkout_sdk.checkout_sdk import CheckoutSdk
 from checkout_sdk.environment import Environment
-from checkout_sdk.four.oauth_scopes import OAuthScopes
+from checkout_sdk.oauth_scopes import OAuthScopes
 from checkout_sdk.http_client_interface import HttpClientBuilderInterface
 
 
@@ -131,16 +136,17 @@ class CustomHttpClientBuilder(HttpClientBuilderInterface):
 
 
 def oauth():
-    checkout_api = checkout_sdk.OAuthSdk() \
-        .client_credentials(client_id='client_id', client_secret='client_secret') \
-        .environment(Environment.sandbox()) \
-        .http_client_builder(CustomHttpClientBuilder()) \
-        .scopes([OAuthScopes.GATEWAY_PAYMENT_REFUNDS, OAuthScopes.FILES]) \
+    checkout_api = CheckoutSdk
+        .builder()
+        .oauth()
+        .client_credentials(client_id='client_id', client_secret='client_secret')
+        .environment(Environment.sandbox())
+        .http_client_builder(CustomHttpClientBuilder())
+        .scopes([OAuthScopes.GATEWAY_PAYMENT_REFUNDS, OAuthScopes.FILES])
         .build()
 
     payments_client = checkout_api.payments
     payments_client.refund_payment('payment_id')
-
 ```
 
 ## Exception handling
@@ -158,9 +164,9 @@ except CheckoutApiException as err:
 ```
 
 * [API Reference (Default)](https://api-reference.checkout.com/)
-* [API Reference (Four)](https://api-reference.checkout.com/preview/crusoe/)
+* [API Reference (Previous)](https://api-reference.checkout.com/previous)
 * [Official Docs (Default)](https://docs.checkout.com/)
-* [Official Docs (Four)](https://docs.checkout.com/four)
+* [Official Docs (Previous)](https://docs.checkout.com/previous)
 
 ## Building from source
 
@@ -179,9 +185,9 @@ python -m pytest
 
 The execution of integration tests require the following environment variables set in your system:
 
-* For Default account systems: `CHECKOUT_PUBLIC_KEY` & `CHECKOUT_SECRET_KEY`
-* For Four account systems: `CHECKOUT_FOUR_PUBLIC_KEY` & `CHECKOUT_FOUR_SECRET_KEY`
-* For Four account systems (OAuth): `CHECKOUT_FOUR_OAUTH_CLIENT_ID` & `CHECKOUT_FOUR_OAUTH_CLIENT_SECRET`
+* For Default account systems: `CHECKOUT_DEFAULT_PUBLIC_KEY` & `CHECKOUT_DEFAULT_SECRET_KEY`
+* For OAuth account systems: `CHECKOUT_DEFAULT_OAUTH_CLIENT_ID` & `CHECKOUT_DEFAULT_OAUTH_CLIENT_SECRET`
+* For Previous account systems: `CHECKOUT_PREVIOUS_PUBLIC_KEY` & `CHECKOUT_PREVIOUS_SECRET_KEY`
 
 ## Code of Conduct
 

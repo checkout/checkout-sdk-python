@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from checkout_sdk.four.checkout_api import CheckoutApi
+from checkout_sdk.checkout_api import CheckoutApi
 from checkout_sdk.workflows.workflows import CreateWorkflowRequest, WebhookWorkflowActionRequest, WebhookSignature, \
     EntityWorkflowConditionRequest, EventWorkflowConditionRequest, ProcessingChannelWorkflowConditionRequest
 from tests.checkout_test_utils import assert_response, retriable
@@ -11,7 +11,7 @@ __WORKFLOW_NAME = 'testing'
 __WORKFLOWS: list = []
 
 
-def create_workflow(four_api):
+def create_workflow(default_api):
     signature = WebhookSignature()
     signature.key = '8V8x0dLK%AyD*DNS8JJr'
     signature.method = 'HMACSHA256'
@@ -54,7 +54,7 @@ def create_workflow(four_api):
     workflow_request.name = __WORKFLOW_NAME
     workflow_request.active = True
 
-    response = retriable(callback=four_api.workflows.create_workflow,
+    response = retriable(callback=default_api.workflows.create_workflow,
                          create_workflow_request=workflow_request)
 
     assert_response(response, 'id')
@@ -64,6 +64,6 @@ def create_workflow(four_api):
     return response
 
 
-def clean_workflows(four_api: CheckoutApi):
+def clean_workflows(default_api: CheckoutApi):
     for prop in __WORKFLOWS:
-        four_api.workflows.remove_workflow(prop)
+        default_api.workflows.remove_workflow(prop)

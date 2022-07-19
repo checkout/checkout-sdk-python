@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from checkout_sdk.four.checkout_api import CheckoutApi
+from checkout_sdk.checkout_api import CheckoutApi
 from checkout_sdk.sessions.sessions import ThreeDsMethodCompletionRequest, ThreeDsMethodCompletion
 from tests.checkout_test_utils import assert_response, retriable
 from tests.sessions.sessions_test_utils import get_hosted_session, get_browser_session

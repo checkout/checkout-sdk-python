@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 from checkout_sdk.common.enums import ChallengeIndicator
-from checkout_sdk.four.checkout_api import CheckoutApi
+from checkout_sdk.checkout_api import CheckoutApi
 from checkout_sdk.sessions.sessions import Category, TransactionType
 from tests.checkout_test_utils import assert_response
 from tests.sessions.sessions_test_utils import get_browser_session, get_non_hosted_session, get_app_session

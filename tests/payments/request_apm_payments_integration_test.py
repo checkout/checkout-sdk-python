@@ -1,199 +1,18 @@
 from __future__ import absolute_import
 
+import os
+
 import pytest
 
-from checkout_sdk.common.enums import Country, Currency
-from checkout_sdk.payments.payments import PaymentRequest
-from checkout_sdk.payments.payments_apm import RequestBalotoSource, IntegrationType, \
-    RequestBoletoSource, RequestFawrySource, RequestGiropaySource, RequestIdealSource, RequestOxxoSource, \
-    RequestPagoFacilSource, RequestRapiPagoSource, RequestSofortSource, FawryProduct, RequestAlipaySource, \
-    RequestBenefitPaySource, RequestEpsSource, RequestKnetSource, RequestP24Source, RequestPayPalSource, \
-    RequestPoliSource, RequestBancontactSource, RequestQPaySource, RequestMultiBancoSource
-from tests.checkout_test_utils import assert_response, retriable, get_payer
-
-
-@pytest.mark.skip(reason='not available')
-def test_should_make_ali_pay_payment(default_api):
-    request_source = RequestAlipaySource()
-
-    payment_request = PaymentRequest()
-    payment_request.source = request_source
-    payment_request.amount = 100
-    payment_request.currency = Currency.USD
-
-    payment_response = retriable(callback=default_api.payments.request_payment,
-                                 payment_request=payment_request)
-
-    assert_response(payment_response, 'id')
-
-    payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response.id)
-    assert_response(payment_details,
-                    'id',
-                    'source',
-                    'amount',
-                    '_links')
-
-
-@pytest.mark.skip(reason='not available')
-def test_should_make_benefit_pay_payment(default_api):
-    request_source = RequestBenefitPaySource()
-    request_source.integration_type = 'mobile'
-
-    payment_request = PaymentRequest()
-    payment_request.source = request_source
-    payment_request.amount = 100
-    payment_request.currency = Currency.USD
-
-    payment_response = retriable(callback=default_api.payments.request_payment,
-                                 payment_request=payment_request)
-
-    assert_response(payment_response, 'id')
-
-    payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response.id)
-    assert_response(payment_details,
-                    'id',
-                    'source',
-                    'amount',
-                    '_links')
-
-
-@pytest.mark.skip(reason='not available')
-def test_should_request_baloto_payment(default_api):
-    request_source = RequestBalotoSource()
-    request_source.country = Country.CO
-    request_source.description = 'simulate Via Baloto Demo Payment'
-    request_source.payer = get_payer()
-
-    payment_request = PaymentRequest()
-    payment_request.source = request_source
-    payment_request.amount = 100000
-    payment_request.currency = Currency.COP
-
-    payment_response = retriable(callback=default_api.payments.request_payment,
-                                 payment_request=payment_request)
-
-    assert_response(payment_response, 'id')
-
-    payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response.id)
-    assert_response(payment_details,
-                    'id',
-                    'source',
-                    'amount',
-                    '_links')
-
-
-@pytest.mark.skip(reason='not available')
-@pytest.mark.parametrize('integration_type', [IntegrationType.REDIRECT, IntegrationType.DIRECT])
-def test_should_request_boleto_payment(default_api, integration_type: IntegrationType):
-    request_source = RequestBoletoSource()
-    request_source.country = Country.BR
-    request_source.description = 'boleto payment'
-    request_source.payer = get_payer()
-    request_source.integration_type = integration_type
-
-    payment_request = PaymentRequest()
-    payment_request.source = request_source
-    payment_request.amount = 100
-    payment_request.currency = Currency.BRL
-
-    payment_response = retriable(callback=default_api.payments.request_payment,
-                                 payment_request=payment_request)
-    assert_response(payment_response,
-                    'id',
-                    '_links')
-
-    payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response.id)
-    assert_response(payment_details,
-                    'id',
-                    'source',
-                    'amount',
-                    '_links')
-
-
-def test_should_make_eps_payment(default_api):
-    request_source = RequestEpsSource()
-    request_source.purpose = 'Mens black t-shirt L'
-
-    payment_request = PaymentRequest()
-    payment_request.source = request_source
-    payment_request.amount = 100
-    payment_request.currency = Currency.EUR
-
-    payment_response = retriable(callback=default_api.payments.request_payment,
-                                 payment_request=payment_request)
-    assert_response(payment_response,
-                    'id',
-                    '_links')
-
-    payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response.id)
-    assert_response(payment_details,
-                    'id',
-                    'source',
-                    'amount',
-                    '_links')
-
-
-def test_should_request_fawry_payment(default_api):
-    product = FawryProduct()
-    product.product_id = '0123456789'
-    product.description = 'Fawry Demo Product'
-    product.price = 1000
-    product.quantity = 1
-
-    request_source = RequestFawrySource()
-    request_source.description = 'Fawry Demo Payment'
-    request_source.customer_email = 'bruce@wayne-enterprises.com'
-    request_source.customer_mobile = '01058375055'
-    request_source.products = [product]
-
-    payment_request = PaymentRequest()
-    payment_request.source = request_source
-    payment_request.amount = 1000
-    payment_request.currency = Currency.EGP
-
-    payment_response = retriable(callback=default_api.payments.request_payment,
-                                 payment_request=payment_request)
-    assert_response(payment_response,
-                    'id',
-                    '_links')
-
-    payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response.id)
-    assert_response(payment_details,
-                    'id',
-                    'source',
-                    'amount',
-                    '_links')
-
-
-def test_should_request_giropay_payment(default_api):
-    request_source = RequestGiropaySource()
-    request_source.purpose = 'CKO Giropay test'
-
-    payment_request = PaymentRequest()
-    payment_request.source = request_source
-    payment_request.amount = 1000
-    payment_request.currency = Currency.EUR
-    payment_request.capture = True
-
-    payment_response = retriable(callback=default_api.payments.request_payment,
-                                 payment_request=payment_request)
-    assert_response(payment_response,
-                    'id',
-                    '_links')
-
-    payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response.id)
-    assert_response(payment_details,
-                    'id',
-                    'source',
-                    'amount',
-                    '_links')
+from checkout_sdk.checkout_sdk import CheckoutSdk
+from checkout_sdk.common.common import Address, CustomerRequest, Phone, Product
+from checkout_sdk.common.enums import Currency, Country
+from checkout_sdk.exception import CheckoutApiException
+from checkout_sdk.payments.payment_apm import RequestIdealSource, RequestTamaraSource, \
+    PaymentRequestWeChatPaySource, RequestAlipayPlusHKSource
+from checkout_sdk.payments.payments import PaymentRequest, ProcessingSettings, OsType
+from checkout_sdk.payments.payments_apm_previous import RequestSofortSource
+from tests.checkout_test_utils import assert_response, SUCCESS_URL, FAILURE_URL, retriable
 
 
 def test_should_request_ideal_payment(default_api):
@@ -207,305 +26,166 @@ def test_should_request_ideal_payment(default_api):
     payment_request.amount = 1000
     payment_request.currency = Currency.EUR
     payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
 
     payment_response = retriable(callback=default_api.payments.request_payment,
                                  payment_request=payment_request)
     assert_response(payment_response,
+                    'http_metadata',
                     'id',
-                    '_links')
+                    'status',
+                    '_links',
+                    '_links.self')
 
     payment_details = retriable(callback=default_api.payments.get_payment_details,
                                 payment_id=payment_response.id)
     assert_response(payment_details,
+                    'http_metadata',
                     'id',
+                    'requested_on',
                     'source',
                     'amount',
-                    '_links')
-
-
-@pytest.mark.skip(reason='not available')
-def test_should_request_oxxo_payment(default_api):
-    request_source = RequestOxxoSource()
-    request_source.country = Country.MX
-    request_source.description = 'description'
-    request_source.payer = get_payer()
-
-    payment_request = PaymentRequest()
-    payment_request.source = request_source
-    payment_request.amount = 1000
-    payment_request.currency = Currency.MXN
-
-    payment_response = retriable(callback=default_api.payments.request_payment,
-                                 payment_request=payment_request)
-    assert_response(payment_response,
-                    'id',
-                    '_links')
-
-    payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response.id)
-    assert_response(payment_details,
-                    'id',
-                    'source',
-                    'amount',
-                    '_links')
-
-
-@pytest.mark.skip(reason='not available')
-def test_should_request_pagofacil_payment(default_api):
-    request_source = RequestPagoFacilSource()
-    request_source.country = Country.AR
-    request_source.description = 'description'
-    request_source.payer = get_payer()
-
-    payment_request = PaymentRequest()
-    payment_request.source = request_source
-    payment_request.amount = 1000
-    payment_request.currency = Currency.ARS
-
-    payment_response = retriable(callback=default_api.payments.request_payment,
-                                 payment_request=payment_request)
-    assert_response(payment_response,
-                    'id',
-                    '_links')
-
-    payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response.id)
-    assert_response(payment_details,
-                    'id',
-                    'source',
-                    'amount',
-                    '_links')
-
-
-@pytest.mark.skip(reason='not available')
-def test_should_request_rapipago_payment(default_api):
-    request_source = RequestRapiPagoSource()
-    request_source.country = Country.AR
-    request_source.description = 'description'
-    request_source.payer = get_payer()
-
-    payment_request = PaymentRequest()
-    payment_request.source = request_source
-    payment_request.amount = 1000
-    payment_request.currency = Currency.ARS
-
-    payment_response = retriable(callback=default_api.payments.request_payment,
-                                 payment_request=payment_request)
-    assert_response(payment_response,
-                    'id',
-                    '_links')
-
-    payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response.id)
-    assert_response(payment_details,
-                    'id',
-                    'source',
-                    'amount',
-                    '_links')
+                    'currency',
+                    'payment_type',
+                    'status')
 
 
 def test_should_request_sofort_payment(default_api):
     payment_request = PaymentRequest()
     payment_request.source = RequestSofortSource()
+    payment_request.amount = 100
+    payment_request.currency = Currency.EUR
+    payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+
+    payment_response = retriable(callback=default_api.payments.request_payment,
+                                 payment_request=payment_request)
+    assert_response(payment_response,
+                    'http_metadata',
+                    'id',
+                    'status',
+                    '_links',
+                    '_links.self',
+                    '_links.redirect')
+
+    payment_details = retriable(callback=default_api.payments.get_payment_details,
+                                payment_id=payment_response.id)
+    assert_response(payment_details,
+                    'http_metadata',
+                    'id',
+                    'requested_on',
+                    'source',
+                    'amount',
+                    'currency',
+                    'payment_type',
+                    'status')
+
+
+@pytest.mark.skip(reason='preview')
+def test_should_request_tamara_payment():
+    address = Address()
+    address.address_line1 = 'Cecilia Chapman'
+    address.address_line2 = '711-2880 Nulla St.'
+    address.city = 'Mankato'
+    address.state = 'Mississippi'
+    address.zip = '96522'
+    address.country = Country.SA
+
+    payment_request_source = RequestTamaraSource()
+    payment_request_source.billing_address = address
+
+    processing_settings = ProcessingSettings()
+    processing_settings.aft = True
+    processing_settings.tax_amount = 500
+    processing_settings.shipping_amount = 1000
+
+    phone = Phone()
+    phone.number = '113 496 0000'
+    phone.country_code = '+966'
+
+    customer_request = CustomerRequest()
+    customer_request.name = 'Cecilia Chapman'
+    customer_request.email = 'c.chapman@example.com'
+    customer_request.phone = phone
+
+    product = Product()
+    product.name = 'Item name'
+    product.quantity = 3
+    product.unit_price = 100
+    product.total_amount = 100
+    product.tax_amount = 19
+    product.discount_amount = 2
+    product.reference = 'some description about item'
+    product.image_url = 'https://some_s3bucket.com'
+    product.url = 'https://some.website.com/item'
+    product.sku = '123687000111'
+
+    payment_request = PaymentRequest()
+    payment_request.source = payment_request_source
     payment_request.amount = 10000
-    payment_request.currency = Currency.EUR
+    payment_request.currency = Currency.SAR
     payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+    payment_request.processing = processing_settings
+    payment_request.processing_channel_id = 'pc_zs5fqhybzc2e3jmq3efvybybpq'
+    payment_request.customer = customer_request
+    payment_request.reference = 'ORD-5023-4E89'
+    payment_request.items = [product]
 
-    payment_response = retriable(callback=default_api.payments.request_payment,
+    preview_api = CheckoutSdk \
+        .builder() \
+        .oauth() \
+        .client_credentials(client_id=os.environ.get('CHECKOUT_PREVIEW_OAUTH_CLIENT_ID'),
+                            client_secret=os.environ.get('CHECKOUT_PREVIEW_OAUTH_CLIENT_SECRET')) \
+        .build()
+
+    payment_response = retriable(callback=preview_api.payments.request_payment,
                                  payment_request=payment_request)
     assert_response(payment_response,
                     'id',
-                    '_links')
+                    'reference',
+                    'status',
+                    '_links',
+                    'customer',
+                    'customer.id',
+                    'customer.name',
+                    'customer.email',
+                    'customer.phone')
 
-    payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response.id)
-    assert_response(payment_details,
-                    'id',
-                    'source',
-                    'amount',
-                    '_links')
 
-
-def test_should_make_knet_payment(default_api):
-    request_source = RequestKnetSource()
-    request_source.language = "en"
-
+def test_should_request_we_chat_pay_payment(default_api):
     payment_request = PaymentRequest()
-    payment_request.source = request_source
-    payment_request.amount = 100
-    payment_request.currency = Currency.KWD
-    payment_request.capture = True
-
-    payment_response = retriable(callback=default_api.payments.request_payment,
-                                 payment_request=payment_request)
-    assert_response(payment_response,
-                    'id',
-                    '_links')
-
-    payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response.id)
-    assert_response(payment_details,
-                    'id',
-                    'source',
-                    'amount',
-                    '_links')
-
-
-def test_should_make_przelewy24_payment(default_api):
-    request_source = RequestP24Source()
-    request_source.payment_country = Country.PL
-    request_source.account_holder_name = 'Bruce Wayne'
-    request_source.account_holder_email = 'ruce@wayne-enterprises.com'
-    request_source.billing_descriptor = 'P24 Demo Payment'
-
-    payment_request = PaymentRequest()
-    payment_request.source = request_source
-    payment_request.amount = 100
-    payment_request.currency = Currency.PLN
-    payment_request.capture = True
-
-    payment_response = retriable(callback=default_api.payments.request_payment,
-                                 payment_request=payment_request)
-    assert_response(payment_response,
-                    'id',
-                    '_links')
-
-    payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response.id)
-    assert_response(payment_details,
-                    'id',
-                    'source',
-                    'amount',
-                    '_links')
-
-
-def test_should_make_pay_pal_payment(default_api):
-    request_source = RequestPayPalSource()
-    request_source.invoice_number = 'CKO00001'
-    request_source.logo_url = 'https://www.example.com/logo.jpg'
-
-    payment_request = PaymentRequest()
-    payment_request.source = request_source
+    payment_request.source = PaymentRequestWeChatPaySource()
     payment_request.amount = 100
     payment_request.currency = Currency.EUR
     payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
 
-    payment_response = retriable(callback=default_api.payments.request_payment,
-                                 payment_request=payment_request)
-    assert_response(payment_response,
-                    'id',
-                    '_links')
-
-    payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response.id)
-    assert_response(payment_details,
-                    'id',
-                    'source',
-                    'amount',
-                    '_links')
+    try:
+        default_api.payments.request_payment(payment_request)
+        pytest.fail()
+    except CheckoutApiException as err:
+        assert err.error_details[0] == 'payee_not_onboarded'
 
 
-def test_should_make_poli_payment(default_api):
-    payment_request = PaymentRequest()
-    payment_request.source = RequestPoliSource()
-    payment_request.amount = 100
-    payment_request.currency = Currency.AUD
-    payment_request.capture = True
-
-    payment_response = retriable(callback=default_api.payments.request_payment,
-                                 payment_request=payment_request)
-    assert_response(payment_response,
-                    'id',
-                    '_links')
-
-    payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response.id)
-    assert_response(payment_details,
-                    'id',
-                    'source',
-                    'amount',
-                    '_links')
-
-
-def test_should_make_bancontact_payment(default_api):
-    request_source = RequestBancontactSource()
-    request_source.payment_country = Country.BE
-    request_source.account_holder_name = 'Bruce Wayne'
-    request_source.account_holder_email = 'ruce@wayne-enterprises.com'
-    request_source.billing_descriptor = 'bancontact Demo Payment'
+def test_should_request_alipay_plus_payment(default_api):
+    source = RequestAlipayPlusHKSource()
+    source.os_type = OsType.IOS
 
     payment_request = PaymentRequest()
-    payment_request.source = request_source
+    payment_request.source = source
     payment_request.amount = 100
     payment_request.currency = Currency.EUR
     payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
 
-    payment_response = retriable(callback=default_api.payments.request_payment,
-                                 payment_request=payment_request)
-    assert_response(payment_response,
-                    'id',
-                    '_links')
-
-    payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response.id)
-    assert_response(payment_details,
-                    'id',
-                    'source',
-                    'amount',
-                    '_links')
-
-
-def test_should_make_qpay_payment(default_api):
-    request_source = RequestQPaySource()
-    request_source.description = 'QPay Demo Payment'
-    request_source.language = 'en'
-    request_source.quantity = 1
-    request_source.national_id = '070AYY010BU234M'
-
-    payment_request = PaymentRequest()
-    payment_request.source = request_source
-    payment_request.amount = 100
-    payment_request.currency = Currency.QAR
-    payment_request.capture = True
-
-    payment_response = retriable(callback=default_api.payments.request_payment,
-                                 payment_request=payment_request)
-    assert_response(payment_response,
-                    'id',
-                    '_links')
-
-    payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response.id)
-    assert_response(payment_details,
-                    'id',
-                    'source',
-                    'amount',
-                    '_links')
-
-
-@pytest.mark.skip(reason='not available')
-def test_should_make_multi_banco_payment(default_api):
-    request_source = RequestMultiBancoSource()
-    request_source.payment_country = Country.PT
-    request_source.account_holder_name = 'Bruce Wayne'
-    request_source.billing_descriptor = 'Multibanco Demo Payment'
-
-    payment_request = PaymentRequest()
-    payment_request.source = request_source
-    payment_request.amount = 100
-    payment_request.currency = Currency.QAR
-    payment_request.capture = True
-
-    payment_response = retriable(callback=default_api.payments.request_payment,
-                                 payment_request=payment_request)
-    assert_response(payment_response,
-                    'id',
-                    '_links')
-
-    payment_details = retriable(callback=default_api.payments.get_payment_details,
-                                payment_id=payment_response.id)
-    assert_response(payment_details,
-                    'id',
-                    'source',
-                    'amount',
-                    '_links')
+    try:
+        default_api.payments.request_payment(payment_request)
+        pytest.fail()
+    except CheckoutApiException as err:
+        assert err.args[0] == 'The API response status code (422) does not indicate success.'

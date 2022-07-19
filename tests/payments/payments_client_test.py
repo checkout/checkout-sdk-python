@@ -1,7 +1,9 @@
 import pytest
 
-from checkout_sdk.payments.payments import PaymentRequest, PayoutRequest, CaptureRequest, RefundRequest, VoidRequest
+from checkout_sdk.common.common import AccountHolder
 from checkout_sdk.payments.payments_client import PaymentsClient
+from checkout_sdk.payments.payments import PaymentRequest, PayoutRequest, CaptureRequest, AuthorizationRequest, \
+    RequestProviderTokenSource, RefundRequest, VoidRequest
 
 
 @pytest.fixture(scope='class')
@@ -58,3 +60,25 @@ class TestPaymentsClient:
     def test_void_payment_idempotency_key(self, mocker, client: PaymentsClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
         assert client.void_payment('payment_id', None, 'idempotency_key') == 'response'
+
+    def test_increment_payment_authorization(self, mocker, client: PaymentsClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        assert client.increment_payment_authorization('payment_id', AuthorizationRequest()) == 'response'
+
+    def test_increment_payment_authorization_idempotency_key(self, mocker, client: PaymentsClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        assert client.increment_payment_authorization('payment_id', AuthorizationRequest(),
+                                                      'idempotency_key') == 'response'
+
+    # sources
+    def test_should_request_provider_token_source_payment(self, mocker, client: PaymentsClient):
+        source = RequestProviderTokenSource()
+        source.token = 'token'
+        source.payment_method = 'method'
+        source.account_holder = AccountHolder()
+
+        request = PaymentRequest()
+        request.source = source
+
+        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        assert client.request_payment(request, 'idempotency_key') == 'response'

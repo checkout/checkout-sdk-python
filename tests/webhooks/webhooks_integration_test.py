@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import pytest
 
-from checkout_sdk.checkout_api import CheckoutApi
+from checkout_sdk.previous.checkout_api import CheckoutApi
 from checkout_sdk.webhooks.webhooks import WebhookRequest, WebhookContentType
 from tests.checkout_test_utils import assert_response, retriable
 
@@ -22,18 +22,18 @@ __GATEWAY_EVENT_TYPES = ['payment_approved',
 
 
 @pytest.fixture(autouse=True)
-def clean_webhooks(default_api):
-    webhooks = default_api.webhooks.retrieve_webhooks()
+def clean_webhooks(previous_api):
+    webhooks = previous_api.webhooks.retrieve_webhooks()
     if hasattr(webhooks, 'items'):
         for webhook in webhooks.items:
-            default_api.webhooks.remove_webhook(webhook.id)
+            previous_api.webhooks.remove_webhook(webhook.id)
     yield
 
 
-def test_full_webhook_operations(default_api):
+def test_full_webhook_operations(previous_api):
     webhook_url = 'https://checkout.python.com/webhooks'
     # Create webhook
-    webhook = register_webhook(default_api, webhook_url)
+    webhook = register_webhook(previous_api, webhook_url)
     assert_response(webhook,
                     'id',
                     'active',
@@ -45,7 +45,7 @@ def test_full_webhook_operations(default_api):
     assert bool(set(__GATEWAY_EVENT_TYPES).intersection(webhook.event_types))
 
     # Retrieve webhook
-    retrieve_webhook = retriable(callback=default_api.webhooks.retrieve_webhook,
+    retrieve_webhook = retriable(callback=previous_api.webhooks.retrieve_webhook,
                                  webhook_id=webhook.id)
 
     assert webhook_url == retrieve_webhook.url
@@ -59,7 +59,7 @@ def test_full_webhook_operations(default_api):
     update_request.active = True
     update_request.content_type = WebhookContentType.JSON
 
-    updated_webhook = retriable(callback=default_api.webhooks.update_webhook,
+    updated_webhook = retriable(callback=previous_api.webhooks.update_webhook,
                                 webhook_id=webhook.id,
                                 webhook_request=update_request)
 
@@ -75,14 +75,14 @@ def test_full_webhook_operations(default_api):
     assert bool(set(update_request.event_types).intersection(updated_webhook.event_types))
 
     # Delete webhook
-    remove_webhook = default_api.webhooks.remove_webhook(webhook.id)
+    remove_webhook = previous_api.webhooks.remove_webhook(webhook.id)
     assert_response(remove_webhook, 'http_metadata')
     assert 200 == remove_webhook.http_metadata.status_code
 
 
-def register_webhook(default_api: CheckoutApi, url: str):
+def register_webhook(previous_api: CheckoutApi, url: str):
     request = WebhookRequest()
     request.url = url
     request.event_types = __GATEWAY_EVENT_TYPES
 
-    return default_api.webhooks.register_webhook(request)
+    return previous_api.webhooks.register_webhook(request)

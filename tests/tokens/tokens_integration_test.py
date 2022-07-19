@@ -1,18 +1,18 @@
 from checkout_sdk.tokens.tokens import CardTokenRequest
-from tests.checkout_test_utils import assert_response, address, phone
+from tests.checkout_test_utils import assert_response, address, phone, VisaCard
 
 
 def test_should_create_card_token(default_api):
-    request = CardTokenRequest()
-    request.number = '4242424242424242'
-    request.expiry_month = 6
-    request.expiry_year = 2025
-    request.cvv = '100'
-    request.name = 'Mr. Test'
-    request.billing_address = address()
-    request.phone = phone()
+    card_token_request = CardTokenRequest()
+    card_token_request.name = VisaCard.name
+    card_token_request.number = VisaCard.number
+    card_token_request.expiry_year = VisaCard.expiry_year
+    card_token_request.expiry_month = VisaCard.expiry_month
+    card_token_request.cvv = VisaCard.cvv
+    card_token_request.billing_address = address()
+    card_token_request.phone = phone()
 
-    response = default_api.tokens.request_card_token(request)
+    response = default_api.tokens.request_card_token(card_token_request)
 
     assert_response(response,
                     'http_metadata',

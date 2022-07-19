@@ -5,7 +5,7 @@ from checkout_sdk.common.enums import Country, Currency
 from tests.checkout_test_utils import assert_response
 
 
-def test_should_create_and_get_klarna_session(default_api):
+def test_should_create_and_get_klarna_session(previous_api):
     klarna_product = KlarnaProduct()
     klarna_product.name = 'Brown leather belt'
     klarna_product.quantity = 1
@@ -22,14 +22,14 @@ def test_should_create_and_get_klarna_session(default_api):
     credit_session_request.tax_amount = 1
     credit_session_request.products = [klarna_product]
 
-    create_response = default_api.klarna.create_credit_session(credit_session_request)
+    create_response = previous_api.klarna.create_credit_session(credit_session_request)
     assert_response(create_response,
                     'http_metadata',
                     'session_id',
                     'client_token',
                     'payment_method_categories')
 
-    create_response = default_api.klarna.get_credit_session(create_response.session_id)
+    create_response = previous_api.klarna.get_credit_session(create_response.session_id)
     assert_response(create_response,
                     'http_metadata',
                     'client_token',

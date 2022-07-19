@@ -12,6 +12,7 @@ def test_should_get_payment_details(default_api):
     payment = retriable(callback=default_api.payments.get_payment_details,
                         payment_id=payment_response.id)
     assert_response(payment,
+                    'http_metadata',
                     'id',
                     'requested_on',
                     'amount',
@@ -20,11 +21,10 @@ def test_should_get_payment_details(default_api):
                     'reference',
                     'status',
                     'approved',
-                    # 'eci',
                     'scheme_id',
                     'source.id',
                     'source.type',
                     'source.fingerprint',
-                    # 'source.card_type',
+                    'source.card_type',
                     'customer.id',
                     'customer.name')

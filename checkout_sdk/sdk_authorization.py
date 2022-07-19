@@ -11,8 +11,8 @@ class SdkAuthorization:
         self.credential = credential
 
     def get_authorization_header(self):
-        if self.platform_type in (PlatformType.DEFAULT, PlatformType.CUSTOM):
+        if self.platform_type in (PlatformType.PREVIOUS, PlatformType.CUSTOM):
             return self.credential
-        if self.platform_type in (PlatformType.FOUR, PlatformType.FOUR_OAUTH):
+        if self.platform_type in (PlatformType.DEFAULT, PlatformType.OAUTH):
             return 'Bearer ' + self.credential
         raise CheckoutAuthorizationException('Invalid platform type')

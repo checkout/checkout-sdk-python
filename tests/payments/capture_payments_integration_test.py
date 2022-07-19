@@ -14,8 +14,8 @@ def test_should_full_capture_card_payment(default_api):
     capture_response = retriable(callback=default_api.payments.capture_payment,
                                  payment_id=payment_response.id,
                                  capture_request=capture_request)
-
     assert_response(capture_response,
+                    'http_metadata',
                     'reference',
                     'action_id',
                     '_links')
@@ -32,6 +32,7 @@ def test_should_partially_capture_card_payment(default_api):
                                  payment_id=payment_response.id,
                                  capture_request=capture_request)
     assert_response(capture_response,
+                    'http_metadata',
                     'reference',
                     'action_id',
                     '_links')
