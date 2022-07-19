@@ -27,6 +27,6 @@ def test_should_instantiate_and_retrieve_clients_four(mock_sdk_configuration):
     assert api.sessions is not None
     assert api.disputes is not None
     assert api.forex is not None
-    assert api.marketplace is not None
+    assert api.accounts is not None
     # APMs
     assert api.ideal is not None
