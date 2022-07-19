@@ -9,7 +9,7 @@ from dateutil.relativedelta import relativedelta
 from checkout_sdk.disputes.disputes import DisputesQueryFilter, DisputeEvidenceRequest
 from checkout_sdk.files.files import FileRequest
 from tests.checkout_test_utils import assert_response, get_project_root, retriable
-from tests.payments.payments_test_utils import make_card_payment
+from tests.payments.previous.payments_previous_test_utils import make_card_payment
 
 
 def test_should_query_disputes(default_api):
@@ -68,7 +68,7 @@ def test_should_test_full_disputes_workflow(default_api):
     assert payment.id == query_response.data[0].payment_id
 
     request = FileRequest()
-    request.file = os.path.join(get_project_root(), 'tests', 'resources', 'checkout.jpeg')
+    request.file = os.path.join(get_project_root(), 'tests', 'resources', 'checkout_sdk.jpeg')
     request.purpose = 'dispute_evidence'
 
     upload_file_response = default_api.disputes.upload_file(request)
@@ -84,10 +84,9 @@ def test_should_test_full_disputes_workflow(default_api):
     evidence_request.additional_evidence_file = upload_file_response.id
     evidence_request.additional_evidence_text = 'Scanned document'
 
-    dispute_id = query_response.data.id
+    dispute_id = query_response.data[0].id
 
-    put_response = default_api.disputes.put_evidence(dispute_id, evidence_request)
-    assert_response(put_response, 'http_metadata')
+    default_api.disputes.put_evidence(dispute_id, evidence_request)
 
     evidence = default_api.disputes.get_evidence(dispute_id)
     assert_response(evidence,

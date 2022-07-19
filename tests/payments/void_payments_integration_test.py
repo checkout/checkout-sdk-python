@@ -15,6 +15,7 @@ def test_should_void_card_payment(default_api):
                               payment_id=payment_response.id,
                               void_request=void_request)
     assert_response(void_response,
+                    'http_metadata',
                     'reference',
                     'action_id',
                     '_links')

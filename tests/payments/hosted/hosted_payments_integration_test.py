@@ -1,13 +1,17 @@
 from __future__ import absolute_import
 
+import pytest
+
 from checkout_sdk.common.common import CustomerRequest, Product
 from checkout_sdk.common.enums import Currency, PaymentSourceType
 from checkout_sdk.payments.hosted.hosted_payments import HostedPaymentsSessionRequest
-from checkout_sdk.payments.payments import BillingInformation, PaymentRecipient, ThreeDsRequest, ProcessingSettings, \
-    RiskRequest, ShippingDetails
+from checkout_sdk.payments.payments_previous import BillingInformation
+from checkout_sdk.payments.payments import BillingDescriptor, ShippingDetails, ThreeDsRequest, RiskRequest, \
+    PaymentRecipient, ProcessingSettings
 from tests.checkout_test_utils import assert_response, phone, address, random_email
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_create_and_get_hosted_payments_page_details(default_api):
     request = create_hosted_payments_request()
 
@@ -76,6 +80,11 @@ def create_hosted_payments_request():
     risk_request = RiskRequest()
     risk_request.enabled = True
 
+    billing_descriptor = BillingDescriptor()
+    billing_descriptor.city = 'London'
+    billing_descriptor.name = 'Awesome name'
+    billing_descriptor.reference = 'another reference'
+
     request = HostedPaymentsSessionRequest()
     request.amount = 1000
     request.reference = 'reference'
@@ -94,6 +103,7 @@ def create_hosted_payments_request():
     request.locale = 'en-GB'
     request.three_ds = three_ds_request
     request.capture = True
-    request.allow_payment_methods = [PaymentSourceType.CARD, PaymentSourceType.KLARNA]
+    request.billing_descriptor = billing_descriptor
+    request.allow_payment_methods = [PaymentSourceType.CARD, PaymentSourceType.IDEAL]
 
     return request

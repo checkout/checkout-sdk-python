@@ -14,12 +14,15 @@ class DefaultKeysSdkCredentials(SdkCredentials):
         self.public_key = public_key
 
     def get_authorization(self, authorization_type: AuthorizationType):
-        if AuthorizationType.SECRET_KEY == authorization_type:
+
+        if authorization_type in (AuthorizationType.SECRET_KEY, AuthorizationType.SECRET_KEY_OR_OAUTH):
             if self.secret_key is None:
                 raise CheckoutAuthorizationException.invalid_key(AuthorizationType.SECRET_KEY)
             return SdkAuthorization(PlatformType.DEFAULT, self.secret_key)
-        if AuthorizationType.PUBLIC_KEY == authorization_type:
+
+        if authorization_type in (AuthorizationType.PUBLIC_KEY, AuthorizationType.PUBLIC_KEY_OR_OAUTH):
             if self.public_key is None:
                 raise CheckoutAuthorizationException.invalid_key(AuthorizationType.PUBLIC_KEY)
             return SdkAuthorization(PlatformType.DEFAULT, self.public_key)
+
         raise CheckoutAuthorizationException.invalid_authorization(authorization_type=authorization_type)

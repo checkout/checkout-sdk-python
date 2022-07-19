@@ -1,9 +1,8 @@
 from enum import Enum
 
 from checkout_sdk.common.common import Phone, Address
-from checkout_sdk.common.common_four import ResidentialStatusType, AccountHolderIdentification
-from checkout_sdk.common.enums import Currency, InstrumentType, Country
-from checkout_sdk.common.enums_four import AccountType, AccountHolderType
+from checkout_sdk.common.common import ResidentialStatusType, AccountHolderIdentification
+from checkout_sdk.common.enums import Currency, InstrumentType, Country, AccountType, AccountHolderType
 
 
 class ContactDetails:

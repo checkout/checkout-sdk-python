@@ -7,3 +7,4 @@ class CustomerRequest:
     phone: Phone
     metadata: dict
     default: str
+    instruments: list  # Not available on previous

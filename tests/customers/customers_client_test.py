@@ -1,7 +1,7 @@
 import pytest
 
-from checkout_sdk.customers.customers import CustomerRequest
 from checkout_sdk.customers.customers_client import CustomersClient
+from checkout_sdk.customers.customers import CustomerRequest
 
 
 @pytest.fixture(scope='class')

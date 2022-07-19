@@ -1,14 +1,14 @@
 from __future__ import absolute_import
 
 from datetime import datetime, timezone
-
-from checkout_sdk.checkout_api import CheckoutApi
-from checkout_sdk.common.enums import Currency, InstrumentType
+from checkout_sdk.common.common import AccountHolder
+from checkout_sdk.common.enums import Currency
 from checkout_sdk.customers.customers import CustomerRequest
-from checkout_sdk.instruments.instruments import InstrumentAccountHolder, CreateInstrumentRequest
-from checkout_sdk.risk.risk import RiskShippingDetails, Device, Location, RiskPayment, CardSourcePrism, \
+from checkout_sdk.checkout_api import CheckoutApi
+from checkout_sdk.instruments.instruments import CreateTokenInstrumentRequest
+from checkout_sdk.risk.risk import CardSourcePrism, CustomerSourcePrism, IdSourcePrism, RiskRequestTokenSource, \
     RiskPaymentRequestSource, PreAuthenticationAssessmentRequest, AuthenticationResult, AuthorizationResult, \
-    PreCaptureAssessmentRequest, CustomerSourcePrism, IdSourcePrism, RiskRequestTokenSource
+    PreCaptureAssessmentRequest, RiskShippingDetails, Device, Location, RiskPayment
 from checkout_sdk.tokens.tokens import CardTokenRequest
 from tests.checkout_test_utils import assert_response, VisaCard, address, common_customer_request, random_email, phone
 
@@ -52,12 +52,11 @@ def test_should_pre_capture_and_authenticate_id(default_api):
 
     card_token_response = default_api.tokens.request_card_token(card_token_request)
 
-    account_holder = InstrumentAccountHolder()
+    account_holder = AccountHolder()
     account_holder.billing_address = address()
     account_holder.phone = phone()
 
-    instrument_request = CreateInstrumentRequest()
-    instrument_request.type = InstrumentType.TOKEN
+    instrument_request = CreateTokenInstrumentRequest()
     instrument_request.token = card_token_response.token
     instrument_request.account_holder = account_holder
 
@@ -116,7 +115,7 @@ def authentication_assessment_request(api_client: CheckoutApi, request_source: R
                     'assessment_id',
                     'result',
                     'result.decision',
-                    # 'result.details',
+                    'result.details',
                     '_links')
 
 
@@ -131,7 +130,7 @@ def pre_capture_assessment_request(api_client: CheckoutApi, request_source: Risk
 
     authorization_result = AuthorizationResult()
     authorization_result.avs_code = 'Y'
-    AuthorizationResult.cvv_result = 'N'
+    authorization_result.cvv_result = 'N'
 
     request = PreCaptureAssessmentRequest()
     request.date = datetime.now(timezone.utc)
@@ -155,9 +154,7 @@ def pre_capture_assessment_request(api_client: CheckoutApi, request_source: Risk
                     'http_metadata',
                     'assessment_id',
                     'result',
-                    'result.decision',
-                    # 'result.details',
-                    '_links')
+                    'result.decision')
 
 
 def get_risk_shipping_details() -> RiskShippingDetails:

@@ -4,7 +4,7 @@ from enum import Enum
 
 
 class PlatformType(str, Enum):
+    PREVIOUS = 'PREVIOUS'
     DEFAULT = 'DEFAULT'
-    FOUR = 'FOUR'
-    FOUR_OAUTH = 'FOUR_OAUTH'
+    OAUTH = 'OAUTH'
     CUSTOM = 'CUSTOM'

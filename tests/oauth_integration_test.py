@@ -1,8 +1,8 @@
-import checkout_sdk
+from checkout_sdk.checkout_sdk import CheckoutSdk
 from checkout_sdk.customers.customers import CustomerRequest
 from checkout_sdk.environment import Environment
 from checkout_sdk.exception import CheckoutException
-from checkout_sdk.four.oauth_scopes import OAuthScopes
+from checkout_sdk.oauth_scopes import OAuthScopes
 from tests.checkout_test_utils import assert_response, random_email, phone
 
 
@@ -19,7 +19,9 @@ def test_should_create_customer_with_oauth(oauth_api):
 
 def test_should_fail_init_authorization_invalid_credentials():
     try:
-        checkout_sdk.OAuthSdk() \
+        CheckoutSdk \
+            .builder() \
+            .oauth() \
             .client_credentials(client_id='fake_id',
                                 client_secret='fake_secret') \
             .environment(Environment.sandbox()) \
@@ -31,7 +33,9 @@ def test_should_fail_init_authorization_invalid_credentials():
 
 def test_should_fail_init_authorization_invalid_credentials_and_host():
     try:
-        checkout_sdk.OAuthSdk() \
+        CheckoutSdk \
+            .builder() \
+            .oauth() \
             .client_credentials(client_id='fake_id',
                                 client_secret='fake_secret') \
             .authorization_uri('https://test.checkout.com') \
