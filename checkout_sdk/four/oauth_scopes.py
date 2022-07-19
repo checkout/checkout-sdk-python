@@ -23,6 +23,7 @@ class OAuthScopes(str, Enum):
     DISPUTES_PROVIDE_EVIDENCE = 'disputes:provide-evidence'
     DISPUTES_ACCEPT = 'disputes:accept'
     MARKETPLACE = 'marketplace'
+    ACCOUNTS = 'accounts'
     FLOW = 'flow'
     FLOW_WORKFLOWS = 'flow:workflows'
     FLOW_EVENTS = 'flow:events'
