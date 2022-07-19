@@ -1,19 +1,21 @@
 from __future__ import absolute_import
 
+from checkout_sdk.accounts.accounts_client import AccountsClient
 from checkout_sdk.api_client import ApiClient
+from checkout_sdk.balances.balances_client import BalancesClient
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
 from checkout_sdk.customers.customers_client_four import CustomersClient
 from checkout_sdk.disputes.disputes_client import DisputesClient
 from checkout_sdk.forex.forex_client import ForexClient
 from checkout_sdk.four.checkout_four_apm_api import CheckoutApmApi
 from checkout_sdk.instruments.instruments_four_client import InstrumentsClient
-from checkout_sdk.marketplace.marketplace_client import MarketplaceClient
 from checkout_sdk.payments.hosted.hosted_payments_client import HostedPaymentsClient
 from checkout_sdk.payments.links.payments_client import PaymentsLinksClient
 from checkout_sdk.payments.payments_client_four import PaymentsClient
 from checkout_sdk.risk.risk_client import RiskClient
 from checkout_sdk.sessions.sessions_client import SessionsClient
 from checkout_sdk.tokens.tokens_client import TokensClient
+from checkout_sdk.transfers.transfers_client import TransfersClient
 from checkout_sdk.workflows.workflows_client import WorkflowsClient
 
 
@@ -49,8 +51,8 @@ class CheckoutApi(CheckoutApmApi):
         self.payments_links = PaymentsLinksClient(api_client=base_api_client, configuration=configuration)
         self.risk = RiskClient(api_client=base_api_client, configuration=configuration)
         self.workflows = WorkflowsClient(api_client=base_api_client, configuration=configuration)
-        self.marketplace = MarketplaceClient(api_client=base_api_client,
-                                             files_client=_files_api_client(configuration),
-                                             transfers_client=_transfers_api_client(configuration),
-                                             balances_client=_balances_api_client(configuration),
-                                             configuration=configuration)
+        self.balances = BalancesClient(api_client=_balances_api_client(configuration), configuration=configuration)
+        self.transfers = TransfersClient(api_client=_transfers_api_client(configuration), configuration=configuration)
+        self.accounts = AccountsClient(api_client=base_api_client,
+                                       files_client=_files_api_client(configuration),
+                                       configuration=configuration)
