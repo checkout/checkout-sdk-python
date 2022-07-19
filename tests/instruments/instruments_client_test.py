@@ -1,6 +1,8 @@
 import pytest
 
-from checkout_sdk.instruments.instruments import CreateInstrumentRequest, UpdateInstrumentRequest
+from checkout_sdk.common.enums import Country, Currency
+from checkout_sdk.instruments.instruments import CreateTokenInstrumentRequest, UpdateCardInstrumentRequest, \
+    BankAccountFieldQuery
 from checkout_sdk.instruments.instruments_client import InstrumentsClient
 
 
@@ -17,12 +19,16 @@ class TestInstrumentsClient:
 
     def test_should_create_instrument(self, mocker, client: InstrumentsClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
-        assert client.create(CreateInstrumentRequest()) == 'response'
+        assert client.create(CreateTokenInstrumentRequest()) == 'response'
 
     def test_should_update_instrument(self, mocker, client: InstrumentsClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.patch', return_value='response')
-        assert client.update('instrument_id', UpdateInstrumentRequest()) == 'response'
+        assert client.update('instrument_id', UpdateCardInstrumentRequest()) == 'response'
 
     def test_should_delete_instrument(self, mocker, client: InstrumentsClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.delete', return_value='response')
         assert client.delete('instrument_id') == 'response'
+
+    def test_should_get_bank_account_field_formatting(self, mocker, client: InstrumentsClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        assert client.get_bank_account_field_formatting(Country.GB, Currency.GBP, BankAccountFieldQuery()) == 'response'

@@ -1,10 +1,10 @@
 from tests.checkout_test_utils import assert_response, retriable
-from tests.payments.four.payments_four_test_utils import make_card_payment
+from tests.payments.payments_test_utils import make_card_payment
 from tests.workflows.workflows_test_utils import create_workflow, clean_workflows
 
 
-def test_should_get_event_types(four_api):
-    response = four_api.workflows.get_event_types()
+def test_should_get_event_types(default_api):
+    response = default_api.workflows.get_event_types()
 
     results = response.items
     assert results is not None
@@ -20,19 +20,19 @@ def test_should_get_event_types(four_api):
             assert_response(event, 'description', 'display_name', 'id')
 
 
-def test_should_get_subject_event_and_events(four_api):
-    create_workflow(four_api)
+def test_should_get_subject_event_and_events(default_api):
+    create_workflow(default_api)
 
-    payment_response = make_card_payment(four_api, capture=True)
+    payment_response = make_card_payment(default_api, capture=True)
 
-    payment_event = retriable(callback=four_api.workflows.get_subject_events,
+    payment_event = retriable(callback=default_api.workflows.get_subject_events,
                               predicate=__there_are_two_events,
                               subject_id=payment_response.id)
 
     for event in payment_event.data:
         assert_response(event, 'id', 'type', 'timestamp')
 
-        get_event = four_api.workflows.get_event(event.id)
+        get_event = default_api.workflows.get_event(event.id)
         assert_response(get_event, 'id',
                         'source',
                         'type',
@@ -40,7 +40,7 @@ def test_should_get_subject_event_and_events(four_api):
                         'version',
                         'data')
 
-    clean_workflows(four_api)
+    clean_workflows(default_api)
 
 
 def __there_are_two_events(response) -> bool:

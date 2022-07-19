@@ -13,7 +13,7 @@ class CustomersClient(Client):
     def __init__(self, api_client: ApiClient, configuration: CheckoutConfiguration):
         super().__init__(api_client=api_client,
                          configuration=configuration,
-                         authorization_type=AuthorizationType.SECRET_KEY)
+                         authorization_type=AuthorizationType.SECRET_KEY_OR_OAUTH)
 
     def get(self, customer_id: str):
         return self._api_client.get(self.build_path(self.__CUSTOMERS_PATH, customer_id),

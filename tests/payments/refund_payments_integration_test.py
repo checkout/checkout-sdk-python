@@ -19,9 +19,18 @@ def test_should_refund_card_payment(default_api):
                                 refund_request=refund_request)
 
     assert_response(refund_response,
+                    'http_metadata',
                     'reference',
                     'action_id',
                     '_links')
+
+    payment = retriable(callback=default_api.payments.get_payment_details,
+                        payment_id=payment_response.id)
+    assert_response(payment,
+                    'http_metadata',
+                    'balances.total_authorized',
+                    'balances.total_captured',
+                    'balances.total_refunded')
 
 
 def test_should_refund_card_payment_idempotently(default_api):

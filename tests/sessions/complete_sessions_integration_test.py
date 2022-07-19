@@ -3,7 +3,7 @@ from __future__ import absolute_import
 import pytest
 
 from checkout_sdk.exception import CheckoutApiException
-from checkout_sdk.four.checkout_api import CheckoutApi
+from checkout_sdk.checkout_api import CheckoutApi
 from tests.checkout_test_utils import assert_response
 from tests.sessions.sessions_test_utils import get_hosted_session
 

@@ -1,13 +1,17 @@
 from __future__ import absolute_import
 
+import pytest
+
 from checkout_sdk.common.common import CustomerRequest, Product
 from checkout_sdk.common.enums import Currency, PaymentSourceType
 from checkout_sdk.payments.links.payments_links import PaymentLinkRequest
-from checkout_sdk.payments.payments import BillingInformation, PaymentRecipient, ThreeDsRequest, ProcessingSettings, \
-    RiskRequest, ShippingDetails
+from checkout_sdk.payments.payments_previous import BillingInformation
+from checkout_sdk.payments.payments import ShippingDetails, ThreeDsRequest, RiskRequest, PaymentRecipient, \
+    ProcessingSettings
 from tests.checkout_test_utils import assert_response, phone, address, random_email
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_create_and_get_payment_link(default_api):
     request = create_payment_link_request()
 
@@ -25,6 +29,7 @@ def test_should_create_and_get_payment_link(default_api):
 
     for warning in response.warnings:
         assert_response(warning,
+                        'http_metadata',
                         'code',
                         'value',
                         'description')
@@ -101,6 +106,6 @@ def create_payment_link_request():
     request.three_ds = three_ds_request
     request.expires_in = 6400
     request.capture = True
-    request.allow_payment_methods = [PaymentSourceType.CARD, PaymentSourceType.KLARNA]
+    request.allow_payment_methods = [PaymentSourceType.CARD, PaymentSourceType.IDEAL]
 
     return request
