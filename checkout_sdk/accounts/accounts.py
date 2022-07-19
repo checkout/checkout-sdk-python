@@ -100,7 +100,7 @@ class BankDetails:
     address: Address
 
 
-class MarketplaceAccountHolder:
+class AccountsAccountHolder:
     type: AccountHolderType
     first_name: str
     last_name: str
@@ -115,7 +115,7 @@ class MarketplaceAccountHolder:
     email: str
 
 
-class MarketplacePaymentInstrument:
+class AccountsPaymentInstrument:
     type = InstrumentType.BANK_ACCOUNT
     label: str
     account_type: AccountType
@@ -128,7 +128,7 @@ class MarketplacePaymentInstrument:
     currency: Currency
     country: Country
     document: InstrumentDocument
-    account_holder: MarketplaceAccountHolder
+    account_holder: AccountsAccountHolder
     bank: BankDetails
 
 
@@ -178,33 +178,3 @@ class UpdateScheduleRequest:
     enabled: bool
     threshold: int
     recurrence: ScheduleRequest
-
-
-# Transfers
-
-class TransferType(str, Enum):
-    COMMISSION = 'commission'
-    PROMOTION = 'promotion'
-    REFUND = 'refund'
-
-
-class TransferSource:
-    id: str
-    amount: int
-
-
-class TransferDestination:
-    id: str
-
-
-class CreateTransferRequest:
-    reference: str
-    transfer_type: TransferType
-    source: TransferSource
-    destination: TransferDestination
-
-
-# Balances
-
-class BalancesQuery:
-    query: str
