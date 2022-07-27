@@ -8,7 +8,7 @@
 
 ```
 # Requires Python > 3.6
-pip install checkout-sdk==3.0.0b7
+pip install checkout-sdk==3.0.0b8
 ```
 
 > **Note**

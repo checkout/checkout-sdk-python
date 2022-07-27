@@ -21,6 +21,7 @@ def payout_schedules_api():
         .build()
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_update_and_retrieve_weekly_payout_schedules(payout_schedules_api):
     weekly_request = ScheduleFrequencyWeeklyRequest()
     weekly_request.by_day = [DaySchedule.TUESDAY]
@@ -47,6 +48,7 @@ def test_should_update_and_retrieve_weekly_payout_schedules(payout_schedules_api
                     'USD.recurrence.by_day')
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_update_and_retrieve_daily_payout_schedules(payout_schedules_api):
     daily_request = ScheduleFrequencyDailyRequest()
 
@@ -71,6 +73,7 @@ def test_should_update_and_retrieve_daily_payout_schedules(payout_schedules_api)
                     'USD.recurrence.frequency')
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_update_and_retrieve_monthly_payout_schedules(payout_schedules_api):
     montly_request = ScheduleFrequencyMonthlyRequest()
     montly_request.by_month_day = [5]
