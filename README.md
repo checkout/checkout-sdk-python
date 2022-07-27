@@ -10,7 +10,7 @@
 
 ```
 # Requires Python > 3.6
-pip install checkout-sdk==3.0.0b8
+pip install checkout-sdk==3.0.0
 ```
 
 > **Version 3.0.0 is here!**
@@ -20,7 +20,7 @@ pip install checkout-sdk==3.0.0b8
 > If you have been using this SDK before, you may find the following important changes:
 > * Imports: if you used to import `checkout_sdk.payments.payments` now use `checkout_sdk.payments.payments_previous`
 > * Marketplace module was moved to Accounts module, same for classes and references.
-> * In most cases, IDE can help you determine from where to import, but if you’re still having issues don't hesitate to open a [ticket](https://github.com/checkout/checkout-sdk-python/issues).
+> * In most cases, IDE can help you determine from where to import, but if you’re still having issues don't hesitate to open a [ticket](https://github.com/checkout/checkout-sdk-python/issues/new/choose).
 
 
 ### :rocket: Please check in [GitHub releases](https://github.com/checkout/checkout-sdk-python/releases) for all the versions available.
