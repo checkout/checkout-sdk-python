@@ -3,6 +3,8 @@
 ![build-status](https://github.com/checkout/checkout-sdk-python/workflows/build-main/badge.svg)
 [![GitHub license](https://img.shields.io/github/license/checkout/checkout-sdk-python.svg)](https://github.com/checkout/checkout-sdk-python/blob/main/LICENSE.md)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=checkout_checkout-sdk-python&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=checkout_checkout-sdk-python)
+[![GitHub release](https://img.shields.io/github/release/checkout/checkout-sdk-python.svg)](https://GitHub.com/checkout/checkout-sdk-php/releases/)
+[![PyPI - latest](https://img.shields.io/pypi/v/checkout-sdk?label=latest&logo=pypi)](https://pypi.org/project/checkout-sdk)
 
 ## Getting started
 
@@ -11,12 +13,27 @@
 pip install checkout-sdk==3.0.0b8
 ```
 
-> **Note**
-> Version 3.0.0 is Here! <br/><br/>
-> All the SDK structure was changed prioritizing NAS account systems and marking as `previous` ABC account systems <br/>
+> **Version 3.0.0 is here!**
+>  <br/><br/>
+> We improved the initialization of SDK making it easier to understand the available options. <br/>
+> Now `NAS` accounts are the default instance for the SDK and `ABC` structure was moved to a `previous` prefixes. <br/>
+> If you have been using this SDK before, you may find the following important changes:
+> * Imports: if you used to import `checkout_sdk.payments.payments` now use `checkout_sdk.payments.payments_previous`
+> * Marketplace module was moved to Accounts module, same for classes and references.
+> * In most cases, IDE can help you determine from where to import, but if you’re still having issues don't hesitate to open a [ticket](https://github.com/checkout/checkout-sdk-python/issues).
 
-Please check in [GitHub releases](https://github.com/checkout/checkout-sdk-python/releases) for all the versions
-available.
+
+### :rocket: Please check in [GitHub releases](https://github.com/checkout/checkout-sdk-python/releases) for all the versions available.
+
+### :book: Checkout our official documentation.
+
+* [Official Docs (Default)](https://docs.checkout.com/)
+* [Official Docs (Previous)](https://docs.checkout.com/previous)
+
+### :books: Check out our official API documentation guide, where you can also find more usage examples.
+
+* [API Reference (Default)](https://api-reference.checkout.com/)
+* [API Reference (Previous)](https://api-reference.checkout.com/previous)
 
 ## How to use the SDK
 
@@ -25,7 +42,7 @@ using specific API features. Please find in the table below the types of keys th
 
 | Account System | Public Key (example)                    | Secret Key (example)                    |
 |----------------|-----------------------------------------|-----------------------------------------|
-| default        | pk_pkhpdtvabcf7hdgpwnbhw7r2uic          | sk_m73dzypy7cf3gf5d2xr4k7sxo4e          |
+| Default        | pk_pkhpdtvabcf7hdgpwnbhw7r2uic          | sk_m73dzypy7cf3gf5d2xr4k7sxo4e          |
 | Previous       | pk_g650ff27-7c42-4ce1-ae90-5691a188ee7b | sk_gk3517a8-3z01-45fq-b4bd-4282384b0a64 |
 
 Note: sandbox keys have a `sbox_` or `test_` identifier, for Default and Previous accounts respectively.
@@ -162,11 +179,6 @@ except CheckoutApiException as err:
     http_status_code = err.http_status_code
     error_details = err.error_details
 ```
-
-* [API Reference (Default)](https://api-reference.checkout.com/)
-* [API Reference (Previous)](https://api-reference.checkout.com/previous)
-* [Official Docs (Default)](https://docs.checkout.com/)
-* [Official Docs (Previous)](https://docs.checkout.com/previous)
 
 ## Building from source
 
