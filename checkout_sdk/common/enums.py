@@ -418,6 +418,7 @@ class Country(str, Enum):
     YE = 'YE'
     ZM = 'ZM'
     ZW = 'ZW'
+    PS = 'PS'
 
 
 class PaymentSourceType(str, Enum):
@@ -455,6 +456,10 @@ class PaymentSourceType(str, Enum):
     ALIPAY_HK = 'alipay_hk'
     ALIPAY_CN = 'alipay_cn'
     GCASH = 'gcash'
+    DANA = 'dana'
+    KAKAOPAY = 'kakaopay'
+    TRUEMONEY = 'truemoney'
+    TNG = 'tng'
 
 
 class ChallengeIndicator(str, Enum):

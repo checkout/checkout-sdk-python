@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 from datetime import datetime
 from enum import Enum
+
 from checkout_sdk.common.common import AccountHolder, BankDetails, MarketplaceData, Address, Phone, CustomerRequest
 from checkout_sdk.common.enums import PaymentSourceType, Currency, Country, AccountType, ChallengeIndicator
 
@@ -252,6 +253,7 @@ class RequestBankAccountSource(PaymentRequestSource):
 class ShippingDetails:
     address: Address
     phone: Phone
+    from_address_zip: str
 
 
 class ThreeDsRequest:
@@ -302,13 +304,15 @@ class DLocalProcessingSettings:
 
 
 class ProcessingSettings:
-    aft: bool
-    merchant_initiated_reason: MerchantInitiatedReason
-    dlocal: DLocalProcessingSettings
-    # Not available on Previous
+    order_id: str
     tax_amount: int
+    discount_amount: int
+    duty_amount: int
     shipping_amount: int
+    shipping_tax_amount: int
+    aft: bool
     preferred_scheme: PreferredSchema
+    merchant_initiated_reason: MerchantInitiatedReason
     product_type: ProductType
     open_id: str
     original_order_amount: int
@@ -322,6 +326,7 @@ class ProcessingSettings:
     user_action: UserAction
     set_transaction_context: list  # dict
     airline_data: list  # AirlineData
+    dlocal: DLocalProcessingSettings
 
 
 class Product:
@@ -329,14 +334,19 @@ class Product:
     quantity: int
     unit_price: int
     reference: str
-    image_url: str
-    url: str
+    commodity_code: str
+    unit_of_measure: str
     total_amount: int
     tax_amount: int
     discount_amount: int
-    sku: str
-    goods_id: str
     wxpay_goods_id: str
+    image_url: str
+    url: str
+    sku: str
+
+
+class PaymentCustomerRequest(CustomerRequest):
+    tax_number: str
 
 
 # Request Payment
@@ -351,7 +361,7 @@ class PaymentRequest:
     authorization_type: AuthorizationType
     capture: bool
     capture_on: datetime
-    customer: CustomerRequest
+    customer: PaymentCustomerRequest
     billing_descriptor: BillingDescriptor
     shipping: ShippingDetails
     three_ds: ThreeDsRequest
@@ -432,6 +442,13 @@ class CaptureRequest:
     amount: int
     capture_type: CaptureType
     reference: str
+    customer: PaymentCustomerRequest
+    description: str
+    billing_descriptor: BillingDescriptor
+    shipping: ShippingDetails
+    items: list  # payments.Product
+    marketplace: MarketplaceData
+    processing: ProcessingSettings
     metadata: dict
 
 

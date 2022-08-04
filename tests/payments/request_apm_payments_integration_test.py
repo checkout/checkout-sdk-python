@@ -9,8 +9,8 @@ from checkout_sdk.common.common import Address, CustomerRequest, Phone, Product
 from checkout_sdk.common.enums import Currency, Country
 from checkout_sdk.exception import CheckoutApiException
 from checkout_sdk.payments.payment_apm import RequestIdealSource, RequestTamaraSource, \
-    PaymentRequestWeChatPaySource, RequestAlipayPlusHKSource
-from checkout_sdk.payments.payments import PaymentRequest, ProcessingSettings, OsType
+    PaymentRequestWeChatPaySource, RequestAlipayPlusSource
+from checkout_sdk.payments.payments import PaymentRequest, ProcessingSettings
 from checkout_sdk.payments.payments_apm_previous import RequestSofortSource
 from tests.checkout_test_utils import assert_response, SUCCESS_URL, FAILURE_URL, retriable
 
@@ -173,8 +173,7 @@ def test_should_request_we_chat_pay_payment(default_api):
 
 
 def test_should_request_alipay_plus_payment(default_api):
-    source = RequestAlipayPlusHKSource()
-    source.os_type = OsType.IOS
+    source = RequestAlipayPlusSource.request_alipay_plus_cn_source()
 
     payment_request = PaymentRequest()
     payment_request.source = source

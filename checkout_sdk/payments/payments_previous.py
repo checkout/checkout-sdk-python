@@ -128,6 +128,7 @@ class RequestDLocalSource(RequestSource):
 class RequestIdSource(RequestSource):
     id: str
     cvv: str
+    payment_method: str
 
     def __init__(self):
         super().__init__(PaymentSourceType.ID)

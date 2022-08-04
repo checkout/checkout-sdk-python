@@ -3,7 +3,8 @@ from __future__ import absolute_import
 from datetime import datetime, timezone
 
 from tests.checkout_test_utils import assert_response, new_idempotency_key
-from tests.payments.previous.payments_previous_test_utils import make_card_payment, make_3ds_card_payment, make_token_payment
+from tests.payments.previous.payments_previous_test_utils import make_card_payment, make_3ds_card_payment, \
+    make_token_payment
 
 
 def test_should_request_card_payment(previous_api):
