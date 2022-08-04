@@ -40,19 +40,31 @@ class PaymentRequestWeChatPaySource(PaymentRequestSource):
         super().__init__(PaymentSourceType.WECHATPAY)
 
 
-class RequestAlipayPlusHKSource(PaymentRequestSource):
+class RequestAlipayPlusSource(PaymentRequestSource):
 
-    def __init__(self):
-        super().__init__(PaymentSourceType.ALIPAY_HK)
+    def __init__(self, source_type: PaymentSourceType):
+        super().__init__(source_type)
 
+    @staticmethod
+    def request_alipay_plus_cn_source():
+        return RequestAlipayPlusSource(PaymentSourceType.ALIPAY_CN)
 
-class RequestAlipayPlusCNSource(PaymentRequestSource):
+    @staticmethod
+    def request_alipay_plus_gcash_source():
+        return RequestAlipayPlusSource(PaymentSourceType.GCASH)
 
-    def __init__(self):
-        super().__init__(PaymentSourceType.ALIPAY_CN)
+    @staticmethod
+    def request_alipay_plus_dana_source():
+        return RequestAlipayPlusSource(PaymentSourceType.DANA)
 
+    @staticmethod
+    def request_alipay_plus_kakao_pay_source():
+        return RequestAlipayPlusSource(PaymentSourceType.KAKAOPAY)
 
-class RequestAlipayPlusGCashSource(PaymentRequestSource):
+    @staticmethod
+    def request_alipay_plus_true_money_source():
+        return RequestAlipayPlusSource(PaymentSourceType.TRUEMONEY)
 
-    def __init__(self):
-        super().__init__(PaymentSourceType.GCASH)
+    @staticmethod
+    def request_alipay_plus_tng_source():
+        return RequestAlipayPlusSource(PaymentSourceType.TNG)
