@@ -45,6 +45,7 @@ class PaymentType(str, Enum):
     RECURRING = 'Recurring'
     MOTO = 'MOTO'
     INSTALLMENT = 'Installment'
+    UNSCHEDULED = 'Unscheduled'
 
 
 class PaymentDestinationType(str, Enum):
@@ -313,6 +314,7 @@ class ProcessingSettings:
     aft: bool
     preferred_scheme: PreferredSchema
     merchant_initiated_reason: MerchantInitiatedReason
+    campaign_id: int
     product_type: ProductType
     open_id: str
     original_order_amount: int

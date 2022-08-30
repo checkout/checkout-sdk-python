@@ -133,6 +133,7 @@ class RequestKlarnaSource(RequestSource):
     merchant_reference2: str
     merchant_data: str
     attachment: dict
+    custom_payment_method_ids: list
 
     def __init__(self):
         super().__init__(PaymentSourceType.KLARNA)

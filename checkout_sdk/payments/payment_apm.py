@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from checkout_sdk.common.common import Address
+from checkout_sdk.common.common import Address, AccountHolder
 from checkout_sdk.common.enums import PaymentSourceType
 from checkout_sdk.payments.payments import PaymentRequestSource
 
@@ -46,6 +46,10 @@ class RequestAlipayPlusSource(PaymentRequestSource):
         super().__init__(source_type)
 
     @staticmethod
+    def request_alipay_plus_source():
+        return RequestAlipayPlusSource(PaymentSourceType.ALIPAY_PLUS)
+
+    @staticmethod
     def request_alipay_plus_cn_source():
         return RequestAlipayPlusSource(PaymentSourceType.ALIPAY_CN)
 
@@ -68,3 +72,47 @@ class RequestAlipayPlusSource(PaymentRequestSource):
     @staticmethod
     def request_alipay_plus_tng_source():
         return RequestAlipayPlusSource(PaymentSourceType.TNG)
+
+
+class RequestAfterPaySource(PaymentRequestSource):
+    account_holder: AccountHolder
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.AFTERPAY)
+
+
+class RequestBenefitSource(PaymentRequestSource):
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.BENEFIT)
+
+
+class RequestEpsSource(PaymentRequestSource):
+    purpose: str
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.EPS)
+
+
+class RequestGiropaySource(PaymentRequestSource):
+    purpose: str
+    info_fields: list
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.GIROPAY)
+
+
+class RequestMbwaySource(PaymentRequestSource):
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.MBWAY)
+
+
+class RequestQPaySource(PaymentRequestSource):
+    quantity: int
+    description: str
+    language: str
+    national_id: str
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.QPAY)
