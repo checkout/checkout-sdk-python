@@ -8,7 +8,7 @@ def test_should_get_event_types(default_api):
 
     results = response.items
     assert results is not None
-    assert results.__len__() >= 8
+    assert results.__len__() >= 7
 
     for event_type in results:
         assert_response(event_type,

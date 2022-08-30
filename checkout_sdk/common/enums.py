@@ -455,11 +455,15 @@ class PaymentSourceType(str, Enum):
     WECHATPAY = 'wechatpay'
     ALIPAY_HK = 'alipay_hk'
     ALIPAY_CN = 'alipay_cn'
+    ALIPAY_PLUS = 'alipay_plus'
     GCASH = 'gcash'
     DANA = 'dana'
     KAKAOPAY = 'kakaopay'
     TRUEMONEY = 'truemoney'
     TNG = 'tng'
+    AFTERPAY = 'afterpay'
+    BENEFIT = 'benefit'
+    MBWAY = 'mbway'
 
 
 class ChallengeIndicator(str, Enum):
