@@ -1,19 +1,27 @@
 from __future__ import absolute_import
 
-import pytest
-
-from checkout_sdk.common.common import CustomerRequest, Product
+from checkout_sdk.common.common import CustomerRequest, Product, Commission, AmountAllocations
 from checkout_sdk.common.enums import Currency, PaymentSourceType
 from checkout_sdk.payments.links.payments_links import PaymentLinkRequest
-from checkout_sdk.payments.payments_previous import BillingInformation
 from checkout_sdk.payments.payments import ShippingDetails, ThreeDsRequest, RiskRequest, PaymentRecipient, \
     ProcessingSettings
-from tests.checkout_test_utils import assert_response, phone, address, random_email
+from checkout_sdk.payments.payments_previous import BillingInformation
+from tests.checkout_test_utils import assert_response, phone, address, random_email, new_uuid
 
 
-@pytest.mark.skip(reason='not available')
 def test_should_create_and_get_payment_link(default_api):
+    commission = Commission()
+    commission.amount = 1
+    commission.percentage = 0.1
+
+    amount_allocations = AmountAllocations()
+    amount_allocations.id = 'ent_sdioy6bajpzxyl3utftdp7legq'
+    amount_allocations.reference = new_uuid()
+    amount_allocations.commission = commission
+    amount_allocations.amount = 100
+
     request = create_payment_link_request()
+    request.amount_allocations = [amount_allocations]
 
     response = default_api.payments_links.create_payment_link(request)
 
@@ -22,14 +30,10 @@ def test_should_create_and_get_payment_link(default_api):
                     'id',
                     'reference',
                     'expires_on',
-                    '_links',
-                    '_links.self',
-                    '_links.redirect',
                     'warnings')
 
     for warning in response.warnings:
         assert_response(warning,
-                        'http_metadata',
                         'code',
                         'value',
                         'description')
@@ -37,7 +41,6 @@ def test_should_create_and_get_payment_link(default_api):
     hosted_details = default_api.payments_links.get_payment_link(response.id)
 
     assert_response(hosted_details,
-                    'http_metadata',
                     'id',
                     'reference',
                     'status',
@@ -52,7 +55,7 @@ def test_should_create_and_get_payment_link(default_api):
                     'products',
                     '_links',
                     '_links.self',
-                    '_links.redirect', )
+                    '_links.redirect')
 
 
 def create_payment_link_request():
