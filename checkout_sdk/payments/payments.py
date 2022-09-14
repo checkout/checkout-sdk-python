@@ -375,7 +375,9 @@ class PaymentRequest:
     payment_ip: str
     sender: PaymentSender
     recipient: PaymentRecipient
+    # @deprecated marketplace property will be removed in the future, and should be used amount_allocations instead
     marketplace: MarketplaceData
+    amount_allocations: list  # values of AmountAllocations
     processing: ProcessingSettings
     metadata: dict
     items: list  # payments.Product
@@ -449,7 +451,9 @@ class CaptureRequest:
     billing_descriptor: BillingDescriptor
     shipping: ShippingDetails
     items: list  # payments.Product
+    # @deprecated marketplace property will be removed in the future, and should be used amount_allocations instead
     marketplace: MarketplaceData
+    amount_allocations: list  # values of AmountAllocations
     processing: ProcessingSettings
     metadata: dict
 

@@ -82,3 +82,15 @@ class Product:
     name: str
     quantity: int
     price: int
+
+
+class Commission:
+    amount: int
+    percentage: float
+
+
+class AmountAllocations:
+    id: str
+    amount: int
+    reference: str
+    commission: Commission
