@@ -328,6 +328,7 @@ class ProcessingSettings:
     user_action: UserAction
     set_transaction_context: list  # dict
     airline_data: list  # AirlineData
+    otp_value: str
     dlocal: DLocalProcessingSettings
 
 
