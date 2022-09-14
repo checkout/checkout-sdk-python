@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 from checkout_sdk.common.common import Address, AccountHolder
-from checkout_sdk.common.enums import PaymentSourceType
+from checkout_sdk.common.enums import PaymentSourceType, Country
 from checkout_sdk.payments.payments import PaymentRequestSource
 
 
@@ -116,3 +116,60 @@ class RequestQPaySource(PaymentRequestSource):
 
     def __init__(self):
         super().__init__(PaymentSourceType.QPAY)
+
+
+class RequestBancontactSource(PaymentRequestSource):
+    payment_country: Country
+    account_holder_name: str
+    billing_descriptor: str
+    language: str
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.BANCONTACT)
+
+
+class RequestKnetSource(PaymentRequestSource):
+    language: str
+    user_defined_field1: str
+    user_defined_field2: str
+    user_defined_field3: str
+    user_defined_field4: str
+    user_defined_field5: str
+    card_token: str
+    ptlf: str
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.KNET)
+
+
+class RequestMultiBancoSource(PaymentRequestSource):
+    payment_country: Country
+    account_holder_name: str
+    billing_descriptor: str
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.MULTIBANCO)
+
+
+class RequestP24Source(PaymentRequestSource):
+    payment_country: Country
+    account_holder_name: str
+    account_holder_email: str
+    billing_descriptor: str
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.P24)
+
+
+class RequestPostFinanceSource(PaymentRequestSource):
+    payment_country: Country
+    account_holder_name: str
+    billing_descriptor: str
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.POSTFINANCE)
+
+
+class RequestStcPaySource(PaymentRequestSource):
+    def __init__(self):
+        super().__init__(PaymentSourceType.STCPAY)

@@ -44,16 +44,6 @@ class RequestAlipaySource(RequestSource):
         super().__init__(PaymentSourceType.ALIPAY)
 
 
-class RequestBalotoSource(RequestSource):
-    integration_type: IntegrationType = IntegrationType.REDIRECT
-    country: Country
-    description: str
-    payer: Payer
-
-    def __init__(self):
-        super().__init__(PaymentSourceType.BALOTO)
-
-
 class RequestBancontactSource(RequestSource):
     payment_country: Country
     account_holder_name: str

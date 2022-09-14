@@ -9,7 +9,8 @@ from checkout_sdk.common.common import Address, CustomerRequest, Phone, Product
 from checkout_sdk.common.enums import Currency, Country
 from checkout_sdk.exception import CheckoutApiException
 from checkout_sdk.payments.payment_apm import RequestIdealSource, RequestTamaraSource, \
-    PaymentRequestWeChatPaySource, RequestAlipayPlusSource
+    PaymentRequestWeChatPaySource, RequestAlipayPlusSource, RequestP24Source, RequestKnetSource, \
+    RequestBancontactSource, RequestMultiBancoSource, RequestPostFinanceSource, RequestStcPaySource
 from checkout_sdk.payments.payments import PaymentRequest, ProcessingSettings
 from checkout_sdk.payments.payments_apm_previous import RequestSofortSource
 from tests.checkout_test_utils import assert_response, SUCCESS_URL, FAILURE_URL, retriable
@@ -179,6 +180,132 @@ def test_should_request_alipay_plus_payment(default_api):
     payment_request.source = source
     payment_request.amount = 100
     payment_request.currency = Currency.EUR
+    payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+
+    try:
+        default_api.payments.request_payment(payment_request)
+        pytest.fail()
+    except CheckoutApiException as err:
+        assert err.args[0] == 'The API response status code (422) does not indicate success.'
+
+
+def test_should_make_przelewy24_payment(default_api):
+    request_source = RequestP24Source()
+    request_source.payment_country = Country.PL
+    request_source.account_holder_name = 'Bruce Wayne'
+    request_source.account_holder_email = 'ruce@wayne-enterprises.com'
+    request_source.billing_descriptor = 'P24 Demo Payment'
+
+    payment_request = PaymentRequest()
+    payment_request.source = request_source
+    payment_request.amount = 100
+    payment_request.currency = Currency.PLN
+    payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+
+    try:
+        default_api.payments.request_payment(payment_request)
+        pytest.fail()
+    except CheckoutApiException as err:
+        assert err.args[0] == 'The API response status code (422) does not indicate success.'
+        assert 'payee_not_onboarded' in err.error_details
+
+
+def test_should_make_knet_payment(default_api):
+    request_source = RequestKnetSource()
+    request_source.language = "en"
+
+    payment_request = PaymentRequest()
+    payment_request.source = request_source
+    payment_request.amount = 100
+    payment_request.currency = Currency.KWD
+    payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+
+    try:
+        default_api.payments.request_payment(payment_request)
+        pytest.fail()
+    except CheckoutApiException as err:
+        assert err.args[0] == 'The API response status code (422) does not indicate success.'
+        assert 'payee_not_onboarded' in err.error_details
+
+
+def test_should_make_bancontact_payment(default_api):
+    request_source = RequestBancontactSource()
+    request_source.payment_country = Country.BE
+    request_source.account_holder_name = 'Bruce Wayne'
+    request_source.account_holder_email = 'ruce@wayne-enterprises.com'
+    request_source.billing_descriptor = 'bancontact Demo Payment'
+
+    payment_request = PaymentRequest()
+    payment_request.source = request_source
+    payment_request.amount = 100
+    payment_request.currency = Currency.EUR
+    payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+
+    try:
+        default_api.payments.request_payment(payment_request)
+        pytest.fail()
+    except CheckoutApiException as err:
+        assert err.args[0] == 'The API response status code (422) does not indicate success.'
+        assert 'payee_not_onboarded' in err.error_details
+
+
+def test_should_make_multi_banco_payment(default_api):
+    request_source = RequestMultiBancoSource()
+    request_source.payment_country = Country.PT
+    request_source.account_holder_name = 'Bruce Wayne'
+    request_source.billing_descriptor = 'Multibanco Demo Payment'
+
+    payment_request = PaymentRequest()
+    payment_request.source = request_source
+    payment_request.amount = 100
+    payment_request.currency = Currency.EUR
+    payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+
+    try:
+        default_api.payments.request_payment(payment_request)
+        pytest.fail()
+    except CheckoutApiException as err:
+        assert err.args[0] == 'The API response status code (422) does not indicate success.'
+        assert 'payee_not_onboarded' in err.error_details
+
+
+def test_should_make_post_finance_payment(default_api):
+    request_source = RequestPostFinanceSource()
+    request_source.payment_country = Country.CH
+    request_source.account_holder_name = 'Bruce Wayne'
+    request_source.billing_descriptor = 'Multibanco Demo Payment'
+
+    payment_request = PaymentRequest()
+    payment_request.source = request_source
+    payment_request.amount = 100
+    payment_request.currency = Currency.EUR
+    payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+
+    try:
+        default_api.payments.request_payment(payment_request)
+        pytest.fail()
+    except CheckoutApiException as err:
+        assert err.args[0] == 'The API response status code (422) does not indicate success.'
+        assert 'payee_not_onboarded' in err.error_details
+
+
+def test_should_make_stc_pay_payment(default_api):
+    payment_request = PaymentRequest()
+    payment_request.source = RequestStcPaySource()
+    payment_request.amount = 100
+    payment_request.currency = Currency.QAR
     payment_request.capture = True
     payment_request.success_url = SUCCESS_URL
     payment_request.failure_url = FAILURE_URL

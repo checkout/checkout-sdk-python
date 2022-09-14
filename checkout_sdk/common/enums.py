@@ -419,6 +419,7 @@ class Country(str, Enum):
     ZM = 'ZM'
     ZW = 'ZW'
     PS = 'PS'
+    QZ = 'QZ'
 
 
 class PaymentSourceType(str, Enum):
@@ -430,7 +431,6 @@ class PaymentSourceType(str, Enum):
     D_LOCAL = 'dlocal'
     KLARNA = 'klarna'
     CURRENCY_ACCOUNT = 'currency_account'
-    BALOTO = 'baloto'
     BOLETO = 'boleto'
     FAWRY = 'fawry'
     GIROPAY = 'giropay'
@@ -464,6 +464,8 @@ class PaymentSourceType(str, Enum):
     AFTERPAY = 'afterpay'
     BENEFIT = 'benefit'
     MBWAY = 'mbway'
+    POSTFINANCE = 'postfinance'
+    STCPAY = 'stcpay'
 
 
 class ChallengeIndicator(str, Enum):

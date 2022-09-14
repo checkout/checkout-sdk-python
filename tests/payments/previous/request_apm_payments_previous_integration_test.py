@@ -4,7 +4,7 @@ import pytest
 
 from checkout_sdk.common.enums import Country, Currency
 from checkout_sdk.payments.payments_previous import PaymentRequest
-from checkout_sdk.payments.payments_apm_previous import RequestBalotoSource, IntegrationType, \
+from checkout_sdk.payments.payments_apm_previous import IntegrationType, \
     RequestBoletoSource, RequestFawrySource, RequestGiropaySource, RequestIdealSource, RequestOxxoSource, \
     RequestPagoFacilSource, RequestRapiPagoSource, RequestSofortSource, FawryProduct, RequestAlipaySource, \
     RequestBenefitPaySource, RequestEpsSource, RequestKnetSource, RequestP24Source, RequestPayPalSource, \
@@ -44,32 +44,6 @@ def test_should_make_benefit_pay_payment(previous_api):
     payment_request.source = request_source
     payment_request.amount = 100
     payment_request.currency = Currency.USD
-
-    payment_response = retriable(callback=previous_api.payments.request_payment,
-                                 payment_request=payment_request)
-
-    assert_response(payment_response, 'id')
-
-    payment_details = retriable(callback=previous_api.payments.get_payment_details,
-                                payment_id=payment_response.id)
-    assert_response(payment_details,
-                    'id',
-                    'source',
-                    'amount',
-                    '_links')
-
-
-@pytest.mark.skip(reason='not available')
-def test_should_request_baloto_payment(previous_api):
-    request_source = RequestBalotoSource()
-    request_source.country = Country.CO
-    request_source.description = 'simulate Via Baloto Demo Payment'
-    request_source.payer = get_payer()
-
-    payment_request = PaymentRequest()
-    payment_request.source = request_source
-    payment_request.amount = 100000
-    payment_request.currency = Currency.COP
 
     payment_response = retriable(callback=previous_api.payments.request_payment,
                                  payment_request=payment_request)
