@@ -10,7 +10,7 @@
 
 ```
 # Requires Python > 3.6
-pip install checkout-sdk==3.0.2
+pip install checkout-sdk==3.0.3
 ```
 
 > **Version 3.0.0 is here!**
