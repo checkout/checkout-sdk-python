@@ -169,14 +169,13 @@ def oauth():
 ## Exception handling
 
 All the API responses that do not fall in the 2** status codes will cause a `CheckoutApiException`. The exception encapsulates
-the `request_id`, `http_status_code` and a dictionary of `error_details`, if available.
+the `http_metadata` and a dictionary of `error_details`, if available.
 
 ```python
 try:
     checkout_api.customers.get("customer_id")
 except CheckoutApiException as err:
-    request_id = err.request_id
-    http_status_code = err.http_status_code
+    http_status_code = err.http_metadata.status_code
     error_details = err.error_details
 ```
 
