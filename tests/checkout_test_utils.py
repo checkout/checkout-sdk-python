@@ -15,6 +15,8 @@ FIRST_NAME = 'Integration'
 LAST_NAME = 'Test'
 SUCCESS_URL = 'https://testing.checkout.com/sucess'
 FAILURE_URL = 'https://testing.checkout.com/failure'
+PAYEE_NOT_ONBOARDED = 'payee_not_onboarded'
+APM_SERVICE_UNAVAILABLE = 'apm_service_unavailable'
 
 _logger = logging.getLogger('checkout')
 
@@ -35,6 +37,14 @@ def retriable(callback, predicate=None, **kwargs):
         current_attempt += 1
         time.sleep(2)
     raise CheckoutException('Max attempts reached!')
+
+
+def check_error_item(callback, error_item: str, **kwargs):
+    try:
+        callback(**kwargs)
+    except CheckoutApiException as err:
+        assert error_item in err.error_details, f"\n Expected: {error_item} " \
+                                                f"\n Was actually: {', '.join(map(str, err.error_details))}"
 
 
 def assert_response(obj, *argv: str):

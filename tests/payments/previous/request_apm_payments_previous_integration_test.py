@@ -3,12 +3,13 @@ from __future__ import absolute_import
 import pytest
 
 from checkout_sdk.common.enums import Country, Currency
-from checkout_sdk.payments.payments_previous import PaymentRequest
+from checkout_sdk.payments.payments import FawryProduct
 from checkout_sdk.payments.payments_apm_previous import IntegrationType, \
     RequestBoletoSource, RequestFawrySource, RequestGiropaySource, RequestIdealSource, RequestOxxoSource, \
-    RequestPagoFacilSource, RequestRapiPagoSource, RequestSofortSource, FawryProduct, RequestAlipaySource, \
+    RequestPagoFacilSource, RequestRapiPagoSource, RequestSofortSource, RequestAlipaySource, \
     RequestBenefitPaySource, RequestEpsSource, RequestKnetSource, RequestP24Source, RequestPayPalSource, \
     RequestPoliSource, RequestBancontactSource, RequestQPaySource, RequestMultiBancoSource
+from checkout_sdk.payments.payments_previous import PaymentRequest
 from tests.checkout_test_utils import assert_response, retriable, get_payer
 
 

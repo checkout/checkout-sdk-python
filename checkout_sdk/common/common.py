@@ -48,6 +48,7 @@ class AccountHolder:
     phone: Phone
     identification: AccountHolderIdentification
     email: str
+    gender: str
 
 
 class BankDetails:
@@ -94,3 +95,13 @@ class AmountAllocations:
     amount: int
     reference: str
     commission: Commission
+
+
+class ShippingInfo:
+    shipping_company: str
+    shipping_method: str
+    tracking_number: str
+    tracking_uri: str
+    return_shipping_company: str
+    return_tracking_number: str
+    return_tracking_uri: str

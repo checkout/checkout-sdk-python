@@ -1,3 +1,4 @@
+from checkout_sdk.common.common import ShippingInfo
 from checkout_sdk.common.enums import PaymentSourceType, Country, Currency
 
 
@@ -10,20 +11,10 @@ class KlarnaProduct:
     total_tax_amount: int
 
 
-class KlarnaShippingInfo:
-    shipping_company: str
-    shipping_method: str
-    tracking_number: str
-    tracking_uri: str
-    return_shipping_company: str
-    return_tracking_number: str
-    return_tracking_uri: str
-
-
 class Klarna:
     description: str
     products: list  # KlarnaProduct
-    shipping_info: list  # KlarnaShippingInfo
+    shipping_info: list  # ShippingInfo
     shipping_delay: int
 
 
@@ -42,5 +33,5 @@ class OrderCaptureRequest:
     reference: str
     metadata: dict
     klarna: Klarna
-    shipping_info: KlarnaShippingInfo
+    shipping_info: ShippingInfo
     shipping_delay: int
