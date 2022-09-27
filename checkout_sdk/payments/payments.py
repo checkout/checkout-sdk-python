@@ -115,6 +115,15 @@ class UserAction(str, Enum):
     CONTINUE = 'CONTINUE'
 
 
+class BillingPlanType(str, Enum):
+    MERCHANT_INITIATED_BILLING = 'MERCHANT_INITIATED_BILLING'
+    MERCHANT_INITIATED_BILLING_SINGLE_AGREEMENT = 'MERCHANT_INITIATED_BILLING_SINGLE_AGREEMENT'
+    CHANNEL_INITIATED_BILLING = 'CHANNEL_INITIATED_BILLING'
+    CHANNEL_INITIATED_BILLING_SINGLE_AGREEMENT = 'CHANNEL_INITIATED_BILLING_SINGLE_AGREEMENT'
+    RECURRING_PAYMENTS = 'RECURRING_PAYMENTS'
+    PRE_APPROVED_PAYMENTS = 'PRE_APPROVED_PAYMENTS'
+
+
 class BillingDescriptor:
     name: str
     city: str
@@ -225,6 +234,7 @@ class PaymentRequestNetworkTokenSource(PaymentRequestSource):
 class PaymentRequestIdSource(PaymentRequestSource):
     id: str
     cvv: str
+    payment_method: str
 
     def __init__(self):
         super().__init__(PaymentSourceType.ID)
@@ -275,6 +285,7 @@ class ThreeDsRequest:
     challenge_cancel_reason: str
     score: str
     cryptogram_algorithm: str
+    authentication_id: str
 
 
 class RiskRequest:
@@ -329,6 +340,10 @@ class ProcessingSettings:
     set_transaction_context: list  # dict
     airline_data: list  # AirlineData
     otp_value: str
+    purchase_country: Country
+    custom_payment_method_ids: list  # string
+    shipping_delay: int
+    shipping_info: list  # ShippingInfo
     dlocal: DLocalProcessingSettings
 
 
@@ -477,3 +492,16 @@ class RefundRequest:
 class VoidRequest:
     reference: str
     metadata: dict
+
+
+class BillingPlan:
+    type: BillingPlanType
+    skip_shipping_address: bool
+    immutable_shipping_address: bool
+
+
+class FawryProduct:
+    product_id: str
+    quantity: int
+    price: int
+    description: str

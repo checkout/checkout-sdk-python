@@ -4,20 +4,13 @@ from datetime import datetime
 from enum import Enum
 
 from checkout_sdk.common.enums import Country, PaymentSourceType
-from checkout_sdk.payments.payments_previous import RequestSource
 from checkout_sdk.payments.payments import Payer
+from checkout_sdk.payments.payments_previous import RequestSource
 
 
 class IntegrationType(str, Enum):
     DIRECT = 'direct'
     REDIRECT = 'redirect'
-
-
-class FawryProduct:
-    product_id: str
-    quantity: int
-    price: int
-    description: str
 
 
 class KlarnaCustomer:

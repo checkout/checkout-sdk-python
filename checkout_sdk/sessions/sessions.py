@@ -172,6 +172,7 @@ class NonHostedCompletionInfo(Completion):
 # Source
 class SessionSource:
     type: SessionSourceType
+    scheme: SessionScheme
     billing_address: SessionAddress
     home_phone: Phone
     mobile_phone: Phone
@@ -187,7 +188,6 @@ class SessionCardSource(SessionSource):
     expiry_month: int
     expiry_year: int
     name: str
-    scheme: SessionScheme
     stored: bool
     store_for_future_use: bool
 

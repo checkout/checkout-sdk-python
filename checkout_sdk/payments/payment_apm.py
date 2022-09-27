@@ -1,8 +1,10 @@
 from __future__ import absolute_import
 
+from datetime import datetime
+
 from checkout_sdk.common.common import Address, AccountHolder
 from checkout_sdk.common.enums import PaymentSourceType, Country
-from checkout_sdk.payments.payments import PaymentRequestSource
+from checkout_sdk.payments.payments import PaymentRequestSource, BillingPlan
 
 
 class RequestIdealSource(PaymentRequestSource):
@@ -15,6 +17,8 @@ class RequestIdealSource(PaymentRequestSource):
 
 
 class RequestSofortSource(PaymentRequestSource):
+    countryCode: Country
+    languageCode: str
 
     def __init__(self):
         super().__init__(PaymentSourceType.SOFORT)
@@ -28,6 +32,7 @@ class RequestTamaraSource(PaymentRequestSource):
 
 
 class RequestPayPalSource(PaymentRequestSource):
+    plan: BillingPlan
 
     def __init__(self):
         super().__init__(PaymentSourceType.PAYPAL)
@@ -52,6 +57,10 @@ class RequestAlipayPlusSource(PaymentRequestSource):
     @staticmethod
     def request_alipay_plus_cn_source():
         return RequestAlipayPlusSource(PaymentSourceType.ALIPAY_CN)
+
+    @staticmethod
+    def request_alipay_plus_hk_source():
+        return RequestAlipayPlusSource(PaymentSourceType.ALIPAY_HK)
 
     @staticmethod
     def request_alipay_plus_gcash_source():
@@ -173,3 +182,29 @@ class RequestPostFinanceSource(PaymentRequestSource):
 class RequestStcPaySource(PaymentRequestSource):
     def __init__(self):
         super().__init__(PaymentSourceType.STCPAY)
+
+
+class RequestAlmaSource(PaymentRequestSource):
+    billing_address: Address
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.ALMA)
+
+
+class RequestKlarnaSource(PaymentRequestSource):
+    account_holder: AccountHolder
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.KLARNA)
+
+
+class RequestFawrySource(PaymentRequestSource):
+    description: str
+    customer_profile_id: str
+    customer_mobile: str
+    customer_email: str
+    expires_on: datetime
+    products: list  # FawryProduct
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.FAWRY)

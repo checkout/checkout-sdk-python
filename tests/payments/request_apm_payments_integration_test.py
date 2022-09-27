@@ -5,15 +5,17 @@ import os
 import pytest
 
 from checkout_sdk.checkout_sdk import CheckoutSdk
-from checkout_sdk.common.common import Address, CustomerRequest, Phone, Product
+from checkout_sdk.common.common import Address, CustomerRequest, Phone, Product, AccountHolder
 from checkout_sdk.common.enums import Currency, Country
 from checkout_sdk.exception import CheckoutApiException
 from checkout_sdk.payments.payment_apm import RequestIdealSource, RequestTamaraSource, \
     PaymentRequestWeChatPaySource, RequestAlipayPlusSource, RequestP24Source, RequestKnetSource, \
-    RequestBancontactSource, RequestMultiBancoSource, RequestPostFinanceSource, RequestStcPaySource
-from checkout_sdk.payments.payments import PaymentRequest, ProcessingSettings
+    RequestBancontactSource, RequestMultiBancoSource, RequestPostFinanceSource, RequestStcPaySource, RequestAlmaSource, \
+    RequestKlarnaSource, RequestFawrySource
+from checkout_sdk.payments.payments import PaymentRequest, ProcessingSettings, FawryProduct, PaymentCustomerRequest
 from checkout_sdk.payments.payments_apm_previous import RequestSofortSource
-from tests.checkout_test_utils import assert_response, SUCCESS_URL, FAILURE_URL, retriable
+from tests.checkout_test_utils import assert_response, SUCCESS_URL, FAILURE_URL, retriable, address, FIRST_NAME, \
+    LAST_NAME, phone, check_error_item, PAYEE_NOT_ONBOARDED, APM_SERVICE_UNAVAILABLE, random_email, new_uuid
 
 
 def test_should_request_ideal_payment(default_api):
@@ -166,11 +168,9 @@ def test_should_request_we_chat_pay_payment(default_api):
     payment_request.success_url = SUCCESS_URL
     payment_request.failure_url = FAILURE_URL
 
-    try:
-        default_api.payments.request_payment(payment_request)
-        pytest.fail()
-    except CheckoutApiException as err:
-        assert err.error_details[0] == 'payee_not_onboarded'
+    check_error_item(callback=default_api.payments.request_payment,
+                     error_item=PAYEE_NOT_ONBOARDED,
+                     payment_request=payment_request)
 
 
 def test_should_request_alipay_plus_payment(default_api):
@@ -206,12 +206,9 @@ def test_should_make_przelewy24_payment(default_api):
     payment_request.success_url = SUCCESS_URL
     payment_request.failure_url = FAILURE_URL
 
-    try:
-        default_api.payments.request_payment(payment_request)
-        pytest.fail()
-    except CheckoutApiException as err:
-        assert err.args[0] == 'The API response status code (422) does not indicate success.'
-        assert 'payee_not_onboarded' in err.error_details
+    check_error_item(callback=default_api.payments.request_payment,
+                     error_item=PAYEE_NOT_ONBOARDED,
+                     payment_request=payment_request)
 
 
 def test_should_make_knet_payment(default_api):
@@ -226,12 +223,9 @@ def test_should_make_knet_payment(default_api):
     payment_request.success_url = SUCCESS_URL
     payment_request.failure_url = FAILURE_URL
 
-    try:
-        default_api.payments.request_payment(payment_request)
-        pytest.fail()
-    except CheckoutApiException as err:
-        assert err.args[0] == 'The API response status code (422) does not indicate success.'
-        assert 'payee_not_onboarded' in err.error_details
+    check_error_item(callback=default_api.payments.request_payment,
+                     error_item=PAYEE_NOT_ONBOARDED,
+                     payment_request=payment_request)
 
 
 def test_should_make_bancontact_payment(default_api):
@@ -249,12 +243,9 @@ def test_should_make_bancontact_payment(default_api):
     payment_request.success_url = SUCCESS_URL
     payment_request.failure_url = FAILURE_URL
 
-    try:
-        default_api.payments.request_payment(payment_request)
-        pytest.fail()
-    except CheckoutApiException as err:
-        assert err.args[0] == 'The API response status code (422) does not indicate success.'
-        assert 'payee_not_onboarded' in err.error_details
+    check_error_item(callback=default_api.payments.request_payment,
+                     error_item=PAYEE_NOT_ONBOARDED,
+                     payment_request=payment_request)
 
 
 def test_should_make_multi_banco_payment(default_api):
@@ -271,12 +262,9 @@ def test_should_make_multi_banco_payment(default_api):
     payment_request.success_url = SUCCESS_URL
     payment_request.failure_url = FAILURE_URL
 
-    try:
-        default_api.payments.request_payment(payment_request)
-        pytest.fail()
-    except CheckoutApiException as err:
-        assert err.args[0] == 'The API response status code (422) does not indicate success.'
-        assert 'payee_not_onboarded' in err.error_details
+    check_error_item(callback=default_api.payments.request_payment,
+                     error_item=PAYEE_NOT_ONBOARDED,
+                     payment_request=payment_request)
 
 
 def test_should_make_post_finance_payment(default_api):
@@ -293,25 +281,92 @@ def test_should_make_post_finance_payment(default_api):
     payment_request.success_url = SUCCESS_URL
     payment_request.failure_url = FAILURE_URL
 
-    try:
-        default_api.payments.request_payment(payment_request)
-        pytest.fail()
-    except CheckoutApiException as err:
-        assert err.args[0] == 'The API response status code (422) does not indicate success.'
-        assert 'payee_not_onboarded' in err.error_details
+    check_error_item(callback=default_api.payments.request_payment,
+                     error_item=PAYEE_NOT_ONBOARDED,
+                     payment_request=payment_request)
 
 
 def test_should_make_stc_pay_payment(default_api):
+    customer_request = PaymentCustomerRequest()
+    customer_request.email = random_email()
+    customer_request.name = "Louis Smith"
+    customer_request.phone = phone()
+
     payment_request = PaymentRequest()
     payment_request.source = RequestStcPaySource()
     payment_request.amount = 100
-    payment_request.currency = Currency.QAR
+    payment_request.currency = Currency.SAR
+    payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+    payment_request.reference = new_uuid()
+    payment_request.customer = customer_request
+
+    check_error_item(callback=default_api.payments.request_payment,
+                     error_item='merchant_data_delegated_authentication_failed',
+                     payment_request=payment_request)
+
+
+def test_should_make_alma_payment(default_api):
+    request_source = RequestAlmaSource()
+    request_source.billing_address = address()
+
+    payment_request = PaymentRequest()
+    payment_request.source = request_source
+    payment_request.amount = 100
+    payment_request.currency = Currency.EUR
     payment_request.capture = True
     payment_request.success_url = SUCCESS_URL
     payment_request.failure_url = FAILURE_URL
 
-    try:
-        default_api.payments.request_payment(payment_request)
-        pytest.fail()
-    except CheckoutApiException as err:
-        assert err.args[0] == 'The API response status code (422) does not indicate success.'
+    check_error_item(callback=default_api.payments.request_payment,
+                     error_item=PAYEE_NOT_ONBOARDED,
+                     payment_request=payment_request)
+
+
+def test_should_make_klarna_payment(default_api):
+    account_holder = AccountHolder()
+    account_holder.first_name = FIRST_NAME
+    account_holder.last_name = LAST_NAME
+    account_holder.phone = phone()
+    account_holder.billing_address = address()
+
+    request_source = RequestKlarnaSource()
+    request_source.account_holder = account_holder
+
+    payment_request = PaymentRequest()
+    payment_request.source = request_source
+    payment_request.amount = 100
+    payment_request.currency = Currency.EUR
+    payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+
+    check_error_item(callback=default_api.payments.request_payment,
+                     error_item=APM_SERVICE_UNAVAILABLE,
+                     payment_request=payment_request)
+
+
+def test_should_request_fawry_payment(default_api):
+    product = FawryProduct()
+    product.product_id = '0123456789'
+    product.description = 'Fawry Demo Product'
+    product.price = 10
+    product.quantity = 1
+
+    request_source = RequestFawrySource()
+    request_source.description = 'Fawry Demo Payment'
+    request_source.customer_email = 'bruce@wayne-enterprises.com'
+    request_source.customer_mobile = '01058375055'
+    request_source.products = [product]
+
+    payment_request = PaymentRequest()
+    payment_request.source = request_source
+    payment_request.amount = 10
+    payment_request.currency = Currency.EGP
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+
+    check_error_item(callback=default_api.payments.request_payment,
+                     error_item=PAYEE_NOT_ONBOARDED,
+                     payment_request=payment_request)
