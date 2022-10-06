@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 
-from tests.checkout_test_utils import assert_response, new_idempotency_key
+from checkout_sdk.common.enums import Currency
+from checkout_sdk.payments.payments import RequestCustomerSource, PaymentRequest
+from tests.checkout_test_utils import assert_response, new_idempotency_key, SUCCESS_URL, FAILURE_URL, check_error_item
 from tests.payments.payments_test_utils import make_card_payment, make_token_payment, make_3ds_card_payment
 
 
@@ -160,3 +162,19 @@ def test_should_request_payment_idempotently(default_api):
     assert_response(payment_response_2)
 
     assert payment_response_1.action_id == payment_response_2.action_id
+
+
+def test_should_request_customer_payment(default_api):
+    request_source = RequestCustomerSource()
+    request_source.id = 'cus_udst2tfldj6upmye2reztkmm4i'
+
+    payment_request = PaymentRequest()
+    payment_request.source = request_source
+    payment_request.amount = 10
+    payment_request.currency = Currency.EGP
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+
+    check_error_item(callback=default_api.payments.request_payment,
+                     error_item='customer_not_found',
+                     payment_request=payment_request)

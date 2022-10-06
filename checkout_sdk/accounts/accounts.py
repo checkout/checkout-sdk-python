@@ -45,8 +45,13 @@ class EntityRoles(str, Enum):
     LEGAL_REPRESENTATIVE = 'legal_representative'
 
 
+class EntityEmailAddresses:
+    primary: str
+
+
 class ContactDetails:
     phone: Phone
+    email_addresses: EntityEmailAddresses
 
 
 class Profile:
