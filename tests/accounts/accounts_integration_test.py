@@ -3,16 +3,19 @@ from __future__ import absolute_import
 import os
 
 from checkout_sdk.accounts.accounts import OnboardEntityRequest, ContactDetails, Profile, Individual, \
-    DateOfBirth, Identification
+    DateOfBirth, Identification, EntityEmailAddresses
 from checkout_sdk.files.files import FileRequest
-from tests.checkout_test_utils import assert_response, phone, address, new_uuid, get_project_root
+from tests.checkout_test_utils import assert_response, phone, address, new_uuid, get_project_root, random_email
 
 
 def test_should_create_get_and_update_onboard_entity(oauth_api):
     onboard_entity_request = OnboardEntityRequest()
     onboard_entity_request.reference = new_uuid()[:14]
+    email_addresses = EntityEmailAddresses()
+    email_addresses.primary = random_email()
     onboard_entity_request.contact_details = ContactDetails()
     onboard_entity_request.contact_details.phone = phone()
+    onboard_entity_request.contact_details.email_addresses = email_addresses
     onboard_entity_request.profile = Profile()
     onboard_entity_request.profile.urls = ['https://www.superheroexample.com']
     onboard_entity_request.profile.mccs = ['0742']
@@ -41,6 +44,7 @@ def test_should_create_get_and_update_onboard_entity(oauth_api):
                     'contact_details',
                     'contact_details.phone',
                     'contact_details.phone.number',
+                    'contact_details.email_addresses.primary',
                     'individual',
                     'individual.first_name',
                     'individual.last_name',

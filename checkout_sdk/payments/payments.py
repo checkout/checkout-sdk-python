@@ -45,7 +45,6 @@ class PaymentType(str, Enum):
     RECURRING = 'Recurring'
     MOTO = 'MOTO'
     INSTALLMENT = 'Installment'
-    UNSCHEDULED = 'Unscheduled'
 
 
 class PaymentDestinationType(str, Enum):
@@ -261,6 +260,13 @@ class RequestBankAccountSource(PaymentRequestSource):
         super().__init__(PaymentSourceType.BANK_ACCOUNT)
 
 
+class RequestCustomerSource(PaymentRequestSource):
+    id: str
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.CUSTOMER)
+
+
 class ShippingDetails:
     address: Address
     phone: Phone
@@ -276,6 +282,7 @@ class ThreeDsRequest:
     version: str
     exemption: Exemption
     challenge_indicator: ChallengeIndicator
+    allow_upgrade: bool
     # Not available on Previous
     status: str
     authentication_date: datetime
