@@ -464,6 +464,13 @@ class PayoutRequest:
     processing_channel_id: str
 
 
+# Query
+class PaymentsQueryFilter:
+    limit: int
+    skip: int
+    reference: str
+
+
 # Captures
 class CaptureRequest:
     amount: int

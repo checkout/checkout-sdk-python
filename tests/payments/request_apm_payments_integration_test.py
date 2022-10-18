@@ -303,7 +303,7 @@ def test_should_make_stc_pay_payment(default_api):
     payment_request.customer = customer_request
 
     check_error_item(callback=default_api.payments.request_payment,
-                     error_item='merchant_data_delegated_authentication_failed',
+                     error_item=APM_SERVICE_UNAVAILABLE,
                      payment_request=payment_request)
 
 

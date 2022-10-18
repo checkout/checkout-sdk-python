@@ -5,7 +5,7 @@ from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
 from checkout_sdk.client import Client
 from checkout_sdk.payments.payments_previous import PaymentRequest, PayoutRequest, CaptureRequest
-from checkout_sdk.payments.payments import RefundRequest, VoidRequest
+from checkout_sdk.payments.payments import RefundRequest, VoidRequest, PaymentsQueryFilter
 
 
 class PaymentsClient(Client):
@@ -27,6 +27,9 @@ class PaymentsClient(Client):
                                      self._sdk_authorization(),
                                      payout_request,
                                      idempotency_key)
+
+    def get_payments_list(self, query: PaymentsQueryFilter):
+        return self._api_client.get(self.__PAYMENTS_PATH, self._sdk_authorization(), query)
 
     def get_payment_details(self, payment_id: str):
         return self._api_client.get(self.build_path(self.__PAYMENTS_PATH, payment_id),
