@@ -47,7 +47,7 @@ def oauth_api():
         .http_client_builder(CustomHttpClientBuilder()) \
         .scopes([OAuthScopes.GATEWAY, OAuthScopes.VAULT, OAuthScopes.PAYOUTS_BANK_DETAILS,
                  OAuthScopes.SESSIONS_APP, OAuthScopes.SESSIONS_BROWSER, OAuthScopes.FX, OAuthScopes.MARKETPLACE,
-                 OAuthScopes.FILES, OAuthScopes.TRANSFERS, OAuthScopes.BALANCES_VIEW]) \
+                 OAuthScopes.FILES, OAuthScopes.TRANSFERS, OAuthScopes.BALANCES_VIEW, OAuthScopes.REPORTING]) \
         .build()
 
 
