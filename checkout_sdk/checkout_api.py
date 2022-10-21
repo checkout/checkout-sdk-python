@@ -17,6 +17,7 @@ from checkout_sdk.sessions.sessions_client import SessionsClient
 from checkout_sdk.tokens.tokens_client import TokensClient
 from checkout_sdk.transfers.transfers_client import TransfersClient
 from checkout_sdk.workflows.workflows_client import WorkflowsClient
+from checkout_sdk.reports.reports_client import ReportsClient
 
 
 def _base_api_client(configuration: CheckoutConfiguration) -> ApiClient:
@@ -56,3 +57,4 @@ class CheckoutApi(CheckoutApmApi):
         self.accounts = AccountsClient(api_client=base_api_client,
                                        files_client=_files_api_client(configuration),
                                        configuration=configuration)
+        self.reports = ReportsClient(api_client=base_api_client, configuration=configuration)
