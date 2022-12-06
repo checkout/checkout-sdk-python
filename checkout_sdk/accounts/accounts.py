@@ -152,6 +152,20 @@ class InstrumentDocument:
     file_id: str
 
 
+class InstrumentDetails:
+    pass
+
+
+class InstrumentDetailsFasterPayments(InstrumentDetails):
+    account_number: str
+    bank_code: str
+
+
+class InstrumentDetailsSepa(InstrumentDetails):
+    iban: str
+    swift_bic: str
+
+
 class BankDetails:
     name: str
     branch: str
@@ -196,6 +210,16 @@ class AccountsPaymentInstrument:
     bank: BankDetails
 
 
+class PaymentInstrumentRequest:
+    label: str
+    type = InstrumentType.BANK_ACCOUNT
+    currency: Currency
+    country: Country
+    default: bool
+    document: InstrumentDocument
+    instrument_details: InstrumentDetails
+
+
 class ScheduleRequest:
     frequency: ScheduleFrequency
 
@@ -226,3 +250,7 @@ class UpdateScheduleRequest:
     enabled: bool
     threshold: int
     recurrence: ScheduleRequest
+
+
+class PaymentInstrumentsQuery:
+    status: str
