@@ -1,6 +1,9 @@
 from __future__ import absolute_import
 
-from checkout_sdk.accounts.accounts import OnboardEntityRequest, UpdateScheduleRequest, AccountsPaymentInstrument
+from warnings import warn
+
+from checkout_sdk.accounts.accounts import OnboardEntityRequest, UpdateScheduleRequest, AccountsPaymentInstrument, \
+    PaymentInstrumentRequest, PaymentInstrumentsQuery
 from checkout_sdk.api_client import ApiClient
 from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
@@ -15,6 +18,7 @@ class AccountsClient(Client):
     __ENTITIES_PATH = 'entities'
     __FILES_PATH = 'files'
     __PAYOUT_SCHEDULES_PATH = 'payout-schedules'
+    __PAYMENT_INSTRUMENTS_PATH = 'payment-instruments'
 
     def __init__(self, api_client: ApiClient,
                  files_client: ApiClient,
@@ -24,34 +28,67 @@ class AccountsClient(Client):
                          authorization_type=AuthorizationType.OAUTH)
         self.__files_client = files_client
 
+    def upload_file(self, file_request: FileRequest):
+        return self.__files_client.submit_file(
+            self.__FILES_PATH,
+            self._sdk_authorization(),
+            file_request,
+            multipart_file='path')
+
     def create_entity(self, onboard_entity_request: OnboardEntityRequest):
-        return self._api_client.post(self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH),
-                                     self._sdk_authorization(), onboard_entity_request)
+        return self._api_client.post(
+            self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH),
+            self._sdk_authorization(),
+            onboard_entity_request)
+
+    def retrieve_payment_instrument_details(self, entity_id: str, payment_instrument_id: str):
+        return self._api_client.get(
+            self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id, self.__PAYMENT_INSTRUMENTS_PATH,
+                            payment_instrument_id),
+            self._sdk_authorization()
+        )
 
     def get_entity(self, entity_id: str):
-        return self._api_client.get(self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id),
-                                    self._sdk_authorization())
+        return self._api_client.get(
+            self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id),
+            self._sdk_authorization())
 
     def update_entity(self, entity_id: str, onboard_entity_request: OnboardEntityRequest):
-        return self._api_client.put(self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id),
-                                    self._sdk_authorization(), onboard_entity_request)
+        return self._api_client.put(
+            self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id),
+            self._sdk_authorization(),
+            onboard_entity_request)
 
     def create_payment_instrument(self, entity_id: str, accounts_payment_instrument: AccountsPaymentInstrument):
+        warn('Deprecated use add_payment_instrument instead', DeprecationWarning,
+             stacklevel=2)
         return self._api_client.post(
             self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id, self.__INSTRUMENTS_PATH),
-            self._sdk_authorization(), accounts_payment_instrument)
+            self._sdk_authorization(),
+            accounts_payment_instrument)
 
-    def upload_file(self, file_request: FileRequest):
-        return self.__files_client.submit_file(self.__FILES_PATH, self._sdk_authorization(), file_request,
-                                               multipart_file='path')
+    def add_payment_instrument(self, entity_id: str, payment_instrument_request: PaymentInstrumentRequest):
+        return self._api_client.post(
+            self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id, self.__PAYMENT_INSTRUMENTS_PATH),
+            self._sdk_authorization(),
+            payment_instrument_request
+        )
 
-    def update_payout_schedule(self, entity_id: str, currency: Currency,
-                               update_schedule_request: UpdateScheduleRequest):
-        return self._api_client.put(
-            self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id, self.__PAYOUT_SCHEDULES_PATH),
-            self._sdk_authorization(), {currency: update_schedule_request})
+    def query_payment_instruments(self, entity_id: str, query: PaymentInstrumentsQuery = None):
+        return self._api_client.get(
+            self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id, self.__PAYMENT_INSTRUMENTS_PATH),
+            self._sdk_authorization(),
+            query
+        )
 
     def retrieve_payout_schedule(self, entity_id: str):
         return self._api_client.get(
             self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id, self.__PAYOUT_SCHEDULES_PATH),
             self._sdk_authorization())
+
+    def update_payout_schedule(self, entity_id: str, currency: Currency,
+                               update_schedule_request: UpdateScheduleRequest):
+        return self._api_client.put(
+            self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id, self.__PAYOUT_SCHEDULES_PATH),
+            self._sdk_authorization(),
+            {currency: update_schedule_request})

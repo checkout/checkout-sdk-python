@@ -46,8 +46,8 @@ def oauth_api():
                             client_secret=os.environ.get('CHECKOUT_DEFAULT_OAUTH_CLIENT_SECRET')) \
         .http_client_builder(CustomHttpClientBuilder()) \
         .scopes([OAuthScopes.GATEWAY, OAuthScopes.VAULT, OAuthScopes.PAYOUTS_BANK_DETAILS,
-                 OAuthScopes.SESSIONS_APP, OAuthScopes.SESSIONS_BROWSER, OAuthScopes.FX, OAuthScopes.MARKETPLACE,
-                 OAuthScopes.FILES, OAuthScopes.TRANSFERS, OAuthScopes.BALANCES_VIEW, OAuthScopes.REPORTING]) \
+                 OAuthScopes.SESSIONS_APP, OAuthScopes.SESSIONS_BROWSER, OAuthScopes.FX, OAuthScopes.ACCOUNTS,
+                 OAuthScopes.FILES, OAuthScopes.TRANSFERS, OAuthScopes.BALANCES_VIEW]) \
         .build()
 
 
