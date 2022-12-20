@@ -25,7 +25,7 @@ class AccountsClient(Client):
                  configuration: CheckoutConfiguration):
         super().__init__(api_client=api_client,
                          configuration=configuration,
-                         authorization_type=AuthorizationType.OAUTH)
+                         authorization_type=AuthorizationType.SECRET_KEY_OR_OAUTH)
         self.__files_client = files_client
 
     def upload_file(self, file_request: FileRequest):
