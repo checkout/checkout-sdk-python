@@ -14,7 +14,7 @@ class TransfersClient(Client):
                  configuration: CheckoutConfiguration):
         super().__init__(api_client=api_client,
                          configuration=configuration,
-                         authorization_type=AuthorizationType.OAUTH)
+                         authorization_type=AuthorizationType.SECRET_KEY_OR_OAUTH)
 
     def initiate_transfer_of_funds(self, create_transfer_request: CreateTransferRequest, idempotency_key: str = None):
         return self._api_client.post(self.__TRANSFERS_PATH, self._sdk_authorization(), create_transfer_request,
