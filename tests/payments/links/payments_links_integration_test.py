@@ -3,10 +3,9 @@ from __future__ import absolute_import
 from checkout_sdk.common.common import CustomerRequest, Product, Commission, AmountAllocations
 from checkout_sdk.common.enums import Currency, PaymentSourceType
 from checkout_sdk.payments.links.payments_links import PaymentLinkRequest
-from checkout_sdk.payments.payments import ShippingDetails, ThreeDsRequest, RiskRequest, PaymentRecipient, \
-    ProcessingSettings
+from checkout_sdk.payments.payments import ShippingDetails, ThreeDsRequest, RiskRequest, ProcessingSettings
 from checkout_sdk.payments.payments_previous import BillingInformation
-from tests.checkout_test_utils import assert_response, phone, address, random_email, new_uuid
+from tests.checkout_test_utils import assert_response, phone, address, random_email, new_uuid, get_payment_recipient
 
 
 def test_should_create_and_get_payment_link(default_api):
@@ -71,12 +70,6 @@ def create_payment_link_request():
     shipping_details.address = address()
     shipping_details.phone = phone()
 
-    recipient = PaymentRecipient()
-    recipient.account_number = '123456789'
-    recipient.dob = '1985-05-18'
-    recipient.last_name = 'Testing'
-    recipient.zip = '12345'
-
     product = Product()
     product.name = 'Gold Necklace'
     product.quantity = 1
@@ -100,7 +93,7 @@ def create_payment_link_request():
     request.customer = customer_request
     request.shipping = shipping_details
     request.billing = billing_information
-    request.recipient = recipient
+    request.recipient = get_payment_recipient()
     request.processing = processing_settings
     request.products = [product]
     request.risk = risk_request

@@ -8,7 +8,7 @@ from pathlib import Path
 from checkout_sdk.common.common import Address, Phone, CustomerRequest
 from checkout_sdk.common.enums import Country
 from checkout_sdk.exception import CheckoutException, CheckoutApiException
-from checkout_sdk.payments.payments import Payer
+from checkout_sdk.payments.payments import Payer, PaymentRecipient
 
 NAME = 'Integration Test'
 FIRST_NAME = 'Integration'
@@ -117,3 +117,14 @@ def get_payer():
     payer.name = NAME
     payer.document = '53033315550'
     return payer
+
+
+def get_payment_recipient():
+    recipient = PaymentRecipient()
+    recipient.account_number = '123456789'
+    recipient.dob = '1985-05-18'
+    recipient.first_name = 'IT'
+    recipient.last_name = 'Testing'
+    recipient.zip = '12345'
+    recipient.country = Country.ES
+    return recipient
