@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+import pytest
+
 from checkout_sdk.common.enums import ChallengeIndicator
 from checkout_sdk.checkout_api import CheckoutApi
 from checkout_sdk.sessions.sessions import Category, TransactionType
@@ -22,6 +24,7 @@ def test_request_and_get_card_session_browser_session(oauth_api: CheckoutApi):
     assert_response(oauth_api.sessions.get_session_details(session_id, session_secret), 'id')
 
 
+@pytest.mark.skip(reason='unstable')
 def test_request_and_get_card_session_app_session(oauth_api: CheckoutApi):
     browser_session = get_app_session()
     session_request = get_non_hosted_session(browser_session, Category.PAYMENT,
