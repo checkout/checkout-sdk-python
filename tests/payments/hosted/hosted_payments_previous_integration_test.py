@@ -3,10 +3,9 @@ from __future__ import absolute_import
 from checkout_sdk.common.common import CustomerRequest, Product
 from checkout_sdk.common.enums import Currency, PaymentSourceType
 from checkout_sdk.payments.hosted.hosted_payments import HostedPaymentsSessionRequest
+from checkout_sdk.payments.payments import ShippingDetails, ThreeDsRequest, RiskRequest, ProcessingSettings
 from checkout_sdk.payments.payments_previous import BillingInformation
-from checkout_sdk.payments.payments import ShippingDetails, ThreeDsRequest, RiskRequest, PaymentRecipient, \
-    ProcessingSettings
-from tests.checkout_test_utils import assert_response, phone, address, random_email
+from tests.checkout_test_utils import assert_response, phone, address, random_email, get_payment_recipient
 
 
 def test_should_create_and_get_hosted_payments_page_details(previous_api):
@@ -56,12 +55,6 @@ def create_hosted_payments_request():
     shipping_details.address = address()
     shipping_details.phone = phone()
 
-    recipient = PaymentRecipient()
-    recipient.account_number = '123456789'
-    recipient.dob = '1985-05-18'
-    recipient.last_name = 'Testing'
-    recipient.zip = '12345'
-
     product = Product()
     product.name = 'Gold Necklace'
     product.quantity = 1
@@ -85,7 +78,7 @@ def create_hosted_payments_request():
     request.customer = customer_request
     request.shipping = shipping_details
     request.billing = billing_information
-    request.recipient = recipient
+    request.recipient = get_payment_recipient()
     request.processing = processing_settings
     request.products = [product]
     request.risk = risk_request
