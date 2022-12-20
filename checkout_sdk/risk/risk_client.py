@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+from warnings import warn
+
 from checkout_sdk.api_client import ApiClient
 from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
@@ -15,6 +17,10 @@ class RiskClient(Client):
         super().__init__(api_client=api_client,
                          configuration=configuration,
                          authorization_type=AuthorizationType.SECRET_KEY)
+        warn(
+            'Risk endpoints are no longer supported officially, This module will be removed in a future release.',
+            DeprecationWarning,
+            stacklevel=2)
 
     def request_pre_authentication_risk_scan(self,
                                              pre_authentication_assessment_request: PreAuthenticationAssessmentRequest):
