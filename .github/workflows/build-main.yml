@@ -7,7 +7,12 @@ on:
 jobs:
   build:
     if: "!contains(github.event.commits[0].message, 'Release')"
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    # python3.6 reached EOL and is no longer being supported on
+    # new versions of hosted runners on GitHub Actions
+    # ubuntu-20.04 is the last version that supported python3.6
+    # see https://github.com/actions/setup-python/issues/544#issuecomment-1332535877
+    runs-on: ubuntu-20.04
     strategy:
       max-parallel: 1
       fail-fast: false
