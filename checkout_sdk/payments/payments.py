@@ -207,6 +207,7 @@ class PaymentRequestTokenSource(PaymentRequestSource):
     token: str
     billing_address: Address
     phone: Phone
+    stored: bool
     store_for_future_use: bool
 
     def __init__(self):
@@ -234,6 +235,8 @@ class PaymentRequestIdSource(PaymentRequestSource):
     id: str
     cvv: str
     payment_method: str
+    stored: bool
+    store_for_future_use: bool
 
     def __init__(self):
         super().__init__(PaymentSourceType.ID)
