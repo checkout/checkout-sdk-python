@@ -18,6 +18,7 @@ from checkout_sdk.tokens.tokens_client import TokensClient
 from checkout_sdk.transfers.transfers_client import TransfersClient
 from checkout_sdk.workflows.workflows_client import WorkflowsClient
 from checkout_sdk.reports.reports_client import ReportsClient
+from checkout_sdk.metadata.metadata_client import CardMetadataClient
 
 
 def _base_api_client(configuration: CheckoutConfiguration) -> ApiClient:
@@ -58,3 +59,4 @@ class CheckoutApi(CheckoutApmApi):
                                        files_client=_files_api_client(configuration),
                                        configuration=configuration)
         self.reports = ReportsClient(api_client=base_api_client, configuration=configuration)
+        self.card_metadata = CardMetadataClient(api_client=base_api_client, configuration=configuration)

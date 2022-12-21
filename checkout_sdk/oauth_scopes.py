@@ -7,6 +7,7 @@ class OAuthScopes(str, Enum):
     VAULT = 'vault'
     VAULT_INSTRUMENTS = 'vault:instruments'
     VAULT_TOKENIZATION = 'vault:tokenization'
+    VAULT_CARD_METADATA = 'vault:card-metadata'
     GATEWAY = 'gateway'
     GATEWAY_PAYMENT = 'gateway:payment'
     GATEWAY_PAYMENT_DETAILS = 'gateway:payment-details'
