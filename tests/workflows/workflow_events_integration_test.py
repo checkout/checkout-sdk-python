@@ -1,3 +1,5 @@
+import pytest
+
 from tests.checkout_test_utils import assert_response, retriable
 from tests.payments.payments_test_utils import make_card_payment
 from tests.workflows.workflows_test_utils import create_workflow, clean_workflows
@@ -20,6 +22,7 @@ def test_should_get_event_types(default_api):
             assert_response(event, 'description', 'display_name', 'id')
 
 
+@pytest.mark.skip(reason='unstable')
 def test_should_get_subject_event_and_events(default_api):
     create_workflow(default_api)
 

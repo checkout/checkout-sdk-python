@@ -1,3 +1,5 @@
+import pytest
+
 from checkout_sdk.checkout_api import CheckoutApi
 from checkout_sdk.workflows.workflows import ReflowByEventsRequest, ReflowBySubjectsRequest
 from tests.checkout_test_utils import assert_response, retriable
@@ -5,6 +7,7 @@ from tests.payments.payments_test_utils import make_card_payment
 from tests.workflows.workflows_test_utils import create_workflow, clean_workflows
 
 
+@pytest.mark.skip(reason='unstable')
 def test__should_reflow_by_event(default_api):
     create_workflow(default_api)
 
@@ -17,6 +20,7 @@ def test__should_reflow_by_event(default_api):
     clean_workflows(default_api)
 
 
+@pytest.mark.skip(reason='unstable')
 def test__should_reflow_by_subject(default_api):
     create_workflow(default_api)
 
@@ -28,6 +32,7 @@ def test__should_reflow_by_subject(default_api):
     clean_workflows(default_api)
 
 
+@pytest.mark.skip(reason='unstable')
 def test_should_reflow_by_event_and_workflow(default_api):
     workflow = create_workflow(default_api)
 
@@ -42,6 +47,7 @@ def test_should_reflow_by_event_and_workflow(default_api):
     clean_workflows(default_api)
 
 
+@pytest.mark.skip(reason='unstable')
 def test_should_reflow_by_events(default_api):
     workflow = create_workflow(default_api)
 
@@ -59,6 +65,7 @@ def test_should_reflow_by_events(default_api):
     clean_workflows(default_api)
 
 
+@pytest.mark.skip(reason='unstable')
 def test_reflow_by_subject_and_workflow(default_api):
     workflow = create_workflow(default_api)
 
@@ -71,6 +78,7 @@ def test_reflow_by_subject_and_workflow(default_api):
     clean_workflows(default_api)
 
 
+@pytest.mark.skip(reason='unstable')
 def test__should_reflow_subjects(default_api):
     workflow = create_workflow(default_api)
 
