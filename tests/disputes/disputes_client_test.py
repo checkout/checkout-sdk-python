@@ -43,3 +43,7 @@ class TestDisputesClient:
     def test_should_get_file_details(self, mocker, client: DisputesClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
         assert client.get_file_details('file_id') == 'response'
+
+    def test_should_get_dispute_scheme_files(self, mocker, client: DisputesClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        assert client.get_dispute_scheme_files('dispute_id') == 'response'

@@ -104,3 +104,17 @@ def test_should_test_full_disputes_workflow(previous_api):
 
 def there_are_disputes(response) -> bool:
     return response.total_count is not None and response.total_count > 0
+
+
+def test_should_disputes_scheme_files(previous_api):
+    disputes_query_filter = DisputesQueryFilter()
+    disputes_query_filter.limit = 5
+
+    query_response = previous_api.disputes.query(disputes_query_filter)
+
+    if query_response.data:
+        for dispute in query_response.data:
+            scheme_files = previous_api.disputes.get_dispute_scheme_files(dispute.id)
+            assert_response(scheme_files,
+                            'id',
+                            'files')
