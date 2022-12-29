@@ -7,7 +7,7 @@ from tests.checkout_test_utils import assert_response, retriable
 
 __WORKFLOW_ENTITY_ID = 'ent_kidtcgc3ge5unf4a5i6enhnr5m'
 __PROCESSING_CHANNEL_ID = 'pc_5jp2az55l3cuths25t5p3xhwru'
-__WORKFLOW_NAME = 'testing'
+__WORKFLOW_NAME = 'testing-python'
 __WORKFLOWS: list = []
 
 
