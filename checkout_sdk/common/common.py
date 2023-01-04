@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 
 from checkout_sdk.common.enums import AccountHolderIdentificationType, AccountHolderType, Country
@@ -105,3 +106,8 @@ class ShippingInfo:
     return_shipping_company: str
     return_tracking_number: str
     return_tracking_uri: str
+
+
+class QueryFilterDateRange:
+    from_: datetime
+    to: datetime
