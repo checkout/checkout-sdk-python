@@ -4,7 +4,9 @@ class ResponseWrapper:
         if http_metadata is not None:
             setattr(self, 'http_metadata', http_metadata)
         if data is not None:
-            if self._is_collection(data):
+            if isinstance(data, str):
+                setattr(self, 'contents', self._wrap(data))
+            elif self._is_collection(data):
                 setattr(self, 'items', self._wrap(data))
             else:
                 for name, value in data.items():

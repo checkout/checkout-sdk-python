@@ -125,6 +125,10 @@ class ApiClient:
 
         http_metadata = map_to_http_metadata(response)
         if response.text:
-            return ResponseWrapper(http_metadata, response.json())
+            if response.headers.get('Content-Type').startswith('application/json'):
+                contents = response.json()
+            else:
+                contents = response.text
+            return ResponseWrapper(http_metadata, contents)
         else:
             return ResponseWrapper(http_metadata)
