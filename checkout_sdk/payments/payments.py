@@ -3,7 +3,8 @@ from __future__ import absolute_import
 from datetime import datetime
 from enum import Enum
 
-from checkout_sdk.common.common import AccountHolder, BankDetails, MarketplaceData, Address, Phone, CustomerRequest
+from checkout_sdk.common.common import AccountHolder, BankDetails, MarketplaceData, Address, Phone, CustomerRequest, \
+    AccountHolderIdentification
 from checkout_sdk.common.enums import PaymentSourceType, Currency, Country, AccountType, ChallengeIndicator
 
 
@@ -28,16 +29,12 @@ class PaymentSenderType(str, Enum):
     INDIVIDUAL = 'individual'
     CORPORATE = 'corporate'
     INSTRUMENT = 'instrument'
-
-
-class IdentificationType(str, Enum):
-    PASSPORT = 'passport'
-    DRIVING_LICENSE = 'driving_licence'
-    NATIONAL_ID = 'national_id'
+    GOVERNMENT = 'government'
 
 
 class PayoutSourceType(str, Enum):
     CURRENCY_ACCOUNT = 'currency_account'
+    ENTITY = 'entity'
 
 
 class PaymentType(str, Enum):
@@ -142,12 +139,6 @@ class PayoutBillingDescriptor:
     reference: str
 
 
-class Identification:
-    type: IdentificationType
-    number: str
-    issuing_country: Country
-
-
 # Payment Sender
 class PaymentSender:
     type: PaymentSenderType
@@ -159,16 +150,37 @@ class PaymentSender:
 class PaymentCorporateSender(PaymentSender):
     company_name: str
     address: Address
+    reference_type: str
+    source_of_funds: str
+    identification: AccountHolderIdentification
 
     def __init__(self):
         super().__init__(PaymentSenderType.CORPORATE)
 
 
+class PaymentGovermentSender(PaymentSender):
+    company_name: str
+    address: Address
+    reference_type: str
+    source_of_funds: str
+    identification: AccountHolderIdentification
+
+    def __init__(self):
+        super().__init__(PaymentSenderType.GOVERNMENT)
+
+
 class PaymentIndividualSender(PaymentSender):
     first_name: str
+    middle_name: str
     last_name: str
+    dob: str
     address: Address
-    identification: Identification
+    identification: AccountHolderIdentification
+    reference_type: str
+    source_of_funds: str
+    date_of_birth: str
+    country_of_birth: Country
+    nationality: Country
 
     def __init__(self):
         super().__init__(PaymentSenderType.INDIVIDUAL)
@@ -305,6 +317,7 @@ class RiskRequest:
 class PaymentRecipient:
     dob: str
     account_number: str
+    address: Address
     zip: str
     first_name: str
     last_name: str
@@ -325,6 +338,19 @@ class DLocalProcessingSettings:
     country: Country
     payer: Payer
     installments: Installments
+
+
+class SenderInformation:
+    reference: str
+    firstName: str
+    lastName: str
+    dob: str
+    address: str
+    city: str
+    state: str
+    country: str
+    postalCode: str
+    sourceOfFunds: str
 
 
 class ProcessingSettings:
@@ -354,9 +380,12 @@ class ProcessingSettings:
     otp_value: str
     purchase_country: Country
     custom_payment_method_ids: list  # string
+    merchant_callback_url: str
     shipping_delay: int
     shipping_info: list  # ShippingInfo
     dlocal: DLocalProcessingSettings
+    senderInformation: SenderInformation
+    purpose: str
 
 
 class Product:
@@ -424,6 +453,13 @@ class PayoutRequestCurrencyAccountSource(PayoutRequestSource):
 
     def __init__(self):
         super().__init__(PayoutSourceType.CURRENCY_ACCOUNT)
+
+
+class PayoutRequestEntitySource(PayoutRequestSource):
+    id: str
+
+    def __init__(self):
+        super().__init__(PayoutSourceType.ENTITY)
 
 
 # Payment Request Destination

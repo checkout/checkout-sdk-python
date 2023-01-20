@@ -2,12 +2,12 @@ from __future__ import absolute_import
 
 from datetime import datetime
 
-from checkout_sdk.common.common import CustomerRequest
-from checkout_sdk.common.enums import Currency, Country
 from checkout_sdk.checkout_api import CheckoutApi
+from checkout_sdk.common.common import CustomerRequest, AccountHolderIdentification
+from checkout_sdk.common.enums import Currency, Country, AccountHolderIdentificationType
+from checkout_sdk.payments.payments import PaymentRequestCardSource, PaymentRequest, PaymentIndividualSender, \
+    PaymentInstrumentSender, PaymentCorporateSender, ThreeDsRequest
 from checkout_sdk.payments.payments_previous import RequestTokenSource
-from checkout_sdk.payments.payments import PaymentRequestCardSource, PaymentRequest, Identification, \
-    IdentificationType, PaymentIndividualSender, PaymentInstrumentSender, PaymentCorporateSender, ThreeDsRequest
 from checkout_sdk.tokens.tokens import CardTokenRequest
 from tests.checkout_test_utils import VisaCard, address, phone, assert_response, random_email, new_uuid, FIRST_NAME, \
     LAST_NAME, NAME, SUCCESS_URL, FAILURE_URL
@@ -28,10 +28,10 @@ def make_card_payment(default_api: CheckoutApi, amount: int = 10, capture_on: da
     customer_request.email = random_email()
     customer_request.name = 'Customer'
 
-    identification = Identification()
+    identification = AccountHolderIdentification()
     identification.issuing_country = Country.GT
     identification.number = '1234'
-    identification.type = IdentificationType.DRIVING_LICENSE
+    identification.type = AccountHolderIdentificationType.DRIVING_LICENSE
 
     payment_individual_sender = PaymentIndividualSender()
     payment_individual_sender.first_name = FIRST_NAME
