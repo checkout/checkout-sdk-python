@@ -220,6 +220,11 @@ class PaymentInstrumentRequest:
     instrument_details: InstrumentDetails
 
 
+class UpdatePaymentInstrumentRequest:
+    label: str
+    default: bool
+
+
 class ScheduleRequest:
     frequency: ScheduleFrequency
 
