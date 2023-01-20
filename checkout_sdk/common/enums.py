@@ -467,6 +467,8 @@ class PaymentSourceType(str, Enum):
     POSTFINANCE = 'postfinance'
     STCPAY = 'stcpay'
     ALMA = 'alma'
+    TRUSTLY = 'trustly'
+    CVCONNECT = 'cvconnect'
 
 
 class ChallengeIndicator(str, Enum):
