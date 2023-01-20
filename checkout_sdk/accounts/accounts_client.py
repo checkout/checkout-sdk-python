@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from warnings import warn
 
 from checkout_sdk.accounts.accounts import OnboardEntityRequest, UpdateScheduleRequest, AccountsPaymentInstrument, \
-    PaymentInstrumentRequest, PaymentInstrumentsQuery
+    PaymentInstrumentRequest, PaymentInstrumentsQuery, UpdatePaymentInstrumentRequest
 from checkout_sdk.api_client import ApiClient
 from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
@@ -72,6 +72,20 @@ class AccountsClient(Client):
             self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id, self.__PAYMENT_INSTRUMENTS_PATH),
             self._sdk_authorization(),
             payment_instrument_request
+        )
+
+    def update_payment_instrument(self,
+                                  entity_id: str,
+                                  instrument_id: str,
+                                  update_payment_instrument_request: UpdatePaymentInstrumentRequest):
+        return self._api_client.patch(
+            self.build_path(self.__ACCOUNTS_PATH,
+                            self.__ENTITIES_PATH,
+                            entity_id,
+                            self.__PAYMENT_INSTRUMENTS_PATH,
+                            instrument_id),
+            self._sdk_authorization(),
+            update_payment_instrument_request
         )
 
     def query_payment_instruments(self, entity_id: str, query: PaymentInstrumentsQuery = None):

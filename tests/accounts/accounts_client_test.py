@@ -1,7 +1,7 @@
 import pytest
 
 from checkout_sdk.accounts.accounts import OnboardEntityRequest, AccountsPaymentInstrument, UpdateScheduleRequest, \
-    PaymentInstrumentRequest, PaymentInstrumentsQuery
+    PaymentInstrumentRequest, PaymentInstrumentsQuery, UpdatePaymentInstrumentRequest
 from checkout_sdk.accounts.accounts_client import AccountsClient
 from checkout_sdk.common.enums import Currency
 from checkout_sdk.files.files import FileRequest
@@ -35,6 +35,11 @@ class TestAccountsClient:
     def test_should_create_payment_instrument(self, mocker, client: AccountsClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
         assert client.add_payment_instrument('entity_id', PaymentInstrumentRequest()) == 'response'
+
+    def test_should_update_payment_instrument(self, mocker, client: AccountsClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.patch', return_value='response')
+        assert client.update_payment_instrument('entity_id', 'instrument_id',
+                                                UpdatePaymentInstrumentRequest()) == 'response'
 
     def test_should_query_payment_instruments(self, mocker, client: AccountsClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
