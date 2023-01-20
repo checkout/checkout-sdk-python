@@ -14,7 +14,7 @@ class BalancesClient(Client):
                  configuration: CheckoutConfiguration):
         super().__init__(api_client=api_client,
                          configuration=configuration,
-                         authorization_type=AuthorizationType.OAUTH)
+                         authorization_type=AuthorizationType.SECRET_KEY_OR_OAUTH)
 
     def retrieve_entity_balances(self, entity_id: str, balances_query: BalancesQuery):
         return self._api_client.get(self.build_path(self.__BALANCES_PATH, entity_id), self._sdk_authorization(),
