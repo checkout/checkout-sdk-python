@@ -34,6 +34,7 @@ class AccountHolderIdentification:
     type: AccountHolderIdentificationType
     number: str
     issuing_country: Country
+    date_of_expiry: str
 
 
 class AccountHolder:
@@ -50,6 +51,7 @@ class AccountHolder:
     identification: AccountHolderIdentification
     email: str
     gender: str
+    middle_name: str
 
 
 class BankDetails:

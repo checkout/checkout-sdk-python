@@ -1,10 +1,12 @@
 from __future__ import absolute_import
 
-from checkout_sdk.common.enums import Country, Currency
-from checkout_sdk.customers.customers import CustomerRequest
+from checkout_sdk.common.common import AccountHolderIdentification
+
 from checkout_sdk.checkout_api import CheckoutApi
-from checkout_sdk.payments.payments import PaymentRequestCardSource, Identification, IdentificationType, \
-    PaymentIndividualSender, PaymentRequest, AuthorizationType, AuthorizationRequest
+from checkout_sdk.common.enums import Country, Currency, AccountHolderIdentificationType
+from checkout_sdk.customers.customers import CustomerRequest
+from checkout_sdk.payments.payments import PaymentRequestCardSource, PaymentIndividualSender, PaymentRequest, \
+    AuthorizationType, AuthorizationRequest
 from tests.checkout_test_utils import new_uuid, assert_response, new_idempotency_key, VisaCard, address, phone, \
     random_email, FIRST_NAME, LAST_NAME
 
@@ -66,10 +68,10 @@ def make_authorization_estimated_payment(default_api: CheckoutApi):
     customer_request.email = random_email()
     customer_request.name = 'Customer'
 
-    identification = Identification()
+    identification = AccountHolderIdentification()
     identification.issuing_country = Country.GT
     identification.number = '1234'
-    identification.type = IdentificationType.NATIONAL_ID
+    identification.type = AccountHolderIdentificationType.NATIONAL_ID
 
     payment_individual_sender = PaymentIndividualSender()
     payment_individual_sender.first_name = FIRST_NAME
