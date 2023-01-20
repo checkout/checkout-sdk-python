@@ -1,9 +1,12 @@
 from __future__ import absolute_import
 
+import pytest
+
 from checkout_sdk.sources.sources import MandateType, SourceData, SepaSourceRequest
 from tests.checkout_test_utils import assert_response, address, phone
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_create_sepa_source(previous_api):
     source_data = SourceData()
     source_data.first_name = 'Marcus'
