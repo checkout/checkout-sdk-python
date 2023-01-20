@@ -208,3 +208,17 @@ class RequestFawrySource(PaymentRequestSource):
 
     def __init__(self):
         super().__init__(PaymentSourceType.FAWRY)
+
+
+class RequestCvConnectSource(PaymentRequestSource):
+    billing_address: Address
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.CVCONNECT)
+
+
+class RequestTrustlySource(PaymentRequestSource):
+    billing_address: Address
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.TRUSTLY)

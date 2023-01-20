@@ -11,7 +11,7 @@ from checkout_sdk.exception import CheckoutApiException
 from checkout_sdk.payments.payment_apm import RequestIdealSource, RequestTamaraSource, \
     PaymentRequestWeChatPaySource, RequestAlipayPlusSource, RequestP24Source, RequestKnetSource, \
     RequestBancontactSource, RequestMultiBancoSource, RequestPostFinanceSource, RequestStcPaySource, RequestAlmaSource, \
-    RequestKlarnaSource, RequestFawrySource
+    RequestKlarnaSource, RequestFawrySource, RequestTrustlySource, RequestCvConnectSource
 from checkout_sdk.payments.payments import PaymentRequest, ProcessingSettings, FawryProduct, PaymentCustomerRequest
 from checkout_sdk.payments.payments_apm_previous import RequestSofortSource
 from tests.checkout_test_utils import assert_response, SUCCESS_URL, FAILURE_URL, retriable, address, FIRST_NAME, \
@@ -364,6 +364,36 @@ def test_should_request_fawry_payment(default_api):
     payment_request.source = request_source
     payment_request.amount = 10
     payment_request.currency = Currency.EGP
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+
+    check_error_item(callback=default_api.payments.request_payment,
+                     error_item=PAYEE_NOT_ONBOARDED,
+                     payment_request=payment_request)
+
+
+def test_should_make_cvconnect_payment(default_api):
+    payment_request = PaymentRequest()
+    payment_request.source = RequestCvConnectSource()
+    payment_request.source.billing_address = address()
+    payment_request.amount = 100
+    payment_request.currency = Currency.EUR
+    payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+
+    check_error_item(callback=default_api.payments.request_payment,
+                     error_item=PAYEE_NOT_ONBOARDED,
+                     payment_request=payment_request)
+
+
+def test_should_make_trustly_payment(default_api):
+    payment_request = PaymentRequest()
+    payment_request.source = RequestTrustlySource()
+    payment_request.source.billing_address = address()
+    payment_request.amount = 100
+    payment_request.currency = Currency.EUR
+    payment_request.capture = True
     payment_request.success_url = SUCCESS_URL
     payment_request.failure_url = FAILURE_URL
 
