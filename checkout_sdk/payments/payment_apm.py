@@ -103,6 +103,13 @@ class RequestEpsSource(PaymentRequestSource):
         super().__init__(PaymentSourceType.EPS)
 
 
+class RequestIllicadoSource(PaymentRequestSource):
+    billing_address: Address
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.ILLICADO)
+
+
 class RequestGiropaySource(PaymentRequestSource):
     purpose: str
     info_fields: list

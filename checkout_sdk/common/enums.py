@@ -445,6 +445,7 @@ class PaymentSourceType(str, Enum):
     PAYPAL = 'paypal'
     MULTIBANCO = 'multibanco'
     EPS = 'eps'
+    ILLICADO = 'illicado'
     POLI = 'poli'
     P24 = 'p24'
     BENEFITPAY = 'benefitpay'
