@@ -11,7 +11,7 @@ from checkout_sdk.exception import CheckoutApiException
 from checkout_sdk.payments.payment_apm import RequestIdealSource, RequestTamaraSource, \
     PaymentRequestWeChatPaySource, RequestAlipayPlusSource, RequestP24Source, RequestKnetSource, \
     RequestBancontactSource, RequestMultiBancoSource, RequestPostFinanceSource, RequestStcPaySource, RequestAlmaSource, \
-    RequestKlarnaSource, RequestFawrySource, RequestTrustlySource, RequestCvConnectSource
+    RequestKlarnaSource, RequestFawrySource, RequestTrustlySource, RequestCvConnectSource, RequestIllicadoSource
 from checkout_sdk.payments.payments import PaymentRequest, ProcessingSettings, FawryProduct, PaymentCustomerRequest
 from checkout_sdk.payments.payments_apm_previous import RequestSofortSource
 from tests.checkout_test_utils import assert_response, SUCCESS_URL, FAILURE_URL, retriable, address, FIRST_NAME, \
@@ -310,6 +310,31 @@ def test_should_make_stc_pay_payment(default_api):
 def test_should_make_alma_payment(default_api):
     request_source = RequestAlmaSource()
     request_source.billing_address = address()
+
+    payment_request = PaymentRequest()
+    payment_request.source = request_source
+    payment_request.amount = 100
+    payment_request.currency = Currency.EUR
+    payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+
+    check_error_item(callback=default_api.payments.request_payment,
+                     error_item=PAYEE_NOT_ONBOARDED,
+                     payment_request=payment_request)
+
+
+def test_should_make_illicado_payment(default_api):
+    address = Address()
+    address.address_line1 = 'Cecilia Chapman'
+    address.address_line2 = '711-2880 Nulla St.'
+    address.city = 'Mankato'
+    address.state = 'Mississippi'
+    address.zip = '96522'
+    address.country = Country.SA
+
+    request_source = RequestIllicadoSource()
+    request_source.billing_address = address
 
     payment_request = PaymentRequest()
     payment_request.source = request_source
