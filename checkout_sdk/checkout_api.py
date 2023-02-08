@@ -6,6 +6,7 @@ from checkout_sdk.balances.balances_client import BalancesClient
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
 from checkout_sdk.customers.customers_client import CustomersClient
 from checkout_sdk.disputes.disputes_client import DisputesClient
+from checkout_sdk.financial.financial_client import FinancialClient
 from checkout_sdk.forex.forex_client import ForexClient
 from checkout_sdk.checkout_apm_api import CheckoutApmApi
 from checkout_sdk.instruments.instruments_client import InstrumentsClient
@@ -60,3 +61,4 @@ class CheckoutApi(CheckoutApmApi):
                                        configuration=configuration)
         self.reports = ReportsClient(api_client=base_api_client, configuration=configuration)
         self.card_metadata = CardMetadataClient(api_client=base_api_client, configuration=configuration)
+        self.financial = FinancialClient(api_client=base_api_client, configuration=configuration)

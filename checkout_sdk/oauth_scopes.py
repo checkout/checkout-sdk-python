@@ -39,6 +39,8 @@ class OAuthScopes(str, Enum):
     BALANCES_VIEW = 'balances:view'
     REPORTS = 'reports'
     REPORTS_VIEW = 'reports:view'
+    FINANCIAL_ACTIONS = 'financial-actions'
+    FINANCIAL_ACTIONS_VIEW = 'financial-actions:view'
 
     MIDDLEWARE = 'middleware'
     MIDDLEWARE_MERCHANTS_SECRET = 'middleware:merchants-secret'

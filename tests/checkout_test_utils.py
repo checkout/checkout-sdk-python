@@ -21,7 +21,7 @@ APM_SERVICE_UNAVAILABLE = 'apm_service_unavailable'
 _logger = logging.getLogger('checkout')
 
 
-def retriable(callback, predicate=None, **kwargs):
+def retriable(callback, predicate=None, timeout=2, **kwargs):
     current_attempt = 1
     max_attempts = 10
     while current_attempt <= max_attempts:
@@ -35,7 +35,7 @@ def retriable(callback, predicate=None, **kwargs):
             _logger.warning(
                 'Request/Predicate failed with error ({}) - retry ({})/({})'.format(ex, current_attempt, max_attempts))
         current_attempt += 1
-        time.sleep(2)
+        time.sleep(timeout)
     raise CheckoutException('Max attempts reached!')
 
 
