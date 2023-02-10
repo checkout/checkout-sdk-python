@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from datetime import datetime
 
 from checkout_sdk.common.common import Address, AccountHolder
-from checkout_sdk.common.enums import PaymentSourceType, Country
+from checkout_sdk.common.enums import PaymentSourceType, Country, Currency
 from checkout_sdk.payments.payments import PaymentRequestSource, BillingPlan
 
 
@@ -229,3 +229,17 @@ class RequestTrustlySource(PaymentRequestSource):
 
     def __init__(self):
         super().__init__(PaymentSourceType.TRUSTLY)
+
+
+class RequestSepaSource(PaymentRequestSource):
+    billing_address: Address
+    country: Country
+    account_number: str
+    bank_code: str
+    currency: Currency
+    mandate_id: str
+    date_of_signature: str
+    account_holder: AccountHolder
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.SEPA)

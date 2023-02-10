@@ -5,7 +5,7 @@ import time
 import uuid
 from pathlib import Path
 
-from checkout_sdk.common.common import Address, Phone, CustomerRequest
+from checkout_sdk.common.common import Address, Phone, CustomerRequest, AccountHolder
 from checkout_sdk.common.enums import Country
 from checkout_sdk.exception import CheckoutException, CheckoutApiException
 from checkout_sdk.payments.payments import Payer, PaymentRecipient
@@ -78,6 +78,15 @@ def phone() -> Phone:
     _phone.country_code = '44'
     _phone.number = '020222333'
     return _phone
+
+
+def account_holder() -> AccountHolder:
+    _account_holder = AccountHolder()
+    _account_holder.first_name = 'John'
+    _account_holder.last_name = 'Doe'
+    _account_holder.billing_address = address()
+    _account_holder.phone = phone()
+    return _account_holder
 
 
 def new_uuid() -> str:
