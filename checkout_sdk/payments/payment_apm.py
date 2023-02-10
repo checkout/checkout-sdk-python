@@ -232,7 +232,6 @@ class RequestTrustlySource(PaymentRequestSource):
 
 
 class RequestSepaSource(PaymentRequestSource):
-    billing_address: Address
     country: Country
     account_number: str
     bank_code: str
