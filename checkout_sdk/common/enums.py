@@ -470,6 +470,7 @@ class PaymentSourceType(str, Enum):
     ALMA = 'alma'
     TRUSTLY = 'trustly'
     CVCONNECT = 'cvconnect'
+    SEPA = 'sepa'
 
 
 class ChallengeIndicator(str, Enum):
