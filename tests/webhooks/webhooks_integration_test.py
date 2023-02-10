@@ -54,7 +54,7 @@ def test_full_webhook_operations(previous_api):
     # Update webhook
     update_request = WebhookRequest()
     update_request.url = 'https://checkout.python.com/failed'
-    update_request.headers = retrieve_webhook.headers
+    update_request.headers = {"authorization": "1234"}
     update_request.event_types = ["source_updated"]
     update_request.active = True
     update_request.content_type = WebhookContentType.JSON
@@ -83,6 +83,7 @@ def test_full_webhook_operations(previous_api):
 def register_webhook(previous_api: CheckoutApi, url: str):
     request = WebhookRequest()
     request.url = url
+    request.content_type = WebhookContentType.JSON
     request.event_types = __GATEWAY_EVENT_TYPES
 
     return previous_api.webhooks.register_webhook(request)
