@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from warnings import warn
 
 from checkout_sdk.accounts.accounts import OnboardEntityRequest, UpdateScheduleRequest, AccountsPaymentInstrument, \
-    PaymentInstrumentRequest, PaymentInstrumentsQuery, UpdatePaymentInstrumentRequest
+    PaymentInstrumentRequest, PaymentInstrumentsQuery, UpdatePaymentInstrumentRequest, PlatformsFileRequest
 from checkout_sdk.api_client import ApiClient
 from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
@@ -19,6 +19,7 @@ class AccountsClient(Client):
     __FILES_PATH = 'files'
     __PAYOUT_SCHEDULES_PATH = 'payout-schedules'
     __PAYMENT_INSTRUMENTS_PATH = 'payment-instruments'
+    __PLATFORMS_FILES_PATH = 'platforms-files'
 
     def __init__(self, api_client: ApiClient,
                  files_client: ApiClient,
@@ -29,6 +30,8 @@ class AccountsClient(Client):
         self.__files_client = files_client
 
     def upload_file(self, file_request: FileRequest):
+        warn('This endpoint is no longer supported officially, please check the documentation.', DeprecationWarning,
+             stacklevel=2)
         return self.__files_client.submit_file(
             self.__FILES_PATH,
             self._sdk_authorization(),
@@ -41,13 +44,6 @@ class AccountsClient(Client):
             self._sdk_authorization(),
             onboard_entity_request)
 
-    def retrieve_payment_instrument_details(self, entity_id: str, payment_instrument_id: str):
-        return self._api_client.get(
-            self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id, self.__PAYMENT_INSTRUMENTS_PATH,
-                            payment_instrument_id),
-            self._sdk_authorization()
-        )
-
     def get_entity(self, entity_id: str):
         return self._api_client.get(
             self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id),
@@ -58,6 +54,17 @@ class AccountsClient(Client):
             self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id),
             self._sdk_authorization(),
             onboard_entity_request)
+
+    def update_a_file(self, file_request: PlatformsFileRequest):
+        return self._api_client.post(
+            self.build_path(self.__PLATFORMS_FILES_PATH),
+            self._sdk_authorization(),
+            file_request)
+
+    def retrieve_a_file(self, file_id: str):
+        return self._api_client.get(
+            self.build_path(self.__PLATFORMS_FILES_PATH, file_id),
+            self._sdk_authorization())
 
     def create_payment_instrument(self, entity_id: str, accounts_payment_instrument: AccountsPaymentInstrument):
         warn('Deprecated use add_payment_instrument instead', DeprecationWarning,
@@ -74,6 +81,12 @@ class AccountsClient(Client):
             payment_instrument_request
         )
 
+    def retrieve_payment_instrument_details(self, entity_id: str, payment_instrument_id: str):
+        return self._api_client.get(
+            self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id, self.__PAYMENT_INSTRUMENTS_PATH,
+                            payment_instrument_id),
+            self._sdk_authorization()
+        )
     def update_payment_instrument(self,
                                   entity_id: str,
                                   instrument_id: str,

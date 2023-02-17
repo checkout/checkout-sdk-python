@@ -147,6 +147,10 @@ class OnboardEntityRequest:
     individual: Individual
 
 
+class PlatformsFileRequest:
+    purpose: str
+    entity_id: str
+
 class InstrumentDocument:
     type: str
     file_id: str

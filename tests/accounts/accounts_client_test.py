@@ -1,7 +1,7 @@
 import pytest
 
 from checkout_sdk.accounts.accounts import OnboardEntityRequest, AccountsPaymentInstrument, UpdateScheduleRequest, \
-    PaymentInstrumentRequest, PaymentInstrumentsQuery, UpdatePaymentInstrumentRequest
+    PaymentInstrumentRequest, PaymentInstrumentsQuery, UpdatePaymentInstrumentRequest, PlatformsFileRequest
 from checkout_sdk.accounts.accounts_client import AccountsClient
 from checkout_sdk.common.enums import Currency
 from checkout_sdk.files.files import FileRequest
@@ -28,6 +28,14 @@ class TestAccountsClient:
         mocker.patch('checkout_sdk.api_client.ApiClient.put', return_value='response')
         assert client.update_entity('entity_id', OnboardEntityRequest()) == 'response'
 
+    def test_should_update_a_file(self, mocker, client: AccountsClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        assert client.update_a_file(PlatformsFileRequest()) == 'response'
+
+    def test_should_retrieve_a_file(self, mocker, client: AccountsClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        assert client.retrieve_a_file('file_id') == 'response'
+
     def test_should_create_payment_instrument_deprecated(self, mocker, client: AccountsClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
         assert client.create_payment_instrument('entity_id', AccountsPaymentInstrument()) == 'response'
@@ -49,6 +57,7 @@ class TestAccountsClient:
         mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
         assert client.retrieve_payment_instrument_details('entity_id', 'payment_instrument_id') == 'response'
 
+    @pytest.mark.skip(reason='obsolete')
     def test_should_upload_file(self, mocker, client: AccountsClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.submit_file', return_value='response')
         assert client.upload_file(FileRequest()) == 'response'

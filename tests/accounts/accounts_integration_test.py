@@ -7,7 +7,7 @@ import pytest
 from checkout_sdk import CheckoutSdk
 from checkout_sdk.accounts.accounts import OnboardEntityRequest, ContactDetails, Profile, Individual, \
     DateOfBirth, Identification, EntityEmailAddresses, Company, EntityRepresentative, PaymentInstrumentRequest, \
-    InstrumentDocument, InstrumentDetailsFasterPayments
+    InstrumentDocument, InstrumentDetailsFasterPayments, PlatformsFileRequest
 from checkout_sdk.checkout_api import CheckoutApi
 from checkout_sdk.common.enums import Currency, Country
 from checkout_sdk.files.files import FileRequest
@@ -26,6 +26,7 @@ def accounts_checkout_api():
         .build()
 
 
+@pytest.mark.skip(reason='obsolete')
 def upload_file(oauth_api: CheckoutApi):
     request = FileRequest()
     request.file = os.path.join(get_project_root(), 'tests', 'resources', 'checkout.jpeg')
@@ -85,6 +86,58 @@ def test_should_create_get_and_update_onboard_entity(oauth_api):
     assert_response(update_response, 'id')
 
     assert create_entity_response.id == update_response.id
+
+
+@pytest.mark.skip(reason='not available')
+def test_should_update_and_retrieve_a_file(oauth_api):
+    onboard_entity_request = OnboardEntityRequest()
+    onboard_entity_request.reference = new_uuid()[:14]
+    email_addresses = EntityEmailAddresses()
+    email_addresses.primary = random_email()
+    onboard_entity_request.contact_details = ContactDetails()
+    onboard_entity_request.contact_details.phone = phone()
+    onboard_entity_request.contact_details.email_addresses = email_addresses
+    onboard_entity_request.profile = Profile()
+    onboard_entity_request.profile.urls = ['https://www.superheroexample.com']
+    onboard_entity_request.profile.mccs = ['0742']
+    onboard_entity_request.individual = Individual()
+    onboard_entity_request.individual.first_name = 'Bruce'
+    onboard_entity_request.individual.last_name = 'Wayne'
+    onboard_entity_request.individual.trading_name = "Batman's Super Hero Masks"
+    onboard_entity_request.individual.registered_address = address()
+    onboard_entity_request.individual.national_tax_id = 'TAX123456'
+    onboard_entity_request.individual.date_of_birth = DateOfBirth()
+    onboard_entity_request.individual.date_of_birth.day = 5
+    onboard_entity_request.individual.date_of_birth.month = 6
+    onboard_entity_request.individual.date_of_birth.year = 1996
+    onboard_entity_request.individual.identification = Identification()
+    onboard_entity_request.individual.identification.national_id_number = 'AB123456C'
+
+    create_entity_response = oauth_api.accounts.create_entity(onboard_entity_request)
+
+    request = PlatformsFileRequest()
+    request.purpose = 'identity_verification'
+    request.entity_id = create_entity_response.id
+
+    update_response = oauth_api.accounts.update_a_file(request)
+
+    assert_response(update_response,
+                    'id',
+                    'status',
+                    'maximum_size_in_bytes',
+                    'document_types_for_purpose')
+
+    retrieve_response = oauth_api.accounts.retrieve_a_file(update_response.id)
+
+    assert_response(update_response,
+                    'id',
+                    'status',
+                    'status_reasons',
+                    'file_name',
+                    'size',
+                    'mime_type',
+                    'uploaded_on',
+                    'purpose')
 
 
 def test_should_upload_file(oauth_api):
