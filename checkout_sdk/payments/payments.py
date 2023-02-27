@@ -381,6 +381,7 @@ class ProcessingSettings:
     purchase_country: Country
     custom_payment_method_ids: list  # string
     merchant_callback_url: str
+    line_of_business: str
     shipping_delay: int
     shipping_info: list  # ShippingInfo
     dlocal: DLocalProcessingSettings
@@ -541,6 +542,8 @@ class RefundRequest:
     amount: int
     reference: str
     metadata: dict
+    # Not available on Previous
+    amount_allocations: list  # values of AmountAllocations
 
 
 # Voids
