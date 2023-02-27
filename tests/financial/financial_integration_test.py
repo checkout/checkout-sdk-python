@@ -11,7 +11,7 @@ def test_should_query_financial_actions(default_api, oauth_api):
 
     response = retriable(callback=oauth_api.financial.query,
                          predicate=there_are_financial_actions,
-                         timeout=4,
+                         timeout=5,
                          query=query)
 
     assert_response(response,
