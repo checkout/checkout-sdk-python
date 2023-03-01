@@ -111,9 +111,6 @@ class RequestIllicadoSource(PaymentRequestSource):
 
 
 class RequestGiropaySource(PaymentRequestSource):
-    purpose: str
-    info_fields: list
-
     def __init__(self):
         super().__init__(PaymentSourceType.GIROPAY)
 
