@@ -3,7 +3,6 @@ from enum import Enum
 
 class WebhookContentType(str, Enum):
     JSON = 'json'
-    XML = 'xml'
 
 
 class WebhookRequest:

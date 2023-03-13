@@ -64,6 +64,24 @@ def create_workflow(default_api):
     return response
 
 
+def add_action(default_api: CheckoutApi, workflow_id: str):
+    signature = WebhookSignature()
+    signature.key = '8V8x0dLK%AyD*DNS8JJr'
+    signature.method = 'HMACSHA256'
+
+    action_request = WebhookWorkflowActionRequest()
+    action_request.url = 'https://google.com/fail/new-action'
+    action_request.signature = signature
+
+    response = default_api.workflows.add_workflow_action(workflow_id, action_request)
+
+    assert_response(response,
+                    'http_metadata',
+                    'id')
+
+    return response
+
+
 def clean_workflows(default_api: CheckoutApi):
     for prop in __WORKFLOWS:
         default_api.workflows.remove_workflow(prop)

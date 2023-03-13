@@ -1,6 +1,3 @@
-from datetime import datetime
-
-
 class RetrieveEventsRequest:
     payment_id: str
     charge_id: str
@@ -8,5 +5,3 @@ class RetrieveEventsRequest:
     reference: str
     skip: int
     limit: int
-    from_: datetime
-    to: datetime

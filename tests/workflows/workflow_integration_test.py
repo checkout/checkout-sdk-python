@@ -1,7 +1,7 @@
 from checkout_sdk.workflows.workflows import UpdateWorkflowRequest, WebhookWorkflowActionRequest, WebhookSignature, \
     EventWorkflowConditionRequest
 from tests.checkout_test_utils import assert_response
-from tests.workflows.workflows_test_utils import create_workflow, clean_workflows
+from tests.workflows.workflows_test_utils import create_workflow, clean_workflows, add_action
 
 
 def test__should_create_and_get_workflows(default_api):
@@ -64,6 +64,48 @@ def test__should_create_and_update_workflow(default_api):
     clean_workflows(default_api)
 
 
+def test__should_add_workflow_action(default_api):
+    workflow = create_workflow(default_api)
+
+    workflow_response = default_api.workflows.get_workflow(workflow.id)
+
+    assert_response(workflow_response,
+                    'http_metadata',
+                    'id',
+                    'name',
+                    'active',
+                    'actions',
+                    'conditions')
+
+    signature = WebhookSignature()
+    signature.key = '8V8x0dLK%AyD*DNS8JJr'
+    signature.method = 'HMACSHA256'
+
+    action_request = WebhookWorkflowActionRequest()
+    action_request.url = 'https://google.com/fail/new-action'
+    action_request.signature = signature
+
+    response = default_api.workflows.add_workflow_action(workflow.id, action_request)
+
+    assert_response(response,
+                    'http_metadata',
+                    'id')
+
+    updated_workflow = default_api.workflows.get_workflow(workflow.id)
+
+    assert_response(workflow_response,
+                    'http_metadata',
+                    'id',
+                    'name',
+                    'active',
+                    'actions',
+                    'conditions')
+
+    assert updated_workflow.actions.__len__() > workflow_response.actions.__len__()
+
+    clean_workflows(default_api)
+
+
 def test__should_update_workflow_action(default_api):
     workflow = create_workflow(default_api)
 
@@ -96,6 +138,15 @@ def test__should_update_workflow_action(default_api):
     assert action_request.url == action.url
 
     clean_workflows(default_api)
+
+
+def test__should_remove_workflow_action(default_api):
+    workflow = create_workflow(default_api)
+    action = add_action(default_api, workflow.id)
+
+    response = default_api.workflows.remove_workflow_action(workflow.id, action.id)
+
+    assert_response(response)
 
 
 def test__should_update_workflow_condition(default_api):

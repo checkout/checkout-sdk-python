@@ -42,6 +42,7 @@ class PaymentType(str, Enum):
     RECURRING = 'Recurring'
     MOTO = 'MOTO'
     INSTALLMENT = 'Installment'
+    UNSCHEDULED = 'Unscheduled'
 
 
 class PaymentDestinationType(str, Enum):
