@@ -11,6 +11,7 @@ def get_browser_session():
     browser_session = BrowserSession()
     browser_session.accept_header = 'Accept:  *.*, q=0.1'
     browser_session.java_enabled = True
+    browser_session.javascript_enabled = True
     browser_session.language = 'FR-fr'
     browser_session.color_depth = '16'
     browser_session.screen_width = '1920'

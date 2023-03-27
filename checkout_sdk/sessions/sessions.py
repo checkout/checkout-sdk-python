@@ -133,6 +133,7 @@ class BrowserSession(ChannelData):
     three_ds_method_completion: ThreeDsMethodCompletion
     accept_header: str
     java_enabled: bool
+    javascript_enabled: bool
     language: str
     color_depth: str
     screen_height: str
