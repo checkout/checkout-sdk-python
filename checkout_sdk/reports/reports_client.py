@@ -21,3 +21,7 @@ class ReportsClient(Client):
 
     def get_report_details(self, report_id: str):
         return self._api_client.get(self.build_path(self.__REPORTS_PATH, report_id), self._sdk_authorization())
+
+    def get_report_file(self, report_id: str, file_id: str):
+        return self._api_client.get(self.build_path(self.__REPORTS_PATH, report_id, self.__FILES_PATH, file_id),
+                                    self._sdk_authorization())
