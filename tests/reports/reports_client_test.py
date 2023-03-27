@@ -18,3 +18,7 @@ class TestReportsClient:
     def test_should_get_report_details(self, mocker, client: ReportsClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
         assert client.get_report_details('report_id') == 'response'
+
+    def test_should_get_report_file(self, mocker, client: ReportsClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        assert client.get_report_file('report_id', 'file_id') == 'response'
