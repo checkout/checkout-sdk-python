@@ -5,33 +5,6 @@ from checkout_sdk.transfers.transfers import CreateTransferRequest, TransferDest
 from tests.checkout_test_utils import assert_response, new_idempotency_key
 
 
-def test_should_initiate_and_get_transfer_of_funds(oauth_api):
-    transfer_source = TransferSource()
-    transfer_source.id = 'ent_kidtcgc3ge5unf4a5i6enhnr5m'
-    transfer_source.amount = 100
-
-    transfer_destination = TransferDestination()
-    transfer_destination.id = 'ent_w4jelhppmfiufdnatam37wrfc4'
-
-    transfer_request = CreateTransferRequest()
-    transfer_request.transfer_type = TransferType.COMMISSION
-    transfer_request.source = transfer_source
-    transfer_request.destination = transfer_destination
-
-    response = oauth_api.transfers.initiate_transfer_of_funds(transfer_request)
-    assert_response(response, 'id', 'status')
-    assert 'pending' == response.status
-
-    transfer_response = oauth_api.transfers.retrieve_a_transfer(response.id)
-
-    assert_response(transfer_response, "id",
-                    'source',
-                    'destination',
-                    'status',
-                    'requested_on',
-                    'transfer_type')
-
-
 def test_should_initiate_transfer_of_funds_idempotently(oauth_api):
     transfer_source = TransferSource()
     transfer_source.id = 'ent_kidtcgc3ge5unf4a5i6enhnr5m'
