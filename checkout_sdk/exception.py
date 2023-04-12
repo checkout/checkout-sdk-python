@@ -32,11 +32,13 @@ class CheckoutAuthorizationException(CheckoutException):
 class CheckoutApiException(CheckoutException):
     http_metadata: dict
     error_details: dict
+    error_type: str
 
     def __init__(self, response):
         self.http_metadata = map_to_http_metadata(response)
         if response.text:
             payload = response.json()
             self.error_details = payload['error_codes'] if 'error_codes' in payload else None
+            self.error_type = payload['error_type'] if 'error_type' in payload else None
         super().__init__('The API response status code ({}) does not indicate success.'
                          .format(response.status_code))
