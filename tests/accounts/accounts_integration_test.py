@@ -9,7 +9,7 @@ from checkout_sdk.accounts.accounts import OnboardEntityRequest, ContactDetails,
     DateOfBirth, Identification, EntityEmailAddresses, Company, EntityRepresentative, PaymentInstrumentRequest, \
     InstrumentDocument, InstrumentDetailsFasterPayments
 from checkout_sdk.checkout_api import CheckoutApi
-from checkout_sdk.common.enums import Currency, Country
+from checkout_sdk.common.enums import Currency, Country, InstrumentType
 from checkout_sdk.files.files import FileRequest
 from checkout_sdk.oauth_scopes import OAuthScopes
 from tests.checkout_test_utils import assert_response, phone, address, new_uuid, get_project_root, random_email
@@ -121,6 +121,7 @@ def test_should_create_and_retrieve_payment_instrument(accounts_checkout_api):
 
     instrument_request = PaymentInstrumentRequest()
     instrument_request.label = 'Barclays'
+    instrument_request.type = InstrumentType.BANK_ACCOUNT
     instrument_request.currency = Currency.GBP
     instrument_request.country = Country.GB
     instrument_request.default = False

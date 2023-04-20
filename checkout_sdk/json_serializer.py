@@ -6,7 +6,8 @@ class JsonSerializer(json.JSONEncoder):
     _KEYS_TRANSFORMATIONS: dict = {'three_ds': '3ds',
                                    'account_holder_type': 'account-holder-type',
                                    'payment_network': 'payment-network',
-                                   'from_': 'from'}
+                                   'from_': 'from',
+                                   'if_match': 'if-match'}
 
     def default(self, obj):
         if hasattr(obj, 'to_json'):
