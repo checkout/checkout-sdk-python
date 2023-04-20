@@ -166,6 +166,10 @@ class InstrumentDetailsSepa(InstrumentDetails):
     swift_bic: str
 
 
+class InstrumentDetailsCardToken(InstrumentDetails):
+    token: str
+
+
 class BankDetails:
     name: str
     branch: str
@@ -212,7 +216,7 @@ class AccountsPaymentInstrument:
 
 class PaymentInstrumentRequest:
     label: str
-    type = InstrumentType.BANK_ACCOUNT
+    type = InstrumentType
     currency: Currency
     country: Country
     default: bool
@@ -220,9 +224,14 @@ class PaymentInstrumentRequest:
     instrument_details: InstrumentDetails
 
 
+class Headers:
+    if_match: str
+
+
 class UpdatePaymentInstrumentRequest:
     label: str
     default: bool
+    headers: Headers
 
 
 class ScheduleRequest:

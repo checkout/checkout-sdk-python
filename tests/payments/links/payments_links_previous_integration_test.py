@@ -66,7 +66,7 @@ def create_payment_link_request():
     product = Product()
     product.name = 'Gold Necklace'
     product.quantity = 1
-    product.price = 10
+    product.price = 200
 
     three_ds_request = ThreeDsRequest()
     three_ds_request.enabled = True
