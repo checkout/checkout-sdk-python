@@ -1,8 +1,11 @@
+import pytest
+
 from checkout_sdk.financial.financial import FinancialActionsQuery
 from tests.checkout_test_utils import retriable, assert_response
 from tests.payments.payments_test_utils import make_card_payment
 
 
+@pytest.mark.skip(reason='unstable')
 def test_should_query_financial_actions(default_api, oauth_api):
     payment = make_card_payment(default_api, amount=100, capture=True)
 

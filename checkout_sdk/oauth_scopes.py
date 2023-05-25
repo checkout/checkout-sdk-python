@@ -45,3 +45,7 @@ class OAuthScopes(str, Enum):
     MIDDLEWARE = 'middleware'
     MIDDLEWARE_MERCHANTS_SECRET = 'middleware:merchants-secret'
     MIDDLEWARE_MERCHANTS_PUBLIC = 'middleware:merchants-public'
+    ISSUING_CLIENT = 'issuing:client'
+    ISSUING_CARD_MGMT = 'issuing:card-mgmt'
+    ISSUING_CONTROLS_READ = 'issuing:controls-read'
+    ISSUING_CONTROLS_WRITE = 'issuing:controls-write'

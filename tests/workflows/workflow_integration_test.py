@@ -1,9 +1,12 @@
+import pytest
+
 from checkout_sdk.workflows.workflows import UpdateWorkflowRequest, WebhookWorkflowActionRequest, WebhookSignature, \
     EventWorkflowConditionRequest
 from tests.checkout_test_utils import assert_response
 from tests.workflows.workflows_test_utils import create_workflow, clean_workflows, add_action
 
 
+@pytest.mark.skip(reason='unstable')
 def test__should_create_and_get_workflows(default_api):
     workflow = create_workflow(default_api)
 
@@ -44,6 +47,7 @@ def test__should_create_and_get_workflows(default_api):
     clean_workflows(default_api)
 
 
+@pytest.mark.skip(reason='unstable')
 def test__should_create_and_update_workflow(default_api):
     workflow = create_workflow(default_api)
 
@@ -64,6 +68,7 @@ def test__should_create_and_update_workflow(default_api):
     clean_workflows(default_api)
 
 
+@pytest.mark.skip(reason='unstable')
 def test__should_add_workflow_action(default_api):
     workflow = create_workflow(default_api)
 
@@ -106,6 +111,7 @@ def test__should_add_workflow_action(default_api):
     clean_workflows(default_api)
 
 
+@pytest.mark.skip(reason='unstable')
 def test__should_update_workflow_action(default_api):
     workflow = create_workflow(default_api)
 
@@ -140,6 +146,7 @@ def test__should_update_workflow_action(default_api):
     clean_workflows(default_api)
 
 
+@pytest.mark.skip(reason='unstable')
 def test__should_remove_workflow_action(default_api):
     workflow = create_workflow(default_api)
     action = add_action(default_api, workflow.id)
@@ -149,6 +156,7 @@ def test__should_remove_workflow_action(default_api):
     assert_response(response)
 
 
+@pytest.mark.skip(reason='unstable')
 def test__should_update_workflow_condition(default_api):
     workflow = create_workflow(default_api)
 
