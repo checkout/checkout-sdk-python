@@ -2,16 +2,7 @@ from enum import Enum
 
 from checkout_sdk.common.common import Phone, Address
 from checkout_sdk.common.common import ResidentialStatusType, AccountHolderIdentification
-from checkout_sdk.common.enums import Currency, InstrumentType, Country, AccountType, AccountHolderType
-
-
-class EntityIdentificationType(str, Enum):
-    PASSPORT = 'passport'
-    NATIONAL_IDENTITY_CARD = 'national_identity_card'
-    DRIVING_LICENSE = 'driving_license'
-    CITIZEN_CARD = 'citizen_card'
-    RESIDENCE_PERMIT = 'residence_permit'
-    ELECTORAL_ID = 'electoral_id'
+from checkout_sdk.common.enums import Currency, InstrumentType, Country, AccountType, AccountHolderType, DocumentType
 
 
 class ScheduleFrequency(str, Enum):
@@ -66,7 +57,7 @@ class EntityDocument:
 
 
 class EntityIdentificationDocument:
-    type: EntityIdentificationType
+    type: DocumentType
     front: str
     back: str
 

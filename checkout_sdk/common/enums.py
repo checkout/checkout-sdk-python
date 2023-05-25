@@ -505,3 +505,12 @@ class AccountHolderIdentificationType(str, Enum):
     NATIONAL_ID = 'national_id'
     COMPANY_REGISTRATION = 'company_registration'
     TAX_ID = 'tax_id'
+
+
+class DocumentType(str, Enum):
+    PASSPORT = 'passport'
+    NATIONAL_IDENTITY_CARD = 'national_identity_card'
+    DRIVING_LICENSE = 'driving_license'
+    CITIZEN_CARD = 'citizen_card'
+    RESIDENCE_PERMIT = 'residence_permit'
+    ELECTORAL_ID = 'electoral_id'
