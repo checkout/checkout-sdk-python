@@ -8,6 +8,7 @@ from checkout_sdk.issuing.cardholders import CardholderRequest
 from checkout_sdk.issuing.cards import CardRequest, ThreeDsEnrollmentRequest, UpdateThreeDsEnrollmentRequest, \
     CardCredentialsQuery, RevokeRequest, SuspendRequest
 from checkout_sdk.issuing.controls import CardControlRequest, CardControlsQuery, UpdateCardControlRequest
+from checkout_sdk.issuing.testing import CardAuthorizationRequest
 
 
 class IssuingClient(Client):
@@ -20,6 +21,8 @@ class IssuingClient(Client):
     __REVOKE = 'revoke'
     __SUSPEND = 'suspend'
     __CONTROLS = 'controls'
+    __SIMULATE = 'simulate'
+    __AUTHORIZATIONS= 'authorizations'
 
     def __init__(self, api_client: ApiClient, configuration: CheckoutConfiguration):
         super().__init__(api_client=api_client,
@@ -103,3 +106,8 @@ class IssuingClient(Client):
     def remove_control(self, control_id: str):
         return self._api_client.delete(self.build_path(self.__ISSUING, self.__CONTROLS, control_id),
                                        self._sdk_authorization())
+
+    def simulate_authorization(self, authorization_request: CardAuthorizationRequest):
+        return self._api_client.post(self.build_path(self.__ISSUING, self.__SIMULATE, self.__AUTHORIZATIONS),
+                                     self._sdk_authorization(),
+                                     authorization_request)
