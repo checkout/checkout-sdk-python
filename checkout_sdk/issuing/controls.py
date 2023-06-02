@@ -25,12 +25,12 @@ class VelocityWindow:
 class VelocityLimit:
     amount_limit: int
     velocity_window: VelocityWindow
-    mcc_list: list # str
+    mcc_list: list  # str
 
 
 class MccLimit:
     type: MccLimitType
-    mcc_list: list # str
+    mcc_list: list  # str
 
 
 class CardControlRequest:
