@@ -5,6 +5,7 @@ from checkout_sdk import CheckoutSdk
 from checkout_sdk.common.enums import DocumentType
 from checkout_sdk.issuing.cardholders import CardholderRequest, CardholderDocument, CardholderType
 from checkout_sdk.issuing.cards import CardLifetime, LifetimeUnit, VirtualCardRequest
+from checkout_sdk.issuing.controls import VelocityControlRequest, VelocityLimit, VelocityWindow, VelocityWindowType
 from checkout_sdk.oauth_scopes import OAuthScopes
 from tests.checkout_test_utils import phone, address, assert_response
 
@@ -46,7 +47,6 @@ def cardholder(issuing_checkout_api):
     cardholder = issuing_checkout_api.issuing.create_cardholder(request)
 
     assert_response(cardholder, 'id')
-
     return cardholder
 
 
@@ -70,6 +70,26 @@ def active_card(issuing_checkout_api, cardholder):
 
     assert_response(card, 'id')
     return card
+
+
+@pytest.fixture(scope='class')
+def control(issuing_checkout_api, card):
+    window = VelocityWindow()
+    window.type = VelocityWindowType.WEEKLY
+
+    limit = VelocityLimit()
+    limit.amount_limit = 500
+    limit.velocity_window = window
+
+    request = VelocityControlRequest()
+    request.description = 'Max spend of 500€ per week for restaurants'
+    request.target_id = card.id
+    request.velocity_limit = limit
+
+    control = issuing_checkout_api.issuing.create_control(request)
+
+    assert_response(control, 'id')
+    return control
 
 
 def get_card_request(cardholder):

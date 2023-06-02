@@ -3,6 +3,7 @@ import pytest
 from checkout_sdk.issuing.cardholders import CardholderRequest
 from checkout_sdk.issuing.cards import PhysicalCardRequest, PasswordEnrollmentRequest, UpdateThreeDsEnrollmentRequest, \
     CardCredentialsQuery, RevokeRequest, SuspendRequest
+from checkout_sdk.issuing.controls import MccControlRequest, CardControlsQuery, UpdateCardControlRequest
 from checkout_sdk.issuing.issuing_client import IssuingClient
 
 
@@ -60,3 +61,23 @@ class TestIssuingClient:
     def test_should_suspend_card(self, mocker, client: IssuingClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
         assert client.suspend_card('card_id', SuspendRequest()) == 'response'
+
+    def test_should_create_control(self, mocker, client: IssuingClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        assert client.create_control(MccControlRequest()) == 'response'
+
+    def test_should_get_card_controls(self, mocker, client: IssuingClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        assert client.get_card_controls(CardControlsQuery()) == 'response'
+
+    def test_should_get_card_control_details(self, mocker, client: IssuingClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        assert client.get_card_control_details('control_id') == 'response'
+
+    def test_should_update_card_control(self, mocker, client: IssuingClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.put', return_value='response')
+        assert client.update_card_control('control_id', UpdateCardControlRequest()) == 'response'
+
+    def test_should_remove_control(self, mocker, client: IssuingClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.delete', return_value='response')
+        assert client.remove_control('control_id') == 'response'
