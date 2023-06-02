@@ -46,7 +46,7 @@ class TestCardsIssuing:
 
     def test_should_enroll_into_three_ds(self, issuing_checkout_api, card):
         request = PasswordEnrollmentRequest()
-        request.password = 'Xtui43FvfiZ'
+        request.password = self.__get_pass()
         request.locale = 'en-US'
         request.phone_number = phone()
 
@@ -62,7 +62,7 @@ class TestCardsIssuing:
         security_pair.answer = 'Bond. James Bond.'
 
         request = UpdateThreeDsEnrollmentRequest()
-        request.password = 'Xtui43FvfiZ'
+        request.password = self.__get_pass()
         request.security_pair = security_pair
         request.locale = 'en-US'
         request.phone_number = phone()
@@ -140,3 +140,6 @@ class TestCardsIssuing:
 
         assert card_response.id == active_card.id
         assert card_response.status == 'suspended'
+
+    def __get_pass(self):
+        return 'Xtui43FvfiZ'

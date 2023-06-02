@@ -5,6 +5,7 @@ from checkout_sdk.issuing.cards import PhysicalCardRequest, PasswordEnrollmentRe
     CardCredentialsQuery, RevokeRequest, SuspendRequest
 from checkout_sdk.issuing.controls import MccControlRequest, CardControlsQuery, UpdateCardControlRequest
 from checkout_sdk.issuing.issuing_client import IssuingClient
+from checkout_sdk.issuing.testing import CardAuthorizationRequest
 
 
 @pytest.fixture(scope='class')
@@ -81,3 +82,7 @@ class TestIssuingClient:
     def test_should_remove_control(self, mocker, client: IssuingClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.delete', return_value='response')
         assert client.remove_control('control_id') == 'response'
+
+    def test_should_simulate_authorization(self, mocker, client: IssuingClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        assert client.simulate_authorization(CardAuthorizationRequest()) == 'response'
