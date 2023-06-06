@@ -8,7 +8,7 @@ from checkout_sdk.issuing.cardholders import CardholderRequest
 from checkout_sdk.issuing.cards import CardRequest, ThreeDsEnrollmentRequest, UpdateThreeDsEnrollmentRequest, \
     CardCredentialsQuery, RevokeRequest, SuspendRequest
 from checkout_sdk.issuing.controls import CardControlRequest, CardControlsQuery, UpdateCardControlRequest
-from checkout_sdk.issuing.testing import CardAuthorizationRequest
+from checkout_sdk.issuing.testing import CardAuthorizationRequest, SimulationRequest
 
 
 class IssuingClient(Client):
@@ -23,6 +23,8 @@ class IssuingClient(Client):
     __CONTROLS = 'controls'
     __SIMULATE = 'simulate'
     __AUTHORIZATIONS = 'authorizations'
+    __PRESENTMENTS = 'presentments'
+    __REVERSALS = 'reversals'
 
     def __init__(self, api_client: ApiClient, configuration: CheckoutConfiguration):
         super().__init__(api_client=api_client,
@@ -111,3 +113,24 @@ class IssuingClient(Client):
         return self._api_client.post(self.build_path(self.__ISSUING, self.__SIMULATE, self.__AUTHORIZATIONS),
                                      self._sdk_authorization(),
                                      authorization_request)
+
+    def simulate_increment(self, transaction_id: str, increment_request: SimulationRequest):
+        return self._api_client.post(
+            self.build_path(
+                self.__ISSUING, self.__SIMULATE, self.__AUTHORIZATIONS, transaction_id, self.__AUTHORIZATIONS),
+            self._sdk_authorization(),
+            increment_request)
+
+    def simulate_clearing(self, transaction_id: str, clearing_request: SimulationRequest):
+        return self._api_client.post(
+            self.build_path(
+                self.__ISSUING, self.__SIMULATE, self.__AUTHORIZATIONS, transaction_id, self.__PRESENTMENTS),
+            self._sdk_authorization(),
+            clearing_request)
+
+    def simulate_reversal(self, transaction_id: str, reversal_request: SimulationRequest):
+        return self._api_client.post(
+            self.build_path(
+                self.__ISSUING, self.__SIMULATE, self.__AUTHORIZATIONS, transaction_id, self.__REVERSALS),
+            self._sdk_authorization(),
+            reversal_request)

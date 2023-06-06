@@ -5,7 +5,7 @@ from checkout_sdk.issuing.cards import PhysicalCardRequest, PasswordEnrollmentRe
     CardCredentialsQuery, RevokeRequest, SuspendRequest
 from checkout_sdk.issuing.controls import MccControlRequest, CardControlsQuery, UpdateCardControlRequest
 from checkout_sdk.issuing.issuing_client import IssuingClient
-from checkout_sdk.issuing.testing import CardAuthorizationRequest
+from checkout_sdk.issuing.testing import CardAuthorizationRequest, SimulationRequest
 
 
 @pytest.fixture(scope='class')
@@ -86,3 +86,15 @@ class TestIssuingClient:
     def test_should_simulate_authorization(self, mocker, client: IssuingClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
         assert client.simulate_authorization(CardAuthorizationRequest()) == 'response'
+
+    def test_should_simulate_increment(self, mocker, client: IssuingClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        assert client.simulate_increment('transaction_id', SimulationRequest()) == 'response'
+
+    def test_should_simulate_clearing(self, mocker, client: IssuingClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        assert client.simulate_clearing('transaction_id', SimulationRequest()) == 'response'
+
+    def test_should_simulate_reversal(self, mocker, client: IssuingClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        assert client.simulate_reversal('transaction_id', SimulationRequest()) == 'response'

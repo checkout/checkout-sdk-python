@@ -33,3 +33,7 @@ class TransactionSimulation:
 class CardAuthorizationRequest:
     card: CardSimulation
     transaction: TransactionSimulation
+
+
+class SimulationRequest:
+    amount: int
