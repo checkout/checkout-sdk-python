@@ -2,10 +2,12 @@ import os
 import pytest
 
 from checkout_sdk import CheckoutSdk
-from checkout_sdk.common.enums import DocumentType
+from checkout_sdk.common.enums import DocumentType, Currency
 from checkout_sdk.issuing.cardholders import CardholderRequest, CardholderDocument, CardholderType
 from checkout_sdk.issuing.cards import CardLifetime, LifetimeUnit, VirtualCardRequest
 from checkout_sdk.issuing.controls import VelocityControlRequest, VelocityLimit, VelocityWindow, VelocityWindowType
+from checkout_sdk.issuing.testing import CardSimulation, Merchant, TransactionSimulation, TransactionType, \
+    AuthorizationType, CardAuthorizationRequest
 from checkout_sdk.oauth_scopes import OAuthScopes
 from tests.checkout_test_utils import phone, address, assert_response
 
@@ -90,6 +92,33 @@ def control(issuing_checkout_api, card):
 
     assert_response(control, 'id')
     return control
+
+
+@pytest.fixture(scope='class')
+def transaction(issuing_checkout_api, active_card):
+    card_simulation = CardSimulation()
+    card_simulation.id = active_card.id
+    card_simulation.expiry_month = active_card.expiry_month
+    card_simulation.expiry_year = active_card.expiry_year
+
+    merchant = Merchant()
+    merchant.category_code = '7399'
+
+    transaction_simulation = TransactionSimulation()
+    transaction_simulation.type = TransactionType.PURCHASE
+    transaction_simulation.amount = 10
+    transaction_simulation.currency = Currency.GBP
+    transaction_simulation.merchant = merchant
+    transaction_simulation.authorization_type = AuthorizationType.AUTHORIZATION
+
+    request = CardAuthorizationRequest()
+    request.card = card_simulation
+    request.transaction = transaction_simulation
+
+    transaction = issuing_checkout_api.issuing.simulate_authorization(request)
+
+    assert_response(transaction, 'id')
+    return transaction
 
 
 def get_card_request(cardholder):

@@ -1,9 +1,12 @@
+import pytest
+
 from checkout_sdk.common.enums import Currency
 from checkout_sdk.issuing.testing import CardSimulation, TransactionSimulation, TransactionType, AuthorizationType, \
-    CardAuthorizationRequest, Merchant
+    CardAuthorizationRequest, Merchant, SimulationRequest
 from tests.checkout_test_utils import assert_response
 
 
+@pytest.mark.skip("Avoid creating cards all the time")
 class TestTestingIssuing:
     def test_should_simulate_authorization(self, issuing_checkout_api, active_card):
         card_simulation = CardSimulation()
@@ -32,3 +35,33 @@ class TestTestingIssuing:
                         'status')
 
         assert response.status == 'Authorized'
+
+    def test_should_simulate_increment(self, issuing_checkout_api, transaction):
+        request = SimulationRequest()
+        request.amount = 1000
+
+        response = issuing_checkout_api.issuing.simulate_increment(transaction.id, request)
+
+        assert_response(response,
+                        'status')
+
+        assert response.status == 'Authorized'
+
+    def test_should_simulate_clearing(self, issuing_checkout_api, transaction):
+        request = SimulationRequest()
+        request.amount = 100
+
+        response = issuing_checkout_api.issuing.simulate_clearing(transaction.id, request)
+
+        assert_response(response)
+
+    def test_should_simulate_reversal(self, issuing_checkout_api, transaction):
+        request = SimulationRequest()
+        request.amount = 100
+
+        response = issuing_checkout_api.issuing.simulate_reversal(transaction.id, request)
+
+        assert_response(response,
+                        'status')
+
+        assert response.status == 'Reversed'
