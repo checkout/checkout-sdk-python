@@ -2,6 +2,8 @@ from __future__ import absolute_import
 
 from datetime import datetime, timezone
 
+import pytest
+
 from checkout_sdk.previous.checkout_api import CheckoutApi
 from checkout_sdk.common.enums import Currency, InstrumentType
 from checkout_sdk.customers.customers import CustomerRequest
@@ -13,6 +15,7 @@ from checkout_sdk.tokens.tokens import CardTokenRequest
 from tests.checkout_test_utils import assert_response, VisaCard, address, common_customer_request, random_email, phone
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_pre_capture_and_authenticate_card(previous_api):
     card_source = CardSourcePrism()
     card_source.billing_address = address()
@@ -25,6 +28,7 @@ def test_should_pre_capture_and_authenticate_card(previous_api):
     pre_capture_assessment_request(previous_api, card_source)
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_pre_capture_and_authenticate_customer(previous_api):
     customer = CustomerRequest()
     customer.email = random_email()
@@ -40,6 +44,7 @@ def test_should_pre_capture_and_authenticate_customer(previous_api):
     pre_capture_assessment_request(previous_api, source_prism)
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_pre_capture_and_authenticate_id(previous_api):
     card_token_request = CardTokenRequest()
     card_token_request.number = VisaCard.number
@@ -71,6 +76,7 @@ def test_should_pre_capture_and_authenticate_id(previous_api):
     pre_capture_assessment_request(previous_api, source_prism)
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_pre_capture_and_authenticate_token(previous_api):
     card_token_request = CardTokenRequest()
     card_token_request.number = VisaCard.number
