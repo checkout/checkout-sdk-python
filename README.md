@@ -1,10 +1,13 @@
 # Checkout.com Python SDK
 
-![build-status](https://github.com/checkout/checkout-sdk-python/workflows/build-main/badge.svg)
-[![GitHub license](https://img.shields.io/github/license/checkout/checkout-sdk-python.svg)](https://github.com/checkout/checkout-sdk-python/blob/main/LICENSE.md)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=checkout_checkout-sdk-python&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=checkout_checkout-sdk-python)
+[![build-status](https://github.com/checkout/checkout-sdk-python/workflows/build-main/badge.svg)](https://github.com/checkout/checkout-sdk-python/actions/workflows/build-main.yml)
+![CodeQL](https://github.com/checkout/checkout-sdk-python/workflows/CodeQL/badge.svg)
+
+[![build-status](https://github.com/checkout/checkout-sdk-python/workflows/build-release/badge.svg)](https://github.com/checkout/checkout-sdk-python/actions/workflows/build-release.yml)
 [![GitHub release](https://img.shields.io/github/release/checkout/checkout-sdk-python.svg)](https://GitHub.com/checkout/checkout-sdk-php/releases/)
 [![PyPI - latest](https://img.shields.io/pypi/v/checkout-sdk?label=latest&logo=pypi)](https://pypi.org/project/checkout-sdk)
+
+[![GitHub license](https://img.shields.io/github/license/checkout/checkout-sdk-python.svg)](https://github.com/checkout/checkout-sdk-python/blob/main/LICENSE.md)
 
 ## Getting started
 
