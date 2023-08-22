@@ -65,7 +65,7 @@ def assert_response(obj, *argv: str):
 def address() -> Address:
     _address = Address()
     _address.address_line1 = 'CheckoutSdk.com'
-    _address.address_line2 = '90 Tottenham Court Road'
+    _address.address_line2 = 'max_10_c__'
     _address.city = 'London'
     _address.state = 'London'
     _address.zip = 'W1T 4TJ'
