@@ -490,6 +490,8 @@ class PaymentBankAccountDestination(PaymentRequestDestination):
 class PaymentRequestIdDestination(PaymentRequestDestination):
     id: str
 
+    account_holder: AccountHolder
+
     def __init__(self):
         super().__init__(PaymentDestinationType.ID)
 

@@ -19,8 +19,8 @@ def issuing_checkout_api():
         .oauth() \
         .client_credentials(client_id=os.environ.get('CHECKOUT_DEFAULT_OAUTH_ISSUING_CLIENT_ID'),
                             client_secret=os.environ.get('CHECKOUT_DEFAULT_OAUTH_ISSUING_CLIENT_SECRET')) \
-        .scopes({OAuthScopes.ISSUING_CLIENT, OAuthScopes.ISSUING_CARD_MGMT,
-                 OAuthScopes.ISSUING_CONTROLS_READ, OAuthScopes.ISSUING_CONTROLS_WRITE}) \
+        .scopes([OAuthScopes.ISSUING_CLIENT, OAuthScopes.ISSUING_CARD_MGMT,
+                 OAuthScopes.ISSUING_CONTROLS_READ, OAuthScopes.ISSUING_CONTROLS_WRITE]) \
         .build()
     return api
 
