@@ -31,7 +31,7 @@ class CheckoutAuthorizationException(CheckoutException):
 
 class CheckoutApiException(CheckoutException):
     http_metadata: dict
-    error_details: dict
+    error_details: list
     error_type: str
 
     def __init__(self, response):
