@@ -191,6 +191,8 @@ def test_should_request_alipay_plus_payment(default_api):
         pytest.fail()
     except CheckoutApiException as err:
         assert err.args[0] == 'The API response status code (422) does not indicate success.'
+        assert err.error_type == 'invalid_request'
+        assert err.error_details[0] == 'reference_invalid'
 
 
 def test_should_make_przelewy24_payment(default_api):
