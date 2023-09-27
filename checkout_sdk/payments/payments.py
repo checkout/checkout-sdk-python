@@ -313,6 +313,7 @@ class ThreeDsRequest:
 
 class RiskRequest:
     enabled: bool
+    device_session_id: str
 
 
 class PaymentRecipient:
