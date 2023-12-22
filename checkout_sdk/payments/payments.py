@@ -6,6 +6,7 @@ from enum import Enum
 from checkout_sdk.common.common import AccountHolder, BankDetails, MarketplaceData, Address, Phone, CustomerRequest, \
     AccountHolderIdentification
 from checkout_sdk.common.enums import PaymentSourceType, Currency, Country, AccountType, ChallengeIndicator
+from checkout_sdk.sessions.sessions import DeliveryTimeframe
 
 
 class AuthorizationType(str, Enum):
@@ -62,6 +63,7 @@ class Exemption(str, Enum):
     OUT_OF_SCA_SCOPE = 'out_of_sca_scope'
     OTHER = 'other'
     LOW_RISK_PROGRAM = 'low_risk_program'
+    DATA_SHARE = 'data_share'
 
 
 class ThreeDSFlowType(str, Enum):
@@ -283,10 +285,23 @@ class RequestCustomerSource(PaymentRequestSource):
         super().__init__(PaymentSourceType.CUSTOMER)
 
 
+class PaymentContextsShippingMethod(str, Enum):
+    DIGITAL = 'Digital'
+    PICK_UP = 'PickUp'
+    BILLING_ADDRESS = 'BillingAddress'
+    OTHER_ADDRESS = 'OtherAddress'
+
+
 class ShippingDetails:
+    first_name: str
+    last_name: str
+    email: str
     address: Address
     phone: Phone
     from_address_zip: str
+    timeframe: DeliveryTimeframe
+    method: PaymentContextsShippingMethod
+    delay: int
 
 
 class ThreeDsRequest:

@@ -353,6 +353,7 @@ def test_should_make_illicado_payment(default_api):
                      payment_request=payment_request)
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_make_klarna_payment(default_api):
     account_holder = AccountHolder()
     account_holder.first_name = FIRST_NAME
