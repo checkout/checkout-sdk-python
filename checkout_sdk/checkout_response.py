@@ -58,10 +58,10 @@ class ResponseWrapper:
     @_cache
     def _unwrap_object(cls, data, cache, path):
         return {
-            key: cls._unwrap(attr, cache, path + [key])
+            key: cls._unwrap(getattr(data, key), cache, path + [key])
             for key in dir(data)
             if not key.startswith('__')
-            and not cls._is_function(attr := getattr(data, key))
+            and not cls._is_function(getattr(data, key))
         }
 
     @classmethod
