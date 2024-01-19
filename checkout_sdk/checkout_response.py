@@ -58,10 +58,10 @@ class ResponseWrapper:
     @_handle_circular_ref
     def _unwrap_object(cls, data, paths_by_id, path):
         return {
-            key: cls._unwrap(attr, paths_by_id, path + [key])
+            key: cls._unwrap(getattr(data, key), paths_by_id, path + [key])
             for key in dir(data)
             if not key.startswith('__')
-            and not cls._is_function(attr := getattr(data, key))
+            and not cls._is_function(getattr(data, key))
         }
 
     @classmethod
