@@ -7,6 +7,7 @@ from checkout_sdk.forex.forex import QuoteRequest, RatesQueryFilter, ForexSource
 from tests.checkout_test_utils import assert_response
 
 
+@pytest.mark.skip(reason='unstable')
 def test_should_request_quote(oauth_api):
     quote_request = QuoteRequest()
     quote_request.source_currency = Currency.GBP

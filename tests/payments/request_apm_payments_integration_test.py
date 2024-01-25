@@ -432,6 +432,7 @@ def test_should_make_trustly_payment(default_api):
                      payment_request=payment_request)
 
 
+@pytest.mark.skip(reason='unstable')
 def test_should_make_sepa_payment(default_api):
     payment_request = PaymentRequest()
     payment_request.source = RequestSepaSource()

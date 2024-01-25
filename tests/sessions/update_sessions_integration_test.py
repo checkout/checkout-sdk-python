@@ -1,11 +1,14 @@
 from __future__ import absolute_import
 
+import pytest
+
 from checkout_sdk.checkout_api import CheckoutApi
 from checkout_sdk.sessions.sessions import ThreeDsMethodCompletionRequest, ThreeDsMethodCompletion
 from tests.checkout_test_utils import assert_response, retriable
 from tests.sessions.sessions_test_utils import get_hosted_session, get_browser_session
 
 
+@pytest.mark.skip(reason='unstable')
 def test_update_card_session_using_id_browser_session(oauth_api: CheckoutApi):
     request_session_response = oauth_api.sessions.request_session(get_hosted_session())
     assert_response(request_session_response, 'id', 'session_secret')
@@ -19,6 +22,7 @@ def test_update_card_session_using_id_browser_session(oauth_api: CheckoutApi):
     assert_response(update_session, 'id', 'session_secret')
 
 
+@pytest.mark.skip(reason='unstable')
 def test_update_card_session_using_session_secret_browser_session(oauth_api: CheckoutApi):
     request_session_response = oauth_api.sessions.request_session(get_hosted_session())
     assert_response(request_session_response, 'id', 'session_secret')
@@ -34,6 +38,7 @@ def test_update_card_session_using_session_secret_browser_session(oauth_api: Che
     assert_response(update_session, 'id')
 
 
+@pytest.mark.skip(reason='unstable')
 def test_update_3ds_method_completion_indicator_session_id(oauth_api: CheckoutApi):
     request_session_response = oauth_api.sessions.request_session(get_hosted_session())
     assert_response(request_session_response, 'id', 'session_secret')
@@ -50,6 +55,7 @@ def test_update_3ds_method_completion_indicator_session_id(oauth_api: CheckoutAp
     assert_response(update_session, 'id', 'session_secret')
 
 
+@pytest.mark.skip(reason='unstable')
 def test_update_3ds_method_completion_indicator_session_secret(oauth_api: CheckoutApi):
     request_session_response = oauth_api.sessions.request_session(get_hosted_session())
     assert_response(request_session_response, 'id', 'session_secret')

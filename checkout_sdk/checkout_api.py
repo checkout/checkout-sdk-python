@@ -12,6 +12,7 @@ from checkout_sdk.checkout_apm_api import CheckoutApmApi
 from checkout_sdk.instruments.instruments_client import InstrumentsClient
 from checkout_sdk.issuing.issuing_client import IssuingClient
 from checkout_sdk.payments.contexts.contexts_client import PaymentContextsClient
+from checkout_sdk.payments.sessions.sessions_client import PaymentSessionsClient
 from checkout_sdk.payments.hosted.hosted_payments_client import HostedPaymentsClient
 from checkout_sdk.payments.links.payments_client import PaymentsLinksClient
 from checkout_sdk.payments.payments_client import PaymentsClient
@@ -66,3 +67,4 @@ class CheckoutApi(CheckoutApmApi):
         self.financial = FinancialClient(api_client=base_api_client, configuration=configuration)
         self.issuing = IssuingClient(api_client=base_api_client, configuration=configuration)
         self.contexts = PaymentContextsClient(api_client=base_api_client, configuration=configuration)
+        self.sessions = PaymentSessionsClient(api_client=base_api_client, configuration=configuration)

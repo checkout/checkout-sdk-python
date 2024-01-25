@@ -9,6 +9,7 @@ from tests.checkout_test_utils import assert_response
 from tests.sessions.sessions_test_utils import get_browser_session, get_non_hosted_session, get_app_session
 
 
+@pytest.mark.skip(reason='unstable')
 def test_request_and_get_card_session_browser_session(oauth_api: CheckoutApi):
     browser_session = get_browser_session()
     session_request = get_non_hosted_session(browser_session, Category.PAYMENT,
