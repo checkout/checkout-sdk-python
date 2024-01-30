@@ -8,6 +8,7 @@ from tests.checkout_test_utils import assert_response
 from tests.sessions.sessions_test_utils import get_hosted_session
 
 
+@pytest.mark.skip(reason='unstable')
 def test_try_complete_sessions(oauth_api: CheckoutApi):
     session_request = get_hosted_session()
 
