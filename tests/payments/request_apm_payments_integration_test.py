@@ -12,12 +12,13 @@ from checkout_sdk.payments.payment_apm import RequestIdealSource, RequestTamaraS
     PaymentRequestWeChatPaySource, RequestAlipayPlusSource, RequestP24Source, RequestKnetSource, \
     RequestBancontactSource, RequestMultiBancoSource, RequestPostFinanceSource, RequestStcPaySource, RequestAlmaSource, \
     RequestKlarnaSource, RequestFawrySource, RequestTrustlySource, RequestCvConnectSource, RequestIllicadoSource, \
-    RequestSepaSource
-from checkout_sdk.payments.payments import PaymentRequest, ProcessingSettings, FawryProduct, PaymentCustomerRequest
+    RequestSepaSource, RequestGiropaySource
+from checkout_sdk.payments.payments import PaymentRequest, ProcessingSettings, FawryProduct, PaymentCustomerRequest, \
+    ShippingDetails
 from checkout_sdk.payments.payments_apm_previous import RequestSofortSource
 from tests.checkout_test_utils import assert_response, SUCCESS_URL, FAILURE_URL, retriable, address, FIRST_NAME, \
     LAST_NAME, phone, check_error_item, PAYEE_NOT_ONBOARDED, APM_SERVICE_UNAVAILABLE, random_email, new_uuid, \
-    account_holder
+    account_holder, REFERENCE, DESCRIPTION
 
 
 def test_should_request_ideal_payment(default_api):
@@ -167,6 +168,33 @@ def test_should_request_we_chat_pay_payment(default_api):
     payment_request.amount = 100
     payment_request.currency = Currency.EUR
     payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+
+    check_error_item(callback=default_api.payments.request_payment,
+                     error_item=PAYEE_NOT_ONBOARDED,
+                     payment_request=payment_request)
+
+
+def test_should_request_giropay_payment(default_api):
+    aholder = AccountHolder()
+    aholder.first_name = FIRST_NAME
+    aholder.last_name = LAST_NAME
+
+    source = RequestGiropaySource()
+    source.account_holder = aholder
+
+    shipping = ShippingDetails()
+    shipping.address = address()
+    shipping.phone = phone()
+
+    payment_request = PaymentRequest()
+    payment_request.source = source
+    payment_request.amount = 100
+    payment_request.currency = Currency.EUR
+    payment_request.reference = REFERENCE
+    payment_request.description = DESCRIPTION
+    payment_request.shipping = shipping
     payment_request.success_url = SUCCESS_URL
     payment_request.failure_url = FAILURE_URL
 

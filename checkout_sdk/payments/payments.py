@@ -426,8 +426,21 @@ class PaymentCustomerRequest(CustomerRequest):
     tax_number: str
 
 
+class PaymentSegment:
+    brand: str
+    business_category: str
+    market: str
+
+
+class PaymentRetryRequest:
+    enabled: bool
+    max_attempts: int
+    end_after_days: int
+
+
 # Request Payment
 class PaymentRequest:
+    payment_context_id: str
     source: PaymentRequestSource
     amount: int
     currency: Currency
@@ -441,6 +454,7 @@ class PaymentRequest:
     customer: PaymentCustomerRequest
     billing_descriptor: BillingDescriptor
     shipping: ShippingDetails
+    segment: PaymentSegment
     three_ds: ThreeDsRequest
     processing_channel_id: str
     previous_payment_id: str
@@ -456,6 +470,7 @@ class PaymentRequest:
     processing: ProcessingSettings
     metadata: dict
     items: list  # payments.Product
+    retry: PaymentRetryRequest
 
 
 # Payout Request Source

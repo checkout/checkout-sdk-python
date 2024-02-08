@@ -111,6 +111,8 @@ class RequestIllicadoSource(PaymentRequestSource):
 
 
 class RequestGiropaySource(PaymentRequestSource):
+    account_holder: AccountHolder
+
     def __init__(self):
         super().__init__(PaymentSourceType.GIROPAY)
 
