@@ -13,6 +13,8 @@ from checkout_sdk.payments.payments import Payer, PaymentRecipient
 NAME = 'Integration Test'
 FIRST_NAME = 'Integration'
 LAST_NAME = 'Test'
+REFERENCE = 'Reference'
+DESCRIPTION = 'Description'
 SUCCESS_URL = 'https://testing.checkout.com/sucess'
 FAILURE_URL = 'https://testing.checkout.com/failure'
 PAYEE_NOT_ONBOARDED = 'payee_not_onboarded'
