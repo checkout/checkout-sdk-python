@@ -326,6 +326,7 @@ def test_should_make_knet_payment(previous_api):
                     '_links')
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_make_przelewy24_payment(previous_api):
     request_source = RequestP24Source()
     request_source.payment_country = Country.PL
@@ -402,6 +403,7 @@ def test_should_make_poli_payment(previous_api):
                     '_links')
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_make_bancontact_payment(previous_api):
     request_source = RequestBancontactSource()
     request_source.payment_country = Country.BE
