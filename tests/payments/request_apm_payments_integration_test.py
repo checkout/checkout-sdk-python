@@ -276,7 +276,7 @@ def test_should_make_bancontact_payment(default_api):
     payment_request.failure_url = FAILURE_URL
 
     check_error_item(callback=default_api.payments.request_payment,
-                     error_item=PAYEE_NOT_ONBOARDED,
+                     error_item=APM_SERVICE_UNAVAILABLE,
                      payment_request=payment_request)
 
 
