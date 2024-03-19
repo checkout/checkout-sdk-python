@@ -77,6 +77,31 @@ class PlaceOfBirth:
     country: Country
 
 
+class CompanyVerificationType(str, Enum):
+    INCORPORATION_DOCUMENT = 'incorporation_document'
+    ARTICLES_OF_ASSOCIATION = 'articles_of_association'
+
+
+class CompanyVerification:
+    type: CompanyVerificationType
+    front: str
+
+
+class TaxVerificationType(str, Enum):
+    EIN_LETTER = 'ein_letter'
+
+
+class TaxVerification:
+    type: TaxVerificationType
+    front: str
+
+
+class OnboardSubEntityDocuments:
+    identity_verification: EntityIdentificationDocument
+    company_verification: CompanyVerification
+    tax_verification: TaxVerification
+
+
 class EntityRepresentative:
     first_name: str
     middle_name: str
@@ -87,6 +112,7 @@ class EntityRepresentative:
     date_of_birth: DateOfBirth
     place_of_birth: PlaceOfBirth
     roles: list  # accounts.EntityRoles
+    documents: OnboardSubEntityDocuments
 
 
 class EntityFinancialDocuments:
@@ -99,6 +125,7 @@ class EntityFinancialDetails:
     average_transaction_value: int
     highest_transaction_value: int
     documents: EntityFinancialDocuments
+    currency: Currency
 
 
 class Company:
@@ -128,6 +155,7 @@ class Individual:
     date_of_birth: DateOfBirth
     place_of_birth: PlaceOfBirth
     identification: Identification
+    financial_details: EntityFinancialDetails
 
 
 class OnboardEntityRequest:
@@ -136,6 +164,7 @@ class OnboardEntityRequest:
     profile: Profile
     company: Company
     individual: Individual
+    documents: OnboardSubEntityDocuments
 
 
 class InstrumentDocument:

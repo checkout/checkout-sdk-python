@@ -165,6 +165,7 @@ class HostedCompletionInfo(Completion):
 
 class NonHostedCompletionInfo(Completion):
     callback_url: str
+    challenge_notification_url: str
 
     def __init__(self):
         super().__init__(CompletionInfoType.NON_HOSTED)

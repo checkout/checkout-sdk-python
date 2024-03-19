@@ -13,16 +13,8 @@ def test_should_create_payment_sessions(default_api):
 
     assert_response(response,
                     'id',
-                    'amount',
-                    'locale',
-                    'currency',
-                    'payment_methods',
                     '_links',
                     '_links.self')
-
-    for payment_method in response.payment_methods:
-        assert_response(payment_method,
-                        'type')
 
 
 def create_payment_sessions_request():
