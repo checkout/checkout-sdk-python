@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from checkout_sdk.common.common import Address
+from checkout_sdk.common.common import Address, CustomerRequest
 from checkout_sdk.common.enums import Currency, PaymentSourceType
 from checkout_sdk.payments.payments import PaymentRequestSource, PaymentType, ShippingDetails, BillingPlan, \
     ShippingPreference, UserAction
@@ -74,7 +74,9 @@ class PaymentContextsRequest:
     amount: int
     currency: Currency
     payment_type: PaymentType
+    authorization_type: str
     capture: bool
+    customer: CustomerRequest
     shipping: ShippingDetails
     processing: PaymentContextsProcessing
     processing_channel_id: str
