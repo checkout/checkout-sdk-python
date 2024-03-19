@@ -130,12 +130,38 @@ class Individual:
     identification: Identification
 
 
+class CompanyVerificationType(str, Enum):
+    INCORPORATION_DOCUMENT = 'incorporation_document'
+    ARTICLES_OF_ASSOCIATION = 'articles_of_association'
+
+
+class CompanyVerification:
+    type: CompanyVerificationType
+    front: str
+
+
+class TaxVerificationType(str, Enum):
+    EIN_LETTER = 'ein_letter'
+
+
+class TaxVerification:
+    type: TaxVerificationType
+    front: str
+
+
+class OnboardSubEntityDocuments:
+    identity_verification: EntityIdentificationDocument
+    company_verification: CompanyVerification
+    tax_verification: TaxVerification
+
+
 class OnboardEntityRequest:
     reference: str
     contact_details: ContactDetails
     profile: Profile
     company: Company
     individual: Individual
+    documents: OnboardSubEntityDocuments
 
 
 class InstrumentDocument:
