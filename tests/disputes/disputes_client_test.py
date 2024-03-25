@@ -36,6 +36,10 @@ class TestDisputesClient:
         mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
         assert client.submit_evidence('dispute_id') == 'response'
 
+    def test_should_get_compiled_submitted_evidence(self, mocker, client: DisputesClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        assert client.get_compiled_submitted_evidence('dispute_id') == 'response'
+
     def test_should_upload_file(self, mocker, client: DisputesClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.submit_file', return_value='response')
         assert client.upload_file(FileRequest()) == 'response'

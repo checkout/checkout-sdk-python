@@ -21,6 +21,7 @@ class HostedPaymentsSessionRequest:
     recipient: PaymentRecipient
     processing: ProcessingSettings
     allow_payment_methods: list  # PaymentSourceType
+    disabled_payment_methods: list  # PaymentSourceType
     products: list  # common.Product
     risk: RiskRequest
     success_url: str
