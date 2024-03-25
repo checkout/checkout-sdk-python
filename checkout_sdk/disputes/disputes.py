@@ -34,3 +34,7 @@ class DisputeEvidenceRequest:
     additional_evidence_text: str
     proof_of_delivery_or_service_date_file: str
     proof_of_delivery_or_service_date_text: str
+
+
+class DisputeCompiledSubmittedEvidenceResponse:
+    file_id: str

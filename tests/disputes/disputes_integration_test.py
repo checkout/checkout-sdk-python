@@ -88,6 +88,12 @@ def test_should_test_full_disputes_workflow(default_api):
 
     default_api.disputes.put_evidence(dispute_id, evidence_request)
 
+    submitted = default_api.disputes.get_compiled_submitted_evidence(dispute_id)
+    assert_response(submitted,
+                    'file_id',
+                    '_links',
+                    '_links.self')
+
     evidence = default_api.disputes.get_evidence(dispute_id)
     assert_response(evidence,
                     'http_metadata',
