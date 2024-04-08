@@ -49,6 +49,7 @@ class Profile:
     urls: list
     mccs: list
     default_holding_currency: Currency
+    holding_currencies: list
 
 
 class EntityDocument:
