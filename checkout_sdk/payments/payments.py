@@ -471,6 +471,7 @@ class PaymentRequest:
     metadata: dict
     items: list  # payments.Product
     retry: PaymentRetryRequest
+    instruction: PaymentInstruction
 
 
 # Payout Request Source

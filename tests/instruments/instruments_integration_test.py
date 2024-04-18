@@ -6,10 +6,35 @@ from checkout_sdk.common.common import AccountHolder, UpdateCustomerRequest
 from checkout_sdk.common.enums import AccountHolderType, Country, Currency
 from checkout_sdk.exception import CheckoutApiException
 from checkout_sdk.instruments.instruments import CreateTokenInstrumentRequest, CreateCustomerInstrumentRequest, \
-    UpdateCardInstrumentRequest, BankAccountFieldQuery, PaymentNetwork
+    UpdateCardInstrumentRequest, BankAccountFieldQuery, PaymentNetwork, CreateSepaInstrumentRequest, InstrumentData
+from checkout_sdk.payments.payments import PaymentType
 from checkout_sdk.tokens.tokens import CardTokenRequest
 from tests.checkout_test_utils import assert_response, phone, VisaCard, address, random_email, FIRST_NAME, LAST_NAME, \
     NAME
+
+
+def test_should_create_sepa_instrument(default_api):
+    instruments_data = InstrumentData
+    instruments_data.account_number = "FR7630006000011234567890189"
+    instruments_data.country = Country.FR
+    instruments_data.currency = Currency.EUR
+    instruments_data.payment_type = PaymentType.RECURRING
+
+    account_holder = AccountHolder()
+    account_holder.first_name = "John"
+    account_holder.last_name = "Smith"
+    account_holder.phone = phone()
+    account_holder.billing_address = address()
+
+    instruments_sepa_request = CreateSepaInstrumentRequest()
+    instruments_sepa_request.instrument_data = instruments_data
+    instruments_sepa_request.account_holder = account_holder
+
+    create_instrument_response = default_api.instruments.create(instruments_sepa_request)
+    assert_response(create_instrument_response,
+                    'id',
+                    'type',
+                    'fingerprint')
 
 
 def test_should_create_and_get_instrument(default_api):
