@@ -1,7 +1,9 @@
+from datetime import datetime
 from enum import Enum
 
 from checkout_sdk.common.common import BankDetails, UpdateCustomerRequest, AccountHolder, Phone
 from checkout_sdk.common.enums import AccountType, AccountHolderType, Currency, Country, InstrumentType
+from checkout_sdk.payments.payments import PaymentType
 
 
 # Create
@@ -29,6 +31,24 @@ class CreateTokenInstrumentRequest(CreateInstrumentRequest):
         super().__init__(InstrumentType.TOKEN)
 
 
+class InstrumentData:
+    account_number: str
+    country: Country
+    currency: Currency
+    payment_type: PaymentType
+    mandate_id: str
+    date_of_signature: datetime
+
+
+class CreateSepaInstrumentRequest(CreateInstrumentRequest):
+    token: str
+    instrument_data: InstrumentData
+    account_holder: AccountHolder
+
+    def __init__(self):
+        super().__init__(InstrumentType.SEPA)
+
+
 class CreateBankAccountInstrumentRequest(CreateInstrumentRequest):
     account_type: AccountType
     account_number: str
@@ -41,6 +61,7 @@ class CreateBankAccountInstrumentRequest(CreateInstrumentRequest):
     processing_channel_id: str
     account_holder: AccountHolder
     bank_details: BankDetails
+    bank: BankDetails
 
     def __init__(self):
         super().__init__(InstrumentType.BANK_ACCOUNT)

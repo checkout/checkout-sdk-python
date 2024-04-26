@@ -484,6 +484,7 @@ class InstrumentType(str, Enum):
     BANK_ACCOUNT = 'bank_account'
     TOKEN = 'token'
     CARD = 'card'
+    SEPA = 'sepa'
     CARD_TOKEN = 'card_token'
 
 
