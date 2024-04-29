@@ -1,6 +1,8 @@
 from datetime import datetime
 
-from checkout_sdk.common.common import Address, CustomerRequest
+from deprecated import deprecated
+
+from checkout_sdk.common.common import Address, CustomerRequest, AccountHolder
 from checkout_sdk.common.enums import Currency, PaymentSourceType
 from checkout_sdk.payments.payments import PaymentRequestSource, PaymentType, ShippingDetails, BillingPlan, \
     ShippingPreference, UserAction
@@ -87,7 +89,21 @@ class PaymentContextsRequest:
     items: list  # payments.contexts.PaymentContextsItems
 
 
+@deprecated("This class will be removed in the future. Use PaymentContextPaypalSource instead")
 class PaymentContextPayPalSource(PaymentRequestSource):
 
     def __init__(self):
         super().__init__(PaymentSourceType.PAYPAL)
+
+
+class PaymentContextPaypalSource(PaymentRequestSource):
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.PAYPAL)
+
+
+class PaymentContextKlarnaSource(PaymentRequestSource):
+    account_holder: AccountHolder
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.KLARNA)
