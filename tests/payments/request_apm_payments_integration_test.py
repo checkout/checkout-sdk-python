@@ -21,9 +21,9 @@ from tests.checkout_test_utils import assert_response, SUCCESS_URL, FAILURE_URL,
     account_holder, REFERENCE, DESCRIPTION
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_request_ideal_payment(default_api):
     request_source = RequestIdealSource()
-    request_source.bic = 'INGBNL2A'
     request_source.description = 'ORD50234E89'
     request_source.language = 'nl'
 

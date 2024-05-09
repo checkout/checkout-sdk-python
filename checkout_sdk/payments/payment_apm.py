@@ -8,7 +8,6 @@ from checkout_sdk.payments.payments import PaymentRequestSource, BillingPlan
 
 
 class RequestIdealSource(PaymentRequestSource):
-    bic: str
     description: str
     language: str
 
