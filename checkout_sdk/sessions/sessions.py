@@ -36,6 +36,9 @@ class SessionSourceType(str, Enum):
 class AuthenticationType(str, Enum):
     REGULAR = 'regular'
     RECURRING = 'recurring'
+    INSTALLMENT = 'installment'
+    MAINTAIN_CARD = 'maintain_card'
+    ADD_CARD = 'add_card'
 
 
 class Category(str, Enum):
