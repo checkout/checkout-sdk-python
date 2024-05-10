@@ -2,7 +2,8 @@ from __future__ import absolute_import
 
 from checkout_sdk.common.common import CustomerRequest
 from checkout_sdk.common.enums import Currency
-from checkout_sdk.payments.sessions.sessions import PaymentSessionsRequest, Billing
+from checkout_sdk.payments.payments_previous import BillingInformation
+from checkout_sdk.payments.sessions.sessions import PaymentSessionsRequest
 from tests.checkout_test_utils import assert_response, address
 
 
@@ -18,7 +19,7 @@ def test_should_create_payment_sessions(default_api):
 
 
 def create_payment_sessions_request():
-    billing = Billing()
+    billing = BillingInformation()
     billing.address = address()
 
     customer = CustomerRequest()
