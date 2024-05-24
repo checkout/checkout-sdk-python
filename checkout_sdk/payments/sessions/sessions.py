@@ -56,8 +56,8 @@ class PaymentSessionsRequest:
     processing_channel_id: str
     expires_on: datetime
     payment_method_configuration: PaymentMethodConfiguration
-    enabled_payment_methods: PaymentMethodsType
-    disabled_payment_methods: PaymentMethodsType
+    enabled_payment_methods: list  # PaymentMethodsType
+    disabled_payment_methods: list  # PaymentMethodsType
     items: list  # payments.Product
     amount_allocations: list  # values of AmountAllocations
     risk: RiskRequest
