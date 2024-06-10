@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 from checkout_sdk.checkout_sdk import CheckoutSdk
@@ -8,15 +10,15 @@ from checkout_sdk.exception import CheckoutArgumentException
 def test_should_create_default_sdk():
     CheckoutSdk \
         .builder() \
-        .secret_key('sk_sbox_m73dzbpy7cf3gfd46xr4yj5xo4e') \
-        .public_key('pk_sbox_pkhpdtvmkgf7hdnpwnbhw7r2uic') \
+        .secret_key(os.environ.get("CHECKOUT_DEFAULT_SECRET_KEY")) \
+        .public_key(os.environ.get("CHECKOUT_DEFAULT_PUBLIC_KEY")) \
         .environment(Environment.sandbox()) \
         .build()
 
     sdk = CheckoutSdk \
         .builder() \
-        .secret_key('sk_m73dzbpy7cf3gfd46xr4yj5xo4e') \
-        .public_key('pk_pkhpdtvmkgf7hdnpwnbhw7r2uic') \
+        .secret_key(os.environ.get("CHECKOUT_DEFAULT_SECRET_KEY")) \
+        .public_key(os.environ.get("CHECKOUT_DEFAULT_PUBLIC_KEY")) \
         .environment(Environment.production()) \
         .build()
 
@@ -24,11 +26,34 @@ def test_should_create_default_sdk():
     assert sdk.tokens is not None
 
 
+def test_should_create_default_sdk_with_subdomain():
+    sdk_1 = CheckoutSdk \
+        .builder() \
+        .secret_key(os.environ.get("CHECKOUT_DEFAULT_SECRET_KEY")) \
+        .public_key(os.environ.get("CHECKOUT_DEFAULT_PUBLIC_KEY")) \
+        .environment(Environment.sandbox()) \
+        .environment_subdomain('123domain') \
+        .build()
+
+    assert sdk_1 is not None
+
+    sdk_2 = CheckoutSdk \
+        .builder() \
+        .secret_key(os.environ.get("CHECKOUT_DEFAULT_SECRET_KEY")) \
+        .public_key(os.environ.get("CHECKOUT_DEFAULT_PUBLIC_KEY")) \
+        .environment(Environment.production()) \
+        .environment_subdomain('123domain') \
+        .build()
+
+    assert sdk_2 is not None
+    assert sdk_2.tokens is not None
+
+
 def test_should_fail_create_default_sdk():
     with pytest.raises(CheckoutArgumentException):
         CheckoutSdk \
             .builder() \
-            .secret_key('sk_sbox_m73dzbpy7c-f3gfd46xr4yj5xo4e') \
+            .secret_key(os.environ.get("CHECKOUT_DEFAULT_PUBLIC_KEY")) \
             .environment(Environment.sandbox()) \
             .build()
 

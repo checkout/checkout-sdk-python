@@ -26,7 +26,13 @@ from checkout_sdk.metadata.metadata_client import CardMetadataClient
 
 
 def _base_api_client(configuration: CheckoutConfiguration) -> ApiClient:
-    return ApiClient(configuration, configuration.environment.base_uri)
+    base_uri = configuration.environment.base_uri
+    subdomain = configuration.environment_subdomain
+
+    if subdomain is not None and subdomain.base_uri is not None:
+        base_uri = subdomain.base_uri
+
+    return ApiClient(configuration, base_uri)
 
 
 def _files_api_client(configuration: CheckoutConfiguration) -> ApiClient:

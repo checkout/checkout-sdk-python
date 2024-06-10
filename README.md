@@ -45,8 +45,8 @@ using specific API features. Please find in the table below the types of keys th
 
 | Account System | Public Key (example)                    | Secret Key (example)                    |
 |----------------|-----------------------------------------|-----------------------------------------|
-| Default        | pk_pkhpdtvabcf7hdgpwnbhw7r2uic          | sk_m73dzypy7cf3gf5d2xr4k7sxo4e          |
-| Previous       | pk_g650ff27-7c42-4ce1-ae90-5691a188ee7b | sk_gk3517a8-3z01-45fq-b4bd-4282384b0a64 |
+| Default        | pk_nruiensgius784thg489hio3481          | sk_nguierhg984hg4nig489gh48931          |
+| Previous       | pk_gdf78gdg-rf56-3fgr-34rf-5435g456gg6y | sk_hg5643g6-4r5t-gt67-ht6t-5467567g6f56 |
 
 Note: sandbox keys have a `sbox_` or `test_` identifier, for Default and Previous accounts respectively.
 

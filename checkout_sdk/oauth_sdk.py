@@ -31,13 +31,25 @@ class OAuthSdk(CheckoutSdkBuilder, metaclass=ABCMeta):
         return self
 
     def build(self):
-        configuration = CheckoutConfiguration(
-            credentials=OAuthSdkCredentials.init(http_client=self._http_client,
-                                                 environment=self._environment,
-                                                 client_id=self._client_id,
-                                                 client_secret=self._client_secret,
-                                                 scopes=self._scopes,
-                                                 authorization_uri=self._authorization_uri),
-            environment=self._environment,
-            http_client=self._http_client)
+        if self._environment_subdomain is not None:
+            configuration = CheckoutConfiguration(
+                credentials=OAuthSdkCredentials.init(http_client=self._http_client,
+                                                     environment=self._environment,
+                                                     client_id=self._client_id,
+                                                     client_secret=self._client_secret,
+                                                     scopes=self._scopes,
+                                                     authorization_uri=self._authorization_uri),
+                environment=self._environment,
+                environment_subdomain=self._environment_subdomain,
+                http_client=self._http_client)
+        else:
+            configuration = CheckoutConfiguration(
+                credentials=OAuthSdkCredentials.init(http_client=self._http_client,
+                                                     environment=self._environment,
+                                                     client_id=self._client_id,
+                                                     client_secret=self._client_secret,
+                                                     scopes=self._scopes,
+                                                     authorization_uri=self._authorization_uri),
+                environment=self._environment,
+                http_client=self._http_client)
         return CheckoutApi(configuration)
