@@ -30,8 +30,15 @@ class PreviousSdk(PreviousStaticKeys):
     def build(self):
         validate_secret_key(self._SECRET_KEY_PATTERN, self._secret_key)
         validate_public_key(self._PUBLIC_KEY_PATTERN, self._public_key)
-        configuration = CheckoutConfiguration(
-            credentials=PreviousKeysSdkCredentials(secret_key=self._secret_key, public_key=self._public_key),
-            environment=self._environment,
-            http_client=self._http_client)
+        if self._environment_subdomain is not None:
+            configuration = CheckoutConfiguration(
+                credentials=PreviousKeysSdkCredentials(secret_key=self._secret_key, public_key=self._public_key),
+                environment=self._environment,
+                environment_subdomain=self._environment_subdomain,
+                http_client=self._http_client)
+        else:
+            configuration = CheckoutConfiguration(
+                credentials=PreviousKeysSdkCredentials(secret_key=self._secret_key, public_key=self._public_key),
+                environment=self._environment,
+                http_client=self._http_client)
         return CheckoutApi(ApiClient(configuration, configuration.environment.base_uri), configuration)
