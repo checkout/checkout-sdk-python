@@ -40,8 +40,8 @@ class OAuthSdk(CheckoutSdkBuilder, metaclass=ABCMeta):
                                                      scopes=self._scopes,
                                                      authorization_uri=self._authorization_uri),
                 environment=self._environment,
-                environment_subdomain=self._environment_subdomain,
-                http_client=self._http_client)
+                http_client=self._http_client,
+                environment_subdomain=self._environment_subdomain)
         else:
             configuration = CheckoutConfiguration(
                 credentials=OAuthSdkCredentials.init(http_client=self._http_client,
