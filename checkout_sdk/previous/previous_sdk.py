@@ -34,8 +34,8 @@ class PreviousSdk(PreviousStaticKeys):
             configuration = CheckoutConfiguration(
                 credentials=PreviousKeysSdkCredentials(secret_key=self._secret_key, public_key=self._public_key),
                 environment=self._environment,
-                environment_subdomain=self._environment_subdomain,
-                http_client=self._http_client)
+                http_client=self._http_client,
+                environment_subdomain=self._environment_subdomain)
         else:
             configuration = CheckoutConfiguration(
                 credentials=PreviousKeysSdkCredentials(secret_key=self._secret_key, public_key=self._public_key),

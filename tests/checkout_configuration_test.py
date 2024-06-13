@@ -24,8 +24,11 @@ def test_should_create_configuration():
         http_client=http_client
     )
 
-    assert Environment.sandbox().base_uri == configuration.environment.base_uri
-    assert "https://api.sandbox.checkout.com/" == configuration.environment.base_uri
+    assert configuration.credentials == credentials
+    assert configuration.environment.base_uri == Environment.sandbox().base_uri
+    assert configuration.environment.base_uri == "https://api.sandbox.checkout.com/"
+    assert configuration.http_client == http_client
+    assert configuration.environment_subdomain is None
 
 
 @pytest.mark.parametrize(
@@ -53,7 +56,10 @@ def test_should_create_configuration_with_subdomain(subdomain, expected_url):
         environment_subdomain=environment_subdomain
     )
 
-    assert expected_url == configuration.environment_subdomain.base_uri
+    assert configuration.credentials == credentials
+    assert configuration.environment.base_uri == Environment.sandbox().base_uri
+    assert configuration.http_client == http_client
+    assert configuration.environment_subdomain.base_uri == expected_url
 
 
 @pytest.mark.parametrize(
@@ -81,4 +87,7 @@ def test_should_create_configuration_with_bad_subdomain(subdomain, expected_url)
         environment_subdomain=environment_subdomain
     )
 
-    assert expected_url == configuration.environment_subdomain.base_uri
+    assert configuration.credentials == credentials
+    assert configuration.environment.base_uri == Environment.sandbox().base_uri
+    assert configuration.http_client == http_client
+    assert configuration.environment_subdomain.base_uri == expected_url
