@@ -176,6 +176,7 @@ def test_should_request_we_chat_pay_payment(default_api):
                      payment_request=payment_request)
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_request_giropay_payment(default_api):
     aholder = AccountHolder()
     aholder.first_name = FIRST_NAME

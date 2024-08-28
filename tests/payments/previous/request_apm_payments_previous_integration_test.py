@@ -146,6 +146,7 @@ def test_should_request_fawry_payment(previous_api):
                     '_links')
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_request_giropay_payment(previous_api):
     request_source = RequestGiropaySource()
     request_source.purpose = 'CKO Giropay test'
