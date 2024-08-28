@@ -69,8 +69,9 @@ def default():
     checkout_api = CheckoutSdk
         .builder()
         .secret_key('secret_key')
-        .public_key('public_key')
-        .environment(Environment.sandbox())
+        .public_key('public_key') # optional, only required for operations related with tokens
+        .environment(Environment.sandbox()) # or production()
+        .environment_subdomain("subdomain") # optional, Merchant-specific DNS name
         .build()
 
     payments_client = checkout_api.payments
@@ -92,8 +93,9 @@ def oauth():
         .builder()
         .oauth()
         .client_credentials(client_id='client_id', client_secret='client_secret')
-        .environment(Environment.sandbox())
-        .scopes([OAuthScopes.GATEWAY_PAYMENT_REFUNDS, OAuthScopes.FILES])
+        .environment(Environment.sandbox()) # or production()
+        .environment_subdomain("subdomain") # optional, Merchant-specific DNS name
+        .scopes([OAuthScopes.GATEWAY_PAYMENT_REFUNDS, OAuthScopes.FILES]) # optional, array of scopes
         .build()
 
     payments_client = checkout_api.payments
@@ -114,8 +116,9 @@ def previous():
         .builder()
         .previous()
         .secret_key('secret_key')
-        .public_key('public_key')
-        .environment(Environment.sandbox())
+        .public_key('public_key') # optional, only required for operations related with tokens
+        .environment(Environment.sandbox()) # or production()
+        .environment_subdomain("subdomain") # optional, Merchant-specific DNS name
         .build()
 
     payments_client = checkout_api.payments
@@ -160,9 +163,10 @@ def oauth():
         .builder()
         .oauth()
         .client_credentials(client_id='client_id', client_secret='client_secret')
-        .environment(Environment.sandbox())
-        .http_client_builder(CustomHttpClientBuilder())
-        .scopes([OAuthScopes.GATEWAY_PAYMENT_REFUNDS, OAuthScopes.FILES])
+        .environment(Environment.sandbox()) # or production()
+        .environment_subdomain("subdomain") # optional, Merchant-specific DNS name
+        .http_client_builder(CustomHttpClientBuilder()) # optional
+        .scopes([OAuthScopes.GATEWAY_PAYMENT_REFUNDS, OAuthScopes.FILES]) # optional, array of scopes
         .build()
 
     payments_client = checkout_api.payments

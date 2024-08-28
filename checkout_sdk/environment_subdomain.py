@@ -13,7 +13,7 @@ class EnvironmentSubdomain:
         api_url = environment.base_uri
         new_environment = api_url
 
-        regex = r'^[0-9a-z]{8,11}$'
+        regex = r'^[0-9a-z]+$'
         if re.match(regex, subdomain):
             url_parts = urlparse(api_url)
             if url_parts.port:
