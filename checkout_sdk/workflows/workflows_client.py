@@ -5,7 +5,7 @@ from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
 from checkout_sdk.client import Client
 from checkout_sdk.workflows.workflows import CreateWorkflowRequest, UpdateWorkflowRequest, WorkflowActionRequest, \
-    WorkflowConditionRequest, ReflowRequest
+    WorkflowConditionRequest, ReflowRequest, EventTypesRequest
 
 
 class WorkflowsClient(Client):
@@ -17,6 +17,7 @@ class WorkflowsClient(Client):
     __SUBJECT_PATH = 'subject'
     __REFLOW_PATH = 'reflow'
     __WORKFLOW_PATH = 'workflow'
+    __TEST_PATH = 'test'
 
     def __init__(self, api_client: ApiClient, configuration: CheckoutConfiguration):
         super().__init__(api_client=api_client,
@@ -77,6 +78,11 @@ class WorkflowsClient(Client):
         return self._api_client.delete(
             self.build_path(self.__WORKFLOWS_PATH, workflow_id, self.__CONDITIONS_PATH, condition_id),
             self._sdk_authorization())
+
+    def test_workflow(self, workflow_id: str, event_types_request: EventTypesRequest):
+        return self._api_client.post(self.build_path(self.__WORKFLOWS_PATH, workflow_id, self.__TEST_PATH),
+                                     self._sdk_authorization(),
+                                     event_types_request)
 
     def get_event_types(self):
         return self._api_client.get(self.build_path(self.__WORKFLOWS_PATH, self.__EVENT_TYPES_PATH),

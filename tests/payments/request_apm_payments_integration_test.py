@@ -14,7 +14,7 @@ from checkout_sdk.payments.payment_apm import RequestIdealSource, RequestTamaraS
     RequestKlarnaSource, RequestFawrySource, RequestTrustlySource, RequestCvConnectSource, RequestIllicadoSource, \
     RequestSepaSource, RequestGiropaySource
 from checkout_sdk.payments.payments import PaymentRequest, ProcessingSettings, FawryProduct, PaymentCustomerRequest, \
-    ShippingDetails
+    ShippingDetails, PaymentMethodDetails
 from checkout_sdk.payments.payments_apm_previous import RequestSofortSource
 from tests.checkout_test_utils import assert_response, SUCCESS_URL, FAILURE_URL, retriable, address, FIRST_NAME, \
     LAST_NAME, phone, check_error_item, PAYEE_NOT_ONBOARDED, APM_SERVICE_UNAVAILABLE, random_email, new_uuid, \
@@ -245,8 +245,14 @@ def test_should_make_przelewy24_payment(default_api):
 
 
 def test_should_make_knet_payment(default_api):
+    payment_method_details = PaymentMethodDetails()
+    payment_method_details.display_name = "name"
+    payment_method_details.type = "type"
+    payment_method_details.network = "card_network"
+
     request_source = RequestKnetSource()
     request_source.language = "en"
+    request_source.payment_method_details = payment_method_details
 
     payment_request = PaymentRequest()
     payment_request.source = request_source

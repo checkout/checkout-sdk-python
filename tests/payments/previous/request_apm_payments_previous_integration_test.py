@@ -3,7 +3,7 @@ from __future__ import absolute_import
 import pytest
 
 from checkout_sdk.common.enums import Country, Currency
-from checkout_sdk.payments.payments import FawryProduct
+from checkout_sdk.payments.payments import FawryProduct, PaymentMethodDetails
 from checkout_sdk.payments.payments_apm_previous import IntegrationType, \
     RequestBoletoSource, RequestFawrySource, RequestGiropaySource, RequestIdealSource, RequestOxxoSource, \
     RequestPagoFacilSource, RequestRapiPagoSource, RequestSofortSource, RequestAlipaySource, \
@@ -303,8 +303,14 @@ def test_should_request_sofort_payment(previous_api):
 
 
 def test_should_make_knet_payment(previous_api):
+    payment_method_details = PaymentMethodDetails()
+    payment_method_details.display_name = "name"
+    payment_method_details.type = "type"
+    payment_method_details.network = "card_network"
+
     request_source = RequestKnetSource()
     request_source.language = "en"
+    request_source.payment_method_details = payment_method_details
 
     payment_request = PaymentRequest()
     payment_request.source = request_source

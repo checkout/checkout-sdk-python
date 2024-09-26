@@ -598,3 +598,9 @@ class FawryProduct:
     quantity: int
     price: int
     description: str
+
+
+class PaymentMethodDetails:
+    display_name: str
+    type: str
+    network: str

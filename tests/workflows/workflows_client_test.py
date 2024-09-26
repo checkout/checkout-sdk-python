@@ -1,7 +1,7 @@
 import pytest
 
 from checkout_sdk.workflows.workflows import CreateWorkflowRequest, UpdateWorkflowRequest, \
-    WebhookWorkflowActionRequest, EventWorkflowConditionRequest, ReflowRequest
+    WebhookWorkflowActionRequest, EventWorkflowConditionRequest, ReflowRequest, EventTypesRequest
 from checkout_sdk.workflows.workflows_client import WorkflowsClient
 
 
@@ -56,6 +56,10 @@ class TestWorkflowsClient:
     def test_remove_workflow_condition(self, mocker, client: WorkflowsClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.delete', return_value='response')
         assert client.remove_workflow_condition('workflow_id', 'condition_id') == 'response'
+
+    def test_test_workflow(self, mocker, client: WorkflowsClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        assert client.test_workflow('workflow_id', EventTypesRequest()) == 'response'
 
     def test_get_event_types(self, mocker, client: WorkflowsClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
