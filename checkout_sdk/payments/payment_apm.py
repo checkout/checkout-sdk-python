@@ -4,7 +4,8 @@ from datetime import datetime
 
 from checkout_sdk.common.common import Address, AccountHolder
 from checkout_sdk.common.enums import PaymentSourceType, Country, Currency
-from checkout_sdk.payments.payments import PaymentRequestSource, BillingPlan
+from checkout_sdk.payments.payments import PaymentRequestSource, BillingPlan, PaymentMethodDetails
+from checkout_sdk.tokens.tokens import ApplePayTokenData
 
 
 class RequestIdealSource(PaymentRequestSource):
@@ -151,6 +152,9 @@ class RequestKnetSource(PaymentRequestSource):
     user_defined_field5: str
     card_token: str
     ptlf: str
+    token_type: str
+    token_data: ApplePayTokenData
+    payment_method_details: PaymentMethodDetails
 
     def __init__(self):
         super().__init__(PaymentSourceType.KNET)

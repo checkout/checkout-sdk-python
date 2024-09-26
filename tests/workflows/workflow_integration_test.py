@@ -1,7 +1,7 @@
 import pytest
 
 from checkout_sdk.workflows.workflows import UpdateWorkflowRequest, WebhookWorkflowActionRequest, WebhookSignature, \
-    EventWorkflowConditionRequest
+    EventWorkflowConditionRequest, EventTypesRequest
 from tests.checkout_test_utils import assert_response
 from tests.workflows.workflows_test_utils import create_workflow, clean_workflows, add_action
 
@@ -203,5 +203,38 @@ def test__should_update_workflow_condition(default_api):
         (condition for condition in workflow_updated.conditions if condition.type == 'event'), None)
 
     assert condition_event_updated is not None
+
+    clean_workflows(default_api)
+
+
+@pytest.mark.skip(reason='unstable')
+def test__should_create_and_test_workflow(default_api):
+    workflow = create_workflow(default_api)
+
+    event_types_request = EventTypesRequest()
+    event_types_request.event_types = [
+        "payment_approved",
+        "payment_declined",
+        "card_verification_declined",
+        "card_verified",
+        "payment_authorization_incremented",
+        "payment_authorization_increment_declined",
+        "payment_capture_declined",
+        "payment_captured",
+        "payment_refund_declined",
+        "payment_refunded",
+        "payment_void_declined",
+        "payment_voided",
+        "dispute_canceled",
+        "dispute_evidence_required",
+        "dispute_expired",
+        "dispute_lost",
+        "dispute_resolved",
+        "dispute_won"
+    ]
+
+    get_workflow_response = default_api.workflows.test_workflow(workflow.id, event_types_request)
+
+    assert get_workflow_response is not None
 
     clean_workflows(default_api)

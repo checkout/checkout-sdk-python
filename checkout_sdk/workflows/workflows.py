@@ -70,6 +70,8 @@ class CreateWorkflowRequest:
 class UpdateWorkflowRequest:
     name: str
     active: bool
+    conditions: list  # WorkflowConditionRequest
+    actions: list  # WorkflowActionRequest
 
 
 class ReflowRequest:
@@ -82,3 +84,7 @@ class ReflowByEventsRequest(ReflowRequest):
 
 class ReflowBySubjectsRequest(ReflowRequest):
     subjects: list
+
+
+class EventTypesRequest:
+    event_types: list
