@@ -1,18 +1,21 @@
+from datetime import datetime
 from enum import Enum
 
 from checkout_sdk.common.common import Phone, Address
-from checkout_sdk.common.enums import Currency, ChallengeIndicator
+from checkout_sdk.common.enums import Currency, ChallengeIndicator, CardholderAccountAgeIndicatorType, \
+    AccountChangeIndicatorType, AccountPasswordChangeIndicatorType, AccountTypeCardProductType
 
 
 class ChannelType(str, Enum):
-    BROWSER = 'browser'
     APP = 'app'
+    BROWSER = 'browser'
+    MERCHANT_INITIATED = 'merchant_initiated'
 
 
 class SdkInterfaceType(str, Enum):
-    NATIVE = 'native'
-    HTML = 'html'
     BOTH = 'both'
+    HTML = 'html'
+    NATIVE = 'native'
 
 
 class ThreeDsMethodCompletion(str, Enum):
@@ -34,11 +37,11 @@ class SessionSourceType(str, Enum):
 
 
 class AuthenticationType(str, Enum):
-    REGULAR = 'regular'
-    RECURRING = 'recurring'
+    ADD_CARD = 'add_card'
     INSTALLMENT = 'installment'
     MAINTAIN_CARD = 'maintain_card'
-    ADD_CARD = 'add_card'
+    RECURRING = 'recurring'
+    REGULAR = 'regular'
 
 
 class Category(str, Enum):
@@ -47,11 +50,11 @@ class Category(str, Enum):
 
 
 class TransactionType(str, Enum):
-    GOODS_SERVICE = 'goods_service'
-    CHECK_ACCEPTANCE = 'check_acceptance'
     ACCOUNT_FUNDING = 'account_funding'
-    QUASHI_CARD_TRANSACTION = 'quashi_card_transaction'
+    CHECK_ACCEPTANCE = 'check_acceptance'
+    GOODS_SERVICE = 'goods_service'
     PREPAID_ACTIVATION_AND_LOAD = 'prepaid_activation_and_load'
+    QUASHI_CARD_TRANSACTION = 'quashi_card_transaction'
 
 
 class UIElements(str, Enum):
@@ -72,12 +75,12 @@ class SessionScheme(str, Enum):
 
 
 class AuthenticationMethod(str, Enum):
+    FEDERATED_ID = 'federated_id'
+    FIDO = 'fido'
+    ISSUER_CREDENTIALS = 'issuer_credentials'
     NO_AUTHENTICATION = 'no_authentication'
     OWN_CREDENTIALS = 'own_credentials'
-    FEDERATED_ID = 'federated_id'
-    ISSUER_CREDENTIALS = 'issuer_credentials'
     THIRD_PARTY_AUTHENTICATION = 'third_party_authentication'
-    FIDO = 'fido'
 
 
 class DeliveryTimeframe(str, Enum):
@@ -133,7 +136,7 @@ class AppSession(ChannelData):
 
 
 class BrowserSession(ChannelData):
-    three_ds_method_completion: ThreeDsMethodCompletion
+    three_ds_method_completion: ThreeDsMethodCompletion = ThreeDsMethodCompletion.U
     accept_header: str
     java_enabled: bool
     javascript_enabled: bool
@@ -147,6 +150,27 @@ class BrowserSession(ChannelData):
 
     def __init__(self):
         super().__init__(ChannelType.BROWSER)
+
+
+class RequestType(str, Enum):
+    ACCOUNT_VERIFICATION = "account_verification"
+    ADD_CARD = "add_card"
+    INSTALLMENT_TRANSACTION = "installment_transaction"
+    MAIL_ORDER = "mail_order"
+    MAINTAIN_CARD_INFORMATION = "maintain_card_information"
+    OTHER_PAYMENT = "other_payment"
+    RECURRING_TRANSACTION = "recurring_transaction"
+    SPLIT_OR_DELAYED_SHIPMENT = "split_or_delayed_shipment"
+    TELEPHONE_ORDER = "telephone_order"
+    TOP_UP = "top_up"
+    WHITELIST_STATUS_CHECK = "whitelist_status_check"
+
+
+class MerchantInitiatedSession(ChannelData):
+    request_type: RequestType
+
+    def __init__(self):
+        super().__init__(ChannelType.MERCHANT_INITIATED)
 
 
 # Completion
@@ -193,7 +217,7 @@ class SessionCardSource(SessionSource):
     expiry_month: int
     expiry_year: int
     name: str
-    stored: bool
+    stored: bool = False
     store_for_future_use: bool
 
     def __init__(self):
@@ -226,6 +250,10 @@ class NetworkTokenSource(SessionSource):
         super().__init__(SessionSourceType.NETWORK_TOKEN)
 
 
+class ThreeDsRequestorAuthenticationInfo:
+    pass
+
+
 class CardholderAccountInfo:
     purchase_count: int
     account_age: str
@@ -234,7 +262,30 @@ class CardholderAccountInfo:
     account_name_matches_shipping_name: bool
     suspicious_account_activity: bool
     transactions_today: int
+    # @deprecated This property will be removed in the future, and should not be used.
     authentication_method: AuthenticationMethod
+    cardholder_account_age_indicator: CardholderAccountAgeIndicatorType
+    account_change: datetime
+    account_change_indicator: AccountChangeIndicatorType
+    account_date: datetime
+    account_password_change: str
+    account_password_change_indicator: AccountPasswordChangeIndicatorType
+    transactions_per_year: int
+    payment_account_age: datetime
+    shipping_address_usage: datetime
+    account_type: AccountTypeCardProductType
+    account_id: str
+    three_ds_requestor_authentication_info: ThreeDsRequestorAuthenticationInfo
+
+
+class ReorderItemsIndicatorType(str, Enum):
+    FIRST_TIME_ORDERED = "first_time_ordered"
+    REORDERED = "reordered"
+
+
+class PreOrderPurchaseIndicatorType(str, Enum):
+    FUTURE_AVAILABILITY = "future_availability"
+    MERCHANDISE_AVAILABLE = "merchandise_available"
 
 
 class MerchantRiskInfo:
@@ -243,40 +294,68 @@ class MerchantRiskInfo:
     is_preorder: bool
     is_reorder: bool
     shipping_indicator: ShippingIndicator
+    reorder_items_indicator: ReorderItemsIndicatorType
+    pre_order_purchase_indicator: PreOrderPurchaseIndicatorType
+    pre_order_date: datetime
+    gift_card_amount: str
+    gift_card_currency: str
+    gift_card_count: str
 
 
 class Recurring:
-    days_between_payments: int
-    expiry: str
+    days_between_payments: int = 1
+    expiry: str = '99991231'
 
 
 class Installment:
     number_of_payments: int
-    days_between_payments: int
-    expiry: str
+    days_between_payments: int = 1
+    expiry: str = '99991231'
+
+
+class OptimizedProperties:
+    field: str
+    original_value: str
+    optimized_value: str
+
+
+class Optimization:
+    optimized: bool
+    framework: str
+    optimized_properties: list  # OptimizedProperties
+
+
+class InitialTransaction:
+    acs_transaction_id: str
+    authentication_method: str
+    authentication_timestamp: str
+    authentication_data: str
+    initial_session_id: str
 
 
 class SessionRequest:
-    source: SessionSource
+    source: SessionSource = SessionCardSource()
     amount: int
     currency: Currency
     processing_channel_id: str
     marketplace: SessionMarketplaceData
-    authentication_type: AuthenticationType
-    authentication_category: Category
+    authentication_type: AuthenticationType = AuthenticationType.REGULAR
+    authentication_category: Category = Category.PAYMENT
     account_info: CardholderAccountInfo
-    challenge_indicator: ChallengeIndicator
+    challenge_indicator: ChallengeIndicator = ChallengeIndicator.NO_PREFERENCE
     billing_descriptor: SessionsBillingDescriptor
     reference: str
     merchant_risk_info: MerchantRiskInfo
     prior_transaction_reference: str
-    transaction_type: TransactionType
+    transaction_type: TransactionType = TransactionType.GOODS_SERVICE
     shipping_address: SessionAddress
     shipping_address_matches_billing: bool
     completion: Completion
     channel_data: ChannelData
     recurring: Recurring
     installment: Installment
+    optimization: Optimization
+    initial_transaction: InitialTransaction
 
 
 class ThreeDsMethodCompletionRequest:

@@ -12,13 +12,14 @@ from checkout_sdk.payments.payment_apm import RequestIdealSource, RequestTamaraS
     PaymentRequestWeChatPaySource, RequestAlipayPlusSource, RequestP24Source, RequestKnetSource, \
     RequestBancontactSource, RequestMultiBancoSource, RequestPostFinanceSource, RequestStcPaySource, RequestAlmaSource, \
     RequestKlarnaSource, RequestFawrySource, RequestTrustlySource, RequestCvConnectSource, RequestIllicadoSource, \
-    RequestSepaSource, RequestGiropaySource
+    RequestSepaSource, RequestGiropaySource, RequestEpsSource, RequestBizumSource, RequestOctopusSource, \
+    RequestPlaidSource, RequestSequraSource
 from checkout_sdk.payments.payments import PaymentRequest, ProcessingSettings, FawryProduct, PaymentCustomerRequest, \
     ShippingDetails, PaymentMethodDetails
 from checkout_sdk.payments.payments_apm_previous import RequestSofortSource
 from tests.checkout_test_utils import assert_response, SUCCESS_URL, FAILURE_URL, retriable, address, FIRST_NAME, \
     LAST_NAME, phone, check_error_item, PAYEE_NOT_ONBOARDED, APM_SERVICE_UNAVAILABLE, random_email, new_uuid, \
-    account_holder, REFERENCE, DESCRIPTION
+    account_holder, REFERENCE, DESCRIPTION, APM_CURRENCY_NOT_SUPPORTED
 
 
 @pytest.mark.skip(reason='not available')
@@ -485,4 +486,80 @@ def test_should_make_sepa_payment(default_api):
 
     check_error_item(callback=default_api.payments.request_payment,
                      error_item=APM_SERVICE_UNAVAILABLE,
+                     payment_request=payment_request)
+
+
+def test_should_request_eps_payment(default_api):
+    payment_request = PaymentRequest()
+    payment_request.source = RequestEpsSource()
+    payment_request.source.account_holder = account_holder()
+    payment_request.source.purpose = 'Mens black t-shirt L'
+    payment_request.amount = 100
+    payment_request.currency = Currency.EUR
+    payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+
+    check_error_item(callback=default_api.payments.request_payment,
+                     error_item=PAYEE_NOT_ONBOARDED,
+                     payment_request=payment_request)
+
+
+def test_should_make_bizum_payment(default_api):
+    payment_request = PaymentRequest()
+    payment_request.source = RequestBizumSource()
+    payment_request.source.mobile_number = '+447700900986'
+    payment_request.amount = 10
+    payment_request.currency = Currency.EUR
+    payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+
+    check_error_item(callback=default_api.payments.request_payment,
+                     error_item=APM_SERVICE_UNAVAILABLE,
+                     payment_request=payment_request)
+
+
+def test_should_make_octopus_payment(default_api):
+    payment_request = PaymentRequest()
+    payment_request.source = RequestOctopusSource()
+    payment_request.amount = 10
+    payment_request.currency = Currency.USD
+    payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+
+    check_error_item(callback=default_api.payments.request_payment,
+                     error_item=APM_CURRENCY_NOT_SUPPORTED,
+                     payment_request=payment_request)
+
+
+def test_should_make_plaid_payment(default_api):
+    payment_request = PaymentRequest()
+    payment_request.source = RequestPlaidSource()
+    payment_request.source.token = 'token'
+    payment_request.source.account_holder = account_holder()
+    payment_request.amount = 10
+    payment_request.currency = Currency.USD
+    payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+
+    check_error_item(callback=default_api.payments.request_payment,
+                     error_item=PAYEE_NOT_ONBOARDED,
+                     payment_request=payment_request)
+
+
+def test_should_make_sequra_payment(default_api):
+    payment_request = PaymentRequest()
+    payment_request.source = RequestSequraSource()
+    payment_request.billing_address = address()
+    payment_request.amount = 10
+    payment_request.currency = Currency.EUR
+    payment_request.capture = True
+    payment_request.success_url = SUCCESS_URL
+    payment_request.failure_url = FAILURE_URL
+
+    check_error_item(callback=default_api.payments.request_payment,
+                     error_item=PAYEE_NOT_ONBOARDED,
                      payment_request=payment_request)

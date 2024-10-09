@@ -73,4 +73,4 @@ class CheckoutApi(CheckoutApmApi):
         self.financial = FinancialClient(api_client=base_api_client, configuration=configuration)
         self.issuing = IssuingClient(api_client=base_api_client, configuration=configuration)
         self.contexts = PaymentContextsClient(api_client=base_api_client, configuration=configuration)
-        self.sessions = PaymentSessionsClient(api_client=base_api_client, configuration=configuration)
+        self.payment_sessions = PaymentSessionsClient(api_client=base_api_client, configuration=configuration)

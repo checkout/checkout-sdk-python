@@ -64,6 +64,7 @@ class Exemption(str, Enum):
     OTHER = 'other'
     LOW_RISK_PROGRAM = 'low_risk_program'
     DATA_SHARE = 'data_share'
+    RECURRING_OPERATION = 'recurring_operation'
 
 
 class ThreeDSFlowType(str, Enum):
@@ -153,6 +154,7 @@ class PaymentSender:
 class PaymentCorporateSender(PaymentSender):
     company_name: str
     address: Address
+    reference: str
     reference_type: str
     source_of_funds: str
     identification: AccountHolderIdentification
@@ -164,6 +166,7 @@ class PaymentCorporateSender(PaymentSender):
 class PaymentGovermentSender(PaymentSender):
     company_name: str
     address: Address
+    reference: str
     reference_type: str
     source_of_funds: str
     identification: AccountHolderIdentification
@@ -179,6 +182,7 @@ class PaymentIndividualSender(PaymentSender):
     dob: str
     address: Address
     identification: AccountHolderIdentification
+    reference: str
     reference_type: str
     source_of_funds: str
     date_of_birth: str
@@ -213,6 +217,7 @@ class PaymentRequestCardSource(PaymentRequestSource):
     store_for_future_use: bool
     billing_address: Address
     phone: Phone
+    account_holder: AccountHolder
 
     def __init__(self):
         super().__init__(PaymentSourceType.CARD)
@@ -224,6 +229,7 @@ class PaymentRequestTokenSource(PaymentRequestSource):
     phone: Phone
     stored: bool
     store_for_future_use: bool
+    account_holder: AccountHolder
 
     def __init__(self):
         super().__init__(PaymentSourceType.TOKEN)
@@ -241,6 +247,7 @@ class PaymentRequestNetworkTokenSource(PaymentRequestSource):
     cvv: str
     billing_address: Address
     phone: Phone
+    account_holder: AccountHolder
 
     def __init__(self):
         super().__init__(PaymentSourceType.NETWORK_TOKEN)
@@ -252,6 +259,7 @@ class PaymentRequestIdSource(PaymentRequestSource):
     payment_method: str
     stored: bool
     store_for_future_use: bool
+    account_holder: AccountHolder
 
     def __init__(self):
         super().__init__(PaymentSourceType.ID)
@@ -280,6 +288,7 @@ class RequestBankAccountSource(PaymentRequestSource):
 
 class RequestCustomerSource(PaymentRequestSource):
     id: str
+    account_holder: AccountHolder
 
     def __init__(self):
         super().__init__(PaymentSourceType.CUSTOMER)
@@ -439,6 +448,10 @@ class PaymentRetryRequest:
 
 
 # Request Payment
+class PartialAuthorization:
+    enabled: bool
+
+
 class PaymentRequest:
     payment_context_id: str
     source: PaymentRequestSource
@@ -449,6 +462,7 @@ class PaymentRequest:
     reference: str
     description: str
     authorization_type: AuthorizationType
+    partial_authorization: PartialAuthorization
     capture: bool
     capture_on: datetime
     customer: PaymentCustomerRequest

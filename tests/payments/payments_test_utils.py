@@ -10,7 +10,7 @@ from checkout_sdk.payments.payments import PaymentRequestCardSource, PaymentRequ
 from checkout_sdk.payments.payments_previous import RequestTokenSource
 from checkout_sdk.tokens.tokens import CardTokenRequest
 from tests.checkout_test_utils import VisaCard, address, phone, assert_response, random_email, new_uuid, FIRST_NAME, \
-    LAST_NAME, NAME, SUCCESS_URL, FAILURE_URL
+    LAST_NAME, NAME, SUCCESS_URL, FAILURE_URL, account_holder
 
 
 def make_card_payment(default_api: CheckoutApi, amount: int = 10, capture_on: datetime = None,
@@ -23,6 +23,7 @@ def make_card_payment(default_api: CheckoutApi, amount: int = 10, capture_on: da
     request_card_source.name = VisaCard.name
     request_card_source.billing_address = address()
     request_card_source.phone = phone()
+    request_card_source.account_holder = account_holder()
 
     customer_request = CustomerRequest()
     customer_request.email = random_email()

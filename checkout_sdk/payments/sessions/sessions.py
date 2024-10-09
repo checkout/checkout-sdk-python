@@ -70,4 +70,5 @@ class PaymentSessionsRequest:
     three_ds: ThreeDsRequest
     sender: PaymentSender
     capture: bool
+    capture_on: datetime
     ip_address: str

@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from datetime import datetime
 
 from checkout_sdk.common.common import Address, AccountHolder
-from checkout_sdk.common.enums import PaymentSourceType, Country, Currency
+from checkout_sdk.common.enums import PaymentSourceType, Country, Currency, AccountType
 from checkout_sdk.payments.payments import PaymentRequestSource, BillingPlan, PaymentMethodDetails
 from checkout_sdk.tokens.tokens import ApplePayTokenData
 
@@ -98,6 +98,7 @@ class RequestBenefitSource(PaymentRequestSource):
 
 class RequestEpsSource(PaymentRequestSource):
     purpose: str
+    account_holder: AccountHolder
 
     def __init__(self):
         super().__init__(PaymentSourceType.EPS)
@@ -244,3 +245,41 @@ class RequestSepaSource(PaymentRequestSource):
 
     def __init__(self):
         super().__init__(PaymentSourceType.SEPA)
+
+
+class RequestAchSource(PaymentRequestSource):
+    account_type: AccountType
+    country: Country
+    account_number: str
+    bank_code: str
+    account_holder: AccountHolder
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.ACH)
+
+
+class RequestBizumSource(PaymentRequestSource):
+    mobile_number: str
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.BIZUM)
+
+
+class RequestOctopusSource(PaymentRequestSource):
+    def __init__(self):
+        super().__init__(PaymentSourceType.OCTOPUS)
+
+
+class RequestPlaidSource(PaymentRequestSource):
+    token: str
+    account_holder: AccountHolder
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.PLAID)
+
+
+class RequestSequraSource(PaymentRequestSource):
+    billing_address: Address
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.SEQURA)
