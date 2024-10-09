@@ -10,7 +10,7 @@ from tests.checkout_test_utils import assert_response, address
 def test_should_create_payment_sessions(default_api):
     request = create_payment_sessions_request()
 
-    response = default_api.sessions.create_payment_sessions(request)
+    response = default_api.payment_sessions.create_payment_sessions(request)
 
     assert_response(response,
                     'id',

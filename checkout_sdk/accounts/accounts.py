@@ -40,9 +40,14 @@ class EntityEmailAddresses:
     primary: str
 
 
+class Invitee:
+    email: str
+
+
 class ContactDetails:
     phone: Phone
     email_addresses: EntityEmailAddresses
+    invitee: Invitee
 
 
 class Profile:
@@ -97,10 +102,73 @@ class TaxVerification:
     front: str
 
 
+class ArticlesOfAssociationType(str, Enum):
+    MEMORANDUM_OF_ASSOCIATION = "memorandum_of_association"
+    ARTICLES_OF_ASSOCIATION = "articles_of_association"
+
+
+class BankVerificationType(str, Enum):
+    BANK_STATEMENT = 'bank_statement'
+
+
+class BankVerification:
+    type: BankVerificationType
+    front: str
+
+
+class ShareholderStructureType(str, Enum):
+    CERTIFIED_SHAREHOLDER_STRUCTURE = 'certified_shareholder_structure'
+
+
+class ShareholderStructure:
+    type: ShareholderStructureType
+    front: str
+
+
+class ProofOfLegalityType(str, Enum):
+    PROOF_OF_LEGALITY = 'proof_of_legality'
+
+
+class ProofOfLegality:
+    type: ProofOfLegalityType
+    front: str
+
+
+class ProofOfPrincipalAddressType(str, Enum):
+    PROOF_OF_ADDRESS = 'proof_of_address'
+
+
+class ProofOfPrincipalAddress:
+    type: ProofOfPrincipalAddressType
+    front: str
+
+
+class AdditionalDocument:
+    front: str
+
+
+class FinancialVerificationType(str, Enum):
+    FINANCIAL_STATEMENT = 'financial_statement'
+
+
+class FinancialVerification:
+    type: FinancialVerificationType
+    front: str
+
+
 class OnboardSubEntityDocuments:
     identity_verification: EntityIdentificationDocument
     company_verification: CompanyVerification
+    articles_of_association: ArticlesOfAssociationType
+    bank_verification: BankVerification
+    shareholder_structure: ShareholderStructure
+    proof_of_legality: ProofOfLegality
+    proof_of_principal_address: ProofOfPrincipalAddress
+    additional_document_1: AdditionalDocument
+    additional_document_2: AdditionalDocument
+    additional_document_3: AdditionalDocument
     tax_verification: TaxVerification
+    financial_verification: FinancialVerification
 
 
 class EntityRepresentative:
@@ -129,16 +197,25 @@ class EntityFinancialDetails:
     currency: Currency
 
 
+class DateOfIncorporation:
+    month: int
+    year: int
+
+
 class Company:
     business_registration_number: str
     business_type: BusinessType
     legal_name: str
     trading_name: str
+    business_registration_number: str
+    date_of_incorporation: DateOfIncorporation
+    regulatory_licence_number: str
     principal_address: Address
     registered_address: Address
-    document: EntityDocument
     representatives: list  # EntityRepresentative
+    document: EntityDocument
     financial_details: EntityFinancialDetails
+    business_type: BusinessType
 
 
 class Identification:
@@ -159,13 +236,31 @@ class Individual:
     financial_details: EntityFinancialDetails
 
 
+class ProcessingDetails:
+    settlement_country: str
+    target_countries: list  # str
+    annual_processing_volume: int
+    average_transaction_value: int
+    highest_transaction_value: int
+    currency: Currency
+
+
+class AdditionalInfo:
+    field1: str
+    field2: str
+    field3: str
+
+
 class OnboardEntityRequest:
     reference: str
-    contact_details: ContactDetails
+    is_draft: bool
     profile: Profile
+    contact_details: ContactDetails
     company: Company
+    processing_details: ProcessingDetails
     individual: Individual
     documents: OnboardSubEntityDocuments
+    additional_info: AdditionalInfo
 
 
 class InstrumentDocument:

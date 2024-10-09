@@ -3,8 +3,15 @@ from checkout_sdk.sessions.sessions import BrowserSession, ThreeDsMethodCompleti
     SessionMarketplaceData, \
     SessionsBillingDescriptor, NonHostedCompletionInfo, SessionRequest, ChannelData, \
     TransactionType, AppSession, SdkEphemeralPublicKey, SdkInterfaceType, UIElements, HostedCompletionInfo, \
-    AuthenticationType, Category, SessionCardSource
+    AuthenticationType, Category, SessionCardSource, MerchantInitiatedSession, RequestType
 from tests.checkout_test_utils import VisaCard, random_email, phone
+
+
+def get_merchant_initiated_session():
+    merchant_initiated_session = MerchantInitiatedSession()
+    merchant_initiated_session.request_type = RequestType.RECURRING_TRANSACTION
+
+    return merchant_initiated_session
 
 
 def get_browser_session():

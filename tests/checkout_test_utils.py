@@ -6,7 +6,7 @@ import uuid
 from pathlib import Path
 
 from checkout_sdk.common.common import Address, Phone, CustomerRequest, AccountHolder
-from checkout_sdk.common.enums import Country
+from checkout_sdk.common.enums import Country, AccountHolderType
 from checkout_sdk.exception import CheckoutException, CheckoutApiException
 from checkout_sdk.payments.payments import Payer, PaymentRecipient
 
@@ -19,6 +19,7 @@ SUCCESS_URL = 'https://testing.checkout.com/sucess'
 FAILURE_URL = 'https://testing.checkout.com/failure'
 PAYEE_NOT_ONBOARDED = 'payee_not_onboarded'
 APM_SERVICE_UNAVAILABLE = 'apm_service_unavailable'
+APM_CURRENCY_NOT_SUPPORTED = 'currency_not_supported'
 
 _logger = logging.getLogger('checkout')
 
@@ -84,10 +85,12 @@ def phone() -> Phone:
 
 def account_holder() -> AccountHolder:
     _account_holder = AccountHolder()
+    _account_holder.type = AccountHolderType.INDIVIDUAL
     _account_holder.first_name = 'John'
     _account_holder.last_name = 'Doe'
     _account_holder.billing_address = address()
     _account_holder.phone = phone()
+    _account_holder.account_name_inquiry = False
     return _account_holder
 
 

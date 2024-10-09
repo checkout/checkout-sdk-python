@@ -471,6 +471,11 @@ class PaymentSourceType(str, Enum):
     TRUSTLY = 'trustly'
     CVCONNECT = 'cvconnect'
     SEPA = 'sepa'
+    ACH = 'ach'
+    BIZUM = 'bizum'
+    OCTOPUS = 'octopus'
+    PLAID = 'plaid'
+    SEQURA = 'sequra'
 
 
 class ChallengeIndicator(str, Enum):
@@ -515,3 +520,32 @@ class DocumentType(str, Enum):
     CITIZEN_CARD = 'citizen_card'
     RESIDENCE_PERMIT = 'residence_permit'
     ELECTORAL_ID = 'electoral_id'
+
+
+class AccountChangeIndicatorType(str, Enum):
+    THIS_TRANSACTION = "this_transaction"
+    LESS_THAN_THIRTY_DAYS = "less_than_thirty_days"
+    THIRTY_TO_SIXTY_DAYS = "thirty_to_sixty_days"
+    MORE_THAN_SIXTY_DAYS = "more_than_sixty_days"
+
+
+class AccountPasswordChangeIndicatorType(str, Enum):
+    NO_CHANGE = "no_change"
+    THIS_TRANSACTION = "this_transaction"
+    LESS_THAN_THIRTY_DAYS = "less_than_thirty_days"
+    THIRTY_TO_SIXTY_DAYS = "thirty_to_sixty_days"
+    MORE_THAN_SIXTY_DAYS = "more_than_sixty_days"
+
+
+class AccountTypeCardProductType(str, Enum):
+    CREDIT = "credit"
+    DEBIT = "debit"
+    NOT_APPLICABLE = "not_applicable"
+
+
+class CardholderAccountAgeIndicatorType(str, Enum):
+    LESS_THAN_THIRTY_DAYS = "less_than_thirty_days"
+    MORE_THAN_SIXTY_DAYS = "more_than_sixty_days"
+    NO_ACCOUNT = "no_account"
+    THIRTY_TO_SIXTY_DAYS = "thirty_to_sixty_days"
+    THIS_TRANSACTION = "this_transaction"

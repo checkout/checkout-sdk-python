@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 
-from checkout_sdk.common.enums import AccountHolderIdentificationType, AccountHolderType, Country
+from checkout_sdk.common.enums import AccountHolderIdentificationType, AccountHolderType, Country, AccountType
 
 
 class Address:
@@ -25,6 +25,10 @@ class CustomerRequest:
     phone: Phone
 
 
+class CustomerRetry:
+    max_attempts: int
+
+
 class ResidentialStatusType(str, Enum):
     RESIDENT = 'resident'
     NON_RESIDENT = 'non_resident'
@@ -39,8 +43,12 @@ class AccountHolderIdentification:
 
 class AccountHolder:
     type: AccountHolderType
+    full_name: str
     first_name: str
+    middle_name: str
     last_name: str
+    email: str
+    gender: str
     company_name: str
     tax_id: str
     date_of_birth: str
@@ -49,9 +57,7 @@ class AccountHolder:
     billing_address: Address
     phone: Phone
     identification: AccountHolderIdentification
-    email: str
-    gender: str
-    middle_name: str
+    account_name_inquiry: bool
 
 
 class BankDetails:
@@ -113,3 +119,16 @@ class ShippingInfo:
 class QueryFilterDateRange:
     from_: datetime
     to: datetime
+
+
+class Destination:
+    account_type: AccountType
+    account_number: str
+    bank_code: str
+    branch_code: str
+    iban: str
+    bban: str
+    swift_bic: str
+    country: Country
+    account_holder: AccountHolder
+    bank: BankDetails
