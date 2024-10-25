@@ -1,9 +1,9 @@
 from datetime import datetime
 
-from checkout_sdk.common.common import CustomerRequest
+from checkout_sdk.common.common import CustomerRequest, CustomerRetry
 from checkout_sdk.common.enums import Currency
 from checkout_sdk.payments.payments import BillingDescriptor, PaymentType, ShippingDetails, ThreeDsRequest, \
-    RiskRequest, PaymentRecipient, ProcessingSettings, PaymentSender, PaymentRetryRequest
+    RiskRequest, PaymentRecipient, ProcessingSettings, PaymentSender
 from checkout_sdk.payments.payments_previous import BillingInformation
 
 
@@ -27,7 +27,7 @@ class HostedPaymentsSessionRequest:
     disabled_payment_methods: list  # PaymentSourceType
     products: list  # common.Product
     risk: RiskRequest
-    customer_retry: PaymentRetryRequest
+    customer_retry: CustomerRetry
     sender: PaymentSender
     success_url: str
     cancel_url: str
