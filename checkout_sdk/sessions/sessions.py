@@ -250,8 +250,21 @@ class NetworkTokenSource(SessionSource):
         super().__init__(SessionSourceType.NETWORK_TOKEN)
 
 
+class ThreeDsReqAuthMethod(str, Enum):
+    NoThreedsRequestorAuthenticationOccurred = "no_threeds_requestor_authentication_occurred"
+    Three3dsRequestorOwnCredentials = "three3ds_requestor_own_credentials"
+    FederatedId = "federated_id"
+    IssuerCredentials = "issuer_credentials"
+    ThirdPartyAuthentication = "third_party_authentication"
+    FidoAuthenticator = "fido_authenticator"
+    FidoAuthenticatorFidoAssuranceDataSigned = "fido_authenticator_fido_assurance_data_signed"
+    SrcAssuranceData = "src_assurance_data"
+
+
 class ThreeDsRequestorAuthenticationInfo:
-    pass
+    three_ds_req_auth_method: ThreeDsReqAuthMethod
+    three_ds_req_auth_timestamp: datetime
+    three_ds_req_auth_data: str
 
 
 class CardholderAccountInfo:
