@@ -26,7 +26,6 @@ def test_request_and_get_card_session_merchant_initiated_session(oauth_api: Chec
     assert_response(oauth_api.sessions.get_session_details(session_id, session_secret), 'id')
 
 
-# @pytest.mark.skip(reason='unstable')
 def test_request_and_get_card_session_browser_session(oauth_api: CheckoutApi):
     browser_session = get_browser_session()
     session_request = get_non_hosted_session(browser_session, Category.PAYMENT,

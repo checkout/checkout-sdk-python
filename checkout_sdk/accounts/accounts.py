@@ -164,9 +164,9 @@ class OnboardSubEntityDocuments:
     shareholder_structure: ShareholderStructure
     proof_of_legality: ProofOfLegality
     proof_of_principal_address: ProofOfPrincipalAddress
-    additional_document_1: AdditionalDocument
-    additional_document_2: AdditionalDocument
-    additional_document_3: AdditionalDocument
+    additional_document1: AdditionalDocument
+    additional_document2: AdditionalDocument
+    additional_document3: AdditionalDocument
     tax_verification: TaxVerification
     financial_verification: FinancialVerification
 
@@ -207,7 +207,6 @@ class Company:
     business_type: BusinessType
     legal_name: str
     trading_name: str
-    business_registration_number: str
     date_of_incorporation: DateOfIncorporation
     regulatory_licence_number: str
     principal_address: Address
@@ -215,7 +214,6 @@ class Company:
     representatives: list  # EntityRepresentative
     document: EntityDocument
     financial_details: EntityFinancialDetails
-    business_type: BusinessType
 
 
 class Identification:
