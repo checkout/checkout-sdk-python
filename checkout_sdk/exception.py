@@ -7,6 +7,8 @@ from checkout_sdk.utils import map_to_http_metadata
 class CheckoutException(Exception):
 
     def __init__(self, message=None):
+        if message is None:
+            message = ""
         super().__init__(message)
 
 
@@ -37,8 +39,15 @@ class CheckoutApiException(CheckoutException):
     def __init__(self, response):
         self.http_metadata = map_to_http_metadata(response)
         if response.text:
-            payload = response.json()
-            self.error_details = payload['error_codes'] if 'error_codes' in payload else None
-            self.error_type = payload['error_type'] if 'error_type' in payload else None
+            try:
+                payload = response.json()
+                self.error_details = payload.get('error_codes')
+                self.error_type = payload.get('error_type')
+            except ValueError:
+                self.error_details = None
+                self.error_type = None
+        else:
+            self.error_details = None
+            self.error_type = None
         super().__init__('The API response status code ({}) does not indicate success.'
                          .format(response.status_code))
