@@ -58,6 +58,7 @@ def test_should_request_ideal_payment(default_api):
                     'status')
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_request_sofort_payment(default_api):
     payment_request = PaymentRequest()
     payment_request.source = RequestSofortSource()
@@ -263,9 +264,14 @@ def test_should_make_knet_payment(default_api):
     payment_request.success_url = SUCCESS_URL
     payment_request.failure_url = FAILURE_URL
 
-    check_error_item(callback=default_api.payments.request_payment,
-                     error_item=PAYEE_NOT_ONBOARDED,
-                     payment_request=payment_request)
+    payment_response = retriable(callback=default_api.payments.request_payment,
+                                 payment_request=payment_request)
+    assert_response(payment_response,
+                    'http_metadata',
+                    'id',
+                    'status',
+                    '_links',
+                    '_links.self')
 
 
 def test_should_make_bancontact_payment(default_api):

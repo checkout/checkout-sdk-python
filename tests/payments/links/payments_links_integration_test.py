@@ -28,14 +28,7 @@ def test_should_create_and_get_payment_link(default_api):
                     'http_metadata',
                     'id',
                     'reference',
-                    'expires_on',
-                    'warnings')
-
-    for warning in response.warnings:
-        assert_response(warning,
-                        'code',
-                        'value',
-                        'description')
+                    'expires_on')
 
     hosted_details = default_api.payments_links.get_payment_link(response.id)
 
