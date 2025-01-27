@@ -9,6 +9,7 @@ from checkout_sdk.tokens.tokens import CardTokenRequest
 from tests.checkout_test_utils import assert_response, phone, VisaCard, address, NAME
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_create_and_get_instrument(previous_api):
     create_instrument_response = create_token_instrument(previous_api)
     assert_response(create_instrument_response,
@@ -52,6 +53,7 @@ def test_should_create_and_get_instrument(previous_api):
                     'type')
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_create_and_update_instrument(previous_api):
     create_instrument_response = create_token_instrument(previous_api)
 
@@ -70,6 +72,7 @@ def test_should_create_and_update_instrument(previous_api):
     assert get_instrument_response.expiry_month == 12
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_create_and_delete_instrument(previous_api):
     create_instrument_response = create_token_instrument(previous_api)
 

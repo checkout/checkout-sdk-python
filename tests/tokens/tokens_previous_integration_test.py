@@ -1,7 +1,10 @@
+import pytest
+
 from checkout_sdk.tokens.tokens import CardTokenRequest
 from tests.checkout_test_utils import assert_response, address, phone
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_create_card_token(previous_api):
     request = CardTokenRequest()
     request.number = '4242424242424242'

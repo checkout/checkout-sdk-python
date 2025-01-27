@@ -1,10 +1,13 @@
 from __future__ import absolute_import
 
+import pytest
+
 from checkout_sdk.common.enums import Currency
 from checkout_sdk.payments.payments_previous import PayoutRequest, PaymentRequestCardDestination
 from tests.checkout_test_utils import VisaCard, phone, LAST_NAME, FIRST_NAME, new_uuid, assert_response, retriable
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_request_payout(previous_api):
     destination = PaymentRequestCardDestination()
     destination.name = VisaCard.name

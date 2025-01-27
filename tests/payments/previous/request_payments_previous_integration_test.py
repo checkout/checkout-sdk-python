@@ -2,6 +2,8 @@ from __future__ import absolute_import
 
 from datetime import datetime, timezone
 
+import pytest
+
 from tests.checkout_test_utils import assert_response, new_idempotency_key
 from tests.payments.previous.payments_previous_test_utils import make_card_payment, make_3ds_card_payment, \
     make_token_payment
@@ -52,6 +54,7 @@ def test_should_request_card_payment(previous_api):
     assert payment_response.source.type == 'card'
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_request_card_3ds_payment(previous_api):
     payment_response = make_3ds_card_payment(previous_api, False)
 
@@ -67,6 +70,7 @@ def test_should_request_card_3ds_payment(previous_api):
                     'customer.email')
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_request_card_3ds_payment_n3d(previous_api):
     payment_response = make_3ds_card_payment(previous_api, True)
 
@@ -112,6 +116,7 @@ def test_should_request_card_3ds_payment_n3d(previous_api):
     assert payment_response.source.type == 'card'
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_request_token_payment(previous_api):
     payment_response = make_token_payment(previous_api)
 

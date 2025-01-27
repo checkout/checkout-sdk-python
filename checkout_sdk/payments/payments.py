@@ -243,6 +243,7 @@ class PaymentRequestNetworkTokenSource(PaymentRequestSource):
     cryptogram: str
     eci: str
     stored: bool
+    store_for_future_use: bool
     name: str
     cvv: str
     billing_address: Address

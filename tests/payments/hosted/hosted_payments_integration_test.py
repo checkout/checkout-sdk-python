@@ -84,6 +84,7 @@ def create_hosted_payments_request():
     request.reference = 'reference'
     request.currency = Currency.GBP
     request.description = 'Payment for Gold Necklace'
+    request.display_name = 'Gold Necklace'
     request.customer = customer_request
     request.shipping = shipping_details
     request.billing = billing_information

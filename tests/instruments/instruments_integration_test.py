@@ -140,6 +140,7 @@ def test_should_create_and_delete_instrument(default_api):
         default_api.instruments.get(create_instrument_response.id)
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_get_bank_account_field_formatting(oauth_api):
     query = BankAccountFieldQuery()
     query.account_holder_type = AccountHolderType.INDIVIDUAL

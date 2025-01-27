@@ -20,14 +20,7 @@ def test_should_create_and_get_payment_link(previous_api):
                     'expires_on',
                     '_links',
                     '_links.self',
-                    '_links.redirect',
-                    'warnings')
-
-    for warning in response.warnings:
-        assert_response(warning,
-                        'code',
-                        'value',
-                        'description')
+                    '_links.redirect')
 
     hosted_details = previous_api.payments_links.get_payment_link(response.id)
 

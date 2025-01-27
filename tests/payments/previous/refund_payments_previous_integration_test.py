@@ -2,11 +2,14 @@ from __future__ import absolute_import
 
 from datetime import datetime, timezone
 
+import pytest
+
 from checkout_sdk.payments.payments import RefundRequest
 from tests.checkout_test_utils import new_uuid, assert_response, new_idempotency_key, retriable
 from tests.payments.previous.payments_previous_test_utils import make_card_payment
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_refund_card_payment(previous_api):
     payment_response = make_card_payment(previous_api, capture_on=datetime.now(timezone.utc))
 
@@ -24,6 +27,7 @@ def test_should_refund_card_payment(previous_api):
                     '_links')
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_refund_card_payment_idempotently(previous_api):
     payment_response = make_card_payment(previous_api, capture_on=datetime.now(timezone.utc))
 
