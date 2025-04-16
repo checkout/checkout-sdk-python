@@ -12,6 +12,7 @@ from tests.checkout_test_utils import assert_response, get_project_root, retriab
 from tests.payments.previous.payments_previous_test_utils import make_card_payment
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_query_disputes(previous_api):
     query = DisputesQueryFilter()
     now = datetime.now(timezone.utc)
@@ -36,6 +37,7 @@ def test_should_query_disputes(previous_api):
                         'payment_id')
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_upload_file(previous_api):
     request = FileRequest()
     request.file = os.path.join(get_project_root(), 'tests', 'resources', 'checkout.jpeg')
@@ -106,6 +108,7 @@ def there_are_disputes(response) -> bool:
     return response.total_count is not None and response.total_count > 0
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_disputes_scheme_files(previous_api):
     disputes_query_filter = DisputesQueryFilter()
     disputes_query_filter.limit = 5

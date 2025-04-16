@@ -89,6 +89,7 @@ def test_should_request_boleto_payment(previous_api, integration_type: Integrati
                     '_links')
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_make_eps_payment(previous_api):
     request_source = RequestEpsSource()
     request_source.purpose = 'Mens black t-shirt L'
@@ -113,6 +114,7 @@ def test_should_make_eps_payment(previous_api):
                     '_links')
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_request_fawry_payment(previous_api):
     product = FawryProduct()
     product.product_id = '0123456789'
@@ -172,6 +174,7 @@ def test_should_request_giropay_payment(previous_api):
                     '_links')
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_request_ideal_payment(previous_api):
     request_source = RequestIdealSource()
     request_source.bic = 'INGBNL2A'
@@ -280,6 +283,7 @@ def test_should_request_rapipago_payment(previous_api):
                     '_links')
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_request_sofort_payment(previous_api):
     payment_request = PaymentRequest()
     payment_request.source = RequestSofortSource()
@@ -302,6 +306,7 @@ def test_should_request_sofort_payment(previous_api):
                     '_links')
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_make_knet_payment(previous_api):
     payment_method_details = PaymentMethodDetails()
     payment_method_details.display_name = "name"
@@ -362,6 +367,7 @@ def test_should_make_przelewy24_payment(previous_api):
                     '_links')
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_make_pay_pal_payment(previous_api):
     request_source = RequestPayPalSource()
     request_source.invoice_number = 'CKO00001'
@@ -388,6 +394,7 @@ def test_should_make_pay_pal_payment(previous_api):
                     '_links')
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_make_poli_payment(previous_api):
     payment_request = PaymentRequest()
     payment_request.source = RequestPoliSource()
@@ -439,6 +446,7 @@ def test_should_make_bancontact_payment(previous_api):
                     '_links')
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_make_qpay_payment(previous_api):
     request_source = RequestQPaySource()
     request_source.description = 'QPay Demo Payment'

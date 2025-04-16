@@ -23,6 +23,7 @@ __PAYMENT_EVENT_TYPES = ['payment_approved',
                          'payment_voided']
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_retrieve_event_types(previous_api):
     all_event_types = previous_api.events.retrieve_all_event_types()
     assert_response(all_event_types, 'items')

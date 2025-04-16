@@ -7,6 +7,7 @@ from checkout_sdk.exception import CheckoutApiException
 from tests.checkout_test_utils import assert_response, random_email, phone
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_create_and_get_customer(previous_api):
     email = random_email()
     customer_id = create_customer(previous_api, email)
@@ -19,6 +20,7 @@ def test_should_create_and_get_customer(previous_api):
     assert email == response.email
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_create_and_update_customer(previous_api):
     customer_id = create_customer(previous_api, random_email())
 
@@ -38,6 +40,7 @@ def test_should_create_and_update_customer(previous_api):
     assert customer_request.name == response_update.name
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_create_and_delete_customer(previous_api):
     customer_id = create_customer(previous_api, random_email())
     response = previous_api.customers.delete(customer_id)
@@ -50,6 +53,7 @@ def test_should_create_and_delete_customer(previous_api):
         assert err.args[0] == 'The API response status code (404) does not indicate success.'
 
 
+@pytest.mark.skip(reason='not available')
 def create_customer(previous_api, email):
     customer_request = CustomerRequest()
     customer_request.email = email

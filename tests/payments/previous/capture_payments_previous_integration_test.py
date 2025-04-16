@@ -1,10 +1,13 @@
 from __future__ import absolute_import
 
+import pytest
+
 from checkout_sdk.payments.payments_previous import CaptureRequest
 from tests.checkout_test_utils import new_uuid, assert_response, new_idempotency_key, retriable
 from tests.payments.previous.payments_previous_test_utils import make_card_payment
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_full_capture_card_payment(previous_api):
     payment_response = make_card_payment(previous_api)
 
@@ -21,6 +24,7 @@ def test_should_full_capture_card_payment(previous_api):
                     '_links')
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_partially_capture_card_payment(previous_api):
     payment_response = make_card_payment(previous_api)
 
@@ -37,6 +41,7 @@ def test_should_partially_capture_card_payment(previous_api):
                     '_links')
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_full_capture_card_payment_idempotently(previous_api):
     payment_response = make_card_payment(previous_api)
 

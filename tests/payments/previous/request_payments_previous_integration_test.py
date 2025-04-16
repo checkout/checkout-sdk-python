@@ -9,6 +9,7 @@ from tests.payments.previous.payments_previous_test_utils import make_card_payme
     make_token_payment
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_request_card_payment(previous_api):
     payment_response = make_card_payment(previous_api, capture_on=datetime.now(timezone.utc))
 
@@ -161,6 +162,7 @@ def test_should_request_token_payment(previous_api):
     assert payment_response.source.type == 'card'
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_request_payment_idempotently(previous_api):
     idempotency_key = new_idempotency_key()
 
