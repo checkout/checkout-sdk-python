@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+import pytest
+
 from checkout_sdk.common.common import CustomerRequest, Product
 from checkout_sdk.common.enums import Currency, PaymentSourceType
 from checkout_sdk.payments.links.payments_links import PaymentLinkRequest
@@ -8,6 +10,7 @@ from checkout_sdk.payments.payments_previous import BillingInformation
 from tests.checkout_test_utils import assert_response, phone, address, random_email, get_payment_recipient
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_create_and_get_payment_link(previous_api):
     request = create_payment_link_request()
 

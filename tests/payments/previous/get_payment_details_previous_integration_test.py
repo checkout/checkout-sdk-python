@@ -2,10 +2,13 @@ from __future__ import absolute_import
 
 from datetime import datetime, timezone
 
+import pytest
+
 from tests.checkout_test_utils import assert_response, retriable
 from tests.payments.previous.payments_previous_test_utils import make_card_payment
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_get_payment_details(previous_api):
     payment_response = make_card_payment(previous_api, capture_on=datetime.now(timezone.utc))
 

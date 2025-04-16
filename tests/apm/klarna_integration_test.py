@@ -1,10 +1,13 @@
 from __future__ import absolute_import
 
+import pytest
+
 from checkout_sdk.apm.klarna import KlarnaProduct, CreditSessionRequest
 from checkout_sdk.common.enums import Country, Currency
 from tests.checkout_test_utils import assert_response
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_create_and_get_klarna_session(previous_api):
     klarna_product = KlarnaProduct()
     klarna_product.name = 'Brown leather belt'

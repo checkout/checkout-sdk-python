@@ -1,8 +1,11 @@
+import pytest
+
 from checkout_sdk.payments.payments import PaymentsQueryFilter
 from tests.checkout_test_utils import retriable, assert_response
 from tests.payments.previous.payments_previous_test_utils import make_card_payment
 
 
+@pytest.mark.skip(reason='not available')
 def test_should_get_payments_list(previous_api):
     payment_response = make_card_payment(previous_api)
 

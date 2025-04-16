@@ -30,6 +30,7 @@ def clean_webhooks(previous_api):
     yield
 
 
+@pytest.mark.skip(reason='not available')
 def test_full_webhook_operations(previous_api):
     webhook_url = 'https://checkout.python.com/webhooks'
     # Create webhook
