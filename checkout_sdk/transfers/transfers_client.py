@@ -16,7 +16,7 @@ class TransfersClient(Client):
                          configuration=configuration,
                          authorization_type=AuthorizationType.SECRET_KEY_OR_OAUTH)
 
-    def initiate_transfer_of_funds(self, create_transfer_request: CreateTransferRequest, idempotency_key: str = None):
+    def initiate_transfer_of_funds(self, create_transfer_request: CreateTransferRequest, idempotency_key: str):
         return self._api_client.post(self.__TRANSFERS_PATH, self._sdk_authorization(), create_transfer_request,
                                      idempotency_key)
 

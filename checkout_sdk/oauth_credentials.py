@@ -64,6 +64,8 @@ class OAuthSdkCredentials(SdkCredentials, metaclass=ABCMeta):
 
         data = {
             'grant_type': 'client_credentials',
+            'client_id': self.__client_id,
+            'client_secret': self.__client_secret,
             'scope': str.join(' ', self.__scopes)
         }
 
@@ -84,6 +86,7 @@ class OAuthSdkCredentials(SdkCredentials, metaclass=ABCMeta):
 
         response_json = response.json()
         self.__access_token = OAuthAccessToken(token=response_json['access_token'],
+                                               token_type=response_json['token_type'],
                                                expiration_date=datetime.now() + timedelta(
                                                    seconds=response_json['expires_in']))
         return self.__access_token
