@@ -55,7 +55,7 @@ class PaymentContextsProcessing:
     locale: str
     shipping_preference: ShippingPreference
     user_action: UserAction
-    partner_customer_risk_data: PaymentContextsPartnerCustomerRiskData
+    partner_customer_risk_data: list  # payment.contexts.PaymentContextsPartnerCustomerRiskData
     airline_data: list  # payment.contexts.PaymentContextsAirlineData
 
 

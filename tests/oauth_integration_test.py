@@ -14,7 +14,6 @@ def test_should_create_customer_with_oauth(oauth_api):
 
     customer_response = oauth_api.customers.create(customer_request)
     assert_response(customer_response, 'id')
-    return customer_response.id
 
 
 def test_should_fail_init_authorization_invalid_credentials():

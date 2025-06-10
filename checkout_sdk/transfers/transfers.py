@@ -1,5 +1,7 @@
 from enum import Enum
 
+from checkout_sdk.common.enums import Currency
+
 
 class TransferType(str, Enum):
     COMMISSION = 'commission'
@@ -10,6 +12,7 @@ class TransferType(str, Enum):
 class TransferSource:
     id: str
     amount: int
+    currency: Currency
 
 
 class TransferDestination:
