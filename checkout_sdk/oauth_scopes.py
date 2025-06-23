@@ -51,3 +51,5 @@ class OAuthScopes(str, Enum):
     ISSUING_CONTROLS_WRITE = 'issuing:controls-write'
 
     PAYMENT_CONTEXTS = 'Payment Contexts'
+
+    FORWARD = 'forward'
