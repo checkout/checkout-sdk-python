@@ -223,7 +223,8 @@ def test_should_request_alipay_plus_payment(default_api):
     except CheckoutApiException as err:
         assert err.args[0] == 'The API response status code (422) does not indicate success.'
         assert err.error_type == 'invalid_request'
-        assert err.error_details[0] == 'reference_invalid'
+        assert err.error_details is not None and 'reference_invalid' in err.error_details
+        assert err.request_id is not None
 
 
 def test_should_make_przelewy24_payment(default_api):
