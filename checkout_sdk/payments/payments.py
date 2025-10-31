@@ -57,6 +57,7 @@ class Exemption(str, Enum):
     LOW_VALUE = 'low_value'
     SECURE_CORPORATE_PAYMENT = 'secure_corporate_payment'
     TRUSTED_LISTING = 'trusted_listing'
+    TRUSTED_LISTING_PROMPT = 'trusted_listing_prompt'
     TRANSACTION_RISK_ASSESSMENT = 'transaction_risk_assessment'
     THREE_DS_OUTAGE = '3ds_outage'
     SCA_DELEGATION = 'sca_delegation'
@@ -124,10 +125,14 @@ class BillingPlanType(str, Enum):
     PRE_APPROVED_PAYMENTS = 'PRE_APPROVED_PAYMENTS'
 
 
+class PanPreference(str, Enum):
+    FPAN = 'fpan'
+    DPAN = 'dpan'
+
+
 class BillingDescriptor:
     name: str
     city: str
-    # Not available on previous
     reference: str
 
 
@@ -324,7 +329,6 @@ class ThreeDsRequest:
     exemption: Exemption
     challenge_indicator: ChallengeIndicator
     allow_upgrade: bool
-    # Not available on Previous
     status: str
     authentication_date: datetime
     authentication_amount: int
@@ -380,6 +384,41 @@ class SenderInformation:
     sourceOfFunds: str
 
 
+class PartnerCustomerRiskData:
+    key: str
+    value: str
+
+
+class AccommodationAddress:
+    address_line1: str
+    zip: str
+
+
+class AccommodationGuest:
+    first_name: str
+    last_name: str
+    date_of_birth: str
+
+
+class AccommodationRoom:
+    rate: str
+    number_of_nights_at_room_rate: str
+
+
+class AccommodationData:
+    name: str
+    booking_reference: str
+    check_in_date: str
+    check_out_date: str
+    address: AccommodationAddress
+    state: str
+    country: str
+    city: str
+    number_of_rooms: int
+    guests: list  # AccommodationGuest
+    room: list  # AccommodationRoom
+
+
 class ProcessingSettings:
     order_id: str
     tax_amount: int
@@ -414,6 +453,11 @@ class ProcessingSettings:
     dlocal: DLocalProcessingSettings
     senderInformation: SenderInformation
     purpose: str
+    partner_customer_risk_data: list  # PartnerCustomerRiskData
+    accommodation_data: list  # AccommodationData
+    surcharge_amount: int
+    pan_preference: PanPreference
+    provision_network_token: bool
 
 
 class Product:
