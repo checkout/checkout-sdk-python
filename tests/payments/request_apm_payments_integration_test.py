@@ -513,12 +513,18 @@ def test_should_request_eps_payment(default_api):
 
 
 def test_should_make_bizum_payment(default_api):
+    customer_request = PaymentCustomerRequest()
+    customer_request.email = random_email()
+    customer_request.name = "Test Customer"
+    customer_request.phone = phone()
+
     payment_request = PaymentRequest()
     payment_request.source = RequestBizumSource()
     payment_request.source.mobile_number = '+447700900986'
     payment_request.amount = 10
     payment_request.currency = Currency.EUR
     payment_request.capture = True
+    payment_request.customer = customer_request
     payment_request.success_url = SUCCESS_URL
     payment_request.failure_url = FAILURE_URL
 
