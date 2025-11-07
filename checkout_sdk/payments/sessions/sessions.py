@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum
 
 from checkout_sdk.common.enums import Currency
-from checkout_sdk.payments.payments import PaymentType, BillingDescriptor, PaymentCustomerRequest, ShippingDetails, \
+from checkout_sdk.payments.payments import PaymentType, BillingDescriptor, ShippingDetails, \
     PaymentRecipient, ProcessingSettings, RiskRequest, ThreeDsRequest, PaymentSender
 
 
