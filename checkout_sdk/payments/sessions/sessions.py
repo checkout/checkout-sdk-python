@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum
 
 from checkout_sdk.common.enums import Currency
-from checkout_sdk.payments.payments import PaymentType, BillingDescriptor, PaymentCustomerRequest, ShippingDetails, \
+from checkout_sdk.payments.payments import PaymentType, BillingDescriptor, ShippingDetails, \
     PaymentRecipient, ProcessingSettings, RiskRequest, ThreeDsRequest, PaymentSender
 
 
@@ -27,6 +27,7 @@ class PaymentMethodsType(str, Enum):
     MOBILEPAY = 'mobilepay'
     MULTIBANCO = 'multibanco'
     P24 = 'p24'
+    PAYNOW = 'paynow'
     PAYPAL = 'paypal'
     PLAID = 'plaid'
     QPAY = 'qpay'
@@ -40,6 +41,7 @@ class PaymentMethodsType(str, Enum):
     TRUEMONEY = 'truemoney'
     TWINT = 'twint'
     VIPPS = 'vipps'
+    WECHATPAY = 'wechatpay'
 
 
 class Locale(str, Enum):
@@ -130,6 +132,26 @@ class SessionBilling:
     phone: BillingPhone
 
 
+class CustomerSummary:
+    registration_date: str
+    first_transaction_date: str
+    last_payment_date: str
+    total_order_count: int
+    last_payment_amount: float
+    is_premium_customer: bool
+    is_returning_customer: bool
+    lifetime_value: float
+
+
+class SessionPaymentCustomerRequest:
+    email: str
+    name: str
+    id: str
+    phone: BillingPhone
+    tax_number: str
+    summary: CustomerSummary
+
+
 class AccountHolder:
     type: AccountHolderType
 
@@ -207,7 +229,7 @@ class PaymentSessionsRequest:
     billing_descriptor: BillingDescriptor
     reference: str
     description: str
-    customer: PaymentCustomerRequest
+    customer: SessionPaymentCustomerRequest
     shipping: ShippingDetails
     recipient: PaymentRecipient
     processing: ProcessingSettings
@@ -242,7 +264,7 @@ class PaymentSessionWithPaymentRequest:
     billing_descriptor: BillingDescriptor
     reference: str
     description: str
-    customer: PaymentCustomerRequest
+    customer: SessionPaymentCustomerRequest
     shipping: ShippingDetails
     recipient: PaymentRecipient
     processing: ProcessingSettings
@@ -268,3 +290,4 @@ class SubmitPaymentSessionRequest:
     items: list  # Item
     three_ds: ThreeDsRequest
     ip_address: str
+    payment_type: PaymentType
