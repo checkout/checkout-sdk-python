@@ -43,6 +43,7 @@ class PaymentType(str, Enum):
     RECURRING = 'Recurring'
     MOTO = 'MOTO'
     INSTALLMENT = 'Installment'
+    PAYLATER = 'PayLater'
     UNSCHEDULED = 'Unscheduled'
 
 
@@ -136,11 +137,16 @@ class BillingDescriptor:
     reference: str
 
 
+class Remitance:
+    reference: str
+
+
 class PaymentInstruction:
     purpose: str
     charge_bearer: str
     repair: bool
     scheme: InstructionScheme
+    remittance: Remitance
     quote_id: str
 
 
