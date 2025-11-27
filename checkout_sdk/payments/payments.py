@@ -464,9 +464,21 @@ class ProcessingSettings:
     surcharge_amount: int
     pan_preference: PanPreference
     provision_network_token: bool
+    affiliate_id: str
+    affiliate_url: str
+
+
+class ProductSubType (str, Enum):
+    BLOCKCHAIN = 'BLOCKCHAIN'
+    CBDC = 'CBDC'
+    CRYPTOCURRENCY = 'CRYPTOCURRENCY'
+    NFT = 'NFT'
+    STABLECOIN = 'STABLECOIN'
 
 
 class Product:
+    type: str
+    sub_type: list  # ProductSubType
     name: str
     quantity: int
     unit_price: int
