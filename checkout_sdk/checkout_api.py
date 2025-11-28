@@ -24,6 +24,7 @@ from checkout_sdk.workflows.workflows_client import WorkflowsClient
 from checkout_sdk.reports.reports_client import ReportsClient
 from checkout_sdk.metadata.metadata_client import CardMetadataClient
 from checkout_sdk.forward.forward_client import ForwardClient
+from checkout_sdk.payments.setups.setups_client import PaymentSetupsClient
 
 
 def _base_api_client(configuration: CheckoutConfiguration) -> ApiClient:
@@ -76,3 +77,4 @@ class CheckoutApi(CheckoutApmApi):
         self.contexts = PaymentContextsClient(api_client=base_api_client, configuration=configuration)
         self.payment_sessions = PaymentSessionsClient(api_client=base_api_client, configuration=configuration)
         self.forward = ForwardClient(api_client=base_api_client, configuration=configuration)
+        self.setups = PaymentSetupsClient(api_client=base_api_client, configuration=configuration)
