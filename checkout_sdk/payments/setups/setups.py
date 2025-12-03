@@ -2,15 +2,40 @@ from __future__ import absolute_import
 from datetime import datetime
 from enum import Enum
 
-from checkout_sdk.common.common import Address, Phone, CustomerRequest, Product
+from checkout_sdk.common.common import Address, Phone, CustomerRetry
 from checkout_sdk.common.enums import Currency, Country
-from checkout_sdk.payments.payments import PaymentType
+from checkout_sdk.payments.payments import PaymentType, ShippingDetails
+from checkout_sdk.payments.contexts.contexts import PaymentContextsItems, PaymentContextsTicket, PaymentContextsPassenger, PaymentContextsFlightLegDetails
 
 
 # Enums
 class PaymentMethodInitialization(str, Enum):
     DISABLED = 'disabled'
     ENABLED = 'enabled'
+
+
+class PaymentMethodStatus(str, Enum):
+    """Payment method status for responses"""
+    AVAILABLE = 'available'
+    REQUIRES_ACTION = 'requires_action'
+    UNAVAILABLE = 'unavailable'
+
+
+class PaymentMethodOptionStatus(str, Enum):
+    """Payment method option status for responses"""
+    UNAVAILABLE = 'unavailable'
+    ACTION_REQUIRED = 'action_required'
+    PENDING = 'pending'
+    READY = 'ready'
+
+
+class PaymentStatus(str, Enum):
+    """Payment status for confirm responses"""
+    AUTHORIZED = 'Authorized'
+    PENDING = 'Pending'
+    CARD_VERIFIED = 'Card Verified'
+    DECLINED = 'Declined'
+    RETRY_SCHEDULED = 'Retry Scheduled'
 
 
 # Customer entities
@@ -57,8 +82,8 @@ class PaymentMethodAction:
 class PaymentMethodOption:
     def __init__(self):
         self.id: str = None
-        self.status: str = None
-        self.flags: list = None  # list of str
+        self.status: PaymentMethodOptionStatus = None  # Enum: unavailable, action_required, pending, ready (for responses)
+        self.flags: list = None  # list of str - error codes or indicators that highlight missing/invalid info
         self.action: PaymentMethodAction = None
 
 
@@ -72,8 +97,8 @@ class PaymentMethodOptions:
 
 class PaymentMethodBase:
     def __init__(self):
-        self.status: str = None
-        self.flags: list = None  # list of str
+        self.status: PaymentMethodStatus = None  # Enum: available, requires_action, unavailable (for responses)
+        self.flags: list = None  # list of str - error codes or indicators
         self.initialization: PaymentMethodInitialization = PaymentMethodInitialization.DISABLED
 
 
@@ -192,47 +217,105 @@ class PaymentSetupsResponse:
 
 # Customer Response for Confirm
 class CustomerResponse:
-    id: str = None
-    email: str = None
-    name: str = None
-    phone: Phone = None
+    def __init__(self):
+        self.id: str = None
+        self.email: str = None
+        self.name: str = None
+        self.phone: Phone = None
+        self.summary = None  # Customer summary object for risk assessment
 
 
 # Source for Confirm Response
 class PaymentSetupSource:
-    type: str = None
-    id: str = None
-    billing_address: Address = None
-    phone: Phone = None
-    scheme: str = None
-    last4: str = None
-    fingerprint: str = None
-    bin: str = None
-    card_type: str = None
-    card_category: str = None
-    issuer: str = None
-    issuer_country: Country = None
-    product_type: str = None
-    avs_check: str = None
-    cvv_check: str = None
-    payment_account_reference: str = None
+    def __init__(self):
+        self.type: str = None
+        self.id: str = None
+        self.expiry_month: int = None
+        self.expiry_year: int = None
+        self.last4: str = None
+        self.fingerprint: str = None
+        self.bin: str = None
+        self.billing_address: Address = None
+        self.phone: Phone = None
+        self.name: str = None
+        self.scheme: str = None
+        self.scheme_local: str = None
+        self.local_schemes: list = None  # list of str
+        self.card_type: str = None
+        self.card_category: str = None
+        self.card_wallet_type: str = None
+        self.issuer: str = None
+        self.issuer_country: Country = None
+        self.product_id: str = None
+        self.product_type: str = None
+        self.avs_check: str = None
+        self.cvv_check: str = None
+        self.payment_account_reference: str = None
+        self.encrypted_card_number: str = None
+        self.account_update_status: str = None
+        self.account_update_failure_code: str = None
+        self.account_holder = None  # Can be various types based on account holder type
 
 
 # Nested classes for Confirm Response (reusing from payments)
 class Risk:
-    flagged: bool = None
+    def __init__(self):
+        self.flagged: bool = None
+        self.score: int = None
 
 
 class ThreeDs:
-    downgraded: bool = None
-    enrolled: str = None
+    def __init__(self):
+        self.downgraded: bool = None
+        self.enrolled: str = None
+        self.upgrade_reason: str = None
 
 
 class Processing:
-    retrieval_reference_number: str = None
-    acquirer_transaction_id: str = None
-    recommendation_code: str = None
-    partner_order_id: str = None
+    def __init__(self):
+        self.retrieval_reference_number: str = None
+        self.acquirer_transaction_id: str = None
+        self.recommendation_code: str = None
+        self.scheme: str = None  # The scheme the transaction was processed with
+        self.partner_merchant_advice_code: str = None
+        self.partner_response_code: str = None
+        self.partner_order_id: str = None
+        self.partner_payment_id: str = None
+        self.partner_status: str = None
+        self.partner_transaction_id: str = None
+        self.partner_error_codes: list = None  # list of str
+        self.partner_error_message: str = None
+        self.partner_authorization_code: str = None
+        self.partner_authorization_response_code: str = None
+        self.surcharge_amount: int = None
+        self.pan_type_processed: str = None
+        self.cko_network_token_available: bool = None
+        self.purchase_country: str = None
+        self.foreign_retailer_amount: int = None
+
+
+# Additional classes for Confirm Response (reusing from common)
+class Balances:
+    def __init__(self):
+        self.total_authorized: int = None
+        self.total_voided: int = None
+        self.available_to_void: int = None
+        self.total_captured: int = None
+        self.available_to_capture: int = None
+        self.total_refunded: int = None
+        self.available_to_refund: int = None
+
+
+class Subscription:
+    def __init__(self):
+        self.id: str = None
+
+
+class Retry(CustomerRetry):
+    def __init__(self):
+        super().__init__()
+        self.ends_on: datetime = None
+        self.next_attempt_on: datetime = None
 
 
 # Confirm Response
@@ -244,16 +327,29 @@ class PaymentSetupsConfirmResponse:
         self.currency: Currency = None
         self.approved: bool = None
         self.status: str = None
-        self.auth_code: str = None
         self.response_code: str = None
+        self.processed_on: datetime = None
+        self.amount_requested: int = None
+        self.auth_code: str = None
         self.response_summary: str = None
-        self.threeds: ThreeDs = None  # Note: using 'threeds' as per JSON, not '3ds'
+        self.expires_on: str = None
+        self.threeds: ThreeDs = None
         self.risk: Risk = None
         self.source: PaymentSetupSource = None
         self.customer: CustomerResponse = None
-        self.processed_on: datetime = None
+        self.balances: Balances = None
         self.reference: str = None
+        self.subscription: Subscription = None
         self.processing: Processing = None
         self.eci: str = None
         self.scheme_id: str = None
-        self._links: dict = None
+        self.retry: Retry = None
+        
+    @property
+    def threeds_3ds(self):
+        """API spec uses '3ds' as field name - this provides compatibility"""
+        return self.threeds
+        
+    @threeds_3ds.setter
+    def threeds_3ds(self, value):
+        self.threeds = value
