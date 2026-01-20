@@ -4,7 +4,7 @@ from checkout_sdk.api_client import ApiClient
 from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
 from checkout_sdk.client import Client
-from checkout_sdk.payments.setups.setups import PaymentSetupsRequest, PaymentSetupsResponse, PaymentSetupsConfirmResponse
+from checkout_sdk.payments.setups.setups import PaymentSetupsRequest
 
 
 class PaymentSetupsClient(Client):
@@ -17,26 +17,24 @@ class PaymentSetupsClient(Client):
                          configuration=configuration,
                          authorization_type=AuthorizationType.SECRET_KEY_OR_OAUTH)
 
-    def create_payment_setup(self, payment_setups_request: PaymentSetupsRequest, idempotency_key: str = None):
+    def create_payment_setup(self, payment_setups_request: PaymentSetupsRequest):
         """
         Creates a Payment Setup
         """
         return self._api_client.post(
             self.build_path(self.__PAYMENTS_PATH, self.__SETUPS_PATH),
             self._sdk_authorization(),
-            payment_setups_request,
-            idempotency_key
+            payment_setups_request
         )
 
-    def update_payment_setup(self, setup_id: str, payment_setups_request: PaymentSetupsRequest, idempotency_key: str = None):
+    def update_payment_setup(self, setup_id: str, payment_setups_request: PaymentSetupsRequest):
         """
         Updates a Payment Setup
         """
         return self._api_client.put(
             self.build_path(self.__PAYMENTS_PATH, self.__SETUPS_PATH, setup_id),
             self._sdk_authorization(),
-            payment_setups_request,
-            idempotency_key
+            payment_setups_request
         )
 
     def get_payment_setup(self, setup_id: str):
@@ -48,13 +46,12 @@ class PaymentSetupsClient(Client):
             self._sdk_authorization()
         )
 
-    def confirm_payment_setup(self, setup_id: str, payment_method_option_id: str, idempotency_key: str = None):
+    def confirm_payment_setup(self, setup_id: str, payment_method_option_id: str):
         """
         Confirms a Payment Setup
         """
         return self._api_client.post(
-            self.build_path(self.__PAYMENTS_PATH, self.__SETUPS_PATH, setup_id, self.__CONFIRM_PATH, payment_method_option_id),
-            self._sdk_authorization(),
-            None,
-            idempotency_key
+            self.build_path(self.__PAYMENTS_PATH, self.__SETUPS_PATH, setup_id,
+                            self.__CONFIRM_PATH, payment_method_option_id),
+            self._sdk_authorization()
         )
