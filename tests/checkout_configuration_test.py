@@ -61,6 +61,7 @@ def test_should_create_configuration_with_subdomain(subdomain, expected_url):
     assert configuration.environment.base_uri == Environment.sandbox().base_uri
     assert configuration.http_client == http_client
     assert configuration.environment_subdomain.base_uri == expected_url
+    assert configuration.environment_subdomain.authorization_uri == f"https://{subdomain}.access.sandbox.checkout.com/connect/token"
 
 
 @pytest.mark.parametrize(
@@ -94,3 +95,28 @@ def test_should_create_configuration_with_bad_subdomain(subdomain, expected_url)
     assert configuration.environment.base_uri == Environment.sandbox().base_uri
     assert configuration.http_client == http_client
     assert configuration.environment_subdomain.base_uri == expected_url
+    assert configuration.environment_subdomain.authorization_uri == "https://access.sandbox.checkout.com/connect/token"
+
+
+def test_should_create_configuration_with_subdomain_for_production():
+    subdomain = "1234prod"
+    credentials = DefaultKeysSdkCredentials(
+        os.environ.get("CHECKOUT_DEFAULT_SECRET_KEY"),
+        os.environ.get("CHECKOUT_DEFAULT_PUBLIC_KEY")
+    )
+    http_client = Mock(spec=HttpClientBuilderInterface)
+
+    environment_subdomain = EnvironmentSubdomain(Environment.production(), subdomain)
+
+    configuration = CheckoutConfiguration(
+        credentials=credentials,
+        environment=Environment.production(),
+        http_client=http_client,
+        environment_subdomain=environment_subdomain
+    )
+
+    assert configuration.credentials == credentials
+    assert configuration.environment.base_uri == Environment.production().base_uri
+    assert configuration.http_client == http_client
+    assert configuration.environment_subdomain.base_uri == f"https://{subdomain}.api.checkout.com/"
+    assert configuration.environment_subdomain.authorization_uri == f"https://{subdomain}.access.checkout.com/connect/token"

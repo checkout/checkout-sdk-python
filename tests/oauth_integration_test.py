@@ -43,3 +43,18 @@ def test_should_fail_init_authorization_invalid_credentials_and_host():
             .build()
     except CheckoutException as err:
         assert err.args[0] == 'Unable to establish connection to host: (https://test.checkout.com)'
+
+
+def test_should_fail_oauth_with_subdomain_invalid_credentials():
+    try:
+        CheckoutSdk \
+            .builder() \
+            .oauth() \
+            .client_credentials(client_id='fake_id',
+                                client_secret='fake_secret') \
+            .environment(Environment.sandbox()) \
+            .environment_subdomain('1234doma') \
+            .scopes([OAuthScopes.GATEWAY, OAuthScopes.VAULT]) \
+            .build()
+    except CheckoutException as err:
+        assert err.args[0] == 'OAuth client_credentials authentication failed with error: (invalid_client)'
