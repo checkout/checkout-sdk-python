@@ -28,5 +28,6 @@ def test_should_instantiate_and_retrieve_clients_default(mock_sdk_configuration)
     assert api.disputes is not None
     assert api.forex is not None
     assert api.accounts is not None
+    assert api.setups is not None
     # APMs
     assert api.ideal is not None

@@ -11,8 +11,19 @@
 
 ## Getting started
 
+### Requirements
+
+- Python 3.10 or higher
+- pip
+
+### Installation
+
+```bash
+pip install checkout-sdk
 ```
-# Requires Python > 3.6
+
+For a specific version:
+```bash
 pip install checkout-sdk==<version>
 ```
 
@@ -190,24 +201,71 @@ except CheckoutApiException as err:
 
 ## Building from source
 
-Once you checkout the code from GitHub, the project can be built using `pip`:
+### Prerequisites
 
+- Python 3.10 or higher
+- pip (latest version)
+
+### Setup Development Environment
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/checkout/checkout-sdk-python.git
+   cd checkout-sdk-python
+   ```
+
+2. **Create and activate virtual environment**
+   ```bash
+   python3.10 -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install --upgrade pip
+   pip install -r requirements-dev.txt
+   ```
+
+4. **Install pre-commit hooks** (optional but recommended)
+   ```bash
+   pre-commit install
+   ```
+
+### Running Tests
+
+```bash
+# Run all tests
+python -m pytest --import-mode=append --runxfail tests/
+
+# Run specific test file
+python -m pytest tests/payments/payments_client_test.py -v
+
+# Run with coverage
+python -m pytest --cov=checkout_sdk tests/
 ```
-# install the latest version pip
-python -m pip install --upgrade pip
 
-# install project dependencies
-pip install -r requirements-dev.txt
+### Code Quality
 
-# run unit and integration tests
-python -m pytest
+The project uses `flake8` and `pylint` for code quality checks:
+
+```bash
+# Run flake8
+flake8 checkout_sdk tests --count --max-complexity=10 --max-line-length=127 --statistics
+
+# Run pylint
+pylint checkout_sdk
 ```
+
+If you installed pre-commit hooks, these checks will run automatically before each commit.
+
+### Environment Variables
 
 The execution of integration tests require the following environment variables set in your system:
 
 * For Default account systems: `CHECKOUT_DEFAULT_PUBLIC_KEY` & `CHECKOUT_DEFAULT_SECRET_KEY`
 * For OAuth account systems: `CHECKOUT_DEFAULT_OAUTH_CLIENT_ID` & `CHECKOUT_DEFAULT_OAUTH_CLIENT_SECRET`
 * For Previous account systems: `CHECKOUT_PREVIOUS_PUBLIC_KEY` & `CHECKOUT_PREVIOUS_SECRET_KEY`
+* Processing channel: `CHECKOUT_PROCESSING_CHANNEL_ID`
 
 ## Code of Conduct
 
