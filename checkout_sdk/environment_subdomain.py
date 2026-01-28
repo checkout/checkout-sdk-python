@@ -15,11 +15,11 @@ class EnvironmentSubdomain:
         Applies subdomain transformation to any given URL.
         If the subdomain is valid (alphanumeric pattern), prepends it to the host.
         Otherwise, returns the original URL unchanged.
-        
+
         Args:
             original_url: the original URL to transform
             subdomain: the subdomain to prepend
-            
+
         Returns:
             the transformed URL with subdomain, or original URL if subdomain is invalid
         """

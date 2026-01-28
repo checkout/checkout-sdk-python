@@ -36,11 +36,11 @@ class OAuthSdk(CheckoutSdkBuilder, metaclass=ABCMeta):
             authorization_uri = self._environment_subdomain.authorization_uri
         else:
             authorization_uri = self._environment.authorization_uri
-        
+
         # Use custom authorization URI if explicitly provided
         if self._authorization_uri:
             authorization_uri = self._authorization_uri
-            
+
         if self._environment_subdomain is not None:
             configuration = CheckoutConfiguration(
                 credentials=OAuthSdkCredentials.init(http_client=self._http_client,
