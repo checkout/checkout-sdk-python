@@ -4,7 +4,7 @@
 ![CodeQL](https://github.com/checkout/checkout-sdk-python/workflows/CodeQL/badge.svg)
 
 [![build-status](https://github.com/checkout/checkout-sdk-python/workflows/build-release/badge.svg)](https://github.com/checkout/checkout-sdk-python/actions/workflows/build-release.yml)
-[![GitHub release](https://img.shields.io/github/release/checkout/checkout-sdk-python.svg)](https://GitHub.com/checkout/checkout-sdk-php/releases/)
+[![GitHub release](https://img.shields.io/github/release/checkout/checkout-sdk-python.svg)](https://GitHub.com/checkout/checkout-sdk-python/releases/)
 [![PyPI - latest](https://img.shields.io/pypi/v/checkout-sdk?label=latest&logo=pypi)](https://pypi.org/project/checkout-sdk)
 
 [![GitHub license](https://img.shields.io/github/license/checkout/checkout-sdk-python.svg)](https://github.com/checkout/checkout-sdk-python/blob/main/LICENSE.md)
