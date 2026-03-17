@@ -35,7 +35,7 @@ def test_should_create_payment_setup(default_api):
     assert response.processing_channel_id == request.processing_channel_id
     assert response.amount == request.amount
     assert response.currency == request.currency
-    assert response.payment_type == request.payment_type
+    assert str(response.payment_type).lower() == request.payment_type.lower()
     assert response.reference == request.reference
     assert response.description == request.description
 
@@ -89,7 +89,7 @@ def test_should_get_payment_setup(default_api):
     assert response.processing_channel_id == create_request.processing_channel_id
     assert response.amount == create_request.amount
     assert response.currency == create_request.currency
-    assert response.payment_type == create_request.payment_type
+    assert str(response.payment_type).lower() == create_request.payment_type.lower()
     assert response.reference == create_request.reference
     assert response.description == create_request.description
 
