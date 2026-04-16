@@ -3,7 +3,8 @@ from __future__ import absolute_import
 from warnings import warn
 
 from checkout_sdk.accounts.accounts import OnboardEntityRequest, UpdateScheduleRequest, AccountsPaymentInstrument, \
-    PaymentInstrumentRequest, PaymentInstrumentsQuery, UpdatePaymentInstrumentRequest, ReserveRuleRequest
+    PaymentInstrumentRequest, PaymentInstrumentsQuery, UpdatePaymentInstrumentRequest, ReserveRuleRequest, \
+    EntityFileRequest
 from checkout_sdk.api_client import ApiClient
 from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
@@ -145,3 +146,14 @@ class AccountsClient(Client):
             self._sdk_authorization(),
             update_request,
             headers=headers)
+
+    def upload_entity_file(self, entity_id: str, entity_file_request: EntityFileRequest):
+        return self.__files_client.post(
+            self.build_path(self.__ENTITIES_PATH, entity_id, self.__FILES_PATH),
+            self._sdk_authorization(),
+            entity_file_request)
+
+    def retrieve_entity_file(self, entity_id: str, file_id: str):
+        return self.__files_client.get(
+            self.build_path(self.__ENTITIES_PATH, entity_id, self.__FILES_PATH, file_id),
+            self._sdk_authorization())

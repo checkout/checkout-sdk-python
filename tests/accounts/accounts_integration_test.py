@@ -9,7 +9,7 @@ from checkout_sdk import CheckoutSdk
 from checkout_sdk.accounts.accounts import OnboardEntityRequest, ContactDetails, Profile, Individual, \
     DateOfBirth, Identification, EntityEmailAddresses, Company, EntityRepresentative, PaymentInstrumentRequest, \
     InstrumentDocument, InstrumentDetailsFasterPayments, ReserveRuleRequest, RollingReserveRule, \
-    HoldingDuration
+    HoldingDuration, EntityFileRequest, FilePurpose
 from checkout_sdk.checkout_api import CheckoutApi
 from checkout_sdk.common.enums import Currency, Country, InstrumentType
 from checkout_sdk.files.files import FileRequest
@@ -225,6 +225,31 @@ def test_update_reserve_rule_should_return_valid_response(accounts_checkout_api)
     # Assert
     validate_reserve_rule_id_response(response)
     assert response.id == create_response.id
+
+
+def test_should_upload_entity_file_and_retrieve(accounts_checkout_api):
+    # Arrange
+    entity_id = create_test_entity(accounts_checkout_api)
+    
+    # Test upload entity file
+    request = EntityFileRequest()
+    request.purpose = FilePurpose.IDENTIFICATION
+    
+    # Act - Upload file
+    upload_response = accounts_checkout_api.accounts.upload_entity_file(entity_id, request)
+    
+    # Assert - Upload response
+    assert_response(upload_response, 'id', '_links')
+    assert upload_response.id is not None
+    assert upload_response.id != ''
+    
+    # Act - Retrieve file
+    file_id = upload_response.id
+    retrieve_response = accounts_checkout_api.accounts.retrieve_entity_file(entity_id, file_id)
+    
+    # Assert - Retrieve response
+    assert_response(retrieve_response, 'id')
+    assert retrieve_response.id == file_id
 
 
 # Common methods

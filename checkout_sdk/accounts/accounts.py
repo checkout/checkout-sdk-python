@@ -400,4 +400,27 @@ class RollingReserveRule:
     
 
 class HoldingDuration:
-    weeks: int  # Single integer, not list (matches C# structure)
+    weeks: int
+
+
+class FilePurpose(str, Enum):
+    ADDITIONAL_DOCUMENT = 'additional_document'
+    ARTICLES_OF_ASSOCIATION = 'articles_of_association'
+    BANK_VERIFICATION = 'bank_verification'
+    CERTIFIED_AUTHORISED_SIGNATORY = 'certified_authorised_signatory'
+    COMPANY_OWNERSHIP = 'company_ownership'
+    IDENTIFICATION = 'identification'
+    IDENTITY_VERIFICATION = 'identity_verification'
+    DISPUTE_EVIDENCE = 'dispute_evidence'
+    COMPANY_VERIFICATION = 'company_verification'
+    FINANCIAL_VERIFICATION = 'financial_verification'
+    TAX_VERIFICATION = 'tax_verification'
+    PROOF_OF_LEGALITY = 'proof_of_legality'
+    PROOF_OF_PRINCIPAL_ADDRESS = 'proof_of_principal_address'
+    SHAREHOLDER_STRUCTURE = 'shareholder_structure'
+    PROOF_OF_RESIDENTIAL_ADDRESS = 'proof_of_residential_address'
+    PROOF_OF_REGISTRATION = 'proof_of_registration'
+
+
+class EntityFileRequest:
+    purpose: FilePurpose
