@@ -1,13 +1,15 @@
 from __future__ import absolute_import
 
 import os
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
 from checkout_sdk import CheckoutSdk
 from checkout_sdk.accounts.accounts import OnboardEntityRequest, ContactDetails, Profile, Individual, \
     DateOfBirth, Identification, EntityEmailAddresses, Company, EntityRepresentative, PaymentInstrumentRequest, \
-    InstrumentDocument, InstrumentDetailsFasterPayments
+    InstrumentDocument, InstrumentDetailsFasterPayments, ReserveRuleRequest, RollingReserveRule, \
+    HoldingDuration
 from checkout_sdk.checkout_api import CheckoutApi
 from checkout_sdk.common.enums import Currency, Country, InstrumentType
 from checkout_sdk.files.files import FileRequest
@@ -26,16 +28,7 @@ def accounts_checkout_api():
         .build()
 
 
-def upload_file(oauth_api: CheckoutApi):
-    request = FileRequest()
-    request.file = os.path.join(get_project_root(), 'tests', 'resources', 'checkout.jpeg')
-    request.purpose = 'bank_verification'
-    response = oauth_api.accounts.upload_file(request)
-    assert_response(response, 'id', '_links')
-    return response
-
-
-def test_should_create_get_and_update_onboard_entity(oauth_api):
+def test_should_create_get_and_update_onboard_entity(accounts_checkout_api):
     onboard_entity_request = OnboardEntityRequest()
     onboard_entity_request.reference = new_uuid()[:14]
     email_addresses = EntityEmailAddresses()
@@ -59,11 +52,11 @@ def test_should_create_get_and_update_onboard_entity(oauth_api):
     onboard_entity_request.individual.identification = Identification()
     onboard_entity_request.individual.identification.national_id_number = 'AB123456C'
 
-    create_entity_response = oauth_api.accounts.create_entity(onboard_entity_request)
+    create_entity_response = accounts_checkout_api.accounts.create_entity(onboard_entity_request)
 
     assert_response(create_entity_response, 'id', 'reference')
 
-    get_entity_response = oauth_api.accounts.get_entity(create_entity_response.id)
+    get_entity_response = accounts_checkout_api.accounts.get_entity(create_entity_response.id)
 
     assert_response(get_entity_response,
                     'id',
@@ -80,15 +73,15 @@ def test_should_create_get_and_update_onboard_entity(oauth_api):
 
     onboard_entity_request.individual.first_name = 'John'
 
-    update_response = oauth_api.accounts.update_entity(create_entity_response.id, onboard_entity_request)
+    update_response = accounts_checkout_api.accounts.update_entity(create_entity_response.id, onboard_entity_request)
 
     assert_response(update_response, 'id')
 
     assert create_entity_response.id == update_response.id
 
 
-def test_should_upload_file(oauth_api):
-    upload_file(oauth_api)
+def test_should_upload_file(accounts_checkout_api):
+    upload_file(accounts_checkout_api)
 
 
 def test_should_create_and_retrieve_payment_instrument(accounts_checkout_api):
@@ -150,3 +143,177 @@ def test_should_create_and_retrieve_payment_instrument(accounts_checkout_api):
     query_response = accounts_checkout_api.accounts.query_payment_instruments(entity_response.id)
 
     assert_response(query_response, 'data')
+
+def test_should_get_sub_entity_members(accounts_checkout_api):
+    entity_id = create_test_entity(accounts_checkout_api)
+    
+    # Get members (may be empty for new entity)
+    members_response = accounts_checkout_api.accounts.get_sub_entity_members(entity_id)
+    
+    # Response should have structure even if empty
+    assert members_response is not None
+
+
+def test_create_reserve_rule_should_return_valid_response(accounts_checkout_api):
+    # Arrange
+    entity_id = create_test_entity(accounts_checkout_api)
+    reserve_rule_request = create_valid_reserve_rule_request()
+
+    # Act
+    response = accounts_checkout_api.accounts.create_reserve_rule(entity_id, reserve_rule_request)
+
+    # Assert
+    validate_reserve_rule_id_response(response)
+
+
+def test_get_reserve_rules_should_return_valid_response(accounts_checkout_api):
+    # Arrange
+    entity_id = create_test_entity(accounts_checkout_api)
+    reserve_rule_request = create_valid_reserve_rule_request()
+    create_response = accounts_checkout_api.accounts.create_reserve_rule(entity_id, reserve_rule_request)
+    validate_reserve_rule_id_response(create_response)
+
+    # Act
+    response = accounts_checkout_api.accounts.get_reserve_rules(entity_id)
+
+    # Assert
+    validate_reserve_rules_response(response)
+
+
+def test_get_reserve_rule_details_should_return_valid_response(accounts_checkout_api):
+    # Arrange
+    entity_id = create_test_entity(accounts_checkout_api)
+    reserve_rule_request = create_valid_reserve_rule_request()
+    create_response = accounts_checkout_api.accounts.create_reserve_rule(entity_id, reserve_rule_request)
+    validate_reserve_rule_id_response(create_response)
+
+    # Act
+    response = accounts_checkout_api.accounts.get_reserve_rule_details(entity_id, create_response.id)
+
+    # Assert
+    validate_reserve_rule_response(response, reserve_rule_request)
+
+
+def test_update_reserve_rule_should_return_valid_response(accounts_checkout_api):
+    # Arrange
+    entity_id = create_test_entity(accounts_checkout_api)
+    original_request = create_valid_reserve_rule_request()
+    create_response = accounts_checkout_api.accounts.create_reserve_rule(entity_id, original_request)
+    validate_reserve_rule_id_response(create_response)
+
+    update_request = create_valid_reserve_rule_request()
+    update_request.rolling.percentage = 15.0
+    update_request.rolling.holding_duration.weeks = 16
+    
+    # Get ETag from the creation response headers
+    etag = None
+    if hasattr(create_response, 'http_metadata') and hasattr(create_response.http_metadata, 'headers'):
+        headers = create_response.http_metadata.headers
+        if 'etag' in headers:
+            etag = headers['etag']
+        elif 'ETag' in headers:
+            etag = headers['ETag']
+
+    # Act (will set the If-Match header when using the etag)
+    response = accounts_checkout_api.accounts.update_reserve_rule(
+        entity_id, 
+        create_response.id, 
+        etag,
+        update_request
+    )
+
+    # Assert
+    validate_reserve_rule_id_response(response)
+    assert response.id == create_response.id
+
+
+# Common methods
+def upload_file(api):
+    request = FileRequest()
+    request.file = os.path.join(get_project_root(), 'tests', 'resources', 'checkout.jpeg')
+    request.purpose = 'bank_verification'
+    response = api.accounts.upload_file(request)
+    assert_response(response, 'id', '_links')
+    return response
+
+def create_test_entity(api):
+    entity_request = OnboardEntityRequest()
+    entity_request.reference = new_uuid()[:15]
+    entity_request.contact_details = build_contact_details()
+    entity_request.profile = build_profile()
+    entity_request.company = Company()
+    entity_request.company.business_registration_number = '01234567'
+    entity_request.company.legal_name = 'Reserve Rules Test Inc.'
+    entity_request.company.trading_name = 'Reserve Rules Test'
+    entity_request.company.principal_address = address()
+    entity_request.company.registered_address = address()
+    representative = EntityRepresentative()
+    representative.first_name = 'John'
+    representative.last_name = 'Doe'
+    representative.address = address()
+    entity_request.company.representatives = [representative]
+    
+    entity_response = api.accounts.create_entity(entity_request)
+    assert_response(entity_response, 'id')
+    
+    return entity_response.id
+
+
+def build_contact_details():
+    contact_details = ContactDetails()
+    contact_details.phone = phone()
+    contact_details.email_addresses = EntityEmailAddresses()
+    contact_details.email_addresses.primary = random_email()
+    return contact_details
+
+
+def build_profile():
+    profile = Profile()
+    profile.urls = ['https://www.superheroexample.com']
+    profile.mccs = ['0742']
+    return profile
+
+
+def create_valid_reserve_rule_request():
+    holding_duration = HoldingDuration()
+    holding_duration.weeks = 8
+    
+    rolling_rule = RollingReserveRule()
+    rolling_rule.percentage = 12.5
+    rolling_rule.holding_duration = holding_duration
+    
+    reserve_rule_request = ReserveRuleRequest()
+    reserve_rule_request.type = 'rolling'
+    reserve_rule_request.rolling = rolling_rule
+    reserve_rule_request.valid_from = (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()
+    
+    return reserve_rule_request
+
+
+def validate_reserve_rule_id_response(response):
+    assert response is not None
+    assert_response(response, 'id')
+    assert response.id is not None
+    assert response.id != ''
+
+
+def validate_reserve_rules_response(response):
+    assert response is not None
+    assert_response(response, 'data')
+    assert response.data is not None
+    assert len(response.data) > 0
+    assert response.data[0].id is not None
+    assert hasattr(response.data[0], 'type')
+
+
+def validate_reserve_rule_response(response, original_request):
+    assert response is not None
+    assert_response(response, 'id', 'type', 'rolling')
+    assert response.id is not None
+    assert response.type == original_request.type
+    assert response.rolling is not None
+    assert response.rolling.percentage == original_request.rolling.percentage
+    assert response.rolling.holding_duration is not None
+    assert response.rolling.holding_duration.weeks == original_request.rolling.holding_duration.weeks
+    assert hasattr(response, 'valid_from')
+

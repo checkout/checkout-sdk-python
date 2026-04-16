@@ -50,8 +50,9 @@ class ApiClient:
     def put(self,
             path,
             authorization: SdkAuthorization,
-            request=None):
-        return self.invoke(method='PUT', path=path, authorization=authorization, body=request)
+            request=None,
+            headers=None):
+        return self.invoke(method='PUT', path=path, authorization=authorization, body=request, headers=headers)
 
     def patch(self,
               path,
@@ -80,16 +81,20 @@ class ApiClient:
                idempotency_key: str = None,
                params=None,
                file_request: FileRequest = None,
-               multipart_file=None):
+               multipart_file=None,
+               headers=None):
 
-        headers = {
+        request_headers = {
             'User-Agent': 'checkout-sdk-python/' + VERSION,
             'Accept': 'application/json',
             'Authorization': authorization.get_authorization_header(),
             'Content-Type': 'application/json'}
 
         if idempotency_key is not None:
-            headers['Cko-Idempotency-Key'] = idempotency_key
+            request_headers['Cko-Idempotency-Key'] = idempotency_key
+
+        if headers is not None:
+            request_headers.update(headers)
 
         base_uri = self._base_uri + path
 
@@ -103,14 +108,14 @@ class ApiClient:
             elif params is not None:
                 params_dict = json.loads(json.dumps(params, cls=JsonSerializer))
             elif file_request is not None:
-                headers.pop('Content-Type')
+                request_headers.pop('Content-Type')
                 files, json_body = get_file_request(file_request, multipart_file)
 
             self._logger.info(method + ' ' + path)
 
             response = self._http_client.request(method=method,
                                                  url=base_uri,
-                                                 headers=headers,
+                                                 headers=request_headers,
                                                  params=params_dict,
                                                  data=json_body,
                                                  files=files)

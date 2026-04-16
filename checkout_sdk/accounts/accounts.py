@@ -382,3 +382,22 @@ class UpdateScheduleRequest:
 
 class PaymentInstrumentsQuery:
     status: str
+
+
+class ReserveRuleType(str, Enum):
+    ROLLING = 'rolling'
+
+
+class ReserveRuleRequest:
+    type: ReserveRuleType
+    rolling: RollingReserveRule
+    valid_from: str
+
+
+class RollingReserveRule:
+    percentage: float
+    holding_duration: HoldingDuration
+    
+
+class HoldingDuration:
+    weeks: int  # Single integer, not list (matches C# structure)
