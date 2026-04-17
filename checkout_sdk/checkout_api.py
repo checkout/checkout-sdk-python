@@ -4,6 +4,7 @@ from checkout_sdk.accounts.accounts_client import AccountsClient
 from checkout_sdk.api_client import ApiClient
 from checkout_sdk.balances.balances_client import BalancesClient
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
+from checkout_sdk.compliancerequests.compliance_requests_client import ComplianceRequestsClient
 from checkout_sdk.customers.customers_client import CustomersClient
 from checkout_sdk.disputes.disputes_client import DisputesClient
 from checkout_sdk.financial.financial_client import FinancialClient
@@ -25,6 +26,7 @@ from checkout_sdk.reports.reports_client import ReportsClient
 from checkout_sdk.metadata.metadata_client import CardMetadataClient
 from checkout_sdk.forward.forward_client import ForwardClient
 from checkout_sdk.payments.setups.setups_client import PaymentSetupsClient
+from checkout_sdk.agenticcommerce.agentic_commerce_client import AgenticCommerceClient
 
 
 def _base_api_client(configuration: CheckoutConfiguration) -> ApiClient:
@@ -56,6 +58,7 @@ class CheckoutApi(CheckoutApmApi):
         super().__init__(base_api_client, configuration)
         self.tokens = TokensClient(api_client=base_api_client, configuration=configuration)
         self.customers = CustomersClient(api_client=base_api_client, configuration=configuration)
+        self.compliance_requests = ComplianceRequestsClient(api_client=base_api_client, configuration=configuration)
         self.instruments = InstrumentsClient(api_client=base_api_client, configuration=configuration)
         self.payments = PaymentsClient(api_client=base_api_client, configuration=configuration)
         self.sessions = SessionsClient(api_client=base_api_client, configuration=configuration)
@@ -78,3 +81,4 @@ class CheckoutApi(CheckoutApmApi):
         self.payment_sessions = PaymentSessionsClient(api_client=base_api_client, configuration=configuration)
         self.forward = ForwardClient(api_client=base_api_client, configuration=configuration)
         self.setups = PaymentSetupsClient(api_client=base_api_client, configuration=configuration)
+        self.agentic_commerce = AgenticCommerceClient(api_client=base_api_client, configuration=configuration)

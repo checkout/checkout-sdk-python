@@ -32,7 +32,6 @@ class ApiClient:
     def __init__(self, configuration: CheckoutConfiguration, base_uri: str):
         self._http_client = configuration.http_client
         self._base_uri = base_uri
-
     def get(self,
             path,
             authorization: SdkAuthorization,
@@ -43,9 +42,10 @@ class ApiClient:
              path,
              authorization: SdkAuthorization,
              request=None,
-             idempotency_key: str = None):
+             idempotency_key: str = None,
+             headers=None):
         return self.invoke(method='POST', path=path, authorization=authorization, body=request,
-                           idempotency_key=idempotency_key)
+                           idempotency_key=idempotency_key, headers=headers)
 
     def put(self,
             path,
@@ -57,8 +57,9 @@ class ApiClient:
     def patch(self,
               path,
               authorization: SdkAuthorization,
-              request=None):
-        return self.invoke(method='PATCH', path=path, authorization=authorization, body=request)
+              request=None,
+              headers=None):
+        return self.invoke(method='PATCH', path=path, authorization=authorization, body=request, headers=headers)
 
     def delete(self,
                path,
@@ -94,7 +95,8 @@ class ApiClient:
             request_headers['Cko-Idempotency-Key'] = idempotency_key
 
         if headers is not None:
-            request_headers.update(headers)
+            custom_headers = self._process_custom_headers(headers)
+            request_headers.update(custom_headers)
 
         base_uri = self._base_uri + path
 
@@ -137,3 +139,33 @@ class ApiClient:
             return ResponseWrapper(http_metadata, contents)
         else:
             return ResponseWrapper(http_metadata)
+        
+    def _process_custom_headers(self, custom_headers):
+        headers = {}
+        if custom_headers is None:
+            return None
+        
+        # Get custom mappings if the class defines them
+        if hasattr(custom_headers, 'get_header_mappings'):
+            custom_mappings = custom_headers.get_header_mappings()
+        
+            # Iterate through all attributes
+            for attr_name in dir(custom_headers):
+                # Skip private attributes and methods
+                if attr_name.startswith('_') or callable(getattr(custom_headers, attr_name)):
+                    continue
+                    
+                value = getattr(custom_headers, attr_name)
+                if value is not None and value != '':
+                    # Use custom mapping if available, otherwise convert using default logic
+                    header_name = custom_mappings.get(attr_name, self._convert_property_to_header(attr_name))
+                    headers[header_name] = str(value)
+        else:
+            headers = custom_headers
+        
+        return headers
+    
+    def _convert_property_to_header(self, property_name):
+        # Convert snake_case to Title-Case (e.g., 'api_version' -> 'Api-Version')
+        return '-'.join(word.capitalize() for word in property_name.split('_'))
+
