@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Dict
 
 from checkout_sdk.common.common import Phone, Address
 from checkout_sdk.common.common import ResidentialStatusType, AccountHolderIdentification
@@ -424,3 +425,12 @@ class FilePurpose(str, Enum):
 
 class EntityFileRequest:
     purpose: FilePurpose
+
+
+class EtagHeader:
+    etag: str
+    
+    def get_header_mappings(self) -> Dict[str, str]:
+        return {
+            'etag': 'If-Match'
+        }

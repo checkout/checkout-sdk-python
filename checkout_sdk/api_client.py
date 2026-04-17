@@ -140,28 +140,28 @@ class ApiClient:
         else:
             return ResponseWrapper(http_metadata)
         
-    def _process_custom_headers(self, custom_headers):
-        headers = {}
+    def _process_custom_headers(self, custom_headers):        
+        # Trivial case
         if custom_headers is None:
             return None
         
-        # Get custom mappings if the class defines them
+        # Get custom mappings if the class defines them, otherwise use empty dict
+        headers = {}
+        custom_mappings = {}
         if hasattr(custom_headers, 'get_header_mappings'):
             custom_mappings = custom_headers.get_header_mappings()
         
-            # Iterate through all attributes
-            for attr_name in dir(custom_headers):
-                # Skip private attributes and methods
-                if attr_name.startswith('_') or callable(getattr(custom_headers, attr_name)):
-                    continue
-                    
-                value = getattr(custom_headers, attr_name)
-                if value is not None and value != '':
-                    # Use custom mapping if available, otherwise convert using default logic
-                    header_name = custom_mappings.get(attr_name, self._convert_property_to_header(attr_name))
-                    headers[header_name] = str(value)
-        else:
-            headers = custom_headers
+        # Iterate through all attributes
+        for attr_name in dir(custom_headers):
+            # Skip private attributes and methods
+            if attr_name.startswith('_') or callable(getattr(custom_headers, attr_name)):
+                continue
+                
+            value = getattr(custom_headers, attr_name)
+            if value is not None and value != '':
+                # Use custom mapping if available, otherwise convert using default logic
+                header_name = custom_mappings.get(attr_name, self._convert_property_to_header(attr_name))
+                headers[header_name] = str(value)
         
         return headers
     

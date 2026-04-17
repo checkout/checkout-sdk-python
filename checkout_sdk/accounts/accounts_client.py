@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from warnings import warn
 
-from checkout_sdk.accounts.accounts import OnboardEntityRequest, UpdateScheduleRequest, AccountsPaymentInstrument, \
+from checkout_sdk.accounts.accounts import EtagHeader, OnboardEntityRequest, UpdateScheduleRequest, AccountsPaymentInstrument, \
     PaymentInstrumentRequest, PaymentInstrumentsQuery, UpdatePaymentInstrumentRequest, ReserveRuleRequest, \
     EntityFileRequest
 from checkout_sdk.api_client import ApiClient
@@ -139,7 +139,8 @@ class AccountsClient(Client):
     def update_reserve_rule(self, entity_id: str, reserve_rule_id: str, etag: str, update_request: ReserveRuleRequest):
         headers = None
         if(etag is not None):
-            headers = {'If-Match': etag}
+            headers = EtagHeader()
+            headers.etag = etag
 
         return self._api_client.put(
             self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id, self.__RESERVE_RULES_PATH, reserve_rule_id),
