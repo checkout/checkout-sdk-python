@@ -27,6 +27,7 @@ from checkout_sdk.metadata.metadata_client import CardMetadataClient
 from checkout_sdk.forward.forward_client import ForwardClient
 from checkout_sdk.payments.setups.setups_client import PaymentSetupsClient
 from checkout_sdk.agenticcommerce.agentic_commerce_client import AgenticCommerceClient
+from checkout_sdk.standaloneaccountupdater.standalone_account_updater_client import StandaloneAccountUpdaterClient
 
 
 def _base_api_client(configuration: CheckoutConfiguration) -> ApiClient:
@@ -82,3 +83,5 @@ class CheckoutApi(CheckoutApmApi):
         self.forward = ForwardClient(api_client=base_api_client, configuration=configuration)
         self.setups = PaymentSetupsClient(api_client=base_api_client, configuration=configuration)
         self.agentic_commerce = AgenticCommerceClient(api_client=base_api_client, configuration=configuration)
+        self.standalone_account_updater = StandaloneAccountUpdaterClient(api_client=base_api_client,
+                                                                         configuration=configuration)
