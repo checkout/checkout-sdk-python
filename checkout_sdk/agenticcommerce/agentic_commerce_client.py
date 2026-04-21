@@ -21,5 +21,5 @@ class AgenticCommerceClient(Client):
             self.build_path(self.__AGENTIC_COMMERCE_PATH, self.__DELEGATE_PAYMENT_PATH),
             self._sdk_authorization(),
             request,
-            headers = headers
+            headers=headers
         )

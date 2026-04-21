@@ -79,35 +79,29 @@ def assert_secret_response(response, expected_name: str = None):
 
 @pytest.mark.skip(reason='This test requires forward secrets scopes and valid credentials')
 def test_should_create_list_update_delete_secret(default_api):
-    # Create secret
     create_request = build_create_secret_request(value="initial_value")
     secret_name = create_request.name
-    
+
     create_response = default_api.forward.create_secret(create_request)
     assert_secret_response(create_response, secret_name)
-    
-    # List secrets - should contain our secret
+
     list_response = default_api.forward.list_secrets()
     assert_response(list_response, 'data')
     assert any(secret['name'] == secret_name for secret in list_response['data'])
-    
-    # Update secret
+
     update_request = build_update_secret_request(value="new_updated_value")
     update_response = default_api.forward.update_secret(secret_name, update_request)
     assert_secret_response(update_response, secret_name)
-    
-    # Delete secret
+
     delete_response = default_api.forward.delete_secret(secret_name)
-    # Delete should return empty response (204 No Content)
     assert delete_response is not None
 
 
 @pytest.mark.skip(reason='This test requires forward secrets scopes and valid credentials')
 def test_should_create_secret_with_entity_id(default_api):
     create_request = build_create_secret_request(entity_id="ent_test123")
-    
+
     create_response = default_api.forward.create_secret(create_request)
     assert_secret_response(create_response, create_request.name)
-    
-    # Cleanup
+
     default_api.forward.delete_secret(create_request.name)

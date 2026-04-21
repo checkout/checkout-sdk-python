@@ -389,19 +389,19 @@ class ReserveRuleType(str, Enum):
     ROLLING = 'rolling'
 
 
-class ReserveRuleRequest:
-    type: ReserveRuleType
-    rolling: RollingReserveRule
-    valid_from: str
+class HoldingDuration:
+    weeks: int
 
 
 class RollingReserveRule:
     percentage: float
     holding_duration: HoldingDuration
-    
 
-class HoldingDuration:
-    weeks: int
+
+class ReserveRuleRequest:
+    type: ReserveRuleType
+    rolling: RollingReserveRule
+    valid_from: str
 
 
 class FilePurpose(str, Enum):
@@ -429,7 +429,7 @@ class EntityFileRequest:
 
 class EtagHeader:
     etag: str
-    
+
     def get_header_mappings(self) -> Dict[str, str]:
         return {
             'etag': 'If-Match'

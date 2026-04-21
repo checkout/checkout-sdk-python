@@ -15,43 +15,40 @@ class TestAgenticCommerceClient:
         mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
         request = DelegatedPaymentRequest()
         headers = DelegatedPaymentHeaders()
-        
+
         response = client.create_delegated_payment_token(request, headers)
-        
+
         assert response == 'response'
 
     def test_create_delegated_payment_token_with_none_request(self, mocker, client: AgenticCommerceClient):
         mock_post = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
         headers = DelegatedPaymentHeaders()
-        
+
         response = client.create_delegated_payment_token(None, headers)
-        
+
         assert response == 'response'
-        # Verify None was passed as the request parameter
         mock_post.assert_called_once()
         args = mock_post.call_args[0]
-        assert args[2] is None  # request parameter position
+        assert args[2] is None
 
     def test_create_delegated_payment_token_with_none_headers(self, mocker, client: AgenticCommerceClient):
         mock_post = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
         request = DelegatedPaymentRequest()
-        
+
         response = client.create_delegated_payment_token(request, None)
-        
+
         assert response == 'response'
-        # Verify None was passed as the headers parameter
         mock_post.assert_called_once()
         kwargs = mock_post.call_args.kwargs
-        assert kwargs['headers'] is None  # headers parameter is passed as keyword argument
+        assert kwargs['headers'] is None
 
     def test_create_delegated_payment_token_calls_correct_endpoint(self, mocker, client: AgenticCommerceClient):
         mock_post = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
         request = DelegatedPaymentRequest()
         headers = DelegatedPaymentHeaders()
-        
+
         client.create_delegated_payment_token(request, headers)
-        
-        # Verify the correct endpoint path was called
+
         mock_post.assert_called_once()
         args = mock_post.call_args[0]
-        assert 'agentic_commerce/delegate_payment' in args[0]  # Path argument
+        assert 'agentic_commerce/delegate_payment' in args[0]

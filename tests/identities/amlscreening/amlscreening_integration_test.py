@@ -7,6 +7,7 @@ from tests.checkout_test_utils import assert_response
 
 # tests
 
+
 @pytest.mark.skip(reason='Requires valid applicant ID and AML configuration')
 def test_should_create_aml_screening(default_api):
     response = default_api.aml_screening.create_aml_screening(aml_screening_request())
@@ -41,6 +42,7 @@ def test_should_validate_monitoring_configuration(default_api):
     assert response.monitored is False
 
 # common functions
+
 
 def aml_screening_request() -> AmlScreeningRequest:
     search_parameters = SearchParameters()

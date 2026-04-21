@@ -85,7 +85,7 @@ class DelegatedPaymentHeaders:
     signature: str
     timestamp: str
     api_version: str
-    
+
     def get_header_mappings(self) -> Dict[str, str]:
         return {
             'api_version': 'API-Version'

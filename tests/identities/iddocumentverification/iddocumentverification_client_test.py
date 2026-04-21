@@ -29,8 +29,8 @@ class TestIdDocumentVerificationClient:
 
     def test_should_create_id_document_verification_attempt(self, mocker, client: IdDocumentVerificationClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
-        assert client.create_id_document_verification_attempt('iddoc_12345',
-                                                               IdDocumentVerificationAttemptRequest()) == 'response'
+        assert client.create_id_document_verification_attempt(
+            'iddoc_12345', IdDocumentVerificationAttemptRequest()) == 'response'
 
     def test_should_get_id_document_verification_attempts(self, mocker, client: IdDocumentVerificationClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')

@@ -95,4 +95,3 @@ class TestAccountsClient:
     def test_should_retrieve_entity_file(self, mocker, client: AccountsClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
         assert client.retrieve_entity_file('entity_id', 'file_id') == 'response'
-

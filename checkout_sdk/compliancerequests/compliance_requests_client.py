@@ -16,9 +16,11 @@ class ComplianceRequestsClient(Client):
                          authorization_type=AuthorizationType.SECRET_KEY_OR_OAUTH)
 
     def get_compliance_request(self, payment_id: str):
-        return self._api_client.get(self.build_path(self.__COMPLIANCE_REQUESTS_PATH, payment_id), 
-                                  self._sdk_authorization())
+        return self._api_client.get(
+            self.build_path(self.__COMPLIANCE_REQUESTS_PATH, payment_id),
+            self._sdk_authorization())
 
     def respond_to_compliance_request(self, payment_id: str, request: ComplianceRequestRespondRequest):
-        return self._api_client.post(self.build_path(self.__COMPLIANCE_REQUESTS_PATH, payment_id),
-                                   self._sdk_authorization(), request)
+        return self._api_client.post(
+            self.build_path(self.__COMPLIANCE_REQUESTS_PATH, payment_id),
+            self._sdk_authorization(), request)

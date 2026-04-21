@@ -9,7 +9,7 @@ class ComplianceRespondedField:
     not_available: bool
 
 
-class ComplianceRespondedFields:   
+class ComplianceRespondedFields:
     sender: List[ComplianceRespondedField]
     recipient: List[ComplianceRespondedField]
 

@@ -39,6 +39,7 @@ def test_should_throw_422_on_standard_test_card(oauth_api):
 
 # common functions
 
+
 def card_credentials_request(expiry_year: int) -> GetUpdatedCardCredentialsRequest:
     card = CardDetailsRequest()
     card.number = '4242424242424242'

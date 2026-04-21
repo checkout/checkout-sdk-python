@@ -32,6 +32,7 @@ class ApiClient:
     def __init__(self, configuration: CheckoutConfiguration, base_uri: str):
         self._http_client = configuration.http_client
         self._base_uri = base_uri
+
     def get(self,
             path,
             authorization: SdkAuthorization,
@@ -101,17 +102,8 @@ class ApiClient:
         base_uri = self._base_uri + path
 
         try:
-            json_body = None
-            params_dict = None
-            files = None
-
-            if body is not None:
-                json_body = json.dumps(body, cls=JsonSerializer)
-            elif params is not None:
-                params_dict = json.loads(json.dumps(params, cls=JsonSerializer))
-            elif file_request is not None:
-                request_headers.pop('Content-Type')
-                files, json_body = get_file_request(file_request, multipart_file)
+            json_body, params_dict, files = self._prepare_request_payload(
+                request_headers, body, params, file_request, multipart_file)
 
             self._logger.info(method + ' ' + path)
 
@@ -137,35 +129,40 @@ class ApiClient:
             else:
                 contents = response.text
             return ResponseWrapper(http_metadata, contents)
-        else:
-            return ResponseWrapper(http_metadata)
-        
-    def _process_custom_headers(self, custom_headers):        
-        # Trivial case
+        return ResponseWrapper(http_metadata)
+
+    def _prepare_request_payload(self, request_headers, body, params, file_request, multipart_file):
+        json_body = None
+        params_dict = None
+        files = None
+        if body is not None:
+            json_body = json.dumps(body, cls=JsonSerializer)
+        elif params is not None:
+            params_dict = json.loads(json.dumps(params, cls=JsonSerializer))
+        elif file_request is not None:
+            request_headers.pop('Content-Type')
+            files, json_body = get_file_request(file_request, multipart_file)
+        return json_body, params_dict, files
+
+    def _process_custom_headers(self, custom_headers):
         if custom_headers is None:
             return None
-        
-        # Get custom mappings if the class defines them, otherwise use empty dict
+
         headers = {}
         custom_mappings = {}
         if hasattr(custom_headers, 'get_header_mappings'):
             custom_mappings = custom_headers.get_header_mappings()
-        
-        # Iterate through all attributes
+
         for attr_name in dir(custom_headers):
-            # Skip private attributes and methods
             if attr_name.startswith('_') or callable(getattr(custom_headers, attr_name)):
                 continue
-                
+
             value = getattr(custom_headers, attr_name)
             if value is not None and value != '':
-                # Use custom mapping if available, otherwise convert using default logic
                 header_name = custom_mappings.get(attr_name, self._convert_property_to_header(attr_name))
                 headers[header_name] = str(value)
-        
-        return headers
-    
-    def _convert_property_to_header(self, property_name):
-        # Convert snake_case to Title-Case (e.g., 'api_version' -> 'Api-Version')
-        return '-'.join(word.capitalize() for word in property_name.split('_'))
 
+        return headers
+
+    def _convert_property_to_header(self, property_name):
+        return '-'.join(word.capitalize() for word in property_name.split('_'))

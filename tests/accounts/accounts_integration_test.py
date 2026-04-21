@@ -10,7 +10,6 @@ from checkout_sdk.accounts.accounts import OnboardEntityRequest, ContactDetails,
     DateOfBirth, Identification, EntityEmailAddresses, Company, EntityRepresentative, PaymentInstrumentRequest, \
     InstrumentDocument, InstrumentDetailsFasterPayments, ReserveRuleRequest, RollingReserveRule, \
     HoldingDuration, EntityFileRequest, FilePurpose
-from checkout_sdk.checkout_api import CheckoutApi
 from checkout_sdk.common.enums import Currency, Country, InstrumentType
 from checkout_sdk.files.files import FileRequest
 from checkout_sdk.oauth_scopes import OAuthScopes
@@ -144,58 +143,47 @@ def test_should_create_and_retrieve_payment_instrument(accounts_checkout_api):
 
     assert_response(query_response, 'data')
 
+
 def test_should_get_sub_entity_members(accounts_checkout_api):
     entity_id = create_test_entity(accounts_checkout_api)
-    
-    # Get members (may be empty for new entity)
+
     members_response = accounts_checkout_api.accounts.get_sub_entity_members(entity_id)
-    
-    # Response should have structure even if empty
+
     assert members_response is not None
 
 
 def test_create_reserve_rule_should_return_valid_response(accounts_checkout_api):
-    # Arrange
     entity_id = create_test_entity(accounts_checkout_api)
     reserve_rule_request = create_valid_reserve_rule_request()
 
-    # Act
     response = accounts_checkout_api.accounts.create_reserve_rule(entity_id, reserve_rule_request)
 
-    # Assert
     validate_reserve_rule_id_response(response)
 
 
 def test_get_reserve_rules_should_return_valid_response(accounts_checkout_api):
-    # Arrange
     entity_id = create_test_entity(accounts_checkout_api)
     reserve_rule_request = create_valid_reserve_rule_request()
     create_response = accounts_checkout_api.accounts.create_reserve_rule(entity_id, reserve_rule_request)
     validate_reserve_rule_id_response(create_response)
 
-    # Act
     response = accounts_checkout_api.accounts.get_reserve_rules(entity_id)
 
-    # Assert
     validate_reserve_rules_response(response)
 
 
 def test_get_reserve_rule_details_should_return_valid_response(accounts_checkout_api):
-    # Arrange
     entity_id = create_test_entity(accounts_checkout_api)
     reserve_rule_request = create_valid_reserve_rule_request()
     create_response = accounts_checkout_api.accounts.create_reserve_rule(entity_id, reserve_rule_request)
     validate_reserve_rule_id_response(create_response)
 
-    # Act
     response = accounts_checkout_api.accounts.get_reserve_rule_details(entity_id, create_response.id)
 
-    # Assert
     validate_reserve_rule_response(response, reserve_rule_request)
 
 
 def test_update_reserve_rule_should_return_valid_response(accounts_checkout_api):
-    # Arrange
     entity_id = create_test_entity(accounts_checkout_api)
     original_request = create_valid_reserve_rule_request()
     create_response = accounts_checkout_api.accounts.create_reserve_rule(entity_id, original_request)
@@ -204,8 +192,7 @@ def test_update_reserve_rule_should_return_valid_response(accounts_checkout_api)
     update_request = create_valid_reserve_rule_request()
     update_request.rolling.percentage = 15.0
     update_request.rolling.holding_duration.weeks = 16
-    
-    # Get ETag from the creation response headers
+
     etag = None
     if hasattr(create_response, 'http_metadata') and hasattr(create_response.http_metadata, 'headers'):
         headers = create_response.http_metadata.headers
@@ -214,40 +201,32 @@ def test_update_reserve_rule_should_return_valid_response(accounts_checkout_api)
         elif 'ETag' in headers:
             etag = headers['ETag']
 
-    # Act (will set the If-Match header when using the etag)
     response = accounts_checkout_api.accounts.update_reserve_rule(
-        entity_id, 
-        create_response.id, 
+        entity_id,
+        create_response.id,
         etag,
         update_request
     )
 
-    # Assert
     validate_reserve_rule_id_response(response)
     assert response.id == create_response.id
 
 
 def test_should_upload_entity_file_and_retrieve(accounts_checkout_api):
-    # Arrange
     entity_id = create_test_entity(accounts_checkout_api)
-    
-    # Test upload entity file
+
     request = EntityFileRequest()
     request.purpose = FilePurpose.IDENTIFICATION
-    
-    # Act - Upload file
+
     upload_response = accounts_checkout_api.accounts.upload_entity_file(entity_id, request)
-    
-    # Assert - Upload response
+
     assert_response(upload_response, 'id', '_links')
     assert upload_response.id is not None
     assert upload_response.id != ''
-    
-    # Act - Retrieve file
+
     file_id = upload_response.id
     retrieve_response = accounts_checkout_api.accounts.retrieve_entity_file(entity_id, file_id)
-    
-    # Assert - Retrieve response
+
     assert_response(retrieve_response, 'id')
     assert retrieve_response.id == file_id
 
@@ -260,6 +239,7 @@ def upload_file(api):
     response = api.accounts.upload_file(request)
     assert_response(response, 'id', '_links')
     return response
+
 
 def create_test_entity(api):
     entity_request = OnboardEntityRequest()
@@ -277,10 +257,10 @@ def create_test_entity(api):
     representative.last_name = 'Doe'
     representative.address = address()
     entity_request.company.representatives = [representative]
-    
+
     entity_response = api.accounts.create_entity(entity_request)
     assert_response(entity_response, 'id')
-    
+
     return entity_response.id
 
 
@@ -302,16 +282,16 @@ def build_profile():
 def create_valid_reserve_rule_request():
     holding_duration = HoldingDuration()
     holding_duration.weeks = 8
-    
+
     rolling_rule = RollingReserveRule()
     rolling_rule.percentage = 12.5
     rolling_rule.holding_duration = holding_duration
-    
+
     reserve_rule_request = ReserveRuleRequest()
     reserve_rule_request.type = 'rolling'
     reserve_rule_request.rolling = rolling_rule
     reserve_rule_request.valid_from = (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()
-    
+
     return reserve_rule_request
 
 
@@ -341,4 +321,3 @@ def validate_reserve_rule_response(response, original_request):
     assert response.rolling.holding_duration is not None
     assert response.rolling.holding_duration.weeks == original_request.rolling.holding_duration.weeks
     assert hasattr(response, 'valid_from')
-
