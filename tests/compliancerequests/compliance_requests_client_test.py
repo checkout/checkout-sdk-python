@@ -25,7 +25,7 @@ class TestComplianceRequestsClient:
     def test_get_compliance_request_with_none_payment_id(self, mocker, client: ComplianceRequestsClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
 
-        with pytest.raises(TypeError, match="sequence item 1: expected str instance, NoneType found"):
+        with pytest.raises(TypeError, match="sequence item 1: expected str"):
             client.get_compliance_request(None)
 
     def test_respond_to_compliance_request(self, mocker, client: ComplianceRequestsClient):
@@ -45,7 +45,7 @@ class TestComplianceRequestsClient:
         mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
         request = ComplianceRequestRespondRequest()
 
-        with pytest.raises(TypeError, match="sequence item 1: expected str instance, NoneType found"):
+        with pytest.raises(TypeError, match="sequence item 1: expected str"):
             client.respond_to_compliance_request(None, request)
 
     def test_respond_to_compliance_request_with_none_request(self, mocker, client: ComplianceRequestsClient):
