@@ -134,9 +134,9 @@ class AccountsClient(Client):
             self._sdk_authorization())
 
     def get_reserve_rule_details(self, entity_id: str, reserve_rule_id: str):
-        return self._api_client.get(
-            self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id, self.__RESERVE_RULES_PATH, reserve_rule_id),
-            self._sdk_authorization())
+        path = self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH,
+                               entity_id, self.__RESERVE_RULES_PATH, reserve_rule_id)
+        return self._api_client.get(path, self._sdk_authorization())
 
     def update_reserve_rule(self, entity_id: str, reserve_rule_id: str, etag: str, update_request: ReserveRuleRequest):
         headers = None
@@ -144,11 +144,9 @@ class AccountsClient(Client):
             headers = EtagHeader()
             headers.etag = etag
 
-        return self._api_client.put(
-            self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id, self.__RESERVE_RULES_PATH, reserve_rule_id),
-            self._sdk_authorization(),
-            update_request,
-            headers=headers)
+        path = self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH,
+                               entity_id, self.__RESERVE_RULES_PATH, reserve_rule_id)
+        return self._api_client.put(path, self._sdk_authorization(), update_request, headers=headers)
 
     def upload_entity_file(self, entity_id: str, entity_file_request: EntityFileRequest):
         return self.__files_client.post(
