@@ -16,7 +16,7 @@ class GooglePayClient(Client):
     def __init__(self, api_client: ApiClient, configuration: CheckoutConfiguration):
         super().__init__(api_client=api_client,
                          configuration=configuration,
-                         authorization_type=AuthorizationType.SECRET_KEY_OR_OAUTH)
+                         authorization_type=AuthorizationType.OAUTH)
 
     def create_enrollment(self, request: GooglePayEnrollmentRequest):
         return self._api_client.post(self.__GOOGLEPAY_ENROLLMENTS_PATH, self._sdk_authorization(), request)
