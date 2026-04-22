@@ -20,7 +20,7 @@ class ApplePayClient(Client):
 
     def upload_payment_processing_certificate(self, request: UploadCertificateRequest):
         return self._api_client.post(self.__CERTIFICATES_PATH,
-                                  self._sdk_authorization(AuthorizationType.PUBLIC_KEY), request)
+                                     self._sdk_authorization(AuthorizationType.PUBLIC_KEY), request)
 
     def enroll_domain(self, request: EnrollDomainRequest):
         return self._api_client.post(self.__ENROLLMENTS_PATH,
@@ -29,4 +29,4 @@ class ApplePayClient(Client):
 
     def generate_certificate_signing_request(self, request: GenerateSigningRequestRequest):
         return self._api_client.post(self.__SIGNING_REQUESTS_PATH,
-                                  self._sdk_authorization(AuthorizationType.PUBLIC_KEY), request)
+                                     self._sdk_authorization(AuthorizationType.PUBLIC_KEY), request)
