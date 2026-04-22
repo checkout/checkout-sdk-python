@@ -91,3 +91,7 @@ class SecretRequest:
     name: str
     value: str
     entity_id: str = None
+
+class UpdateSecretRequest:
+    value: str
+    entity_id: str = None

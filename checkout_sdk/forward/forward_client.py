@@ -2,7 +2,7 @@ from checkout_sdk.api_client import ApiClient
 from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
 from checkout_sdk.client import Client
-from checkout_sdk.forward.forward import ForwardRequest, SecretRequest
+from checkout_sdk.forward.forward import ForwardRequest, SecretRequest, UpdateSecretRequest
 
 
 class ForwardClient(Client):
@@ -33,7 +33,7 @@ class ForwardClient(Client):
             self._sdk_authorization()
         )
 
-    def update_secret(self, name: str, request: SecretRequest):
+    def update_secret(self, name: str, request: UpdateSecretRequest):
         return self._api_client.patch(
             self.build_path(self.__FORWARD_PATH, self.__SECRETS_PATH, name),
             self._sdk_authorization(),

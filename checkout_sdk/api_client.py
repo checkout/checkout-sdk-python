@@ -146,7 +146,7 @@ class ApiClient:
 
     def _process_custom_headers(self, custom_headers):
         if custom_headers is None:
-            return None
+            return {}
 
         headers = {}
         custom_mappings = {}
