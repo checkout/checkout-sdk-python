@@ -4,6 +4,7 @@ from checkout_sdk.accounts.accounts_client import AccountsClient
 from checkout_sdk.api_client import ApiClient
 from checkout_sdk.balances.balances_client import BalancesClient
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
+from checkout_sdk.compliancerequests.compliance_requests_client import ComplianceRequestsClient
 from checkout_sdk.customers.customers_client import CustomersClient
 from checkout_sdk.disputes.disputes_client import DisputesClient
 from checkout_sdk.financial.financial_client import FinancialClient
@@ -25,6 +26,15 @@ from checkout_sdk.reports.reports_client import ReportsClient
 from checkout_sdk.metadata.metadata_client import CardMetadataClient
 from checkout_sdk.forward.forward_client import ForwardClient
 from checkout_sdk.payments.setups.setups_client import PaymentSetupsClient
+from checkout_sdk.agenticcommerce.agentic_commerce_client import AgenticCommerceClient
+from checkout_sdk.payments.applepay.applepay_client import ApplePayClient
+from checkout_sdk.payments.googlepay.googlepay_client import GooglePayClient
+from checkout_sdk.standaloneaccountupdater.standalone_account_updater_client import StandaloneAccountUpdaterClient
+from checkout_sdk.identities.amlscreening.amlscreening_client import AmlScreeningClient
+from checkout_sdk.identities.faceauthentication.faceauthentication_client import FaceAuthenticationClient
+from checkout_sdk.identities.iddocumentverification.iddocumentverification_client import IdDocumentVerificationClient
+from checkout_sdk.identities.applicants.applicants_client import ApplicantsClient
+from checkout_sdk.identities.identityverification.identityverification_client import IdentityVerificationClient
 
 
 def _base_api_client(configuration: CheckoutConfiguration) -> ApiClient:
@@ -56,6 +66,7 @@ class CheckoutApi(CheckoutApmApi):
         super().__init__(base_api_client, configuration)
         self.tokens = TokensClient(api_client=base_api_client, configuration=configuration)
         self.customers = CustomersClient(api_client=base_api_client, configuration=configuration)
+        self.compliance_requests = ComplianceRequestsClient(api_client=base_api_client, configuration=configuration)
         self.instruments = InstrumentsClient(api_client=base_api_client, configuration=configuration)
         self.payments = PaymentsClient(api_client=base_api_client, configuration=configuration)
         self.sessions = SessionsClient(api_client=base_api_client, configuration=configuration)
@@ -78,3 +89,14 @@ class CheckoutApi(CheckoutApmApi):
         self.payment_sessions = PaymentSessionsClient(api_client=base_api_client, configuration=configuration)
         self.forward = ForwardClient(api_client=base_api_client, configuration=configuration)
         self.setups = PaymentSetupsClient(api_client=base_api_client, configuration=configuration)
+        self.agentic_commerce = AgenticCommerceClient(api_client=base_api_client, configuration=configuration)
+        self.apple_pay = ApplePayClient(api_client=base_api_client, configuration=configuration)
+        self.google_pay = GooglePayClient(api_client=base_api_client, configuration=configuration)
+        self.standalone_account_updater = StandaloneAccountUpdaterClient(api_client=base_api_client,
+                                                                         configuration=configuration)
+        self.aml_screening = AmlScreeningClient(api_client=base_api_client, configuration=configuration)
+        self.face_authentication = FaceAuthenticationClient(api_client=base_api_client, configuration=configuration)
+        self.id_document_verification = IdDocumentVerificationClient(api_client=base_api_client,
+                                                                     configuration=configuration)
+        self.applicants = ApplicantsClient(api_client=base_api_client, configuration=configuration)
+        self.identity_verification = IdentityVerificationClient(api_client=base_api_client, configuration=configuration)

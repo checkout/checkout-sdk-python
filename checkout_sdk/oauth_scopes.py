@@ -12,6 +12,7 @@ class OAuthScopes(str, Enum):
     VAULT_APME_ENROLLMENT = 'vault:apme-enrollment'
     VAULT_CARD_METADATA = 'vault:card-metadata'
     VAULT_NETWORK_TOKENS = 'vault:network-tokens'
+    VAULT_GPAYME_ENROLLMENT = 'vault:gpayme-enrollment'
     GATEWAY = 'gateway'
     GATEWAY_PAYMENT = 'gateway:payment'
     GATEWAY_PAYMENT_DETAILS = 'gateway:payment-details'

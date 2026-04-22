@@ -2,8 +2,11 @@ from __future__ import absolute_import
 
 from warnings import warn
 
-from checkout_sdk.accounts.accounts import OnboardEntityRequest, UpdateScheduleRequest, AccountsPaymentInstrument, \
-    PaymentInstrumentRequest, PaymentInstrumentsQuery, UpdatePaymentInstrumentRequest
+from checkout_sdk.accounts.accounts import (
+    EtagHeader, OnboardEntityRequest, UpdateScheduleRequest, AccountsPaymentInstrument,
+    PaymentInstrumentRequest, PaymentInstrumentsQuery, UpdatePaymentInstrumentRequest,
+    ReserveRuleRequest, EntityFileRequest
+)
 from checkout_sdk.api_client import ApiClient
 from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
@@ -19,6 +22,8 @@ class AccountsClient(Client):
     __FILES_PATH = 'files'
     __PAYOUT_SCHEDULES_PATH = 'payout-schedules'
     __PAYMENT_INSTRUMENTS_PATH = 'payment-instruments'
+    __MEMBERS_PATH = 'members'
+    __RESERVE_RULES_PATH = 'reserve-rules'
 
     def __init__(self, api_client: ApiClient,
                  files_client: ApiClient,
@@ -106,3 +111,50 @@ class AccountsClient(Client):
             self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id, self.__PAYOUT_SCHEDULES_PATH),
             self._sdk_authorization(),
             {currency: update_schedule_request})
+
+    def get_sub_entity_members(self, entity_id: str):
+        return self._api_client.get(
+            self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id, self.__MEMBERS_PATH),
+            self._sdk_authorization())
+
+    def reinvite_sub_entity_member(self, entity_id: str, user_id: str):
+        return self._api_client.put(
+            self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id, self.__MEMBERS_PATH, user_id),
+            self._sdk_authorization())
+
+    def create_reserve_rule(self, entity_id: str, create_request: ReserveRuleRequest):
+        return self._api_client.post(
+            self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id, self.__RESERVE_RULES_PATH),
+            self._sdk_authorization(),
+            create_request)
+
+    def get_reserve_rules(self, entity_id: str):
+        return self._api_client.get(
+            self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id, self.__RESERVE_RULES_PATH),
+            self._sdk_authorization())
+
+    def get_reserve_rule_details(self, entity_id: str, reserve_rule_id: str):
+        path = self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH,
+                               entity_id, self.__RESERVE_RULES_PATH, reserve_rule_id)
+        return self._api_client.get(path, self._sdk_authorization())
+
+    def update_reserve_rule(self, entity_id: str, reserve_rule_id: str, etag: str, update_request: ReserveRuleRequest):
+        headers = None
+        if (etag is not None):
+            headers = EtagHeader()
+            headers.etag = etag
+
+        path = self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH,
+                               entity_id, self.__RESERVE_RULES_PATH, reserve_rule_id)
+        return self._api_client.put(path, self._sdk_authorization(), update_request, headers=headers)
+
+    def upload_entity_file(self, entity_id: str, entity_file_request: EntityFileRequest):
+        return self.__files_client.post(
+            self.build_path(self.__ENTITIES_PATH, entity_id, self.__FILES_PATH),
+            self._sdk_authorization(),
+            entity_file_request)
+
+    def retrieve_entity_file(self, entity_id: str, file_id: str):
+        return self.__files_client.get(
+            self.build_path(self.__ENTITIES_PATH, entity_id, self.__FILES_PATH, file_id),
+            self._sdk_authorization())

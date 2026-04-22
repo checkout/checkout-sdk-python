@@ -85,3 +85,14 @@ class ForwardRequest:
     reference: str = None
     processing_channel_id: str = None
     network_token: NetworkToken = None
+
+
+class SecretRequest:
+    name: str
+    value: str
+    entity_id: str = None
+
+
+class UpdateSecretRequest:
+    value: str
+    entity_id: str = None

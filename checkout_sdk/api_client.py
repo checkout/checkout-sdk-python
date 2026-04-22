@@ -43,21 +43,24 @@ class ApiClient:
              path,
              authorization: SdkAuthorization,
              request=None,
-             idempotency_key: str = None):
+             idempotency_key: str = None,
+             headers=None):
         return self.invoke(method='POST', path=path, authorization=authorization, body=request,
-                           idempotency_key=idempotency_key)
+                           idempotency_key=idempotency_key, headers=headers)
 
     def put(self,
             path,
             authorization: SdkAuthorization,
-            request=None):
-        return self.invoke(method='PUT', path=path, authorization=authorization, body=request)
+            request=None,
+            headers=None):
+        return self.invoke(method='PUT', path=path, authorization=authorization, body=request, headers=headers)
 
     def patch(self,
               path,
               authorization: SdkAuthorization,
-              request=None):
-        return self.invoke(method='PATCH', path=path, authorization=authorization, body=request)
+              request=None,
+              headers=None):
+        return self.invoke(method='PATCH', path=path, authorization=authorization, body=request, headers=headers)
 
     def delete(self,
                path,
@@ -80,37 +83,33 @@ class ApiClient:
                idempotency_key: str = None,
                params=None,
                file_request: FileRequest = None,
-               multipart_file=None):
+               multipart_file=None,
+               headers=None):
 
-        headers = {
+        request_headers = {
             'User-Agent': 'checkout-sdk-python/' + VERSION,
             'Accept': 'application/json',
             'Authorization': authorization.get_authorization_header(),
             'Content-Type': 'application/json'}
 
         if idempotency_key is not None:
-            headers['Cko-Idempotency-Key'] = idempotency_key
+            request_headers['Cko-Idempotency-Key'] = idempotency_key
+
+        if headers is not None:
+            custom_headers = self._process_custom_headers(headers)
+            request_headers.update(custom_headers)
 
         base_uri = self._base_uri + path
 
         try:
-            json_body = None
-            params_dict = None
-            files = None
-
-            if body is not None:
-                json_body = json.dumps(body, cls=JsonSerializer)
-            elif params is not None:
-                params_dict = json.loads(json.dumps(params, cls=JsonSerializer))
-            elif file_request is not None:
-                headers.pop('Content-Type')
-                files, json_body = get_file_request(file_request, multipart_file)
+            json_body, params_dict, files = self._prepare_request_payload(
+                request_headers, body, params, file_request, multipart_file)
 
             self._logger.info(method + ' ' + path)
 
             response = self._http_client.request(method=method,
                                                  url=base_uri,
-                                                 headers=headers,
+                                                 headers=request_headers,
                                                  params=params_dict,
                                                  data=json_body,
                                                  files=files)
@@ -130,5 +129,40 @@ class ApiClient:
             else:
                 contents = response.text
             return ResponseWrapper(http_metadata, contents)
-        else:
-            return ResponseWrapper(http_metadata)
+        return ResponseWrapper(http_metadata)
+
+    def _prepare_request_payload(self, request_headers, body, params, file_request, multipart_file):
+        json_body = None
+        params_dict = None
+        files = None
+        if body is not None:
+            json_body = json.dumps(body, cls=JsonSerializer)
+        elif params is not None:
+            params_dict = json.loads(json.dumps(params, cls=JsonSerializer))
+        elif file_request is not None:
+            request_headers.pop('Content-Type')
+            files, json_body = get_file_request(file_request, multipart_file)
+        return json_body, params_dict, files
+
+    def _process_custom_headers(self, custom_headers):
+        if custom_headers is None:
+            return {}
+
+        headers = {}
+        custom_mappings = {}
+        if hasattr(custom_headers, 'get_header_mappings'):
+            custom_mappings = custom_headers.get_header_mappings()
+
+        for attr_name in dir(custom_headers):
+            if attr_name.startswith('_') or callable(getattr(custom_headers, attr_name)):
+                continue
+
+            value = getattr(custom_headers, attr_name)
+            if value is not None and value != '':
+                header_name = custom_mappings.get(attr_name, self._convert_property_to_header(attr_name))
+                headers[header_name] = str(value)
+
+        return headers
+
+    def _convert_property_to_header(self, property_name):
+        return '-'.join(word.capitalize() for word in property_name.split('_'))

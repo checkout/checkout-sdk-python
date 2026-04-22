@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Dict
 
 from checkout_sdk.common.common import Phone, Address
 from checkout_sdk.common.common import ResidentialStatusType, AccountHolderIdentification
@@ -382,3 +383,54 @@ class UpdateScheduleRequest:
 
 class PaymentInstrumentsQuery:
     status: str
+
+
+class ReserveRuleType(str, Enum):
+    ROLLING = 'rolling'
+
+
+class HoldingDuration:
+    weeks: int
+
+
+class RollingReserveRule:
+    percentage: float
+    holding_duration: HoldingDuration
+
+
+class ReserveRuleRequest:
+    type: ReserveRuleType
+    rolling: RollingReserveRule
+    valid_from: str
+
+
+class FilePurpose(str, Enum):
+    ADDITIONAL_DOCUMENT = 'additional_document'
+    ARTICLES_OF_ASSOCIATION = 'articles_of_association'
+    BANK_VERIFICATION = 'bank_verification'
+    CERTIFIED_AUTHORISED_SIGNATORY = 'certified_authorised_signatory'
+    COMPANY_OWNERSHIP = 'company_ownership'
+    IDENTIFICATION = 'identification'
+    IDENTITY_VERIFICATION = 'identity_verification'
+    DISPUTE_EVIDENCE = 'dispute_evidence'
+    COMPANY_VERIFICATION = 'company_verification'
+    FINANCIAL_VERIFICATION = 'financial_verification'
+    TAX_VERIFICATION = 'tax_verification'
+    PROOF_OF_LEGALITY = 'proof_of_legality'
+    PROOF_OF_PRINCIPAL_ADDRESS = 'proof_of_principal_address'
+    SHAREHOLDER_STRUCTURE = 'shareholder_structure'
+    PROOF_OF_RESIDENTIAL_ADDRESS = 'proof_of_residential_address'
+    PROOF_OF_REGISTRATION = 'proof_of_registration'
+
+
+class EntityFileRequest:
+    purpose: FilePurpose
+
+
+class EtagHeader:
+    etag: str
+
+    def get_header_mappings(self) -> Dict[str, str]:
+        return {
+            'etag': 'If-Match'
+        }
