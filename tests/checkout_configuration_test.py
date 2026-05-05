@@ -31,6 +31,20 @@ def test_should_create_configuration():
     assert configuration.environment_subdomain is None
 
 
+def test_environment_sandbox_urls():
+    env = Environment.sandbox()
+    assert env.base_uri == "https://api.sandbox.checkout.com/"
+    assert env.forward_uri == "https://forward.sandbox.checkout.com/"
+    assert env.identity_uri == "https://identity-verification.sandbox.checkout.com/"
+
+
+def test_environment_production_urls():
+    env = Environment.production()
+    assert env.base_uri == "https://api.checkout.com/"
+    assert env.forward_uri == "https://forward.checkout.com/"
+    assert env.identity_uri == "https://identity-verification.checkout.com/"
+
+
 @pytest.mark.parametrize(
     "subdomain, expected_url",
     [
@@ -38,7 +52,9 @@ def test_should_create_configuration():
         ("ab", "https://ab.api.sandbox.checkout.com/"),
         ("abc", "https://abc.api.sandbox.checkout.com/"),
         ("abc1", "https://abc1.api.sandbox.checkout.com/"),
-        ("12345domain", "https://12345domain.api.sandbox.checkout.com/")
+        ("12345domain", "https://12345domain.api.sandbox.checkout.com/"),
+        ("test-123", "https://test-123.api.sandbox.checkout.com/"),
+        ("pl-abc123", "https://pl-abc123.api.sandbox.checkout.com/")
     ]
 )
 def test_should_create_configuration_with_subdomain(subdomain, expected_url):
@@ -74,7 +90,10 @@ def test_should_create_configuration_with_subdomain(subdomain, expected_url):
         ("   ", "https://api.sandbox.checkout.com/"),
         (" - ", "https://api.sandbox.checkout.com/"),
         ("a b", "https://api.sandbox.checkout.com/"),
-        ("ab c1.", "https://api.sandbox.checkout.com/")
+        ("ab c1.", "https://api.sandbox.checkout.com/"),
+        ("foo-", "https://api.sandbox.checkout.com/"),
+        ("-foo", "https://api.sandbox.checkout.com/"),
+        ("FooBar", "https://api.sandbox.checkout.com/")
     ]
 )
 def test_should_create_configuration_with_bad_subdomain(subdomain, expected_url):
