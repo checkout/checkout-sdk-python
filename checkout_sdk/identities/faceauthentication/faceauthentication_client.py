@@ -33,7 +33,8 @@ class FaceAuthenticationClient(Client):
             self.build_path(self.__FACE_AUTHENTICATIONS_PATH, face_authentication_id, self.__ANONYMIZE_PATH),
             self._sdk_authorization())
 
-    def create_face_authentication_attempt(self, face_authentication_id: str, request: FaceAuthenticationAttemptRequest):
+    def create_face_authentication_attempt(self, face_authentication_id: str,
+                                           request: FaceAuthenticationAttemptRequest):
         return self._api_client.post(
             self.build_path(self.__FACE_AUTHENTICATIONS_PATH, face_authentication_id, self.__ATTEMPTS_PATH),
             self._sdk_authorization(),
