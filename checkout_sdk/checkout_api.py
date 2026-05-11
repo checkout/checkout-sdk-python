@@ -35,6 +35,7 @@ from checkout_sdk.identities.faceauthentication.faceauthentication_client import
 from checkout_sdk.identities.iddocumentverification.iddocumentverification_client import IdDocumentVerificationClient
 from checkout_sdk.identities.applicants.applicants_client import ApplicantsClient
 from checkout_sdk.identities.identityverification.identityverification_client import IdentityVerificationClient
+from checkout_sdk.networktokens.network_tokens_client import NetworkTokensClient
 
 
 def _base_api_client(configuration: CheckoutConfiguration) -> ApiClient:
@@ -111,3 +112,4 @@ class CheckoutApi(CheckoutApmApi):
         self.applicants = ApplicantsClient(api_client=identity_api_client, configuration=configuration)
         self.identity_verification = IdentityVerificationClient(api_client=identity_api_client,
                                                                 configuration=configuration)
+        self.network_tokens = NetworkTokensClient(api_client=base_api_client, configuration=configuration)
