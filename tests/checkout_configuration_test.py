@@ -53,7 +53,7 @@ def test_environment_production_urls():
         ("abc", "https://abc.api.sandbox.checkout.com/"),
         ("abc1", "https://abc1.api.sandbox.checkout.com/"),
         ("12345domain", "https://12345domain.api.sandbox.checkout.com/"),
-        ("test-123", "https://test-123.api.sandbox.checkout.com/"),
+        ("pl-vkuhvk4v", "https://pl-vkuhvk4v.api.sandbox.checkout.com/"),
         ("pl-abc123", "https://pl-abc123.api.sandbox.checkout.com/")
     ]
 )
@@ -93,7 +93,10 @@ def test_should_create_configuration_with_subdomain(subdomain, expected_url):
         ("ab c1.", "https://api.sandbox.checkout.com/"),
         ("foo-", "https://api.sandbox.checkout.com/"),
         ("-foo", "https://api.sandbox.checkout.com/"),
-        ("FooBar", "https://api.sandbox.checkout.com/")
+        ("FooBar", "https://api.sandbox.checkout.com/"),
+        ("test-123", "https://api.sandbox.checkout.com/"),
+        ("foo-bar", "https://api.sandbox.checkout.com/"),
+        ("pl-", "https://api.sandbox.checkout.com/")
     ]
 )
 def test_should_create_configuration_with_bad_subdomain(subdomain, expected_url):

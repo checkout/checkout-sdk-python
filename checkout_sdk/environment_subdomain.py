@@ -25,7 +25,7 @@ class EnvironmentSubdomain:
         """
         new_environment = original_url
 
-        regex = r'^[a-z0-9]+(-[a-z0-9]+)*$'
+        regex = r'^(?:pl-)?[a-z0-9]+$'
         if re.match(regex, subdomain):
             url_parts = urlparse(original_url)
             if url_parts.port:
