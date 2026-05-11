@@ -11,6 +11,7 @@ class DisputesClient(FilesClient):
     __DISPUTES_PATH = 'disputes'
     __ACCEPT_PATH = 'accept'
     __EVIDENCE_PATH = 'evidence'
+    __ARBITRATION_PATH = 'arbitration'
     __SUBMITTED_PATH = 'submitted'
     __SCHEME_FILES_PATH = "schemefiles"
 
@@ -42,10 +43,25 @@ class DisputesClient(FilesClient):
         return self._api_client.post(self.build_path(self.__DISPUTES_PATH, dispute_id, self.__EVIDENCE_PATH),
                                      self._sdk_authorization())
 
+    def submit_arbitration_evidence(self, dispute_id: str):
+        return self._api_client.post(self.build_path(
+            self.__DISPUTES_PATH, dispute_id,
+            self.__EVIDENCE_PATH,
+            self.__ARBITRATION_PATH),
+            self._sdk_authorization())
+
     def get_compiled_submitted_evidence(self, dispute_id: str):
         return self._api_client.get(self.build_path(
             self.__DISPUTES_PATH, dispute_id,
             self.__EVIDENCE_PATH,
+            self.__SUBMITTED_PATH),
+            self._sdk_authorization())
+
+    def get_compiled_submitted_arbitration_evidence(self, dispute_id: str):
+        return self._api_client.get(self.build_path(
+            self.__DISPUTES_PATH, dispute_id,
+            self.__EVIDENCE_PATH,
+            self.__ARBITRATION_PATH,
             self.__SUBMITTED_PATH),
             self._sdk_authorization())
 
