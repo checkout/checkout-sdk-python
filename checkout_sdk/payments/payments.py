@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 
 from checkout_sdk.common.common import AccountHolder, BankDetails, MarketplaceData, Address, Phone, CustomerRequest, \
-    AccountHolderIdentification
+    AccountHolderIdentification, QueryFilterDateRange
 from checkout_sdk.common.enums import PaymentSourceType, Currency, Country, AccountType, ChallengeIndicator
 from checkout_sdk.sessions.sessions import DeliveryTimeframe
 
@@ -662,6 +662,23 @@ class RefundRequest:
 class VoidRequest:
     reference: str
     metadata: dict
+
+
+# Cancellations
+class CancelScheduledRetryRequest:
+    reference: str
+
+
+# Reversals
+class ReversePaymentRequest:
+    reference: str
+    metadata: dict
+
+
+# Search
+class PaymentsSearchRequest(QueryFilterDateRange):
+    query: str
+    limit: int
 
 
 class BillingPlan:

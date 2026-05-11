@@ -49,7 +49,8 @@ def oauth_api():
                  OAuthScopes.SESSIONS_APP, OAuthScopes.SESSIONS_BROWSER, OAuthScopes.FX, OAuthScopes.ACCOUNTS,
                  OAuthScopes.FILES, OAuthScopes.TRANSFERS, OAuthScopes.BALANCES_VIEW,
                  OAuthScopes.VAULT_CARD_METADATA, OAuthScopes.FINANCIAL_ACTIONS,
-                 OAuthScopes.VAULT_REAL_TIME_ACCOUNT_UPDATER]) \
+                 OAuthScopes.VAULT_REAL_TIME_ACCOUNT_UPDATER, OAuthScopes.PAYMENTS_SEARCH,
+                 OAuthScopes.GATEWAY_PAYMENT_CANCELLATIONS]) \
         .build()
 
 

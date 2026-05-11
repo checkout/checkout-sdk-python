@@ -3,7 +3,8 @@ import pytest
 from checkout_sdk.common.common import AccountHolder
 from checkout_sdk.payments.payments_client import PaymentsClient
 from checkout_sdk.payments.payments import PaymentRequest, PayoutRequest, CaptureRequest, AuthorizationRequest, \
-    RequestProviderTokenSource, RefundRequest, VoidRequest
+    RequestProviderTokenSource, RefundRequest, VoidRequest, CancelScheduledRetryRequest, ReversePaymentRequest, \
+    PaymentsSearchRequest
 
 
 @pytest.fixture(scope='class')
@@ -37,6 +38,15 @@ class TestPaymentsClient:
         mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
         assert client.get_payment_actions('payment_id') == 'response'
 
+    def test_cancel_scheduled_retry(self, mocker, client: PaymentsClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        assert client.cancel_scheduled_retry('payment_id', CancelScheduledRetryRequest()) == 'response'
+
+    def test_cancel_scheduled_retry_idempotency_key(self, mocker, client: PaymentsClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        assert client.cancel_scheduled_retry('payment_id', CancelScheduledRetryRequest(),
+                                             'idempotency_key') == 'response'
+
     def test_capture_payment(self, mocker, client: PaymentsClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
         assert client.capture_payment('payment_id', CaptureRequest()) == 'response'
@@ -52,6 +62,14 @@ class TestPaymentsClient:
     def test_refund_payment_idempotency_key(self, mocker, client: PaymentsClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
         assert client.refund_payment('payment_id', None, 'idempotency_key') == 'response'
+
+    def test_reverse_payment(self, mocker, client: PaymentsClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        assert client.reverse_payment('payment_id', ReversePaymentRequest()) == 'response'
+
+    def test_reverse_payment_idempotency_key(self, mocker, client: PaymentsClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        assert client.reverse_payment('payment_id', None, 'idempotency_key') == 'response'
 
     def test_void_payment(self, mocker, client: PaymentsClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
@@ -69,6 +87,10 @@ class TestPaymentsClient:
         mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
         assert client.increment_payment_authorization('payment_id', AuthorizationRequest(),
                                                       'idempotency_key') == 'response'
+
+    def test_search_payments(self, mocker, client: PaymentsClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        assert client.search_payments(PaymentsSearchRequest()) == 'response'
 
     # sources
     def test_should_request_provider_token_source_payment(self, mocker, client: PaymentsClient):
