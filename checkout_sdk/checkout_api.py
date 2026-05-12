@@ -59,10 +59,20 @@ def _balances_api_client(configuration: CheckoutConfiguration) -> ApiClient:
     return ApiClient(configuration, configuration.environment.balances_uri)
 
 
+def _forward_api_client(configuration: CheckoutConfiguration) -> ApiClient:
+    return ApiClient(configuration, configuration.environment.forward_uri)
+
+
+def _identity_api_client(configuration: CheckoutConfiguration) -> ApiClient:
+    return ApiClient(configuration, configuration.environment.identity_uri)
+
+
 class CheckoutApi(CheckoutApmApi):
 
     def __init__(self, configuration: CheckoutConfiguration):
         base_api_client = _base_api_client(configuration)
+        forward_api_client = _forward_api_client(configuration)
+        identity_api_client = _identity_api_client(configuration)
         super().__init__(base_api_client, configuration)
         self.tokens = TokensClient(api_client=base_api_client, configuration=configuration)
         self.customers = CustomersClient(api_client=base_api_client, configuration=configuration)
@@ -87,16 +97,17 @@ class CheckoutApi(CheckoutApmApi):
         self.issuing = IssuingClient(api_client=base_api_client, configuration=configuration)
         self.contexts = PaymentContextsClient(api_client=base_api_client, configuration=configuration)
         self.payment_sessions = PaymentSessionsClient(api_client=base_api_client, configuration=configuration)
-        self.forward = ForwardClient(api_client=base_api_client, configuration=configuration)
+        self.forward = ForwardClient(api_client=forward_api_client, configuration=configuration)
         self.setups = PaymentSetupsClient(api_client=base_api_client, configuration=configuration)
         self.agentic_commerce = AgenticCommerceClient(api_client=base_api_client, configuration=configuration)
         self.apple_pay = ApplePayClient(api_client=base_api_client, configuration=configuration)
         self.google_pay = GooglePayClient(api_client=base_api_client, configuration=configuration)
         self.standalone_account_updater = StandaloneAccountUpdaterClient(api_client=base_api_client,
                                                                          configuration=configuration)
-        self.aml_screening = AmlScreeningClient(api_client=base_api_client, configuration=configuration)
-        self.face_authentication = FaceAuthenticationClient(api_client=base_api_client, configuration=configuration)
-        self.id_document_verification = IdDocumentVerificationClient(api_client=base_api_client,
+        self.aml_screening = AmlScreeningClient(api_client=identity_api_client, configuration=configuration)
+        self.face_authentication = FaceAuthenticationClient(api_client=identity_api_client, configuration=configuration)
+        self.id_document_verification = IdDocumentVerificationClient(api_client=identity_api_client,
                                                                      configuration=configuration)
-        self.applicants = ApplicantsClient(api_client=base_api_client, configuration=configuration)
-        self.identity_verification = IdentityVerificationClient(api_client=base_api_client, configuration=configuration)
+        self.applicants = ApplicantsClient(api_client=identity_api_client, configuration=configuration)
+        self.identity_verification = IdentityVerificationClient(api_client=identity_api_client,
+                                                                configuration=configuration)

@@ -8,12 +8,16 @@ class Environment:
                  files_uri,
                  transfers_uri,
                  balances_uri,
+                 forward_uri,
+                 identity_uri,
                  is_sandbox):
         self.base_uri = base_uri
         self.authorization_uri = authorization_uri
         self.files_uri = files_uri
         self.transfers_uri = transfers_uri
         self.balances_uri = balances_uri
+        self.forward_uri = forward_uri
+        self.identity_uri = identity_uri
         self.is_sandbox = is_sandbox
 
     @staticmethod
@@ -23,6 +27,8 @@ class Environment:
                            files_uri='https://files.sandbox.checkout.com/',
                            transfers_uri='https://transfers.sandbox.checkout.com/',
                            balances_uri='https://balances.sandbox.checkout.com/',
+                           forward_uri='https://forward.sandbox.checkout.com/',
+                           identity_uri='https://identity-verification.sandbox.checkout.com/',
                            is_sandbox=True)
 
     @staticmethod
@@ -32,4 +38,6 @@ class Environment:
                            files_uri='https://files.checkout.com/',
                            transfers_uri='https://transfers.checkout.com/',
                            balances_uri='https://balances.checkout.com/',
+                           forward_uri='https://forward.checkout.com/',
+                           identity_uri='https://identity-verification.checkout.com/',
                            is_sandbox=False)
