@@ -5,7 +5,8 @@ from checkout_sdk import CheckoutSdk
 from checkout_sdk.common.enums import DocumentType, Currency
 from checkout_sdk.issuing.cardholders import CardholderRequest, CardholderDocument, CardholderType
 from checkout_sdk.issuing.cards import CardLifetime, LifetimeUnit, VirtualCardRequest
-from checkout_sdk.issuing.controls import VelocityControlRequest, VelocityLimit, VelocityWindow, VelocityWindowType
+from checkout_sdk.issuing.controls import VelocityControlRequest, VelocityLimit, VelocityWindow, VelocityWindowType, \
+    CreateControlGroupRequest, FailIfType, MccControlGroupControl, MccLimit, MccLimitType, ControlProfileRequest
 from checkout_sdk.issuing.testing import CardSimulation, Merchant, TransactionSimulation, TransactionType, \
     AuthorizationType, CardAuthorizationRequest
 from checkout_sdk.oauth_scopes import OAuthScopes
@@ -121,6 +122,27 @@ def transaction(issuing_checkout_api, active_card):
     return transaction
 
 
+@pytest.fixture(scope='class')
+def control_group(issuing_checkout_api, card):
+    request = get_control_group_request(card.id)
+
+    control_group = issuing_checkout_api.issuing.create_control_group(request)
+
+    assert_response(control_group, 'id')
+    return control_group
+
+
+@pytest.fixture(scope='class')
+def control_profile(issuing_checkout_api):
+    request = ControlProfileRequest()
+    request.name = 'Test Control Profile'
+
+    control_profile = issuing_checkout_api.issuing.create_control_profile(request)
+
+    assert_response(control_profile, 'id')
+    return control_profile
+
+
 def get_card_request(cardholder):
     lifetime = CardLifetime()
     lifetime.unit = LifetimeUnit.MONTHS
@@ -133,5 +155,23 @@ def get_card_request(cardholder):
     request.reference = 'X-123456-N11'
     request.display_name = 'John Kennedy'
     request.is_single_use = False
+
+    return request
+
+
+def get_control_group_request(target_id: str):
+    mcc_limit = MccLimit()
+    mcc_limit.type = MccLimitType.BLOCK
+    mcc_limit.mcc_list = ['5411', '5422']
+
+    mcc_control = MccControlGroupControl()
+    mcc_control.description = 'Block grocery stores'
+    mcc_control.mcc_limit = mcc_limit
+
+    request = CreateControlGroupRequest()
+    request.target_id = target_id
+    request.fail_if = FailIfType.ALL_FAIL
+    request.description = 'Integration test control group'
+    request.controls = [mcc_control]
 
     return request

@@ -30,9 +30,17 @@ class CardLifetime:
 
 
 class ShippingInstructions:
-    recipient_address: str
+    shipping_recipient: str
     shipping_address: Address
     additional_comment: str
+
+
+class CardMetadata:
+    udf1: str
+    udf2: str
+    udf3: str
+    udf4: str
+    udf5: str
 
 
 class CardRequest:
@@ -43,6 +51,7 @@ class CardRequest:
     card_product_id: str
     display_name: str
     activate_card: bool
+    metadata: CardMetadata
 
     def __init__(self, type_p: CardType):
         self.type = type_p
@@ -60,6 +69,39 @@ class VirtualCardRequest(CardRequest):
 
     def __init__(self):
         super().__init__(CardType.VIRTUAL)
+
+
+class UpdateCardRequest:
+    reference: str
+    metadata: CardMetadata
+    expiry_month: int
+    expiry_year: int
+
+
+class RenewCardRequest:
+    type: CardType
+    display_name: str
+    reference: str
+    metadata: CardMetadata
+
+    def __init__(self, type_p: CardType):
+        self.type = type_p
+
+
+class PhysicalCardRenewRequest(RenewCardRequest):
+    shipping_instructions: ShippingInstructions
+
+    def __init__(self):
+        super().__init__(CardType.PHYSICAL)
+
+
+class VirtualCardRenewRequest(RenewCardRequest):
+    def __init__(self):
+        super().__init__(CardType.VIRTUAL)
+
+
+class ScheduleCardRevocationRequest:
+    revocation_date: str
 
 
 class SecurityPair:
