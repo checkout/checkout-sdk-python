@@ -28,7 +28,7 @@ class NetworkTokensClient(Client):
                                     self._sdk_authorization())
 
     def request_cryptogram(self, network_token_id: str,
-                             request_cryptogram_request: RequestCryptogramRequest):
+                           request_cryptogram_request: RequestCryptogramRequest):
         return self._api_client.post(
             self.build_path(self.__NETWORK_TOKENS_PATH, network_token_id, self.__CRYPTOGRAMS_PATH),
             self._sdk_authorization(),

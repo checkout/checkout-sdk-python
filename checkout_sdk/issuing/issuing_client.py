@@ -242,7 +242,7 @@ class IssuingClient(Client):
                                      idempotency_key)
 
     def escalate_dispute(self, dispute_id: str, escalate_dispute_request: EscalateDisputeRequest,
-                          idempotency_key: str = None):
+                         idempotency_key: str = None):
         return self._api_client.post(self.build_path(self.__ISSUING, self.__DISPUTES, dispute_id, self.__ESCALATE),
                                      self._sdk_authorization(),
                                      escalate_dispute_request,
