@@ -534,6 +534,12 @@ class AccommodationData:
     room: list  # AccommodationRoom
 
 
+class Aggregator:
+    sub_merchant_id: str
+    aggregator_id_visa: str
+    aggregator_id_mc: str
+
+
 class ProcessingSettings:
     order_id: str
     tax_amount: int
@@ -640,12 +646,6 @@ class PaymentRetryRequest:
 # Request Payment
 class PartialAuthorization:
     enabled: bool
-
-
-class Aggregator:
-    sub_merchant_id: str
-    aggregator_id_visa: str
-    aggregator_id_mc: str
 
 
 class PaymentAuthenticationRequest:
