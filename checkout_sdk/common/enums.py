@@ -476,8 +476,16 @@ class PaymentSourceType(str, Enum):
     OCTOPUS = 'octopus'
     PLAID = 'plaid'
     SEQURA = 'sequra'
+    MOBILEPAY = 'mobilepay'
+    PAYNOW = 'paynow'
+    SWISH = 'swish'
+    TWINT = 'twint'
+    VIPPS = 'vipps'
+    BLIK = 'blik'
 
 
+# Used by ThreeDsRequest (in payments). The /sessions endpoint accepts
+# additional exemption-like values — see SessionChallengeIndicator.
 class ChallengeIndicator(str, Enum):
     NO_PREFERENCE = 'no_preference'
     NO_CHALLENGE_REQUESTED = 'no_challenge_requested'
@@ -490,6 +498,7 @@ class InstrumentType(str, Enum):
     TOKEN = 'token'
     CARD = 'card'
     SEPA = 'sepa'
+    ACH = 'ach'
     CARD_TOKEN = 'card_token'
 
 

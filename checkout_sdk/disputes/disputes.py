@@ -15,6 +15,30 @@ class DisputesQueryFilter:
     entity_ids: str
     sub_entity_ids: str
     payment_mcc: str
+    processing_channel_ids: str
+    segment_ids: str
+
+
+class CompellingEvidenceShippingAddress:
+    address1: str
+    address2: str
+    city: str
+    state: str
+    postal_code: str
+    country: str
+
+
+class CompellingEvidence:
+    merchandise_or_service: str
+    merchandise_or_service_desc: str
+    merchandise_or_service_provided_date: datetime
+    shipping_delivery_status: str
+    tracking_information: str
+    user_id: str
+    ip_address: str
+    device_id: str
+    shipping_address: CompellingEvidenceShippingAddress
+    historical_transactions: list  # CompellingEvidenceHistoricalTransaction
 
 
 class DisputeEvidenceRequest:
@@ -34,3 +58,8 @@ class DisputeEvidenceRequest:
     additional_evidence_text: str
     proof_of_delivery_or_service_date_file: str
     proof_of_delivery_or_service_date_text: str
+    arbitration_no_review_files: list  # list[str]
+    arbitration_no_review_text: str
+    arbitration_review_required_files: list  # list[str]
+    arbitration_review_required_text: str
+    compelling_evidence: CompellingEvidence

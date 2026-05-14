@@ -18,6 +18,7 @@ class CardTokenRequest:
     expiry_year: int
     name: str
     cvv: str
+    pin: str
     billing_address: Address
     phone: Phone
 

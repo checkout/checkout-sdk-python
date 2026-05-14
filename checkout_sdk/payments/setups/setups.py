@@ -91,6 +91,8 @@ class Stcpay(PaymentMethodBase):
 
 # Tabby entities
 class Tabby(PaymentMethodBase):
+    payment_types: list  # list of str
+
     def __init__(self):
         super().__init__()
         self.payment_method_options: PaymentMethodOptions
@@ -121,6 +123,7 @@ class OrderSubMerchant:
     id: str
     product_category: str
     number_of_trades: int
+    number_of_sales: int
     registration_date: datetime
 
 
@@ -143,6 +146,11 @@ class Industry:
     accommodation_data: list  # list of AccommodationData
 
 
+# Billing entity
+class PaymentSetupBilling:
+    address: Address
+
+
 # Main Request and Response classes
 class PaymentSetupsRequest:
     processing_channel_id: str
@@ -156,3 +164,4 @@ class PaymentSetupsRequest:
     customer: Customer
     order: Order
     industry: Industry
+    billing: PaymentSetupBilling

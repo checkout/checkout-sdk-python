@@ -85,6 +85,7 @@ class RequestFawrySource(RequestSource):
         super().__init__(PaymentSourceType.FAWRY)
 
 
+# Deprecated: Giropay was removed from the Checkout.com API. This source no longer functions.
 class RequestGiropaySource(RequestSource):
     purpose: str
     bic: str
@@ -189,6 +190,7 @@ class RequestPayPalSource(RequestSource):
         super().__init__(PaymentSourceType.PAYPAL)
 
 
+# Deprecated: POLi was removed from the Checkout.com API. This source no longer functions.
 class RequestPoliSource(RequestSource):
     def __init__(self):
         super().__init__(PaymentSourceType.POLI)
@@ -221,6 +223,7 @@ class RequestSepaSource(RequestSource):
         super().__init__(PaymentSourceType.ID)
 
 
+# Deprecated: Sofort was removed from the Checkout.com API. This source no longer functions.
 class RequestSofortSource(RequestSource):
     countryCode: Country
     languageCode: str

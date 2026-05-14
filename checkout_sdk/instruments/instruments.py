@@ -58,6 +58,7 @@ class CreateBankAccountInstrumentRequest(CreateInstrumentRequest):
     bban: str
     swift_bic: str
     currency: Currency
+    country: Country
     processing_channel_id: str
     account_holder: AccountHolder
     bank_details: BankDetails
@@ -65,6 +66,27 @@ class CreateBankAccountInstrumentRequest(CreateInstrumentRequest):
 
     def __init__(self):
         super().__init__(InstrumentType.BANK_ACCOUNT)
+
+
+class CreateCardInstrumentRequest(CreateInstrumentRequest):
+    number: str
+    expiry_month: int
+    expiry_year: int
+    network_token: str
+    processing_channel_id: str
+    entity_id: str
+    account_holder: AccountHolder
+
+    def __init__(self):
+        super().__init__(InstrumentType.CARD)
+
+
+class CreateAchInstrumentRequest(CreateInstrumentRequest):
+    instrument_data: InstrumentData
+    account_holder: AccountHolder
+
+    def __init__(self):
+        super().__init__(InstrumentType.ACH)
 
 
 # Update

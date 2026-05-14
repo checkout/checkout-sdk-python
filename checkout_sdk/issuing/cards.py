@@ -52,6 +52,7 @@ class CardRequest:
     display_name: str
     activate_card: bool
     metadata: CardMetadata
+    revocation_date: str
 
     def __init__(self, type_p: CardType):
         self.type = type_p

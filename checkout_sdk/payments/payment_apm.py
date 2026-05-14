@@ -16,6 +16,7 @@ class RequestIdealSource(PaymentRequestSource):
         super().__init__(PaymentSourceType.IDEAL)
 
 
+# Deprecated: Sofort was removed from the Checkout.com API. This source no longer functions.
 class RequestSofortSource(PaymentRequestSource):
     countryCode: Country
     languageCode: str
@@ -111,6 +112,7 @@ class RequestIllicadoSource(PaymentRequestSource):
         super().__init__(PaymentSourceType.ILLICADO)
 
 
+# Deprecated: Giropay was removed from the Checkout.com API. This source no longer functions.
 class RequestGiropaySource(PaymentRequestSource):
     account_holder: AccountHolder
 
@@ -283,3 +285,56 @@ class RequestSequraSource(PaymentRequestSource):
 
     def __init__(self):
         super().__init__(PaymentSourceType.SEQURA)
+
+
+class RequestMobilePaySource(PaymentRequestSource):
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.MOBILEPAY)
+
+
+class RequestPayNowSource(PaymentRequestSource):
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.PAYNOW)
+
+
+class RequestSwishSource(PaymentRequestSource):
+    payment_country: Country
+    account_holder: AccountHolder
+    billing_descriptor: str
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.SWISH)
+
+
+class RequestTwintSource(PaymentRequestSource):
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.TWINT)
+
+
+class RequestVippsSource(PaymentRequestSource):
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.VIPPS)
+
+
+class RequestSepaV4Source(PaymentRequestSource):
+    country: Country
+    account_number: str
+    currency: Currency
+    mandate_id: str
+    mandate_type: str
+    date_of_signature: str
+    account_holder: AccountHolder
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.SEPA)
+
+
+class RequestBlikSource(PaymentRequestSource):
+    partner_agreement_id: str
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.BLIK)

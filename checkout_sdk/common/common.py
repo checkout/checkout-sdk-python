@@ -23,6 +23,9 @@ class CustomerRequest:
     email: str
     name: str
     phone: Phone
+    default: str
+    metadata: dict
+    tax_number: str
 
 
 class CustomerRetry:
