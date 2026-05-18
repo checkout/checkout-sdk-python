@@ -38,6 +38,13 @@ class InstrumentData:
     payment_type: PaymentType
     mandate_id: str
     date_of_signature: datetime
+    # SEPA mandate type ('Core' or 'B2B'). Loose str — values don't overlap
+    # with the AccountType enum used elsewhere; a dedicated enum can come later.
+    type: str
+    # ACH-only fields below. account_type is 'savings' or 'checking' for ACH,
+    # which doesn't match the existing AccountType enum's values, so keep str.
+    account_type: str
+    bank_code: str
 
 
 class CreateSepaInstrumentRequest(CreateInstrumentRequest):

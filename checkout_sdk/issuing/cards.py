@@ -24,6 +24,11 @@ class SuspendReason(str, Enum):
     SUSPECTED_STOLEN = 'suspected_stolen'
 
 
+class ReturnCredentials(str, Enum):
+    NUMBER = 'number'
+    CVC2 = 'cvc2'
+
+
 class CardLifetime:
     unit: LifetimeUnit
     value: int
@@ -67,6 +72,9 @@ class PhysicalCardRequest(CardRequest):
 
 class VirtualCardRequest(CardRequest):
     is_single_use: bool
+    return_credentials: list  # ReturnCredentials
+    control_profiles: list  # str (IssuingControlProfileId)
+    controls: list  # CardControlRequest
 
     def __init__(self):
         super().__init__(CardType.VIRTUAL)
@@ -80,25 +88,17 @@ class UpdateCardRequest:
 
 
 class RenewCardRequest:
-    type: CardType
     display_name: str
     reference: str
     metadata: CardMetadata
-
-    def __init__(self, type_p: CardType):
-        self.type = type_p
 
 
 class PhysicalCardRenewRequest(RenewCardRequest):
     shipping_instructions: ShippingInstructions
 
-    def __init__(self):
-        super().__init__(CardType.PHYSICAL)
-
 
 class VirtualCardRenewRequest(RenewCardRequest):
-    def __init__(self):
-        super().__init__(CardType.VIRTUAL)
+    pass
 
 
 class ScheduleCardRevocationRequest:

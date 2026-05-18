@@ -41,6 +41,9 @@ class Customer:
     phone: Phone
     device: CustomerDevice
     merchant_account: MerchantAccount
+    country: str
+    id: str
+    tax_number: str
 
 
 # Payment Method Common entities
@@ -116,6 +119,8 @@ class PaymentMethods:
 class Settings:
     success_url: str
     failure_url: str
+    capture: bool
+    excluded_payment_methods: list  # list of str (PaymentSourceType values)
 
 
 # Order entities
@@ -132,6 +137,9 @@ class Order:
     shipping: ShippingDetails
     sub_merchants: list  # list of OrderSubMerchant
     discount_amount: int
+    invoice_id: str
+    shipping_amount: int
+    tax_amount: int
 
 
 # Industry entities

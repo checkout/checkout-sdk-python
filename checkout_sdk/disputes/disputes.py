@@ -20,10 +20,10 @@ class DisputesQueryFilter:
 
 
 class CompellingEvidenceShippingAddress:
-    address1: str
+    address: str
     address2: str
     city: str
-    state: str
+    state_region: str
     postal_code: str
     country: str
 

@@ -207,6 +207,7 @@ class PaymentInstruction:
     scheme: InstructionScheme
     remittance: Remitance
     quote_id: str
+    funds_transfer_type: str
 
 
 class PayoutBillingDescriptor:
@@ -234,6 +235,13 @@ class PaymentCorporateSender(PaymentSender):
         super().__init__(PaymentSenderType.CORPORATE)
 
 
+# Narrow-applicability sender. The `government` type is only accepted by the
+# CardPayoutRequest.sender slot in the API. Using this class on
+# PaymentRequest.sender or BankPayoutRequest.sender will be rejected by the
+# API with a 422, because those endpoints' sender discriminators only accept
+# `individual`, `corporate`, and `instrument`. Type safety can't catch this
+# today because Python's PaymentSender is shared across all three slots; a
+# future split into a dedicated CardPayoutSender hierarchy would fix it.
 class PaymentGovernmentSender(PaymentSender):
     company_name: str
     address: Address
@@ -396,6 +404,7 @@ class ShippingDetails:
     timeframe: DeliveryTimeframe
     method: PaymentContextsShippingMethod
     delay: int
+    tracking_info: list  # TrackingInfo
 
 
 class InitialAuthentication:
@@ -433,9 +442,17 @@ class DeviceProvider:
     name: str
 
 
+class Network:
+    ipv4: str
+    ipv6: str
+    tor: bool
+    vpn: bool
+    proxy: bool
+
+
 class DeviceDetails:
     user_agent: str
-    network: dict  # Network
+    network: Network
     provider: DeviceProvider
     timestamp: str
     timezone: str
@@ -486,6 +503,11 @@ class DLocalProcessingSettings:
     installments: Installments
 
 
+# Deprecated: SenderInformation is not defined in the current Checkout.com API
+# (NAS) swagger and no documented endpoint accepts a `sender_information` field
+# on ProcessingSettings. Retained for backward compatibility with previous-API
+# (ABC) callers; new code should not set this. Will be removed in a future
+# major version.
 class SenderInformation:
     reference: str
     first_name: str
@@ -572,6 +594,7 @@ class ProcessingSettings:
     shipping_delay: int
     shipping_info: list  # ShippingInfo
     dlocal: DLocalProcessingSettings
+    # Deprecated: see SenderInformation class — no current API endpoint reads this.
     sender_information: SenderInformation
     purpose: str
     partner_customer_risk_data: list  # PartnerCustomerRiskData
@@ -587,6 +610,7 @@ class ProcessingSettings:
     reconciliation_id: str
     service_type: ServiceType
     partner_code: str
+    processing_speed: str  # 'fast' (only for unreferenced refunds / card payouts)
 
 
 class ProductSubType (str, Enum):
@@ -856,7 +880,6 @@ class CancelScheduledRetryRequest:
 class ReversePaymentRequest:
     reference: str
     metadata: dict
-    amount: int
 
 
 # Search
