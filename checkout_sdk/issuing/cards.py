@@ -74,7 +74,7 @@ class VirtualCardRequest(CardRequest):
     is_single_use: bool
     return_credentials: list  # ReturnCredentials
     control_profiles: list  # str (IssuingControlProfileId)
-    controls: list  # CardControlRequest
+    controls: list  # VirtualCardControlRequest
 
     def __init__(self):
         super().__init__(CardType.VIRTUAL)

@@ -73,6 +73,41 @@ class MccControlRequest(CardControlRequest):
         super().__init__(ControlType.MCC_LIMIT)
 
 
+# Parallel hierarchy for controls declared INLINE on VirtualCardRequest.controls.
+# The standalone POST /issuing/controls endpoint requires target_id (a separate
+# card to attach the control to). The inline variant does NOT — the card being
+# created is the implicit target. Reusing CardControlRequest here would let
+# callers set target_id on the wire, which the API ignores or rejects. These
+# classes prevent that misuse at the type level.
+class VirtualCardControlRequest:
+    description: str
+    control_type: ControlType
+
+    def __init__(self, control_type: ControlType):
+        self.control_type = control_type
+
+
+class VirtualCardVelocityControlRequest(VirtualCardControlRequest):
+    velocity_limit: VelocityLimit
+
+    def __init__(self):
+        super().__init__(ControlType.VELOCITY_LIMIT)
+
+
+class VirtualCardMccControlRequest(VirtualCardControlRequest):
+    mcc_limit: MccLimit
+
+    def __init__(self):
+        super().__init__(ControlType.MCC_LIMIT)
+
+
+class VirtualCardMidControlRequest(VirtualCardControlRequest):
+    mid_limit: MidLimit
+
+    def __init__(self):
+        super().__init__(ControlType.MID_LIMIT)
+
+
 class CardControlsQuery:
     target_id: str
 

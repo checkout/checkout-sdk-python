@@ -394,6 +394,15 @@ class PaymentContextsShippingMethod(str, Enum):
     OTHER_ADDRESS = 'OtherAddress'
 
 
+class TrackingInfo:
+    tracking_number: str
+    tracking_uri: str
+    shipping_company: str
+    return_tracking_number: str
+    return_tracking_uri: str
+    return_shipping_company: str
+
+
 class ShippingDetails:
     first_name: str
     last_name: str
