@@ -35,8 +35,12 @@ class CardLifetime:
 
 
 class ShippingInstructions:
+    # Deprecated: marked deprecated in the Checkout.com API swagger
+    # (IssuingShippingInstruction.shipping_recipient). Do not set in new code.
     shipping_recipient: str
     shipping_address: Address
+    # Deprecated: marked deprecated in the Checkout.com API swagger
+    # (IssuingShippingInstruction.additional_comment). Do not set in new code.
     additional_comment: str
 
 

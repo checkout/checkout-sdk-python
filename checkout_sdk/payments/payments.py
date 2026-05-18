@@ -140,7 +140,7 @@ class PanPreference(str, Enum):
     DPAN = 'dpan'
 
 
-class CardType(str, Enum):
+class CardFundingType(str, Enum):
     CREDIT = 'credit'
     DEBIT = 'debit'
 
@@ -614,7 +614,7 @@ class ProcessingSettings:
     affiliate_id: str
     affiliate_url: str
     aggregator: Aggregator
-    card_type: CardType
+    card_type: CardFundingType
     foreign_retailer_amount: int
     reconciliation_id: str
     service_type: ServiceType
@@ -685,15 +685,15 @@ class PaymentAuthenticationRequest:
     preferred_experiences: list  # AuthenticationExperience
 
 
-class Attempt:
+class PaymentRoutingAttempt:
     scheme: RoutingScheme
 
 
 class PaymentRouting:
-    attempts: list  # Attempt
+    attempts: list  # PaymentRoutingAttempt
 
 
-class Subscription:
+class PaymentSubscription:
     id: str
 
 
@@ -755,7 +755,7 @@ class PaymentRequest:
     instruction: PaymentInstruction
     payment_plan: PaymentPlan
     routing: PaymentRouting
-    subscription: Subscription
+    subscription: PaymentSubscription
 
 
 # Payout Request Source

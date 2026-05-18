@@ -28,6 +28,11 @@ class CompellingEvidenceShippingAddress:
     country: str
 
 
+class CompellingEvidenceHistoricalTransaction:
+    historical_arn: str
+    merchandise_or_service_desc: str
+
+
 class CompellingEvidence:
     merchandise_or_service: str
     merchandise_or_service_desc: str

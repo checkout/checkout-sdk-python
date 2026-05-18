@@ -9,8 +9,7 @@ class JsonSerializer(json.JSONEncoder):
                                    'from_': 'from',
                                    'if_match': 'if-match',
                                    'with_currency_account_id': 'withCurrencyAccountId',
-                                   'balances_at': 'balancesAt',
-                                }
+                                   'balances_at': 'balancesAt'}
 
     def default(self, obj):
         if hasattr(obj, 'to_json'):

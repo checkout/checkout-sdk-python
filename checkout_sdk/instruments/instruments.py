@@ -2,7 +2,9 @@ from datetime import datetime
 from enum import Enum
 
 from checkout_sdk.common.common import BankDetails, UpdateCustomerRequest, AccountHolder, Phone
-from checkout_sdk.common.enums import AccountType, AccountHolderType, Currency, Country, InstrumentType
+from checkout_sdk.common.enums import (
+    AccountType, AccountHolderType, AchAccountType, Currency, Country, InstrumentType, SepaMandateType,
+)
 from checkout_sdk.payments.payments import PaymentType
 
 
@@ -38,12 +40,12 @@ class InstrumentData:
     payment_type: PaymentType
     mandate_id: str
     date_of_signature: datetime
-    # SEPA mandate type ('Core' or 'B2B'). Loose str — values don't overlap
-    # with the AccountType enum used elsewhere; a dedicated enum can come later.
-    type: str
-    # ACH-only fields below. account_type is 'savings' or 'checking' for ACH,
-    # which doesn't match the existing AccountType enum's values, so keep str.
-    account_type: str
+    # SEPA mandate type — set when this InstrumentData is the SEPA variant.
+    type: SepaMandateType
+    # ACH-only fields below — set when this InstrumentData is the ACH variant.
+    # Distinct from AccountType (which serves the bank-account instrument endpoint
+    # with savings/current/cash) — ACH has its own value set.
+    account_type: AchAccountType
     bank_code: str
 
 

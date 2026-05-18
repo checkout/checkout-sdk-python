@@ -13,7 +13,7 @@ checkout_sdk.egg-info
 htmlcov
 .cursor/rules/
 .cursor/skills/
+.cursor
 .vscode/settings.json
-
 .claude/
 CLAUDE.md

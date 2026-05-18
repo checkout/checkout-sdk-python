@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from datetime import datetime
 
 from checkout_sdk.common.common import Address, AccountHolder
-from checkout_sdk.common.enums import PaymentSourceType, Country, Currency, AccountType
+from checkout_sdk.common.enums import PaymentSourceType, Country, Currency, AccountType, SepaMandateType
 from checkout_sdk.payments.payments import PaymentRequestSource, BillingPlan, PaymentMethodDetails
 from checkout_sdk.tokens.tokens import ApplePayTokenData
 
@@ -299,10 +299,14 @@ class RequestPayNowSource(PaymentRequestSource):
         super().__init__(PaymentSourceType.PAYNOW)
 
 
+class SwishBillingDescriptor:
+    name: str
+
+
 class RequestSwishSource(PaymentRequestSource):
     payment_country: Country
     account_holder: AccountHolder
-    billing_descriptor: str
+    billing_descriptor: SwishBillingDescriptor
 
     def __init__(self):
         super().__init__(PaymentSourceType.SWISH)
@@ -325,7 +329,7 @@ class RequestSepaV4Source(PaymentRequestSource):
     account_number: str
     currency: Currency
     mandate_id: str
-    mandate_type: str
+    mandate_type: SepaMandateType
     date_of_signature: str
     account_holder: AccountHolder
 
