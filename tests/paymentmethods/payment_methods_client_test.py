@@ -1,5 +1,6 @@
 import pytest
 
+from tests._assertions import assert_api_call
 from checkout_sdk.paymentmethods.payment_methods_client import PaymentMethodsClient
 
 
@@ -11,5 +12,9 @@ def client(mock_sdk_configuration, mock_api_client):
 class TestPaymentMethodsClient:
 
     def test_get_available_payment_methods(self, mocker, client: PaymentMethodsClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+
         assert client.get_available_payment_methods('pc_test_123456') == 'response'
+        assert_api_call(mock, 'payment-methods')
+        # The client wraps the str into a query filter internally; verify the wrapping.
+        assert mock.call_args.args[2].processing_channel_id == 'pc_test_123456'

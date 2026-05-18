@@ -1,5 +1,6 @@
 import pytest
 
+from tests._assertions import assert_api_call
 from checkout_sdk.tokens.tokens import CardTokenRequest, ApplePayTokenRequest
 from checkout_sdk.tokens.tokens_client import TokensClient
 
@@ -12,9 +13,15 @@ def client(mock_sdk_configuration, mock_api_client):
 class TestTokensClient:
 
     def test_should_request_token(self, mocker, client: TokensClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
-        assert client.request_card_token(CardTokenRequest()) == 'response'
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        body = CardTokenRequest()
+
+        assert client.request_card_token(body) == 'response'
+        assert_api_call(mock, 'tokens', body)
 
     def test_should_request_wallet_token(self, mocker, client: TokensClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
-        assert client.request_wallet_token(ApplePayTokenRequest()) == 'response'
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        body = ApplePayTokenRequest()
+
+        assert client.request_wallet_token(body) == 'response'
+        assert_api_call(mock, 'tokens', body)

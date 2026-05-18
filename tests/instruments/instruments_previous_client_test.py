@@ -1,5 +1,6 @@
 import pytest
 
+from tests._assertions import assert_api_call
 from checkout_sdk.instruments.instruments_previous import CreateInstrumentRequest, UpdateInstrumentRequest
 from checkout_sdk.instruments.instruments_client_previous import InstrumentsClient
 
@@ -12,17 +13,27 @@ def client(mock_sdk_configuration, mock_api_client):
 class TestInstrumentsClient:
 
     def test_should_get_instrument(self, mocker, client: InstrumentsClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+
         assert client.get('instrument_id') == 'response'
+        assert_api_call(mock, 'instruments/instrument_id')
 
     def test_should_create_instrument(self, mocker, client: InstrumentsClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
-        assert client.create(CreateInstrumentRequest()) == 'response'
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        body = CreateInstrumentRequest()
+
+        assert client.create(body) == 'response'
+        assert_api_call(mock, 'instruments', body)
 
     def test_should_update_instrument(self, mocker, client: InstrumentsClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.patch', return_value='response')
-        assert client.update('instrument_id', UpdateInstrumentRequest()) == 'response'
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.patch', return_value='response')
+        body = UpdateInstrumentRequest()
+
+        assert client.update('instrument_id', body) == 'response'
+        assert_api_call(mock, 'instruments/instrument_id', body)
 
     def test_should_delete_instrument(self, mocker, client: InstrumentsClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.delete', return_value='response')
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.delete', return_value='response')
+
         assert client.delete('instrument_id') == 'response'
+        assert_api_call(mock, 'instruments/instrument_id')
