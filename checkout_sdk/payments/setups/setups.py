@@ -41,6 +41,9 @@ class Customer:
     phone: Phone
     device: CustomerDevice
     merchant_account: MerchantAccount
+    country: str
+    id: str
+    tax_number: str
 
 
 # Payment Method Common entities
@@ -91,6 +94,8 @@ class Stcpay(PaymentMethodBase):
 
 # Tabby entities
 class Tabby(PaymentMethodBase):
+    payment_types: list  # list of str
+
     def __init__(self):
         super().__init__()
         self.payment_method_options: PaymentMethodOptions
@@ -114,6 +119,8 @@ class PaymentMethods:
 class Settings:
     success_url: str
     failure_url: str
+    capture: bool
+    excluded_payment_methods: list  # list of str (PaymentSourceType values)
 
 
 # Order entities
@@ -121,6 +128,7 @@ class OrderSubMerchant:
     id: str
     product_category: str
     number_of_trades: int
+    number_of_sales: int
     registration_date: datetime
 
 
@@ -129,6 +137,9 @@ class Order:
     shipping: ShippingDetails
     sub_merchants: list  # list of OrderSubMerchant
     discount_amount: int
+    invoice_id: str
+    shipping_amount: int
+    tax_amount: int
 
 
 # Industry entities
@@ -141,6 +152,11 @@ class AirlineData:
 class Industry:
     airline_data: AirlineData
     accommodation_data: list  # list of AccommodationData
+
+
+# Billing entity
+class PaymentSetupBilling:
+    address: Address
 
 
 # Main Request and Response classes
@@ -156,3 +172,4 @@ class PaymentSetupsRequest:
     customer: Customer
     order: Order
     industry: Industry
+    billing: PaymentSetupBilling

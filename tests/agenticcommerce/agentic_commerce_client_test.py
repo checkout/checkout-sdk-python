@@ -1,5 +1,6 @@
 import pytest
 
+from tests._assertions import assert_api_call
 from checkout_sdk.agenticcommerce.agentic_commerce_client import AgenticCommerceClient
 from checkout_sdk.agenticcommerce.agentic_commerce import DelegatedPaymentRequest, DelegatedPaymentHeaders
 
@@ -12,43 +13,27 @@ def client(mock_sdk_configuration, mock_api_client):
 class TestAgenticCommerceClient:
 
     def test_create_delegated_payment_token(self, mocker, client: AgenticCommerceClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
-        request = DelegatedPaymentRequest()
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        body = DelegatedPaymentRequest()
         headers = DelegatedPaymentHeaders()
 
-        response = client.create_delegated_payment_token(request, headers)
-
-        assert response == 'response'
+        assert client.create_delegated_payment_token(body, headers) == 'response'
+        assert_api_call(mock, 'agentic_commerce/delegate_payment', body)
+        # Verify headers are forwarded as a kwarg (not part of positional args)
+        assert mock.call_args.kwargs.get('headers') is headers
 
     def test_create_delegated_payment_token_with_none_request(self, mocker, client: AgenticCommerceClient):
-        mock_post = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
-        headers = DelegatedPaymentHeaders()
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
 
-        response = client.create_delegated_payment_token(None, headers)
-
-        assert response == 'response'
-        mock_post.assert_called_once()
-        args = mock_post.call_args[0]
-        assert args[2] is None
+        assert client.create_delegated_payment_token(None, DelegatedPaymentHeaders()) == 'response'
+        # Body=None — verify path only; positional args[2] is the None body.
+        assert_api_call(mock, 'agentic_commerce/delegate_payment')
+        assert mock.call_args.args[2] is None
 
     def test_create_delegated_payment_token_with_none_headers(self, mocker, client: AgenticCommerceClient):
-        mock_post = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
-        request = DelegatedPaymentRequest()
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        body = DelegatedPaymentRequest()
 
-        response = client.create_delegated_payment_token(request, None)
-
-        assert response == 'response'
-        mock_post.assert_called_once()
-        kwargs = mock_post.call_args.kwargs
-        assert kwargs['headers'] is None
-
-    def test_create_delegated_payment_token_calls_correct_endpoint(self, mocker, client: AgenticCommerceClient):
-        mock_post = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
-        request = DelegatedPaymentRequest()
-        headers = DelegatedPaymentHeaders()
-
-        client.create_delegated_payment_token(request, headers)
-
-        mock_post.assert_called_once()
-        args = mock_post.call_args[0]
-        assert 'agentic_commerce/delegate_payment' in args[0]
+        assert client.create_delegated_payment_token(body, None) == 'response'
+        assert_api_call(mock, 'agentic_commerce/delegate_payment', body)
+        assert mock.call_args.kwargs.get('headers') is None

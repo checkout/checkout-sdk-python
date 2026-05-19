@@ -2,7 +2,9 @@ from datetime import datetime
 from enum import Enum
 
 from checkout_sdk.common.common import BankDetails, UpdateCustomerRequest, AccountHolder, Phone
-from checkout_sdk.common.enums import AccountType, AccountHolderType, Currency, Country, InstrumentType
+from checkout_sdk.common.enums import (
+    AccountType, AccountHolderType, AchAccountType, Currency, Country, InstrumentType, SepaMandateType,
+)
 from checkout_sdk.payments.payments import PaymentType
 
 
@@ -38,6 +40,13 @@ class InstrumentData:
     payment_type: PaymentType
     mandate_id: str
     date_of_signature: datetime
+    # SEPA mandate type — set when this InstrumentData is the SEPA variant.
+    type: SepaMandateType
+    # ACH-only fields below — set when this InstrumentData is the ACH variant.
+    # Distinct from AccountType (which serves the bank-account instrument endpoint
+    # with savings/current/cash) — ACH has its own value set.
+    account_type: AchAccountType
+    bank_code: str
 
 
 class CreateSepaInstrumentRequest(CreateInstrumentRequest):
@@ -58,6 +67,7 @@ class CreateBankAccountInstrumentRequest(CreateInstrumentRequest):
     bban: str
     swift_bic: str
     currency: Currency
+    country: Country
     processing_channel_id: str
     account_holder: AccountHolder
     bank_details: BankDetails
@@ -65,6 +75,27 @@ class CreateBankAccountInstrumentRequest(CreateInstrumentRequest):
 
     def __init__(self):
         super().__init__(InstrumentType.BANK_ACCOUNT)
+
+
+class CreateCardInstrumentRequest(CreateInstrumentRequest):
+    number: str
+    expiry_month: int
+    expiry_year: int
+    network_token: str
+    processing_channel_id: str
+    entity_id: str
+    account_holder: AccountHolder
+
+    def __init__(self):
+        super().__init__(InstrumentType.CARD)
+
+
+class CreateAchInstrumentRequest(CreateInstrumentRequest):
+    instrument_data: InstrumentData
+    account_holder: AccountHolder
+
+    def __init__(self):
+        super().__init__(InstrumentType.ACH)
 
 
 # Update

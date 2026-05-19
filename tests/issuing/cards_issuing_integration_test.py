@@ -1,13 +1,18 @@
+from datetime import datetime, timedelta
+
 import pytest
 
 from checkout_sdk.issuing.cards import PasswordEnrollmentRequest, SecurityPair, UpdateThreeDsEnrollmentRequest, \
-    CardCredentialsQuery, RevokeRequest, RevokeReason, SuspendRequest, SuspendReason
+    CardCredentialsQuery, RevokeRequest, RevokeReason, SuspendRequest, SuspendReason, UpdateCardRequest, CardMetadata, \
+    VirtualCardRenewRequest, ScheduleCardRevocationRequest
 from tests.checkout_test_utils import assert_response, phone
 
 
 @pytest.mark.skip("Avoid creating cards all the time")
 @pytest.mark.usefixtures("card")
 class TestCardsIssuing:
+    # tests
+
     def test_should_create_card(self, card):
         assert_response(card,
                         'id',
@@ -43,6 +48,54 @@ class TestCardsIssuing:
         assert response.cardholder_id == cardholder.id
         assert response.card_product_id == 'pro_3fn6pv2ikshurn36dbd3iysyha'
         assert response.reference == 'X-123456-N11'
+
+    def test_should_update_card(self, issuing_checkout_api, card):
+        request = build_update_card_request()
+
+        response = issuing_checkout_api.issuing.update_card(card.id, request)
+
+        assert_response(response)
+        assert response.http_metadata.status_code == 200
+
+    def test_should_renew_card(self, issuing_checkout_api, card):
+        request = VirtualCardRenewRequest()
+        request.reference = 'RENEW-REF-123'
+
+        response = issuing_checkout_api.issuing.renew_card(card.id, request)
+
+        assert_response(response, 'id')
+        assert response.http_metadata.status_code == 201
+
+    def test_should_schedule_card_revocation(self, issuing_checkout_api, active_card):
+        request = ScheduleCardRevocationRequest()
+        request.revocation_date = (datetime.utcnow() + timedelta(days=7)).strftime('%Y-%m-%d')
+
+        response = issuing_checkout_api.issuing.schedule_card_revocation(active_card.id, request)
+
+        assert_response(response)
+        assert response.http_metadata.status_code == 200
+
+    def test_should_delete_card_revocation(self, issuing_checkout_api, active_card):
+        request = ScheduleCardRevocationRequest()
+        request.revocation_date = (datetime.utcnow() + timedelta(days=7)).strftime('%Y-%m-%d')
+        issuing_checkout_api.issuing.schedule_card_revocation(active_card.id, request)
+
+        response = issuing_checkout_api.issuing.delete_card_revocation(active_card.id)
+
+        assert_response(response)
+        assert response.http_metadata.status_code == 200
+
+    def test_should_get_digital_card(self, issuing_checkout_api):
+        digital_card_id = 'dcr_5ngxzsynm2me3oxf73esbhda6q'
+
+        response = issuing_checkout_api.issuing.get_digital_card(digital_card_id)
+
+        assert_response(response,
+                        'id',
+                        'card_id',
+                        'last_four',
+                        'status')
+        assert response.id == digital_card_id
 
     def test_should_enroll_into_three_ds(self, issuing_checkout_api, card):
         request = PasswordEnrollmentRequest()
@@ -143,3 +196,21 @@ class TestCardsIssuing:
 
     def __get_pass(self):
         return 'Xtui43FvfiZ'
+
+
+# common methods
+
+def build_update_card_request() -> UpdateCardRequest:
+    metadata = CardMetadata()
+    metadata.udf1 = 'UDF1'
+    metadata.udf2 = 'UDF2'
+    metadata.udf3 = 'UDF3'
+    metadata.udf4 = 'UDF4'
+    metadata.udf5 = 'UDF5'
+
+    request = UpdateCardRequest()
+    request.reference = 'UPDATED-REF-123'
+    request.metadata = metadata
+    request.expiry_month = 12
+    request.expiry_year = 2030
+    return request

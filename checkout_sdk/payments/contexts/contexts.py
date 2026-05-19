@@ -57,6 +57,10 @@ class PaymentContextsProcessing:
     user_action: UserAction
     partner_customer_risk_data: list  # payment.contexts.PaymentContextsPartnerCustomerRiskData
     airline_data: list  # payment.contexts.PaymentContextsAirlineData
+    accommodation_data: list  # AccommodationData
+    custom_payment_method_ids: list  # list of str
+    discount_amount: int
+    tax_amount: int
 
 
 class PaymentContextsItems:
@@ -87,6 +91,7 @@ class PaymentContextsRequest:
     success_url: str
     failure_url: str
     items: list  # payments.contexts.PaymentContextsItems
+    metadata: dict
 
 
 @deprecated("This class will be removed in the future. Use PaymentContextPaypalSource instead")

@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 
 from checkout_sdk.common.common import AccountHolder, BankDetails, MarketplaceData, Address, Phone, CustomerRequest, \
-    AccountHolderIdentification
+    AccountHolderIdentification, QueryFilterDateRange
 from checkout_sdk.common.enums import PaymentSourceType, Currency, Country, AccountType, ChallengeIndicator
 from checkout_sdk.sessions.sessions import DeliveryTimeframe
 
@@ -31,6 +31,15 @@ class PaymentSenderType(str, Enum):
     CORPORATE = 'corporate'
     INSTRUMENT = 'instrument'
     GOVERNMENT = 'government'
+
+
+class SourceOfFunds(str, Enum):
+    CREDIT = 'credit'
+    DEBIT = 'debit'
+    PREPAID = 'prepaid'
+    DEPOSIT_ACCOUNT = 'deposit_account'
+    MOBILE_MONEY_ACCOUNT = 'mobile_money_account'
+    CASH = 'cash'
 
 
 class PayoutSourceType(str, Enum):
@@ -131,10 +140,60 @@ class PanPreference(str, Enum):
     DPAN = 'dpan'
 
 
+class CardFundingType(str, Enum):
+    CREDIT = 'credit'
+    DEBIT = 'debit'
+
+
+class ServiceType(str, Enum):
+    SAME_DAY = 'same_day'
+    STANDARD = 'standard'
+
+
+class AmountVariability(str, Enum):
+    FIXED = 'Fixed'
+    VARIABLE = 'Variable'
+
+
+class AuthenticationExperience(str, Enum):
+    GOOGLE_SPA = 'google_spa'
+    THREE_DS = '3ds'
+
+
+class RoutingScheme(str, Enum):
+    ACCEL = 'accel'
+    AMEX = 'amex'
+    CARTES_BANCAIRES = 'cartes_bancaires'
+    DINERS = 'diners'
+    DISCOVER = 'discover'
+    JCB = 'jcb'
+    MADA = 'mada'
+    MAESTRO = 'maestro'
+    MASTERCARD = 'mastercard'
+    NYCE = 'nyce'
+    OMANNET = 'omannet'
+    PULSE = 'pulse'
+    SHAZAM = 'shazam'
+    STAR = 'star'
+    UPI = 'upi'
+    VISA = 'visa'
+
+
+class LocalCharacterSets(str, Enum):
+    KANJI = 'kanji'
+    KATAKANA = 'katakana'
+
+
+class LocalBillingDescriptor:
+    name: str
+    character_set: LocalCharacterSets
+
+
 class BillingDescriptor:
     name: str
     city: str
     reference: str
+    local_descriptors: list  # LocalBillingDescriptor
 
 
 class Remitance:
@@ -148,6 +207,7 @@ class PaymentInstruction:
     scheme: InstructionScheme
     remittance: Remitance
     quote_id: str
+    funds_transfer_type: str
 
 
 class PayoutBillingDescriptor:
@@ -157,6 +217,7 @@ class PayoutBillingDescriptor:
 # Payment Sender
 class PaymentSender:
     type: PaymentSenderType
+    reference: str
 
     def __init__(self, type_p: PaymentSenderType):
         self.type = type_p
@@ -167,23 +228,36 @@ class PaymentCorporateSender(PaymentSender):
     address: Address
     reference: str
     reference_type: str
-    source_of_funds: str
+    source_of_funds: SourceOfFunds
     identification: AccountHolderIdentification
 
     def __init__(self):
         super().__init__(PaymentSenderType.CORPORATE)
 
 
-class PaymentGovermentSender(PaymentSender):
+# Narrow-applicability sender. The `government` type is only accepted by the
+# CardPayoutRequest.sender slot in the API. Using this class on
+# PaymentRequest.sender or BankPayoutRequest.sender will be rejected by the
+# API with a 422, because those endpoints' sender discriminators only accept
+# `individual`, `corporate`, and `instrument`. Type safety can't catch this
+# today because Python's PaymentSender is shared across all three slots; a
+# future split into a dedicated CardPayoutSender hierarchy would fix it.
+class PaymentGovernmentSender(PaymentSender):
     company_name: str
     address: Address
     reference: str
     reference_type: str
-    source_of_funds: str
+    source_of_funds: SourceOfFunds
     identification: AccountHolderIdentification
 
     def __init__(self):
         super().__init__(PaymentSenderType.GOVERNMENT)
+
+
+# Backward-compat alias for the misspelled class name shipped in earlier SDK
+# versions. Prefer PaymentGovernmentSender in new code; this alias will be
+# removed in a future major version.
+PaymentGovermentSender = PaymentGovernmentSender
 
 
 class PaymentIndividualSender(PaymentSender):
@@ -195,7 +269,7 @@ class PaymentIndividualSender(PaymentSender):
     identification: AccountHolderIdentification
     reference: str
     reference_type: str
-    source_of_funds: str
+    source_of_funds: SourceOfFunds
     date_of_birth: str
     country_of_birth: Country
     nationality: Country
@@ -229,6 +303,7 @@ class PaymentRequestCardSource(PaymentRequestSource):
     billing_address: Address
     phone: Phone
     account_holder: AccountHolder
+    allow_update: bool
 
     def __init__(self):
         super().__init__(PaymentSourceType.CARD)
@@ -272,6 +347,9 @@ class PaymentRequestIdSource(PaymentRequestSource):
     stored: bool
     store_for_future_use: bool
     account_holder: AccountHolder
+    billing_address: Address
+    phone: Phone
+    allow_update: bool
 
     def __init__(self):
         super().__init__(PaymentSourceType.ID)
@@ -301,6 +379,9 @@ class RequestBankAccountSource(PaymentRequestSource):
 class RequestCustomerSource(PaymentRequestSource):
     id: str
     account_holder: AccountHolder
+    billing_address: Address
+    phone: Phone
+    allow_update: bool
 
     def __init__(self):
         super().__init__(PaymentSourceType.CUSTOMER)
@@ -313,6 +394,15 @@ class PaymentContextsShippingMethod(str, Enum):
     OTHER_ADDRESS = 'OtherAddress'
 
 
+class TrackingInfo:
+    tracking_number: str
+    tracking_uri: str
+    shipping_company: str
+    return_tracking_number: str
+    return_tracking_uri: str
+    return_shipping_company: str
+
+
 class ShippingDetails:
     first_name: str
     last_name: str
@@ -323,6 +413,15 @@ class ShippingDetails:
     timeframe: DeliveryTimeframe
     method: PaymentContextsShippingMethod
     delay: int
+    tracking_info: list  # TrackingInfo
+
+
+class InitialAuthentication:
+    acs_transaction_id: str
+    authentication_method: str
+    authentication_timestamp: str
+    authentication_data: str
+    initial_session_id: str
 
 
 class ThreeDsRequest:
@@ -344,11 +443,47 @@ class ThreeDsRequest:
     score: str
     cryptogram_algorithm: str
     authentication_id: str
+    initial_authentication: InitialAuthentication
+
+
+class DeviceProvider:
+    id: str
+    name: str
+
+
+class Network:
+    ipv4: str
+    ipv6: str
+    tor: bool
+    vpn: bool
+    proxy: bool
+
+
+class DeviceDetails:
+    user_agent: str
+    network: Network
+    provider: DeviceProvider
+    timestamp: str
+    timezone: str
+    virtual_machine: bool
+    incognito: bool
+    jailbroken: bool
+    rooted: bool
+    java_enabled: bool
+    javascript_enabled: bool
+    language: str
+    color_depth: str
+    screen_height: str
+    screen_width: str
+    user_agent_client_hint: str
+    iframe_payment_allowed: bool
+    accept_header: str
 
 
 class RiskRequest:
     enabled: bool
     device_session_id: str
+    device: DeviceDetails
 
 
 class PaymentRecipient:
@@ -377,17 +512,22 @@ class DLocalProcessingSettings:
     installments: Installments
 
 
+# Deprecated: SenderInformation is not defined in the current Checkout.com API
+# (NAS) swagger and no documented endpoint accepts a `sender_information` field
+# on ProcessingSettings. Retained for backward compatibility with previous-API
+# (ABC) callers; new code should not set this. Will be removed in a future
+# major version.
 class SenderInformation:
     reference: str
-    firstName: str
-    lastName: str
+    first_name: str
+    last_name: str
     dob: str
     address: str
     city: str
     state: str
     country: str
-    postalCode: str
-    sourceOfFunds: str
+    postal_code: str
+    source_of_funds: str
 
 
 class PartnerCustomerRiskData:
@@ -425,6 +565,12 @@ class AccommodationData:
     room: list  # AccommodationRoom
 
 
+class Aggregator:
+    sub_merchant_id: str
+    aggregator_id_visa: str
+    aggregator_id_mc: str
+
+
 class ProcessingSettings:
     order_id: str
     tax_amount: int
@@ -457,7 +603,8 @@ class ProcessingSettings:
     shipping_delay: int
     shipping_info: list  # ShippingInfo
     dlocal: DLocalProcessingSettings
-    senderInformation: SenderInformation
+    # Deprecated: see SenderInformation class — no current API endpoint reads this.
+    sender_information: SenderInformation
     purpose: str
     partner_customer_risk_data: list  # PartnerCustomerRiskData
     accommodation_data: list  # AccommodationData
@@ -466,6 +613,13 @@ class ProcessingSettings:
     provision_network_token: bool
     affiliate_id: str
     affiliate_url: str
+    aggregator: Aggregator
+    card_type: CardFundingType
+    foreign_retailer_amount: int
+    reconciliation_id: str
+    service_type: ServiceType
+    partner_code: str
+    processing_speed: str  # 'fast' (only for unreferenced refunds / card payouts)
 
 
 class ProductSubType (str, Enum):
@@ -504,10 +658,22 @@ class PaymentSegment:
     market: str
 
 
+class DowntimeRetryRequest:
+    enabled: bool
+
+
+class DunningRetryRequest:
+    enabled: bool
+    max_attempts: int
+    end_after_days: int
+
+
 class PaymentRetryRequest:
     enabled: bool
     max_attempts: int
     end_after_days: int
+    downtime: DowntimeRetryRequest
+    dunning: DunningRetryRequest
 
 
 # Request Payment
@@ -515,9 +681,45 @@ class PartialAuthorization:
     enabled: bool
 
 
+class PaymentAuthenticationRequest:
+    preferred_experiences: list  # AuthenticationExperience
+
+
+class PaymentRoutingAttempt:
+    scheme: RoutingScheme
+
+
+class PaymentRouting:
+    attempts: list  # PaymentRoutingAttempt
+
+
+class PaymentSubscription:
+    id: str
+
+
+class PaymentPlan:
+    days_between_payments: int
+    total_number_of_payments: int
+    current_payment_number: int
+    expiry: str
+    amount: int
+    name: str
+    start_date: str
+
+
+class PlanInstallment(PaymentPlan):
+    financing: bool
+    amount: str
+
+
+class PlanRecurring(PaymentPlan):
+    amount_variability: AmountVariability
+
+
 class PaymentRequest:
     payment_context_id: str
     source: PaymentRequestSource
+    fallback_source: PaymentRequestSource
     amount: int
     currency: Currency
     payment_type: PaymentType
@@ -528,11 +730,13 @@ class PaymentRequest:
     partial_authorization: PartialAuthorization
     capture: bool
     capture_on: datetime
+    expire_on: datetime
     customer: PaymentCustomerRequest
     billing_descriptor: BillingDescriptor
     shipping: ShippingDetails
     segment: PaymentSegment
     three_ds: ThreeDsRequest
+    authentication: PaymentAuthenticationRequest
     processing_channel_id: str
     previous_payment_id: str
     risk: RiskRequest
@@ -549,6 +753,9 @@ class PaymentRequest:
     items: list  # payments.Product
     retry: PaymentRetryRequest
     instruction: PaymentInstruction
+    payment_plan: PaymentPlan
+    routing: PaymentRouting
+    subscription: PaymentSubscription
 
 
 # Payout Request Source
@@ -585,6 +792,7 @@ class PaymentBankAccountDestination(PaymentRequestDestination):
     account_type: AccountType
     account_number: str
     bank_code: str
+    bban: str
     branch_code: str
     iban: str
     swift_bic: str
@@ -616,6 +824,11 @@ class PayoutRequest:
     sender: PaymentSender
     instruction: PaymentInstruction
     processing_channel_id: str
+    segment: PaymentSegment
+    items: list  # payments.Product
+    metadata: dict
+    previous_payment_id: str
+    processing: ProcessingSettings
 
 
 # Query
@@ -656,12 +869,32 @@ class RefundRequest:
     metadata: dict
     # Not available on Previous
     amount_allocations: list  # values of AmountAllocations
+    capture_action_id: str
+    destination: PaymentBankAccountDestination
+    items: list  # payments.Product
 
 
 # Voids
 class VoidRequest:
     reference: str
     metadata: dict
+
+
+# Cancellations
+class CancelScheduledRetryRequest:
+    reference: str
+
+
+# Reversals
+class ReversePaymentRequest:
+    reference: str
+    metadata: dict
+
+
+# Search
+class PaymentsSearchRequest(QueryFilterDateRange):
+    query: str
+    limit: int
 
 
 class BillingPlan:

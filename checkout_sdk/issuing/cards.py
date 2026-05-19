@@ -24,15 +24,32 @@ class SuspendReason(str, Enum):
     SUSPECTED_STOLEN = 'suspected_stolen'
 
 
+class ReturnCredentials(str, Enum):
+    NUMBER = 'number'
+    CVC2 = 'cvc2'
+
+
 class CardLifetime:
     unit: LifetimeUnit
     value: int
 
 
 class ShippingInstructions:
-    recipient_address: str
+    # Deprecated: marked deprecated in the Checkout.com API swagger
+    # (IssuingShippingInstruction.shipping_recipient). Do not set in new code.
+    shipping_recipient: str
     shipping_address: Address
+    # Deprecated: marked deprecated in the Checkout.com API swagger
+    # (IssuingShippingInstruction.additional_comment). Do not set in new code.
     additional_comment: str
+
+
+class CardMetadata:
+    udf1: str
+    udf2: str
+    udf3: str
+    udf4: str
+    udf5: str
 
 
 class CardRequest:
@@ -43,6 +60,8 @@ class CardRequest:
     card_product_id: str
     display_name: str
     activate_card: bool
+    metadata: CardMetadata
+    revocation_date: str
 
     def __init__(self, type_p: CardType):
         self.type = type_p
@@ -57,9 +76,37 @@ class PhysicalCardRequest(CardRequest):
 
 class VirtualCardRequest(CardRequest):
     is_single_use: bool
+    return_credentials: list  # ReturnCredentials
+    control_profiles: list  # str (IssuingControlProfileId)
+    controls: list  # VirtualCardControlRequest
 
     def __init__(self):
         super().__init__(CardType.VIRTUAL)
+
+
+class UpdateCardRequest:
+    reference: str
+    metadata: CardMetadata
+    expiry_month: int
+    expiry_year: int
+
+
+class RenewCardRequest:
+    display_name: str
+    reference: str
+    metadata: CardMetadata
+
+
+class PhysicalCardRenewRequest(RenewCardRequest):
+    shipping_instructions: ShippingInstructions
+
+
+class VirtualCardRenewRequest(RenewCardRequest):
+    pass
+
+
+class ScheduleCardRevocationRequest:
+    revocation_date: str
 
 
 class SecurityPair:

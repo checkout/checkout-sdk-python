@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+from warnings import warn
+
 from checkout_sdk.api_client import ApiClient
 from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
@@ -18,6 +20,9 @@ class ForexClient(Client):
                          authorization_type=AuthorizationType.OAUTH)
 
     def request_quote(self, quote_request: QuoteRequest):
+        # Deprecated: 2023-05-31 The /forex/quotes endpoint was removed from the API. Use get_rates instead.
+        warn('Deprecated: /forex/quotes endpoint was removed from the API. Use get_rates instead.',
+             DeprecationWarning, stacklevel=2)
         return self._api_client.post(self.build_path(self.__FOREX_PATH, self.__QUOTES_PATH),
                                      self._sdk_authorization(), quote_request)
 

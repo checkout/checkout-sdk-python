@@ -1,5 +1,6 @@
 import pytest
 
+from tests._assertions import assert_api_call
 from checkout_sdk.metadata.metadata import CardMetadataRequest
 from checkout_sdk.metadata.metadata_client import CardMetadataClient
 
@@ -12,5 +13,8 @@ def client(mock_sdk_configuration, mock_api_client):
 class TestCardMetadataClient:
 
     def test_should_request_card_metadata(self, mocker, client: CardMetadataClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
-        assert client.request_card_metadata(CardMetadataRequest()) == 'response'
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        body = CardMetadataRequest()
+
+        assert client.request_card_metadata(body) == 'response'
+        assert_api_call(mock, 'metadata/card', body)

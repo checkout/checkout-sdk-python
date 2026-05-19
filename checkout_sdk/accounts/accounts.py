@@ -331,7 +331,7 @@ class AccountsPaymentInstrument:
 
 class PaymentInstrumentRequest:
     label: str
-    type = InstrumentType
+    type: InstrumentType
     currency: Currency
     country: Country
     default: bool

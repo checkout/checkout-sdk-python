@@ -1,5 +1,6 @@
 import pytest
 
+from tests._assertions import assert_api_call
 from checkout_sdk.payments.sessions.sessions import (
     PaymentSessionsRequest, PaymentSessionWithPaymentRequest, SubmitPaymentSessionRequest
 )
@@ -14,14 +15,22 @@ def client(mock_sdk_configuration, mock_api_client):
 class TestPaymentSessionsClient:
 
     def test_should_create_payment_sessions(self, mocker, client: PaymentSessionsClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
-        assert client.create_payment_sessions(PaymentSessionsRequest()) == 'response'
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        body = PaymentSessionsRequest()
+
+        assert client.create_payment_sessions(body) == 'response'
+        assert_api_call(mock, 'payment-sessions', body)
 
     def test_should_create_payment_session_with_payment(self, mocker, client: PaymentSessionsClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
-        assert client.create_payment_session_with_payment(PaymentSessionWithPaymentRequest()) == 'response'
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        body = PaymentSessionWithPaymentRequest()
+
+        assert client.create_payment_session_with_payment(body) == 'response'
+        assert_api_call(mock, 'payment-sessions/complete', body)
 
     def test_should_submit_payment_session(self, mocker, client: PaymentSessionsClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
-        session_id = 'ps_test_session_id'
-        assert client.submit_payment_session(session_id, SubmitPaymentSessionRequest()) == 'response'
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        body = SubmitPaymentSessionRequest()
+
+        assert client.submit_payment_session('ps_test_session_id', body) == 'response'
+        assert_api_call(mock, 'payment-sessions/ps_test_session_id/submit', body)

@@ -5,7 +5,8 @@ from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
 from checkout_sdk.client import Client
 from checkout_sdk.payments.payments import PaymentRequest, PayoutRequest, CaptureRequest, AuthorizationRequest, \
-    RefundRequest, VoidRequest, PaymentsQueryFilter
+    RefundRequest, VoidRequest, PaymentsQueryFilter, CancelScheduledRetryRequest, ReversePaymentRequest, \
+    PaymentsSearchRequest
 
 
 class PaymentsClient(Client):
@@ -32,6 +33,12 @@ class PaymentsClient(Client):
         return self._api_client.get(self.build_path(self.__PAYMENTS_PATH, payment_id, 'actions'),
                                     self._sdk_authorization())
 
+    def cancel_scheduled_retry(self, payment_id: str,
+                               cancel_scheduled_retry_request: CancelScheduledRetryRequest,
+                               idempotency_key: str = None):
+        return self._api_client.post(self.build_path(self.__PAYMENTS_PATH, payment_id, 'cancellations'),
+                                     self._sdk_authorization(), cancel_scheduled_retry_request, idempotency_key)
+
     def capture_payment(self, payment_id: str, capture_request: CaptureRequest = None, idempotency_key: str = None):
         return self._api_client.post(self.build_path(self.__PAYMENTS_PATH, payment_id, 'captures'),
                                      self._sdk_authorization(), capture_request, idempotency_key)
@@ -39,6 +46,11 @@ class PaymentsClient(Client):
     def refund_payment(self, payment_id: str, refund_request: RefundRequest = None, idempotency_key: str = None):
         return self._api_client.post(self.build_path(self.__PAYMENTS_PATH, payment_id, 'refunds'),
                                      self._sdk_authorization(), refund_request, idempotency_key)
+
+    def reverse_payment(self, payment_id: str, reverse_payment_request: ReversePaymentRequest = None,
+                        idempotency_key: str = None):
+        return self._api_client.post(self.build_path(self.__PAYMENTS_PATH, payment_id, 'reversals'),
+                                     self._sdk_authorization(), reverse_payment_request, idempotency_key)
 
     def void_payment(self, payment_id: str, void_request: VoidRequest = None, idempotency_key: str = None):
         return self._api_client.post(self.build_path(self.__PAYMENTS_PATH, payment_id, 'voids'),
@@ -48,3 +60,7 @@ class PaymentsClient(Client):
                                         idempotency_key: str = None):
         return self._api_client.post(self.build_path(self.__PAYMENTS_PATH, payment_id, 'authorizations'),
                                      self._sdk_authorization(), authorization_request, idempotency_key)
+
+    def search_payments(self, search_request: PaymentsSearchRequest):
+        return self._api_client.post(self.build_path(self.__PAYMENTS_PATH, 'search'),
+                                     self._sdk_authorization(), search_request)

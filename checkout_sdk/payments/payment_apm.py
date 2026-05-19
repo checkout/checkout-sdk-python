@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from datetime import datetime
 
 from checkout_sdk.common.common import Address, AccountHolder
-from checkout_sdk.common.enums import PaymentSourceType, Country, Currency, AccountType
+from checkout_sdk.common.enums import PaymentSourceType, Country, Currency, AccountType, SepaMandateType
 from checkout_sdk.payments.payments import PaymentRequestSource, BillingPlan, PaymentMethodDetails
 from checkout_sdk.tokens.tokens import ApplePayTokenData
 
@@ -16,6 +16,7 @@ class RequestIdealSource(PaymentRequestSource):
         super().__init__(PaymentSourceType.IDEAL)
 
 
+# Deprecated: Sofort was removed from the Checkout.com API. This source no longer functions.
 class RequestSofortSource(PaymentRequestSource):
     countryCode: Country
     languageCode: str
@@ -111,6 +112,7 @@ class RequestIllicadoSource(PaymentRequestSource):
         super().__init__(PaymentSourceType.ILLICADO)
 
 
+# Deprecated: Giropay was removed from the Checkout.com API. This source no longer functions.
 class RequestGiropaySource(PaymentRequestSource):
     account_holder: AccountHolder
 
@@ -283,3 +285,60 @@ class RequestSequraSource(PaymentRequestSource):
 
     def __init__(self):
         super().__init__(PaymentSourceType.SEQURA)
+
+
+class RequestMobilePaySource(PaymentRequestSource):
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.MOBILEPAY)
+
+
+class RequestPayNowSource(PaymentRequestSource):
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.PAYNOW)
+
+
+class SwishBillingDescriptor:
+    name: str
+
+
+class RequestSwishSource(PaymentRequestSource):
+    payment_country: Country
+    account_holder: AccountHolder
+    billing_descriptor: SwishBillingDescriptor
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.SWISH)
+
+
+class RequestTwintSource(PaymentRequestSource):
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.TWINT)
+
+
+class RequestVippsSource(PaymentRequestSource):
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.VIPPS)
+
+
+class RequestSepaV4Source(PaymentRequestSource):
+    country: Country
+    account_number: str
+    currency: Currency
+    mandate_id: str
+    mandate_type: SepaMandateType
+    date_of_signature: str
+    account_holder: AccountHolder
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.SEPA)
+
+
+class RequestBlikSource(PaymentRequestSource):
+    partner_agreement_id: str
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.BLIK)

@@ -51,3 +51,4 @@ class CardMetadataTokenSource(CardMetadataRequestSource):
 class CardMetadataRequest:
     source: CardMetadataRequestSource
     format: CardMetadataFormatType
+    reference: str

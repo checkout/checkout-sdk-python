@@ -1,5 +1,6 @@
 import pytest
 
+from tests._assertions import assert_api_call
 from checkout_sdk.financial.financial import FinancialActionsQuery
 from checkout_sdk.financial.financial_client import FinancialClient
 
@@ -12,5 +13,8 @@ def client(mock_sdk_configuration, mock_api_client):
 class TestFinancialClient:
 
     def test_should_query_financial_actions(self, mocker, client: FinancialClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
-        assert client.query(FinancialActionsQuery()) == 'response'
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        query = FinancialActionsQuery()
+
+        assert client.query(query) == 'response'
+        assert_api_call(mock, 'financial-actions', query)

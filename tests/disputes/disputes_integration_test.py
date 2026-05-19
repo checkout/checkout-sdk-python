@@ -12,6 +12,9 @@ from tests.checkout_test_utils import assert_response, get_project_root, retriab
 from tests.payments.previous.payments_previous_test_utils import make_card_payment
 
 
+PLACEHOLDER_DISPUTE_ID = 'dsp_test_placeholder'
+
+
 def test_should_query_disputes(default_api):
     query = DisputesQueryFilter()
     now = datetime.now(timezone.utc)
@@ -123,3 +126,29 @@ def test_should_disputes_scheme_files(default_api):
             assert_response(scheme_files,
                             'id',
                             'files')
+
+
+@pytest.mark.skip(reason='use submit arbitration evidence on demand, requires a dispute with prior submitted evidence')
+def test_should_submit_arbitration_evidence(default_api):
+    response = default_api.disputes.submit_arbitration_evidence(PLACEHOLDER_DISPUTE_ID)
+    assert_response(response, 'http_metadata')
+
+
+@pytest.mark.skip(reason='use get compiled submitted evidence on demand, requires a dispute with submitted evidence')
+def test_should_get_compiled_submitted_evidence(default_api):
+    response = default_api.disputes.get_compiled_submitted_evidence(PLACEHOLDER_DISPUTE_ID)
+    assert_compiled_submitted_evidence_response(response)
+
+
+@pytest.mark.skip(reason='use get compiled submitted arbitration evidence on demand, '
+                         'requires a dispute with submitted arbitration evidence')
+def test_should_get_compiled_submitted_arbitration_evidence(default_api):
+    response = default_api.disputes.get_compiled_submitted_arbitration_evidence(PLACEHOLDER_DISPUTE_ID)
+    assert_compiled_submitted_evidence_response(response)
+
+
+def assert_compiled_submitted_evidence_response(response):
+    assert_response(response,
+                    'file_id',
+                    '_links',
+                    '_links.self')

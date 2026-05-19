@@ -7,7 +7,9 @@ class JsonSerializer(json.JSONEncoder):
                                    'account_holder_type': 'account-holder-type',
                                    'payment_network': 'payment-network',
                                    'from_': 'from',
-                                   'if_match': 'if-match'}
+                                   'if_match': 'if-match',
+                                   'with_currency_account_id': 'withCurrencyAccountId',
+                                   'balances_at': 'balancesAt'}
 
     def default(self, obj):
         if hasattr(obj, 'to_json'):

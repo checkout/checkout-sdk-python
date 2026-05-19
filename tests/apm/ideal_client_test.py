@@ -1,5 +1,6 @@
 import pytest
 
+from tests._assertions import assert_api_call
 from checkout_sdk.apm.ideal_client import IdealClient
 
 
@@ -11,9 +12,13 @@ def client(mock_sdk_configuration, mock_api_client):
 class TestIdealClient:
 
     def test_should_get_info(self, mocker, client: IdealClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+
         assert client.get_info() == 'response'
+        assert_api_call(mock, 'ideal-external')
 
     def test_get_issuers(self, mocker, client: IdealClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+
         assert client.get_issuers() == 'response'
+        assert_api_call(mock, 'ideal-external/issuers')

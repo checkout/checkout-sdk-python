@@ -1,5 +1,6 @@
 import pytest
 
+from tests._assertions import assert_api_call
 from checkout_sdk.forex.forex import QuoteRequest, RatesQueryFilter
 from checkout_sdk.forex.forex_client import ForexClient
 
@@ -12,9 +13,15 @@ def client(mock_sdk_configuration, mock_api_client):
 class TestForexClient:
 
     def test_should_request_quote(self, mocker, client: ForexClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
-        assert client.request_quote(QuoteRequest()) == 'response'
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        body = QuoteRequest()
+
+        assert client.request_quote(body) == 'response'
+        assert_api_call(mock, 'forex/quotes', body)
 
     def test_should_get_rates(self, mocker, client: ForexClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
-        assert client.get_rates(RatesQueryFilter()) == 'response'
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        query = RatesQueryFilter()
+
+        assert client.get_rates(query) == 'response'
+        assert_api_call(mock, 'forex/rates', query)

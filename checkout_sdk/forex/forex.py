@@ -20,4 +20,4 @@ class RatesQueryFilter:
     product: str
     source: ForexSource
     currency_pairs: str
-    process_channel_id: str
+    processing_channel_id: str

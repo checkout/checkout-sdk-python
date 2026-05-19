@@ -66,12 +66,19 @@ class Headers:
     encrypted: str = None
 
 
+class ForwardKeyValue:
+    name: str
+    value: str
+
+
 class DestinationRequest:
     url: str
     method: MethodType
     headers: Headers
     body: str
     signature: DlocalSignature = None
+    query: list  # ForwardKeyValue
+    variables: list  # ForwardKeyValue
 
 
 class NetworkToken:

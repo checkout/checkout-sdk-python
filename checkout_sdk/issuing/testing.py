@@ -37,3 +37,19 @@ class CardAuthorizationRequest:
 
 class SimulationRequest:
     amount: int
+
+
+class CardRefundAuthorizationRequest:
+    amount: int
+
+
+class OobSimulateTransactionDetails:
+    last_four: str
+    merchant_name: str
+    purchase_amount: int
+    purchase_currency: Currency
+
+
+class SimulateOobAuthenticationRequest:
+    card_id: str
+    transaction_details: OobSimulateTransactionDetails

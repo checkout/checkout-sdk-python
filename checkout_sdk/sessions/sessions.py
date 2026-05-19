@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum
 
 from checkout_sdk.common.common import Phone, Address
-from checkout_sdk.common.enums import Currency, ChallengeIndicator, CardholderAccountAgeIndicatorType, \
+from checkout_sdk.common.enums import Currency, CardholderAccountAgeIndicatorType, \
     AccountChangeIndicatorType, AccountPasswordChangeIndicatorType, AccountTypeCardProductType
 
 
@@ -46,7 +46,22 @@ class AuthenticationType(str, Enum):
 
 class Category(str, Enum):
     PAYMENT = 'payment'
-    NON_PAYMENT = 'nonPayment'
+    NON_PAYMENT = 'non_payment'
+
+
+# Wider variant of common.enums.ChallengeIndicator. Only used by SessionRequest
+# (the /sessions 3DS endpoint), which folds exemption requests into this field
+# instead of having a separate `exemption` field like ThreeDsRequest does.
+class SessionChallengeIndicator(str, Enum):
+    NO_PREFERENCE = 'no_preference'
+    NO_CHALLENGE_REQUESTED = 'no_challenge_requested'
+    CHALLENGE_REQUESTED = 'challenge_requested'
+    CHALLENGE_REQUESTED_MANDATE = 'challenge_requested_mandate'
+    LOW_VALUE = 'low_value'
+    TRUSTED_LISTING = 'trusted_listing'
+    TRUSTED_LISTING_PROMPT = 'trusted_listing_prompt'
+    TRANSACTION_RISK_ASSESSMENT = 'transaction_risk_assessment'
+    DATA_SHARE = 'data_share'
 
 
 class TransactionType(str, Enum):
@@ -54,7 +69,7 @@ class TransactionType(str, Enum):
     CHECK_ACCEPTANCE = 'check_acceptance'
     GOODS_SERVICE = 'goods_service'
     PREPAID_ACTIVATION_AND_LOAD = 'prepaid_activation_and_load'
-    QUASHI_CARD_TRANSACTION = 'quashi_card_transaction'
+    QUASI_CARD_TRANSACTION = 'quasi_card_transaction'
 
 
 class UIElements(str, Enum):
@@ -111,6 +126,8 @@ class SessionMarketplaceData:
 
 class SessionsBillingDescriptor:
     name: str
+    city: str
+    reference: str
 
 
 # Channel
@@ -346,6 +363,15 @@ class InitialTransaction:
     initial_session_id: str
 
 
+class DeviceInformation:
+    device_id: str
+    device_session_id: str
+
+
+class GoogleSpa:
+    continue_url: str
+
+
 class SessionRequest:
     source: SessionSource = SessionCardSource()
     amount: int
@@ -355,7 +381,7 @@ class SessionRequest:
     authentication_type: AuthenticationType = AuthenticationType.REGULAR
     authentication_category: Category = Category.PAYMENT
     account_info: CardholderAccountInfo
-    challenge_indicator: ChallengeIndicator = ChallengeIndicator.NO_PREFERENCE
+    challenge_indicator: SessionChallengeIndicator = SessionChallengeIndicator.NO_PREFERENCE
     billing_descriptor: SessionsBillingDescriptor
     reference: str
     merchant_risk_info: MerchantRiskInfo
@@ -369,6 +395,9 @@ class SessionRequest:
     installment: Installment
     optimization: Optimization
     initial_transaction: InitialTransaction
+    device_information: DeviceInformation
+    google_spa: GoogleSpa
+    preferred_experiences: list  # AuthenticationExperience ('3ds' | 'google_spa')
 
 
 class ThreeDsMethodCompletionRequest:

@@ -2,9 +2,10 @@ from datetime import datetime
 
 from checkout_sdk.common.common import CustomerRequest, CustomerRetry
 from checkout_sdk.common.enums import Currency
-from checkout_sdk.payments.payments import BillingDescriptor, PaymentType, ShippingDetails, ThreeDsRequest, \
-    RiskRequest, PaymentRecipient, ProcessingSettings, PaymentSender
+from checkout_sdk.payments.payments import BillingDescriptor, PaymentInstruction, PaymentType, ShippingDetails, \
+    ThreeDsRequest, RiskRequest, PaymentRecipient, ProcessingSettings, PaymentSender
 from checkout_sdk.payments.payments_previous import BillingInformation
+from checkout_sdk.payments.sessions.sessions import SessionPaymentMethodConfiguration
 
 
 class PaymentLinkRequest:
@@ -36,3 +37,5 @@ class PaymentLinkRequest:
     locale: str
     capture: bool
     capture_on: datetime
+    instruction: PaymentInstruction
+    payment_method_configuration: SessionPaymentMethodConfiguration

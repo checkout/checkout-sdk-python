@@ -1,5 +1,6 @@
 import pytest
 
+from tests._assertions import assert_api_call
 from checkout_sdk.apm.sepa_client import SepaClient
 
 
@@ -11,17 +12,25 @@ def client(mock_sdk_configuration, mock_api_client):
 class TestSepaClient:
 
     def test_should_get_mandate(self, mocker, client: SepaClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+
         assert client.get_mandate('mandate_id') == 'response'
+        assert_api_call(mock, 'sepa/mandates/mandate_id')
 
     def test_should_cancel_mandate(self, mocker, client: SepaClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+
         assert client.cancel_mandate('mandate_id') == 'response'
+        assert_api_call(mock, 'sepa/mandates/mandate_id/cancel')
 
     def test_should_get_mandate_via_ppro(self, mocker, client: SepaClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+
         assert client.get_mandate_via_ppro('mandate_id') == 'response'
+        assert_api_call(mock, 'apms/ppro/sepa/mandates/mandate_id')
 
     def test_should_cancel_mandate_via_ppro(self, mocker, client: SepaClient):
-        mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+
         assert client.cancel_mandate_via_ppro('payment_id') == 'response'
+        assert_api_call(mock, 'apms/ppro/sepa/mandates/payment_id/cancel')

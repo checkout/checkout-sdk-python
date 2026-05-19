@@ -476,8 +476,16 @@ class PaymentSourceType(str, Enum):
     OCTOPUS = 'octopus'
     PLAID = 'plaid'
     SEQURA = 'sequra'
+    MOBILEPAY = 'mobilepay'
+    PAYNOW = 'paynow'
+    SWISH = 'swish'
+    TWINT = 'twint'
+    VIPPS = 'vipps'
+    BLIK = 'blik'
 
 
+# Used by ThreeDsRequest (in payments). The /sessions endpoint accepts
+# additional exemption-like values — see SessionChallengeIndicator.
 class ChallengeIndicator(str, Enum):
     NO_PREFERENCE = 'no_preference'
     NO_CHALLENGE_REQUESTED = 'no_challenge_requested'
@@ -490,6 +498,7 @@ class InstrumentType(str, Enum):
     TOKEN = 'token'
     CARD = 'card'
     SEPA = 'sepa'
+    ACH = 'ach'
     CARD_TOKEN = 'card_token'
 
 
@@ -497,6 +506,22 @@ class AccountType(str, Enum):
     SAVINGS = 'savings'
     CURRENT = 'current'
     CASH = 'cash'
+
+
+# ACH-specific account type. Distinct from AccountType because the ACH endpoint's
+# accepted values are a different set (`savings`, `checking`) — sharing the
+# AccountType enum here would let callers pass `current` or `cash` which the
+# ACH API rejects.
+class AchAccountType(str, Enum):
+    SAVINGS = 'savings'
+    CHECKING = 'checking'
+
+
+# SEPA mandate type. Used by both RequestSepaV4Source.mandate_type and
+# StoreSepaInstrumentRequest.instrument_data.type — same enum, two callsites.
+class SepaMandateType(str, Enum):
+    CORE = 'Core'
+    B2B = 'B2B'
 
 
 class AccountHolderType(str, Enum):

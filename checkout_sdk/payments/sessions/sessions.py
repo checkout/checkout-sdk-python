@@ -4,6 +4,7 @@ from enum import Enum
 from checkout_sdk.common.enums import Currency
 from checkout_sdk.payments.payments import PaymentType, BillingDescriptor, ShippingDetails, \
     PaymentRecipient, ProcessingSettings, RiskRequest, ThreeDsRequest, PaymentSender
+from checkout_sdk.sessions.sessions import SessionsBillingDescriptor
 
 
 class PaymentMethodsType(str, Enum):
@@ -286,8 +287,24 @@ class PaymentSessionWithPaymentRequest:
 class SubmitPaymentSessionRequest:
     session_data: str
     amount: int
+    currency: Currency
     reference: str
+    description: str
     items: list  # Item
     three_ds: ThreeDsRequest
     ip_address: str
     payment_type: PaymentType
+    billing: SessionBilling
+    billing_descriptor: SessionsBillingDescriptor
+    capture: bool
+    capture_on: datetime
+    customer: SessionPaymentCustomerRequest
+    failure_url: str
+    instruction: Instruction
+    metadata: dict
+    payment_method_configuration: SessionPaymentMethodConfiguration
+    processing_channel_id: str
+    recipient: PaymentRecipient
+    sender: PaymentSender
+    shipping: ShippingDetails
+    success_url: str
