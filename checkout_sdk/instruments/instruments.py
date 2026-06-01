@@ -81,10 +81,11 @@ class CreateCardInstrumentRequest(CreateInstrumentRequest):
     number: str
     expiry_month: int
     expiry_year: int
-    network_token: str
-    processing_channel_id: str
-    entity_id: str
     account_holder: AccountHolder
+    customer: CreateCustomerInstrumentRequest
+    entity_id: str
+    processing_channel_id: str
+    network_token: str
 
     def __init__(self):
         super().__init__(InstrumentType.CARD)

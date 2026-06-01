@@ -9,6 +9,8 @@ class TokenType(str, Enum):
     CARD = 'card'
     APPLE_PAY = 'applepay'
     GOOGLE_PAY = 'googlepay'
+    CVV = 'cvv'
+    PIN = 'pin'
 
 
 class CardTokenRequest:
@@ -58,3 +60,27 @@ class ApplePayTokenRequest(WalletTokenRequest):
 
     def __init__(self):
         super().__init__(TokenType.APPLE_PAY)
+
+
+class CvvTokenData:
+    cvv: str
+
+
+class CvvTokenRequest:
+    type: TokenType
+    token_data: CvvTokenData
+
+    def __init__(self):
+        self.type = TokenType.CVV
+
+
+class PinTokenData:
+    pin: str
+
+
+class PinTokenRequest:
+    type: TokenType
+    token_data: PinTokenData
+
+    def __init__(self):
+        self.type = TokenType.PIN

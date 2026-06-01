@@ -112,12 +112,31 @@ class Blik(PaymentMethodBase):
     partner_code: str
 
 
+class PaypalUserAction(str, Enum):
+    PAY_NOW = 'pay_now'
+    CONTINUE = 'continue'
+
+
+class PaypalShippingPreference(str, Enum):
+    NO_SHIPPING = 'no_shipping'
+    GET_FROM_FILE = 'get_from_file'
+    SET_PROVIDED_ADDRESS = 'set_provided_address'
+
+
+class Paypal(PaymentMethodBase):
+    user_action: PaypalUserAction
+    brand_name: str
+    shipping_preference: PaypalShippingPreference
+    action: PaymentMethodAction
+
+
 class PaymentMethods:
     klarna: Klarna
     stcpay: Stcpay
     tabby: Tabby
     bizum: Bizum
     blik: Blik
+    paypal: Paypal
 
 
 # Settings entity
