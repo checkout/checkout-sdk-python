@@ -40,6 +40,12 @@ class TestInstrumentsClient:
         assert client.delete('instrument_id') == 'response'
         assert_api_call(mock, 'instruments/instrument_id')
 
+    def test_should_revoke_instrument(self, mocker, client: InstrumentsClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.patch', return_value='response')
+
+        assert client.revoke('instrument_id') == 'response'
+        assert_api_call(mock, 'instruments/instrument_id/revoke')
+
     def test_should_get_bank_account_field_formatting(self, mocker, client: InstrumentsClient):
         mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
         query = BankAccountFieldQuery()

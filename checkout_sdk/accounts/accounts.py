@@ -427,6 +427,10 @@ class EntityFileRequest:
     purpose: FilePurpose
 
 
+class EntityRequirementUpdateRequest:
+    value: object
+
+
 class EtagHeader:
     etag: str
 

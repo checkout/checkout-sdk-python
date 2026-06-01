@@ -20,3 +20,9 @@ class TokensClient(Client):
 
     def request_wallet_token(self, request: WalletTokenRequest):
         return self._api_client.post(self.__TOKENS, self._sdk_authorization(), request)
+
+    def get_token_metadata(self, token_id: str):
+        return self._api_client.get(
+            self.build_path(self.__TOKENS, token_id, 'metadata'),
+            self._sdk_authorization(AuthorizationType.SECRET_KEY_OR_OAUTH)
+        )

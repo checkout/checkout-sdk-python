@@ -25,3 +25,9 @@ class TestTokensClient:
 
         assert client.request_wallet_token(body) == 'response'
         assert_api_call(mock, 'tokens', body)
+
+    def test_should_get_token_metadata(self, mocker, client: TokensClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+
+        assert client.get_token_metadata('tok_123') == 'response'
+        assert_api_call(mock, 'tokens/tok_123/metadata')

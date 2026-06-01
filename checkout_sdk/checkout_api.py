@@ -36,6 +36,7 @@ from checkout_sdk.identities.iddocumentverification.iddocumentverification_clien
 from checkout_sdk.identities.applicants.applicants_client import ApplicantsClient
 from checkout_sdk.identities.identityverification.identityverification_client import IdentityVerificationClient
 from checkout_sdk.networktokens.network_tokens_client import NetworkTokensClient
+from checkout_sdk.onboardingsimulator.onboarding_simulator_client import OnboardingSimulatorClient
 from checkout_sdk.paymentmethods.payment_methods_client import PaymentMethodsClient
 
 
@@ -115,3 +116,6 @@ class CheckoutApi(CheckoutApmApi):
                                                                 configuration=configuration)
         self.network_tokens = NetworkTokensClient(api_client=base_api_client, configuration=configuration)
         self.payment_methods = PaymentMethodsClient(api_client=base_api_client, configuration=configuration)
+        self.onboarding_simulator = OnboardingSimulatorClient(api_client=base_api_client,
+                                                              configuration=configuration)
+        self.onboarding_simulator = OnboardingSimulatorClient(api_client=base_api_client, configuration=configuration)

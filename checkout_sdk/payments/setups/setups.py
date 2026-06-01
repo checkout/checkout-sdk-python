@@ -108,11 +108,16 @@ class Bizum(PaymentMethodBase):
         self.payment_method_options: PaymentMethodOptions
 
 
+class Blik(PaymentMethodBase):
+    partner_code: str
+
+
 class PaymentMethods:
     klarna: Klarna
     stcpay: Stcpay
     tabby: Tabby
     bizum: Bizum
+    blik: Blik
 
 
 # Settings entity
@@ -159,6 +164,61 @@ class PaymentSetupBilling:
     address: Address
 
 
+class AccountFundingTransactionIdentificationType(str, Enum):
+    PASSPORT = 'passport'
+    DRIVING_LICENSE = 'driving_license'
+    NATIONAL_ID = 'national_id'
+
+
+class AccountFundingTransactionIdentification:
+    type: AccountFundingTransactionIdentificationType
+    number: str
+    issuing_country: str
+
+
+class AccountFundingTransactionSender:
+    date_of_birth: str
+    reference: str
+    identification: AccountFundingTransactionIdentification
+
+
+class AccountFundingTransactionPurpose(str, Enum):
+    DONATIONS = 'donations'
+    EDUCATION = 'education'
+    EMERGENCY_NEED = 'emergency_need'
+    EXPATRIATION = 'expatriation'
+    FAMILY_SUPPORT = 'family_support'
+    FINANCIAL_SERVICES = 'financial_services'
+    GIFTS = 'gifts'
+    INCOME = 'income'
+    INSURANCE = 'insurance'
+    INVESTMENT = 'investment'
+    IT_SERVICES = 'it_services'
+    LEISURE = 'leisure'
+    LOAN_PAYMENT = 'loan_payment'
+    MEDICAL_TREATMENT = 'medical_treatment'
+    OTHER = 'other'
+    PENSION = 'pension'
+    ROYALTIES = 'royalties'
+    SAVINGS = 'savings'
+    TRAVEL_AND_TOURISM = 'travel_and_tourism'
+
+
+class AccountFundingTransactionRecipient:
+    date_of_birth: str
+    account_number: str
+    first_name: str
+    last_name: str
+    address: Address
+
+
+class PaymentSetupAccountFundingTransaction:
+    enabled: bool
+    purpose: AccountFundingTransactionPurpose
+    sender: AccountFundingTransactionSender
+    recipient: AccountFundingTransactionRecipient
+
+
 # Main Request and Response classes
 class PaymentSetupsRequest:
     processing_channel_id: str
@@ -173,3 +233,4 @@ class PaymentSetupsRequest:
     order: Order
     industry: Industry
     billing: PaymentSetupBilling
+    account_funding_transaction: PaymentSetupAccountFundingTransaction

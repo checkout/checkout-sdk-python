@@ -5,7 +5,7 @@ from warnings import warn
 from checkout_sdk.accounts.accounts import (
     EtagHeader, OnboardEntityRequest, UpdateScheduleRequest, AccountsPaymentInstrument,
     PaymentInstrumentRequest, PaymentInstrumentsQuery, UpdatePaymentInstrumentRequest,
-    ReserveRuleRequest, EntityFileRequest
+    ReserveRuleRequest, EntityFileRequest, EntityRequirementUpdateRequest
 )
 from checkout_sdk.api_client import ApiClient
 from checkout_sdk.authorization_type import AuthorizationType
@@ -24,6 +24,7 @@ class AccountsClient(Client):
     __PAYMENT_INSTRUMENTS_PATH = 'payment-instruments'
     __MEMBERS_PATH = 'members'
     __RESERVE_RULES_PATH = 'reserve-rules'
+    __REQUIREMENTS_PATH = 'requirements'
 
     def __init__(self, api_client: ApiClient,
                  files_client: ApiClient,
@@ -147,6 +148,24 @@ class AccountsClient(Client):
         path = self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH,
                                entity_id, self.__RESERVE_RULES_PATH, reserve_rule_id)
         return self._api_client.put(path, self._sdk_authorization(), update_request, headers=headers)
+
+    def get_entity_requirements(self, entity_id: str):
+        return self._api_client.get(
+            self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id, self.__REQUIREMENTS_PATH),
+            self._sdk_authorization())
+
+    def get_entity_requirement_details(self, entity_id: str, requirement_id: str):
+        return self._api_client.get(
+            self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id,
+                            self.__REQUIREMENTS_PATH, requirement_id),
+            self._sdk_authorization())
+
+    def resolve_entity_requirement(self, entity_id: str, requirement_id: str,
+                                   request: EntityRequirementUpdateRequest):
+        return self._api_client.put(
+            self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id,
+                            self.__REQUIREMENTS_PATH, requirement_id),
+            self._sdk_authorization(), request)
 
     def upload_entity_file(self, entity_id: str, entity_file_request: EntityFileRequest):
         return self.__files_client.post(
