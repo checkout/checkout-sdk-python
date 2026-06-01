@@ -1,9 +1,10 @@
 import pytest
 
 from tests._assertions import assert_api_call
+from checkout_sdk.common.common import Phone
 from checkout_sdk.common.enums import Country, Currency
-from checkout_sdk.instruments.instruments import CreateTokenInstrumentRequest, UpdateCardInstrumentRequest, \
-    BankAccountFieldQuery
+from checkout_sdk.instruments.instruments import CreateTokenInstrumentRequest, CreateCardInstrumentRequest, \
+    CreateCustomerInstrumentRequest, UpdateCardInstrumentRequest, BankAccountFieldQuery
 from checkout_sdk.instruments.instruments_client import InstrumentsClient
 
 
@@ -23,6 +24,21 @@ class TestInstrumentsClient:
     def test_should_create_instrument(self, mocker, client: InstrumentsClient):
         mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
         body = CreateTokenInstrumentRequest()
+
+        assert client.create(body) == 'response'
+        assert_api_call(mock, 'instruments', body)
+
+    def test_should_create_card_instrument_with_customer(self, mocker, client: InstrumentsClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        customer = CreateCustomerInstrumentRequest()
+        customer.email = 'test@example.com'
+        customer.name = 'Test User'
+        customer.default = True
+        body = CreateCardInstrumentRequest()
+        body.number = '4242424242424242'
+        body.expiry_month = 6
+        body.expiry_year = 2025
+        body.customer = customer
 
         assert client.create(body) == 'response'
         assert_api_call(mock, 'instruments', body)
