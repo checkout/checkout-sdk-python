@@ -77,8 +77,12 @@ class OAuthSdkCredentials(SdkCredentials, metaclass=ABCMeta):
                                                   auth=(self.__client_id, self.__client_secret))
             response.raise_for_status()
         except HTTPError as err:
-            errors = json.loads(err.response.text)
-            message = 'OAuth client_credentials authentication failed with error: ({})'.format(errors['error'])
+            try:
+                errors = json.loads(err.response.text)
+                message = 'OAuth client_credentials authentication failed with error: ({})'.format(errors['error'])
+            except (json.JSONDecodeError, KeyError):
+                message = 'OAuth client_credentials authentication failed with status: ({})'.format(
+                    err.response.status_code)
             raise CheckoutAuthorizationException(message) from err
         except ConnectionError as err:
             raise CheckoutAuthorizationException(
