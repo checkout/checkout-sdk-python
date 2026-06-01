@@ -1,7 +1,8 @@
 import pytest
 
 from tests._assertions import assert_api_call
-from checkout_sdk.tokens.tokens import CardTokenRequest, ApplePayTokenRequest, CvvTokenRequest, CvvTokenData, PinTokenRequest, PinTokenData
+from checkout_sdk.tokens.tokens import CardTokenRequest, ApplePayTokenRequest, CvvTokenRequest, CvvTokenData, \
+    PinTokenRequest, PinTokenData
 from checkout_sdk.tokens.tokens_client import TokensClient
 
 

@@ -1,7 +1,6 @@
 import pytest
 
 from tests._assertions import assert_api_call
-from checkout_sdk.common.common import Phone
 from checkout_sdk.common.enums import Country, Currency
 from checkout_sdk.instruments.instruments import CreateTokenInstrumentRequest, CreateCardInstrumentRequest, \
     CreateCustomerInstrumentRequest, UpdateCardInstrumentRequest, BankAccountFieldQuery
