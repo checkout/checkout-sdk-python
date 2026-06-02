@@ -294,7 +294,6 @@ class SubmitPaymentSessionRequest:
     amount: int
     currency: Currency
     reference: str
-    description: str
     items: list  # Item
     three_ds: ThreeDsRequest
     ip_address: str

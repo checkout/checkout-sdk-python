@@ -77,6 +77,10 @@ class CreateBankAccountInstrumentRequest(CreateInstrumentRequest):
         super().__init__(InstrumentType.BANK_ACCOUNT)
 
 
+class ProvisionNetworkToken:
+    provision: bool
+
+
 class CreateCardInstrumentRequest(CreateInstrumentRequest):
     number: str
     expiry_month: int
@@ -85,7 +89,7 @@ class CreateCardInstrumentRequest(CreateInstrumentRequest):
     customer: CreateCustomerInstrumentRequest
     entity_id: str
     processing_channel_id: str
-    network_token: str
+    network_token: ProvisionNetworkToken
 
     def __init__(self):
         super().__init__(InstrumentType.CARD)

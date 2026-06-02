@@ -118,4 +118,3 @@ class CheckoutApi(CheckoutApmApi):
         self.payment_methods = PaymentMethodsClient(api_client=base_api_client, configuration=configuration)
         self.onboarding_simulator = OnboardingSimulatorClient(api_client=base_api_client,
                                                               configuration=configuration)
-        self.onboarding_simulator = OnboardingSimulatorClient(api_client=base_api_client, configuration=configuration)

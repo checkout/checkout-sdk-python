@@ -66,21 +66,19 @@ class CvvTokenData:
     cvv: str
 
 
-class CvvTokenRequest:
-    type: TokenType
+class CvvTokenRequest(WalletTokenRequest):
     token_data: CvvTokenData
 
     def __init__(self):
-        self.type = TokenType.CVV
+        super().__init__(TokenType.CVV)
 
 
 class PinTokenData:
     pin: str
 
 
-class PinTokenRequest:
-    type: TokenType
+class PinTokenRequest(WalletTokenRequest):
     token_data: PinTokenData
 
     def __init__(self):
-        self.type = TokenType.PIN
+        super().__init__(TokenType.PIN)
