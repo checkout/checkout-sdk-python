@@ -1,7 +1,8 @@
 import pytest
 
 from tests._assertions import assert_api_call
-from checkout_sdk.tokens.tokens import CardTokenRequest, ApplePayTokenRequest
+from checkout_sdk.tokens.tokens import CardTokenRequest, ApplePayTokenRequest, CvvTokenRequest, CvvTokenData, \
+    PinTokenRequest, PinTokenData
 from checkout_sdk.tokens.tokens_client import TokensClient
 
 
@@ -25,3 +26,29 @@ class TestTokensClient:
 
         assert client.request_wallet_token(body) == 'response'
         assert_api_call(mock, 'tokens', body)
+
+    def test_should_request_cvv_token(self, mocker, client: TokensClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        token_data = CvvTokenData()
+        token_data.cvv = '956'
+        body = CvvTokenRequest()
+        body.token_data = token_data
+
+        assert client.request_cvv_token(body) == 'response'
+        assert_api_call(mock, 'tokens', body)
+
+    def test_should_request_pin_token(self, mocker, client: TokensClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        token_data = PinTokenData()
+        token_data.pin = '12'
+        body = PinTokenRequest()
+        body.token_data = token_data
+
+        assert client.request_pin_token(body) == 'response'
+        assert_api_call(mock, 'tokens', body)
+
+    def test_should_get_token_metadata(self, mocker, client: TokensClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+
+        assert client.get_token_metadata('tok_123') == 'response'
+        assert_api_call(mock, 'tokens/tok_123/metadata')

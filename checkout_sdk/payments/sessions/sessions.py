@@ -284,12 +284,16 @@ class PaymentSessionWithPaymentRequest:
     capture_on: datetime
 
 
+class PaymentInterfacesProcessingBase:
+    pan_preference: str
+    provision_network_token: bool
+
+
 class SubmitPaymentSessionRequest:
     session_data: str
     amount: int
     currency: Currency
     reference: str
-    description: str
     items: list  # Item
     three_ds: ThreeDsRequest
     ip_address: str
@@ -308,3 +312,4 @@ class SubmitPaymentSessionRequest:
     sender: PaymentSender
     shipping: ShippingDetails
     success_url: str
+    processing: PaymentInterfacesProcessingBase

@@ -3,7 +3,7 @@ import pytest
 from tests._assertions import assert_api_call
 from checkout_sdk.accounts.accounts import OnboardEntityRequest, AccountsPaymentInstrument, UpdateScheduleRequest, \
     PaymentInstrumentRequest, PaymentInstrumentsQuery, UpdatePaymentInstrumentRequest, ReserveRuleRequest, \
-    EntityFileRequest, FilePurpose
+    EntityFileRequest, FilePurpose, EntityRequirementUpdateRequest
 from checkout_sdk.accounts.accounts_client import AccountsClient
 from checkout_sdk.common.enums import Currency
 from checkout_sdk.files.files import FileRequest
@@ -149,3 +149,22 @@ class TestAccountsClient:
 
         assert client.retrieve_entity_file('entity_id', 'file_id') == 'response'
         assert_api_call(mock, 'entities/entity_id/files/file_id')
+
+    def test_should_get_entity_requirements(self, mocker, client: AccountsClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+
+        assert client.get_entity_requirements('entity_id') == 'response'
+        assert_api_call(mock, 'accounts/entities/entity_id/requirements')
+
+    def test_should_get_entity_requirement_details(self, mocker, client: AccountsClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+
+        assert client.get_entity_requirement_details('entity_id', 'requirement_id') == 'response'
+        assert_api_call(mock, 'accounts/entities/entity_id/requirements/requirement_id')
+
+    def test_should_resolve_entity_requirement(self, mocker, client: AccountsClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.put', return_value='response')
+        body = EntityRequirementUpdateRequest()
+
+        assert client.resolve_entity_requirement('entity_id', 'requirement_id', body) == 'response'
+        assert_api_call(mock, 'accounts/entities/entity_id/requirements/requirement_id', body)

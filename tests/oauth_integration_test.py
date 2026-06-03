@@ -57,4 +57,4 @@ def test_should_fail_oauth_with_subdomain_invalid_credentials():
             .scopes([OAuthScopes.GATEWAY, OAuthScopes.VAULT]) \
             .build()
     except CheckoutException as err:
-        assert err.args[0] == 'OAuth client_credentials authentication failed with error: (invalid_client)'
+        assert err.args[0] == 'OAuth client_credentials authentication failed with status: (406)'

@@ -33,6 +33,11 @@ class InstrumentsClient(Client):
     def delete(self, instrument_id: str):
         return self._api_client.delete(self.build_path(self.__INSTRUMENTS, instrument_id), self._sdk_authorization())
 
+    def revoke(self, instrument_id: str):
+        return self._api_client.patch(
+            self.build_path(self.__INSTRUMENTS, instrument_id, 'revoke'),
+            self._sdk_authorization())
+
     def get_bank_account_field_formatting(self, country: Country, currency: Currency,
                                           bank_account_field_query: BankAccountFieldQuery):
         return self._api_client.get(self.build_path(self.__BANK_VALIDATION_PATH, country, currency),

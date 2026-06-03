@@ -8,7 +8,8 @@ from checkout_sdk.common.enums import Currency, Country
 from checkout_sdk.payments.payments import PaymentType
 from checkout_sdk.payments.setups.setups import (
     PaymentSetupsRequest, Settings, Customer, CustomerEmail, CustomerDevice,
-    PaymentMethods, Klarna, KlarnaAccountHolder, PaymentMethodInitialization
+    PaymentMethods, Klarna, KlarnaAccountHolder, PaymentMethodInitialization,
+    Ideal, Knet, KnetLanguage, Bancontact, P24, P24AccountHolder
 )
 from tests.checkout_test_utils import assert_response, new_uuid
 
@@ -92,6 +93,48 @@ def test_should_get_payment_setup(default_api):
     assert str(response.payment_type).lower() == create_request.payment_type.lower()
     assert response.reference == create_request.reference
     assert response.description == create_request.description
+
+
+def test_should_create_payment_setup_with_additional_payment_methods(default_api):
+    """Test creating a payment setup that configures several payment methods.
+
+    Exercises the expanded PaymentMethods coverage (iDEAL, KNET, Bancontact, P24).
+    The methods must be enabled on the test account for the request to succeed.
+    """
+    # Arrange
+    request = create_payment_setups_request()
+
+    ideal = Ideal()
+    ideal.description = "2 t-shirts"
+    request.payment_methods.ideal = ideal
+
+    knet = Knet()
+    knet.language = KnetLanguage.EN
+    request.payment_methods.knet = knet
+
+    bancontact = Bancontact()
+    bancontact.account_holder_name = "John Smith"
+    request.payment_methods.bancontact = bancontact
+
+    p24 = P24()
+    p24_account_holder = P24AccountHolder()
+    p24_account_holder.name = "John Smith"
+    p24_account_holder.email = "john.smith@example.com"
+    p24.account_holder = p24_account_holder
+    request.payment_methods.p24 = p24
+
+    # Act
+    response = default_api.setups.create_payment_setup(request)
+
+    # Assert
+    assert_response(response,
+                    'http_metadata',
+                    'id',
+                    'amount',
+                    'currency')
+
+    assert response.amount == request.amount
+    assert response.currency == request.currency
 
 
 @pytest.mark.skip(reason="Integration test - requires valid payment method option")
