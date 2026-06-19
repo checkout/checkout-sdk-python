@@ -3,7 +3,7 @@ from enum import Enum
 
 from checkout_sdk.common.enums import Currency
 from checkout_sdk.payments.payments import PaymentType, BillingDescriptor, ShippingDetails, \
-    PaymentRecipient, ProcessingSettings, RiskRequest, ThreeDsRequest, PaymentSender
+    PaymentRecipient, ProcessingSettings, RiskRequest, ThreeDsRequest, PaymentSender, AuthorizationType, PaymentPlan
 from checkout_sdk.sessions.sessions import SessionsBillingDescriptor
 
 
@@ -252,6 +252,8 @@ class PaymentSessionsRequest:
     disabled_payment_methods: list  # PaymentMethodsType
     customer_retry: CustomerRetry
     ip_address: str
+    authorization_type: AuthorizationType
+    payment_plan: PaymentPlan
 
 
 class PaymentSessionWithPaymentRequest:
