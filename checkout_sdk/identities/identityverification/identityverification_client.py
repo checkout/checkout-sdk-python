@@ -4,6 +4,7 @@ from checkout_sdk.api_client import ApiClient
 from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
 from checkout_sdk.client import Client
+from checkout_sdk.identities.entities import AttemptAssetsQueryFilter
 from checkout_sdk.identities.identityverification.identityverification import (
     IdentityVerificationRequest,
     IdentityVerificationAndAttemptRequest,
@@ -17,6 +18,7 @@ class IdentityVerificationClient(Client):
     __ANONYMIZE_PATH = 'anonymize'
     __ATTEMPTS_PATH = 'attempts'
     __PDF_REPORT_PATH = 'pdf-report'
+    __ASSETS_PATH = 'assets'
 
     def __init__(self, api_client: ApiClient, configuration: CheckoutConfiguration):
         super().__init__(api_client=api_client,
@@ -59,6 +61,14 @@ class IdentityVerificationClient(Client):
             self.build_path(self.__IDENTITY_VERIFICATIONS_PATH, identity_verification_id, self.__ATTEMPTS_PATH,
                             attempt_id),
             self._sdk_authorization())
+
+    def get_identity_verification_attempt_assets(self, identity_verification_id: str, attempt_id: str,
+                                                 query: AttemptAssetsQueryFilter = None):
+        return self._api_client.get(
+            self.build_path(self.__IDENTITY_VERIFICATIONS_PATH, identity_verification_id, self.__ATTEMPTS_PATH,
+                            attempt_id, self.__ASSETS_PATH),
+            self._sdk_authorization(),
+            query)
 
     def get_identity_verification_report(self, identity_verification_id: str):
         return self._api_client.get(
