@@ -1,5 +1,6 @@
 import pytest
 
+from checkout_sdk.identities.entities import AttemptAssetsQueryFilter
 from checkout_sdk.identities.faceauthentication.faceauthentication import (
     FaceAuthenticationRequest, FaceAuthenticationAttemptRequest, ClientInformation
 )
@@ -55,6 +56,19 @@ def test_should_get_face_authentication_attempt(default_api):
     retrieved = default_api.face_authentication.get_face_authentication_attempt(created.id, created_attempt.id)
     assert_face_authentication_attempt_response(retrieved)
     assert retrieved.id == created_attempt.id
+
+
+@pytest.mark.skip(reason='Requires valid test environment setup')
+def test_should_get_face_authentication_attempt_assets(default_api):
+    created = default_api.face_authentication.create_face_authentication(face_authentication_request())
+    created_attempt = default_api.face_authentication.create_face_authentication_attempt(
+        created.id, face_authentication_attempt_request())
+    query = AttemptAssetsQueryFilter()
+    query.skip = 0
+    query.limit = 10
+    assets = default_api.face_authentication.get_face_authentication_attempt_assets(
+        created.id, created_attempt.id, query)
+    assert_response(assets, 'http_metadata', 'total_count', 'data')
 
 
 @pytest.mark.skip(reason='Requires valid test environment setup')

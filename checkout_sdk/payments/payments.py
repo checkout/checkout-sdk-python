@@ -620,6 +620,7 @@ class ProcessingSettings:
     service_type: ServiceType
     partner_code: str
     processing_speed: str  # 'fast' (only for unreferenced refunds / card payouts)
+    scheme_transaction_link_id: str
 
 
 class ProductSubType (str, Enum):
