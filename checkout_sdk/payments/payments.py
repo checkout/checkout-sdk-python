@@ -2,7 +2,6 @@ from __future__ import absolute_import
 
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 from checkout_sdk.common.common import AccountHolder, BankDetails, MarketplaceData, Address, Phone, CustomerRequest, \
     AccountHolderIdentification, QueryFilterDateRange
