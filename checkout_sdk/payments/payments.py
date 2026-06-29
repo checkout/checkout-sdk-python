@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 from datetime import datetime
 from enum import Enum
+from typing import Optional
 
 from checkout_sdk.common.common import AccountHolder, BankDetails, MarketplaceData, Address, Phone, CustomerRequest, \
     AccountHolderIdentification, QueryFilterDateRange
@@ -623,17 +624,23 @@ class ProcessingSettings:
     scheme_transaction_link_id: str
 
 
-class ProductSubType (str, Enum):
-    BLOCKCHAIN = 'BLOCKCHAIN'
-    CBDC = 'CBDC'
-    CRYPTOCURRENCY = 'CRYPTOCURRENCY'
-    NFT = 'NFT'
-    STABLECOIN = 'STABLECOIN'
+class ItemType(str, Enum):
+    DIGITAL = 'digital'
+    DISCOUNT = 'discount'
+    PHYSICAL = 'physical'
+
+
+class ProductSubType(str, Enum):
+    BLOCKCHAIN = 'blockchain'
+    CBDC = 'cbdc'
+    CRYPTOCURRENCY = 'cryptocurrency'
+    NFT = 'nft'
+    STABLECOIN = 'stablecoin'
 
 
 class Product:
-    type: str
-    sub_type: list  # ProductSubType
+    type: ItemType = None
+    sub_type: ProductSubType = None
     name: str
     quantity: int
     unit_price: int
