@@ -1,7 +1,5 @@
 import json
 
-import pytest
-
 from checkout_sdk.json_serializer import JsonSerializer
 from checkout_sdk.payments.payments import Product, ProductSubType, ItemType
 
