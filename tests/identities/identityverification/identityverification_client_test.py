@@ -1,6 +1,7 @@
 import pytest
 
 from tests._assertions import assert_api_call
+from checkout_sdk.identities.entities import AttemptAssetsQueryFilter
 from checkout_sdk.identities.identityverification.identityverification import (
     IdentityVerificationRequest, IdentityVerificationAndAttemptRequest, IdentityVerificationAttemptRequest
 )
@@ -64,3 +65,12 @@ class TestIdentityVerificationClient:
 
         assert client.get_identity_verification_report('idv_12345') == 'response'
         assert_api_call(mock, 'identity-verifications/idv_12345/pdf-report')
+
+    def test_should_get_identity_verification_attempt_assets(self, mocker, client: IdentityVerificationClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        query = AttemptAssetsQueryFilter()
+        query.skip = 0
+        query.limit = 10
+
+        assert client.get_identity_verification_attempt_assets('idv_12345', 'attempt_67890', query) == 'response'
+        assert_api_call(mock, 'identity-verifications/idv_12345/attempts/attempt_67890/assets')

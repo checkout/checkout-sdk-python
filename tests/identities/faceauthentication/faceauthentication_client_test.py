@@ -1,6 +1,7 @@
 import pytest
 
 from tests._assertions import assert_api_call
+from checkout_sdk.identities.entities import AttemptAssetsQueryFilter
 from checkout_sdk.identities.faceauthentication.faceauthentication import (
     FaceAuthenticationRequest, FaceAuthenticationAttemptRequest
 )
@@ -55,3 +56,12 @@ class TestFaceAuthenticationClient:
 
         assert client.get_face_authentication_attempt(_FAV_ID, _ATTEMPT_ID) == 'response'
         assert_api_call(mock, f'face-authentications/{_FAV_ID}/attempts/{_ATTEMPT_ID}')
+
+    def test_should_get_face_authentication_attempt_assets(self, mocker, client: FaceAuthenticationClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        query = AttemptAssetsQueryFilter()
+        query.skip = 0
+        query.limit = 10
+
+        assert client.get_face_authentication_attempt_assets(_FAV_ID, _ATTEMPT_ID, query) == 'response'
+        assert_api_call(mock, f'face-authentications/{_FAV_ID}/attempts/{_ATTEMPT_ID}/assets')

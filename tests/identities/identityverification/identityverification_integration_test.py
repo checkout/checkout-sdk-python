@@ -1,5 +1,6 @@
 import pytest
 
+from checkout_sdk.identities.entities import AttemptAssetsQueryFilter
 from checkout_sdk.identities.identityverification.identityverification import (
     IdentityVerificationRequest, IdentityVerificationAndAttemptRequest,
     IdentityVerificationAttemptRequest, DeclaredData, ClientInformation
@@ -70,6 +71,20 @@ def test_should_get_identity_verification_attempt(default_api):
         created.id, created_attempt.id)
     assert_identity_verification_attempt_response(retrieved)
     assert retrieved.id == created_attempt.id
+
+
+@pytest.mark.skip(reason='Requires valid test environment setup')
+def test_should_get_identity_verification_attempt_assets(default_api):
+    created = default_api.identity_verification.create_identity_verification(
+        identity_verification_request())
+    created_attempt = default_api.identity_verification.create_identity_verification_attempt(
+        created.id, identity_verification_attempt_request())
+    query = AttemptAssetsQueryFilter()
+    query.skip = 0
+    query.limit = 10
+    assets = default_api.identity_verification.get_identity_verification_attempt_assets(
+        created.id, created_attempt.id, query)
+    assert_response(assets, 'http_metadata', 'total_count', 'data')
 
 
 @pytest.mark.skip(reason='Requires valid test environment setup')

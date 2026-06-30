@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import os
+import pytest
 
 from checkout_sdk.common.common import AccountHolder, Address
 from checkout_sdk.common.enums import Currency, Country
@@ -10,6 +11,7 @@ from checkout_sdk.payments.payments import PaymentType
 from tests.checkout_test_utils import assert_response, APM_SERVICE_UNAVAILABLE, check_error_item
 
 
+@pytest.mark.skip(reason='PayPal APM service unavailable in sandbox: apm_service_unavailable')
 def test_should_create_and_get_payment_context_details(default_api):
     request = create_payment_contexts_request()
 

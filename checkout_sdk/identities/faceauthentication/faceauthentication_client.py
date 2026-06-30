@@ -4,6 +4,7 @@ from checkout_sdk.api_client import ApiClient
 from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
 from checkout_sdk.client import Client
+from checkout_sdk.identities.entities import AttemptAssetsQueryFilter
 from checkout_sdk.identities.faceauthentication.faceauthentication import (
     FaceAuthenticationRequest, FaceAuthenticationAttemptRequest
 )
@@ -13,6 +14,7 @@ class FaceAuthenticationClient(Client):
     __FACE_AUTHENTICATIONS_PATH = 'face-authentications'
     __ANONYMIZE_PATH = 'anonymize'
     __ATTEMPTS_PATH = 'attempts'
+    __ASSETS_PATH = 'assets'
 
     def __init__(self, api_client: ApiClient, configuration: CheckoutConfiguration):
         super().__init__(api_client=api_client,
@@ -50,3 +52,11 @@ class FaceAuthenticationClient(Client):
             self.build_path(self.__FACE_AUTHENTICATIONS_PATH, face_authentication_id, self.__ATTEMPTS_PATH,
                             attempt_id),
             self._sdk_authorization())
+
+    def get_face_authentication_attempt_assets(self, face_authentication_id: str, attempt_id: str,
+                                               query: AttemptAssetsQueryFilter = None):
+        return self._api_client.get(
+            self.build_path(self.__FACE_AUTHENTICATIONS_PATH, face_authentication_id, self.__ATTEMPTS_PATH,
+                            attempt_id, self.__ASSETS_PATH),
+            self._sdk_authorization(),
+            query)

@@ -3,7 +3,7 @@ from datetime import datetime
 from checkout_sdk.common.common import CustomerRequest, CustomerRetry
 from checkout_sdk.common.enums import Currency
 from checkout_sdk.payments.payments import BillingDescriptor, PaymentInstruction, PaymentType, ShippingDetails, \
-    ThreeDsRequest, RiskRequest, PaymentRecipient, ProcessingSettings, PaymentSender, AuthorizationType, PaymentPlan
+    ThreeDsRequest, RiskRequest, PaymentRecipient, ProcessingSettings, PaymentSender, PaymentPlan, AuthorizationType
 from checkout_sdk.payments.payments_previous import BillingInformation
 from checkout_sdk.payments.sessions.sessions import SessionPaymentMethodConfiguration
 
@@ -40,5 +40,5 @@ class HostedPaymentsSessionRequest:
     capture_on: datetime
     instruction: PaymentInstruction
     payment_method_configuration: SessionPaymentMethodConfiguration
-    authorization_type: AuthorizationType
     payment_plan: PaymentPlan
+    authorization_type: AuthorizationType
