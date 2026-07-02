@@ -3,8 +3,8 @@ from __future__ import absolute_import
 import os
 import pytest
 
-from checkout_sdk.common.common import Address, Phone
-from checkout_sdk.common.enums import Currency, Country
+from checkout_sdk.common.common import Phone
+from checkout_sdk.common.enums import Currency
 from checkout_sdk.payments.payments import PaymentType
 from checkout_sdk.payments.setups.setups import (
     PaymentSetupsRequest, Settings, Customer, CustomerEmail, CustomerDevice,
@@ -208,12 +208,7 @@ def create_payment_setups_request() -> PaymentSetupsRequest:
     klarna.initialization = PaymentMethodInitialization.DISABLED
 
     account_holder = KlarnaAccountHolder()
-    billing_address = Address()
-    billing_address.address_line1 = "123 High Street"
-    billing_address.city = "London"
-    billing_address.zip = "SW1A 1AA"
-    billing_address.country = Country.GB
-    account_holder.billing_address = billing_address
+    account_holder.name = "John Smith"
     klarna.account_holder = account_holder
 
     payment_methods.klarna = klarna

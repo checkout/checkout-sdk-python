@@ -2,8 +2,8 @@ import os
 import pytest
 
 from checkout_sdk import CheckoutSdk
-from checkout_sdk.common.enums import DocumentType, Currency
-from checkout_sdk.issuing.cardholders import CardholderRequest, CardholderDocument, CardholderType
+from checkout_sdk.common.enums import Currency
+from checkout_sdk.issuing.cardholders import CardholderRequest, CardholderType
 from checkout_sdk.issuing.cards import CardLifetime, LifetimeUnit, VirtualCardRequest
 from checkout_sdk.issuing.controls import VelocityControlRequest, VelocityLimit, VelocityWindow, VelocityWindowType, \
     CreateControlGroupRequest, FailIfType, MccControlGroupControl, MccLimit, MccLimitType, ControlProfileRequest
@@ -28,11 +28,6 @@ def issuing_checkout_api():
 
 @pytest.fixture(scope='module')
 def cardholder(issuing_checkout_api):
-    document = CardholderDocument()
-    document.type = DocumentType.NATIONAL_IDENTITY_CARD
-    document.front_document_id = 'file_6lbss42ezvoufcb2beo76rvwly'
-    document.back_document_id = 'file_aaz5pemp6326zbuvevp6qroqu4'
-
     request = CardholderRequest()
     request.type = CardholderType.INDIVIDUAL
     request.reference = 'X-123456-N11'
@@ -45,7 +40,6 @@ def cardholder(issuing_checkout_api):
     request.date_of_birth = '1985-05-15'
     request.billing_address = address()
     request.residency_address = address()
-    request.document = document
 
     cardholder = issuing_checkout_api.issuing.create_cardholder(request)
 

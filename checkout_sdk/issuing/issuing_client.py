@@ -6,11 +6,11 @@ from checkout_sdk.checkout_configuration import CheckoutConfiguration
 from checkout_sdk.client import Client
 from checkout_sdk.issuing.cardholders import CardholderRequest
 from checkout_sdk.issuing.cards import CardRequest, ThreeDsEnrollmentRequest, UpdateThreeDsEnrollmentRequest, \
-    CardCredentialsQuery, RevokeRequest, SuspendRequest, UpdateCardRequest, RenewCardRequest, \
-    ScheduleCardRevocationRequest
+    CardCredentialsQuery, RevokeRequest, SuspendRequest, UpdateCardRequest, RenewCardRequest
 from checkout_sdk.issuing.controls import CardControlRequest, CardControlsQuery, UpdateCardControlRequest, \
     CreateControlGroupRequest, ControlGroupQueryTarget, ControlProfileRequest
-from checkout_sdk.issuing.disputes import CreateDisputeRequest, EscalateDisputeRequest
+from checkout_sdk.issuing.disputes import CreateDisputeRequest, EscalateDisputeRequest, AmendDisputeRequest, \
+    SubmitDisputeRequest
 from checkout_sdk.issuing.testing import CardAuthorizationRequest, SimulationRequest, \
     CardRefundAuthorizationRequest, SimulateOobAuthenticationRequest
 from checkout_sdk.issuing.transactions import TransactionsQueryFilter
@@ -25,7 +25,6 @@ class IssuingClient(Client):
     __CREDENTIALS = 'credentials'
     __RENEW = 'renew'
     __REVOKE = 'revoke'
-    __SCHEDULE_REVOCATION = 'schedule-revocation'
     __SUSPEND = 'suspend'
     __CONTROLS = 'controls'
     __CONTROL_GROUPS = 'control-groups'
@@ -37,6 +36,8 @@ class IssuingClient(Client):
     __DISPUTES = 'disputes'
     __CANCEL = 'cancel'
     __ESCALATE = 'escalate'
+    __AMEND = 'amend'
+    __SUBMIT = 'submit'
     __SIMULATE = 'simulate'
     __AUTHORIZATIONS = 'authorizations'
     __PRESENTMENTS = 'presentments'
@@ -114,17 +115,6 @@ class IssuingClient(Client):
         return self._api_client.post(self.build_path(self.__ISSUING, self.__CARDS, card_id, self.__REVOKE),
                                      self._sdk_authorization(),
                                      revoke_request)
-
-    def schedule_card_revocation(self, card_id: str, schedule_request: ScheduleCardRevocationRequest):
-        return self._api_client.post(
-            self.build_path(self.__ISSUING, self.__CARDS, card_id, self.__SCHEDULE_REVOCATION),
-            self._sdk_authorization(),
-            schedule_request)
-
-    def delete_card_revocation(self, card_id: str):
-        return self._api_client.delete(
-            self.build_path(self.__ISSUING, self.__CARDS, card_id, self.__SCHEDULE_REVOCATION),
-            self._sdk_authorization())
 
     def suspend_card(self, card_id: str, suspend_request: SuspendRequest):
         return self._api_client.post(self.build_path(self.__ISSUING, self.__CARDS, card_id, self.__SUSPEND),
@@ -246,6 +236,22 @@ class IssuingClient(Client):
         return self._api_client.post(self.build_path(self.__ISSUING, self.__DISPUTES, dispute_id, self.__ESCALATE),
                                      self._sdk_authorization(),
                                      escalate_dispute_request,
+                                     idempotency_key)
+
+    def amend_dispute(self, dispute_id: str, amend_dispute_request: AmendDisputeRequest = None,
+                      idempotency_key: str = None):
+        return self._api_client.post(self.build_path(self.__ISSUING, self.__DISPUTES, dispute_id, self.__AMEND),
+                                     self._sdk_authorization(),
+                                     amend_dispute_request,
+                                     idempotency_key)
+
+    def submit_dispute(self, dispute_id: str, submit_dispute_request: SubmitDisputeRequest = None,
+                       idempotency_key: str = None):
+        # Deprecated: use create_dispute to create and submit in one step, or amend_dispute when the
+        # dispute status is 'action_required'. The submit endpoint is deprecated in the API swagger.
+        return self._api_client.post(self.build_path(self.__ISSUING, self.__DISPUTES, dispute_id, self.__SUBMIT),
+                                     self._sdk_authorization(),
+                                     submit_dispute_request,
                                      idempotency_key)
 
     def simulate_authorization(self, authorization_request: CardAuthorizationRequest):

@@ -75,7 +75,9 @@ class PaymentMethodBase:
 
 # Klarna entities
 class KlarnaAccountHolder:
-    billing_address: Address
+    # readOnly: the account holder details returned by Klarna after the shopper completes
+    # verification (swagger KlarnaAccountHolder).
+    name: str
 
 
 class Klarna(PaymentMethodBase):
@@ -402,6 +404,69 @@ class ApplePay(PaymentSetupPaymentMethod):
     account_holder: PaymentSetupAccountHolder
 
 
+# Bacs entities
+class BacsAccountHolderType(str, Enum):
+    INDIVIDUAL = 'individual'
+    CORPORATE = 'corporate'
+
+
+class BacsAccountHolder:
+    type: BacsAccountHolderType
+    first_name: str
+    last_name: str
+    company_name: str
+    email: str
+
+
+class Bacs(PaymentMethodBase):
+    instrument_id: str
+    account_holder: BacsAccountHolder
+    account_number: str
+    bank_code: str
+    country: str
+    currency: Currency
+    allow_partial_match: bool
+
+
+# Card Present entities
+class CardPresentPin:
+    key_set_id: str
+    block: str
+    block_format: str
+
+
+class CardPresent(PaymentSetupPaymentMethod):
+    track2: str
+    emv: str
+    entry_mode: str
+    pin: CardPresentPin
+    store_for_future_use: bool
+    name: str
+
+
+# Pay by Bank entities
+class PayByBankBank:
+    bank_id: str
+    display_name: str
+    logo_url: str
+    available: bool
+
+
+class PayByBankAction:
+    type: str
+    banks: list  # list of PayByBankBank
+
+
+class PayByBank(PaymentSetupPaymentMethod):
+    bank_id: str
+    action: PayByBankAction
+
+
+# Stablecoin entities
+class Stablecoin(PaymentSetupPaymentMethod):
+    pass
+
+
 # Card entities
 class Card(PaymentSetupPaymentMethod):
     number: str
@@ -459,6 +524,10 @@ class PaymentMethods:
     googlepay: GooglePay
     applepay: ApplePay
     card: Card
+    bacs: Bacs
+    card_present: CardPresent
+    pay_by_bank: PayByBank
+    stablecoin: Stablecoin
 
 
 # Settings entity
@@ -477,6 +546,18 @@ class OrderSubMerchant:
     registration_date: datetime
 
 
+class AmountAllocationCommission:
+    amount: int
+    percentage: float
+
+
+class PaymentSetupAmountAllocation:
+    id: str  # required
+    amount: int  # required
+    reference: str
+    commission: AmountAllocationCommission
+
+
 class Order:
     items: list  # list of PaymentContextsItems
     shipping: ShippingDetails
@@ -485,6 +566,7 @@ class Order:
     invoice_id: str
     shipping_amount: int
     tax_amount: int
+    amount_allocations: list  # list of PaymentSetupAmountAllocation
 
 
 # Industry entities
@@ -502,6 +584,22 @@ class Industry:
 # Billing entity
 class PaymentSetupBilling:
     address: Address
+
+
+class PaymentSetupBillingDescriptor:
+    name: str
+    city: str
+    reference: str
+
+
+class PaymentSetupPresentmentDetails:
+    amount: int
+    currency: str
+
+
+class PaymentSetupTerminal:
+    id: str
+    local_date_time: str
 
 
 class AccountFundingTransactionIdentificationType(str, Enum):
@@ -573,4 +671,7 @@ class PaymentSetupsRequest:
     order: Order
     industry: Industry
     billing: PaymentSetupBilling
+    billing_descriptor: PaymentSetupBillingDescriptor
+    presentment_details: PaymentSetupPresentmentDetails
+    terminal: PaymentSetupTerminal
     account_funding_transaction: PaymentSetupAccountFundingTransaction

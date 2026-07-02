@@ -285,6 +285,17 @@ class InstrumentDetailsCardToken(InstrumentDetails):
     token: str
 
 
+class InstrumentAccountType(str, Enum):
+    SAVINGS = 'savings'
+    CHECKING = 'checking'
+
+
+class InstrumentDetailsAch(InstrumentDetails):
+    account_number: str
+    routing_number: str
+    account_type: InstrumentAccountType
+
+
 class BankDetails:
     name: str
     branch: str
