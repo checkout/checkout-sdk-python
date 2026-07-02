@@ -566,6 +566,8 @@ class Order:
     invoice_id: str
     shipping_amount: int
     tax_amount: int
+    tipping_amount: int
+    surcharge_amount: int
     amount_allocations: list  # list of PaymentSetupAmountAllocation
 
 

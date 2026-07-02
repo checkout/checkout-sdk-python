@@ -350,9 +350,13 @@ class TestPaymentSetupsSerialization:
         allocation.commission = commission
 
         order = Order()
+        order.tipping_amount = 200
+        order.surcharge_amount = 50
         order.amount_allocations = [allocation]
 
         assert _serialize(order) == {
+            'tipping_amount': 200,
+            'surcharge_amount': 50,
             'amount_allocations': [{
                 'id': 'ent_w4jelhppmfiufdnatam37wrfc4',
                 'amount': 1000,
