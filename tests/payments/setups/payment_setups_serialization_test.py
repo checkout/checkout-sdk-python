@@ -11,7 +11,7 @@ from checkout_sdk.payments.setups.setups import (
     GooglePay, GooglePayTokenData, ApplePay, ApplePayTokenData, ApplePayTokenDataHeader,
     Card, PaymentSetupAccountHolder, PaymentSetupAccountHolderType,
     KlarnaAccountHolder, Bacs, BacsAccountHolder, BacsAccountHolderType, CardPresent,
-    CardPresentPin, PayByBank, PayByBankAction, PayByBankBank, Stablecoin,
+    CardPresentPin, PayByBank, PayByBankAction, PayByBankActionType, PayByBankBank, Stablecoin,
     PaymentSetupBillingDescriptor, PaymentSetupPresentmentDetails, PaymentSetupTerminal,
     PaymentSetupAmountAllocation, AmountAllocationCommission, Order,
 )
@@ -298,7 +298,7 @@ class TestPaymentSetupsSerialization:
         pay_by_bank = PayByBank()
         pay_by_bank.bank_id = 'ob-natwest'
         action = PayByBankAction()
-        action.type = 'select_bank'
+        action.type = PayByBankActionType.SELECT_BANK
         bank = PayByBankBank()
         bank.bank_id = 'ob-natwest'
         bank.display_name = 'NatWest'

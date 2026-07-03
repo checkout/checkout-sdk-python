@@ -452,8 +452,12 @@ class PayByBankBank:
     available: bool
 
 
+class PayByBankActionType(str, Enum):
+    SELECT_BANK = 'select_bank'
+
+
 class PayByBankAction:
-    type: str
+    type: PayByBankActionType
     banks: list  # list of PayByBankBank
 
 
