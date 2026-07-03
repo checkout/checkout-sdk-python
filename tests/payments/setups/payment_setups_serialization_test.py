@@ -10,6 +10,10 @@ from checkout_sdk.payments.setups.setups import (
     AchAccountHolderIdentification, Sepa, SepaAccountHolder, SepaMandate, SepaMandateType,
     GooglePay, GooglePayTokenData, ApplePay, ApplePayTokenData, ApplePayTokenDataHeader,
     Card, PaymentSetupAccountHolder, PaymentSetupAccountHolderType,
+    KlarnaAccountHolder, Bacs, BacsAccountHolder, BacsAccountHolderType, CardPresent,
+    CardPresentPin, PayByBank, PayByBankAction, PayByBankActionType, PayByBankBank, Stablecoin,
+    PaymentSetupBillingDescriptor, PaymentSetupPresentmentDetails, PaymentSetupTerminal,
+    PaymentSetupAmountAllocation, AmountAllocationCommission, Order,
 )
 
 
@@ -232,3 +236,131 @@ class TestPaymentSetupsSerialization:
         payment_methods.ideal = ideal
 
         assert _serialize(payment_methods) == {'ideal': {'description': 'order'}}
+
+    # ── 2026-06-29 additions ─────────────────────────────────────────────────
+
+    def test_klarna_account_holder_serializes_name(self):
+        holder = KlarnaAccountHolder()
+        holder.name = 'John Smith'
+
+        assert _serialize(holder) == {'name': 'John Smith'}
+
+    def test_bacs_serializes_nested_account_holder(self):
+        bacs = Bacs()
+        holder = BacsAccountHolder()
+        holder.type = BacsAccountHolderType.INDIVIDUAL
+        holder.first_name = 'John'
+        holder.last_name = 'Smith'
+        holder.email = 'john.smith@example.com'
+        bacs.account_holder = holder
+        bacs.account_number = '12345678'
+        bacs.bank_code = '200000'
+        bacs.country = 'GB'
+        bacs.currency = Currency.GBP
+        bacs.allow_partial_match = True
+
+        assert _serialize(bacs) == {
+            'initialization': 'disabled',
+            'account_holder': {
+                'type': 'individual', 'first_name': 'John', 'last_name': 'Smith',
+                'email': 'john.smith@example.com',
+            },
+            'account_number': '12345678',
+            'bank_code': '200000',
+            'country': 'GB',
+            'currency': 'GBP',
+            'allow_partial_match': True,
+        }
+
+    def test_card_present_serializes_nested_pin(self):
+        card_present = CardPresent()
+        card_present.track2 = 'track2-data'
+        card_present.emv = 'emv-data'
+        card_present.entry_mode = 'contactless'
+        pin = CardPresentPin()
+        pin.key_set_id = 'ks_1'
+        pin.block = 'block'
+        pin.block_format = 'iso0'
+        card_present.pin = pin
+        card_present.store_for_future_use = True
+        card_present.name = 'John Smith'
+
+        assert _serialize(card_present) == {
+            'track2': 'track2-data',
+            'emv': 'emv-data',
+            'entry_mode': 'contactless',
+            'pin': {'key_set_id': 'ks_1', 'block': 'block', 'block_format': 'iso0'},
+            'store_for_future_use': True,
+            'name': 'John Smith',
+        }
+
+    def test_pay_by_bank_serializes_bank_id_and_action(self):
+        pay_by_bank = PayByBank()
+        pay_by_bank.bank_id = 'ob-natwest'
+        action = PayByBankAction()
+        action.type = PayByBankActionType.SELECT_BANK
+        bank = PayByBankBank()
+        bank.bank_id = 'ob-natwest'
+        bank.display_name = 'NatWest'
+        bank.available = True
+        action.banks = [bank]
+        pay_by_bank.action = action
+
+        assert _serialize(pay_by_bank) == {
+            'bank_id': 'ob-natwest',
+            'action': {
+                'type': 'select_bank',
+                'banks': [{'bank_id': 'ob-natwest', 'display_name': 'NatWest', 'available': True}],
+            },
+        }
+
+    def test_stablecoin_serializes_status_and_flags(self):
+        stablecoin = Stablecoin()
+        stablecoin.status = 'available'
+        stablecoin.flags = ['flag_a']
+
+        assert _serialize(stablecoin) == {'status': 'available', 'flags': ['flag_a']}
+
+    def test_billing_descriptor_presentment_terminal_serialize(self):
+        billing_descriptor = PaymentSetupBillingDescriptor()
+        billing_descriptor.name = 'ACME'
+        billing_descriptor.city = 'London'
+        billing_descriptor.reference = 'REF-1'
+
+        presentment = PaymentSetupPresentmentDetails()
+        presentment.amount = 1000
+        presentment.currency = 'GBP'
+
+        terminal = PaymentSetupTerminal()
+        terminal.id = 'term_1'
+        terminal.local_date_time = '2026-06-01T10:00:00'
+
+        assert _serialize(billing_descriptor) == {'name': 'ACME', 'city': 'London', 'reference': 'REF-1'}
+        assert _serialize(presentment) == {'amount': 1000, 'currency': 'GBP'}
+        assert _serialize(terminal) == {'id': 'term_1', 'local_date_time': '2026-06-01T10:00:00'}
+
+    def test_order_serializes_amount_allocations(self):
+        allocation = PaymentSetupAmountAllocation()
+        allocation.id = 'ent_w4jelhppmfiufdnatam37wrfc4'
+        allocation.amount = 1000
+        allocation.reference = 'ORD-5023-4E89'
+        commission = AmountAllocationCommission()
+        commission.amount = 100
+        commission.percentage = 2.5
+        allocation.commission = commission
+
+        order = Order()
+        order.tipping_amount = 200
+        order.surcharge_amount = 50
+        order.amount_allocations = [allocation]
+
+        assert _serialize(order) == {
+            'tipping_amount': 200,
+            'surcharge_amount': 50,
+            'amount_allocations': [{
+                'id': 'ent_w4jelhppmfiufdnatam37wrfc4',
+                'amount': 1000,
+                'reference': 'ORD-5023-4E89',
+                'commission': {'amount': 100, 'percentage': 2.5},
+            }]
+        }

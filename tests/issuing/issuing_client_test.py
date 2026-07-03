@@ -3,11 +3,11 @@ import pytest
 from tests._assertions import assert_api_call
 from checkout_sdk.issuing.cardholders import CardholderRequest
 from checkout_sdk.issuing.cards import PhysicalCardRequest, PasswordEnrollmentRequest, UpdateThreeDsEnrollmentRequest, \
-    CardCredentialsQuery, RevokeRequest, SuspendRequest, UpdateCardRequest, VirtualCardRenewRequest, \
-    ScheduleCardRevocationRequest
+    CardCredentialsQuery, RevokeRequest, SuspendRequest, UpdateCardRequest, VirtualCardRenewRequest
 from checkout_sdk.issuing.controls import MccControlRequest, CardControlsQuery, UpdateCardControlRequest, \
     CreateControlGroupRequest, ControlGroupQueryTarget, ControlProfileRequest
-from checkout_sdk.issuing.disputes import CreateDisputeRequest, EscalateDisputeRequest
+from checkout_sdk.issuing.disputes import CreateDisputeRequest, EscalateDisputeRequest, AmendDisputeRequest, \
+    SubmitDisputeRequest
 from checkout_sdk.issuing.issuing_client import IssuingClient
 from checkout_sdk.issuing.testing import CardAuthorizationRequest, SimulationRequest, \
     CardRefundAuthorizationRequest, SimulateOobAuthenticationRequest
@@ -115,19 +115,6 @@ class TestIssuingClient:
 
         assert client.revoke_card('card_id', body) == 'response'
         assert_api_call(mock, 'issuing/cards/card_id/revoke', body)
-
-    def test_should_schedule_card_revocation(self, mocker, client: IssuingClient):
-        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
-        body = ScheduleCardRevocationRequest()
-
-        assert client.schedule_card_revocation('card_id', body) == 'response'
-        assert_api_call(mock, 'issuing/cards/card_id/schedule-revocation', body)
-
-    def test_should_delete_card_revocation(self, mocker, client: IssuingClient):
-        mock = mocker.patch('checkout_sdk.api_client.ApiClient.delete', return_value='response')
-
-        assert client.delete_card_revocation('card_id') == 'response'
-        assert_api_call(mock, 'issuing/cards/card_id/schedule-revocation')
 
     def test_should_suspend_card(self, mocker, client: IssuingClient):
         mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
@@ -286,6 +273,20 @@ class TestIssuingClient:
 
         assert client.escalate_dispute('dispute_id', body) == 'response'
         assert_api_call(mock, 'issuing/disputes/dispute_id/escalate', body)
+
+    def test_should_amend_dispute(self, mocker, client: IssuingClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        body = AmendDisputeRequest()
+
+        assert client.amend_dispute('dispute_id', body) == 'response'
+        assert_api_call(mock, 'issuing/disputes/dispute_id/amend', body)
+
+    def test_should_submit_dispute(self, mocker, client: IssuingClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        body = SubmitDisputeRequest()
+
+        assert client.submit_dispute('dispute_id', body) == 'response'
+        assert_api_call(mock, 'issuing/disputes/dispute_id/submit', body)
 
     def test_should_simulate_authorization(self, mocker, client: IssuingClient):
         mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')

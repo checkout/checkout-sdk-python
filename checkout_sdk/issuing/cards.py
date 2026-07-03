@@ -62,6 +62,7 @@ class CardRequest:
     activate_card: bool
     metadata: CardMetadata
     revocation_date: str
+    activation_date: str  # ISO-8601 (IssuingActivationDate)
 
     def __init__(self, type_p: CardType):
         self.type = type_p
@@ -89,6 +90,8 @@ class UpdateCardRequest:
     metadata: CardMetadata
     expiry_month: int
     expiry_year: int
+    activation_date: str  # ISO-8601 (IssuingActivationDate)
+    revocation_date: str  # yyyy-mm-dd (IssuingRevocationDate)
 
 
 class RenewCardRequest:
@@ -103,10 +106,6 @@ class PhysicalCardRenewRequest(RenewCardRequest):
 
 class VirtualCardRenewRequest(RenewCardRequest):
     pass
-
-
-class ScheduleCardRevocationRequest:
-    revocation_date: str
 
 
 class SecurityPair:

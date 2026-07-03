@@ -4,7 +4,7 @@ import pytest
 
 from checkout_sdk.issuing.cards import PasswordEnrollmentRequest, SecurityPair, UpdateThreeDsEnrollmentRequest, \
     CardCredentialsQuery, RevokeRequest, RevokeReason, SuspendRequest, SuspendReason, UpdateCardRequest, CardMetadata, \
-    VirtualCardRenewRequest, ScheduleCardRevocationRequest
+    VirtualCardRenewRequest
 from tests.checkout_test_utils import assert_response, phone
 
 
@@ -66,24 +66,15 @@ class TestCardsIssuing:
         assert_response(response, 'id')
         assert response.http_metadata.status_code == 201
 
-    def test_should_schedule_card_revocation(self, issuing_checkout_api, active_card):
-        request = ScheduleCardRevocationRequest()
+    def test_should_schedule_card_revocation_via_update(self, issuing_checkout_api, active_card):
+        # Card revocation scheduling is now expressed via update_card.revocation_date
+        # (the dedicated schedule-revocation endpoint was removed in the 2026-06-29 API).
+        request = UpdateCardRequest()
         request.revocation_date = (datetime.utcnow() + timedelta(days=7)).strftime('%Y-%m-%d')
 
-        response = issuing_checkout_api.issuing.schedule_card_revocation(active_card.id, request)
+        response = issuing_checkout_api.issuing.update_card(active_card.id, request)
 
         assert_response(response)
-        assert response.http_metadata.status_code == 200
-
-    def test_should_delete_card_revocation(self, issuing_checkout_api, active_card):
-        request = ScheduleCardRevocationRequest()
-        request.revocation_date = (datetime.utcnow() + timedelta(days=7)).strftime('%Y-%m-%d')
-        issuing_checkout_api.issuing.schedule_card_revocation(active_card.id, request)
-
-        response = issuing_checkout_api.issuing.delete_card_revocation(active_card.id)
-
-        assert_response(response)
-        assert response.http_metadata.status_code == 200
 
     def test_should_get_digital_card(self, issuing_checkout_api):
         digital_card_id = 'dcr_5ngxzsynm2me3oxf73esbhda6q'
