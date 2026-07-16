@@ -30,13 +30,13 @@ class TestForwardClient:
         body = SecretRequest()
 
         assert client.create_secret(body) == 'response'
-        assert_api_call(mock, 'forward/secrets', body)
+        assert_api_call(mock, 'secrets', body)
 
     def test_should_list_secrets(self, mocker, client: ForwardClient):
         mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
 
         assert client.list_secrets() == 'response'
-        assert_api_call(mock, 'forward/secrets')
+        assert_api_call(mock, 'secrets')
 
     def test_should_update_secret(self, mocker, client: ForwardClient):
         mock = mocker.patch('checkout_sdk.api_client.ApiClient.patch', return_value='response')

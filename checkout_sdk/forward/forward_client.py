@@ -22,14 +22,14 @@ class ForwardClient(Client):
 
     def create_secret(self, request: SecretRequest):
         return self._api_client.post(
-            self.build_path(self.__FORWARD_PATH, self.__SECRETS_PATH),
+            self.__SECRETS_PATH,
             self._sdk_authorization(),
             request
         )
 
     def list_secrets(self):
         return self._api_client.get(
-            self.build_path(self.__FORWARD_PATH, self.__SECRETS_PATH),
+            self.__SECRETS_PATH,
             self._sdk_authorization()
         )
 
