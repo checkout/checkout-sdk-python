@@ -35,13 +35,13 @@ class ForwardClient(Client):
 
     def update_secret(self, name: str, request: UpdateSecretRequest):
         return self._api_client.patch(
-            self.build_path(self.__FORWARD_PATH, self.__SECRETS_PATH, name),
+            self.build_path(self.__SECRETS_PATH, name),
             self._sdk_authorization(),
             request
         )
 
     def delete_secret(self, name: str):
         return self._api_client.delete(
-            self.build_path(self.__FORWARD_PATH, self.__SECRETS_PATH, name),
+            self.build_path(self.__SECRETS_PATH, name),
             self._sdk_authorization()
         )

@@ -43,10 +43,10 @@ class TestForwardClient:
         body = SecretRequest()
 
         assert client.update_secret('secret_name', body) == 'response'
-        assert_api_call(mock, 'forward/secrets/secret_name', body)
+        assert_api_call(mock, 'secrets/secret_name', body)
 
     def test_should_delete_secret(self, mocker, client: ForwardClient):
         mock = mocker.patch('checkout_sdk.api_client.ApiClient.delete', return_value='response')
 
         assert client.delete_secret('secret_name') == 'response'
-        assert_api_call(mock, 'forward/secrets/secret_name')
+        assert_api_call(mock, 'secrets/secret_name')
