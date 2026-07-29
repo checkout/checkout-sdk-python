@@ -1,13 +1,18 @@
 import json
 
 from checkout_sdk.json_serializer import JsonSerializer
-from checkout_sdk.common.enums import Country, Currency
+from checkout_sdk.common.enums import Country, Currency, DocumentType
 from checkout_sdk.accounts.accounts import (
     ProcessingDetails, ProcessingDetailsPayments, ProcessingDetailsAch,
     AgreedTerms, Company, BusinessType, DateOfIncorporation,
     EntityRepresentative, RepresentativeIndividual, Citizenship, NationalIdType,
     CompanyPosition, EntityRoles, FinancialStatements, FinancialStatementsType,
     OnboardSubEntityDocuments, OnboardEntityRequest,
+    EntityIdentificationDocument, CompanyVerification, CompanyVerificationType,
+    ArticlesOfAssociation, ArticlesOfAssociationType, BankVerification, BankVerificationType,
+    ShareholderStructure, ShareholderStructureType, ProofOfLegality, ProofOfLegalityType,
+    ProofOfPrincipalAddress, ProofOfPrincipalAddressType, AdditionalDocument,
+    TaxVerification, TaxVerificationType, FinancialVerification, FinancialVerificationType,
 )
 
 
@@ -165,6 +170,120 @@ class TestAccountsV3Serialization:
                 'email': 'john@example.com',
                 'version': '1.0',
             },
+        }
+
+    def test_serializes_full_onboard_entity_request_v3(self):
+        individual = RepresentativeIndividual()
+        individual.first_name = 'John'
+        individual.last_name = 'Doe'
+        representative = EntityRepresentative()
+        representative.individual = individual
+        representative.roles = [EntityRoles.UBO]
+        company = Company()
+        company.legal_name = 'Super Hero Masks Inc.'
+        company.business_type = BusinessType.LIMITED_COMPANY
+        company.representatives = [representative]
+        payments = ProcessingDetailsPayments()
+        payments.ach = ProcessingDetailsAch()
+        payments.ach.annual_ach_volume = 1000000
+        processing_details = ProcessingDetails()
+        processing_details.currency = Currency.GBP
+        processing_details.payments = payments
+        request = OnboardEntityRequest()
+        request.reference = 'ref_1'
+        request.company = company
+        request.processing_details = processing_details
+
+        result = _serialize(request)
+
+        assert result['reference'] == 'ref_1'
+        assert result['company']['legal_name'] == 'Super Hero Masks Inc.'
+        assert result['company']['business_type'] == 'limited_company'
+        assert result['company']['representatives'][0]['individual']['first_name'] == 'John'
+        assert result['company']['representatives'][0]['roles'] == ['ubo']
+        assert result['processing_details']['currency'] == 'GBP'
+        assert result['processing_details']['payments']['ach']['annual_ach_volume'] == 1000000
+
+    def test_serializes_all_thirteen_documents_fields(self):
+        documents = OnboardSubEntityDocuments()
+
+        identity_verification = EntityIdentificationDocument()
+        identity_verification.type = DocumentType.NATIONAL_IDENTITY_CARD
+        identity_verification.front = 'file_identity_front'
+        identity_verification.back = 'file_identity_back'
+        documents.identity_verification = identity_verification
+
+        company_verification = CompanyVerification()
+        company_verification.type = CompanyVerificationType.INCORPORATION_DOCUMENT
+        company_verification.front = 'file_company_verification'
+        documents.company_verification = company_verification
+
+        articles_of_association = ArticlesOfAssociation()
+        articles_of_association.type = ArticlesOfAssociationType.ARTICLES_OF_ASSOCIATION
+        articles_of_association.front = 'file_articles_of_association'
+        documents.articles_of_association = articles_of_association
+
+        bank_verification = BankVerification()
+        bank_verification.type = BankVerificationType.BANK_STATEMENT
+        bank_verification.front = 'file_bank_verification'
+        documents.bank_verification = bank_verification
+
+        shareholder_structure = ShareholderStructure()
+        shareholder_structure.type = ShareholderStructureType.CERTIFIED_SHAREHOLDER_STRUCTURE
+        shareholder_structure.front = 'file_shareholder_structure'
+        documents.shareholder_structure = shareholder_structure
+
+        proof_of_legality = ProofOfLegality()
+        proof_of_legality.type = ProofOfLegalityType.PROOF_OF_LEGALITY
+        proof_of_legality.front = 'file_proof_of_legality'
+        documents.proof_of_legality = proof_of_legality
+
+        proof_of_principal_address = ProofOfPrincipalAddress()
+        proof_of_principal_address.type = ProofOfPrincipalAddressType.PROOF_OF_ADDRESS
+        proof_of_principal_address.front = 'file_proof_of_principal_address'
+        documents.proof_of_principal_address = proof_of_principal_address
+
+        tax_verification = TaxVerification()
+        tax_verification.type = TaxVerificationType.EIN_LETTER
+        tax_verification.front = 'file_tax_verification'
+        documents.tax_verification = tax_verification
+
+        financial_verification = FinancialVerification()
+        financial_verification.type = FinancialVerificationType.FINANCIAL_STATEMENT
+        financial_verification.front = 'file_financial_verification'
+        documents.financial_verification = financial_verification
+
+        financial_statements = FinancialStatements()
+        financial_statements.type = FinancialStatementsType.FINANCIAL_STATEMENTS
+        financial_statements.front = 'file_financial_statements'
+        documents.financial_statements = financial_statements
+
+        additional_document1 = AdditionalDocument()
+        additional_document1.front = 'file_additional_document1'
+        documents.additional_document1 = additional_document1
+        additional_document2 = AdditionalDocument()
+        additional_document2.front = 'file_additional_document2'
+        documents.additional_document2 = additional_document2
+        additional_document3 = AdditionalDocument()
+        additional_document3.front = 'file_additional_document3'
+        documents.additional_document3 = additional_document3
+
+        result = _serialize(documents)
+
+        expected_fields = [
+            'identity_verification', 'company_verification', 'articles_of_association',
+            'bank_verification', 'shareholder_structure', 'proof_of_legality',
+            'proof_of_principal_address', 'tax_verification', 'financial_verification',
+            'financial_statements', 'additional_document1', 'additional_document2',
+            'additional_document3',
+        ]
+        assert sorted(result.keys()) == sorted(expected_fields)
+        for field in expected_fields:
+            assert 'front' in result[field], f'{field} must serialize a front'
+        # identity_verification is the only document that carries a back
+        assert result['identity_verification']['back'] == 'file_identity_back'
+        assert result['articles_of_association'] == {
+            'type': 'articles_of_association', 'front': 'file_articles_of_association'
         }
 
     def test_entity_roles_enum_values(self):
