@@ -226,6 +226,43 @@ class OnboardSubEntityDocuments:
     financial_statements: FinancialStatements
 
 
+class CertifiedAuthorisedSignatoryType(str, Enum):
+    POWER_OF_ATTORNEY = 'power_of_attorney'
+
+
+class CertifiedAuthorisedSignatory:
+    type: CertifiedAuthorisedSignatoryType
+    front: str
+
+
+class ProofOfResidentialAddressType(str, Enum):
+    PROOF_OF_ADDRESS = 'proof_of_address'
+
+
+class ProofOfResidentialAddress:
+    type: ProofOfResidentialAddressType
+    front: str
+
+
+class ProofOfRegistrationType(str, Enum):
+    EXTRACT_FROM_TRADE_REGISTER = 'extract_from_trade_register'
+    OTHER = 'other'
+
+
+class ProofOfRegistration:
+    type: ProofOfRegistrationType
+    front: str
+
+
+# The representative-level documents union (Accounts API v3.0) is a distinct, smaller shape than the
+# entity-level OnboardSubEntityDocuments — per shared/swagger-latest.json it carries only these fields.
+class RepresentativeDocuments:
+    identity_verification: EntityIdentificationDocument
+    certified_authorised_signatory: CertifiedAuthorisedSignatory
+    proof_of_residential_address: ProofOfResidentialAddress
+    proof_of_registration: ProofOfRegistration
+
+
 class Citizenship:
     type: str
     country: Country
@@ -252,7 +289,7 @@ class EntityRepresentative:
     roles: list  # accounts.EntityRoles
     company_position: CompanyPosition
     ownership_percentage: int
-    documents: OnboardSubEntityDocuments
+    documents: RepresentativeDocuments
     # v2.0 only — deprecated; use `individual` for v3.0
     first_name: str
     middle_name: str

@@ -13,6 +13,8 @@ from checkout_sdk.accounts.accounts import (
     ShareholderStructure, ShareholderStructureType, ProofOfLegality, ProofOfLegalityType,
     ProofOfPrincipalAddress, ProofOfPrincipalAddressType, AdditionalDocument,
     TaxVerification, TaxVerificationType, FinancialVerification, FinancialVerificationType,
+    RepresentativeDocuments, CertifiedAuthorisedSignatory, CertifiedAuthorisedSignatoryType,
+    ProofOfResidentialAddress, ProofOfResidentialAddressType, ProofOfRegistration, ProofOfRegistrationType,
 )
 
 
@@ -130,6 +132,33 @@ class TestAccountsV3Serialization:
             'company_position': 'ceo',
             'ownership_percentage': 100,
             'roles': ['ubo', 'authorised_signatory', 'director', 'control_person'],
+        }
+
+    def test_serializes_representative_documents(self):
+        identity = EntityIdentificationDocument()
+        identity.type = DocumentType.PASSPORT
+        identity.front = 'file_identity_front'
+        identity.back = 'file_identity_back'
+        signatory = CertifiedAuthorisedSignatory()
+        signatory.type = CertifiedAuthorisedSignatoryType.POWER_OF_ATTORNEY
+        signatory.front = 'file_signatory'
+        residential = ProofOfResidentialAddress()
+        residential.type = ProofOfResidentialAddressType.PROOF_OF_ADDRESS
+        residential.front = 'file_residential'
+        registration = ProofOfRegistration()
+        registration.type = ProofOfRegistrationType.EXTRACT_FROM_TRADE_REGISTER
+        registration.front = 'file_registration'
+        documents = RepresentativeDocuments()
+        documents.identity_verification = identity
+        documents.certified_authorised_signatory = signatory
+        documents.proof_of_residential_address = residential
+        documents.proof_of_registration = registration
+
+        assert _serialize(documents) == {
+            'identity_verification': {'type': 'passport', 'front': 'file_identity_front', 'back': 'file_identity_back'},
+            'certified_authorised_signatory': {'type': 'power_of_attorney', 'front': 'file_signatory'},
+            'proof_of_residential_address': {'type': 'proof_of_address', 'front': 'file_residential'},
+            'proof_of_registration': {'type': 'extract_from_trade_register', 'front': 'file_registration'},
         }
 
     def test_serializes_financial_statements_document(self):
