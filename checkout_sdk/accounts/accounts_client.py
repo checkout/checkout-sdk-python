@@ -5,7 +5,7 @@ from warnings import warn
 from checkout_sdk.accounts.accounts import (
     EtagHeader, OnboardEntityRequest, UpdateScheduleRequest, AccountsPaymentInstrument,
     PaymentInstrumentRequest, PaymentInstrumentsQuery, UpdatePaymentInstrumentRequest,
-    ReserveRuleRequest, EntityFileRequest, EntityRequirementUpdateRequest
+    ReserveRuleRequest, EntityFileRequest, EntityRequirementUpdateRequest, SchemaVersionHeader
 )
 from checkout_sdk.api_client import ApiClient
 from checkout_sdk.authorization_type import AuthorizationType
@@ -13,6 +13,8 @@ from checkout_sdk.checkout_configuration import CheckoutConfiguration
 from checkout_sdk.client import Client
 from checkout_sdk.common.enums import Currency
 from checkout_sdk.files.files import FileRequest
+
+DEFAULT_SCHEMA_VERSION = '3.0'
 
 
 class AccountsClient(Client):
@@ -34,6 +36,12 @@ class AccountsClient(Client):
                          authorization_type=AuthorizationType.SECRET_KEY_OR_OAUTH)
         self.__files_client = files_client
 
+    @staticmethod
+    def __build_schema_version_headers(schema_version: str):
+        headers = SchemaVersionHeader()
+        headers.accept = 'application/json;schema_version=' + schema_version
+        return headers
+
     def upload_file(self, file_request: FileRequest):
         return self.__files_client.submit_file(
             self.__FILES_PATH,
@@ -41,11 +49,13 @@ class AccountsClient(Client):
             file_request,
             multipart_file='path')
 
-    def create_entity(self, onboard_entity_request: OnboardEntityRequest):
+    def create_entity(self, onboard_entity_request: OnboardEntityRequest,
+                      schema_version: str = DEFAULT_SCHEMA_VERSION):
         return self._api_client.post(
             self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH),
             self._sdk_authorization(),
-            onboard_entity_request)
+            onboard_entity_request,
+            headers=self.__build_schema_version_headers(schema_version))
 
     def retrieve_payment_instrument_details(self, entity_id: str, payment_instrument_id: str):
         return self._api_client.get(
@@ -54,16 +64,19 @@ class AccountsClient(Client):
             self._sdk_authorization()
         )
 
-    def get_entity(self, entity_id: str):
+    def get_entity(self, entity_id: str, schema_version: str = DEFAULT_SCHEMA_VERSION):
         return self._api_client.get(
             self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id),
-            self._sdk_authorization())
+            self._sdk_authorization(),
+            headers=self.__build_schema_version_headers(schema_version))
 
-    def update_entity(self, entity_id: str, onboard_entity_request: OnboardEntityRequest):
+    def update_entity(self, entity_id: str, onboard_entity_request: OnboardEntityRequest,
+                      schema_version: str = DEFAULT_SCHEMA_VERSION):
         return self._api_client.put(
             self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id),
             self._sdk_authorization(),
-            onboard_entity_request)
+            onboard_entity_request,
+            headers=self.__build_schema_version_headers(schema_version))
 
     def create_payment_instrument(self, entity_id: str, accounts_payment_instrument: AccountsPaymentInstrument):
         warn('Deprecated use add_payment_instrument instead', DeprecationWarning,
@@ -149,10 +162,11 @@ class AccountsClient(Client):
                                entity_id, self.__RESERVE_RULES_PATH, reserve_rule_id)
         return self._api_client.put(path, self._sdk_authorization(), update_request, headers=headers)
 
-    def get_entity_requirements(self, entity_id: str):
+    def get_entity_requirements(self, entity_id: str, schema_version: str = DEFAULT_SCHEMA_VERSION):
         return self._api_client.get(
             self.build_path(self.__ACCOUNTS_PATH, self.__ENTITIES_PATH, entity_id, self.__REQUIREMENTS_PATH),
-            self._sdk_authorization())
+            self._sdk_authorization(),
+            headers=self.__build_schema_version_headers(schema_version))
 
     def get_entity_requirement_details(self, entity_id: str, requirement_id: str):
         return self._api_client.get(

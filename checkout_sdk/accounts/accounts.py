@@ -23,18 +23,57 @@ class DaySchedule(str, Enum):
 
 
 class BusinessType(str, Enum):
+    INDIVIDUAL_OR_SOLE_PROPRIETORSHIP = 'individual_or_sole_proprietorship'
     GENERAL_PARTNERSHIP = 'general_partnership'
     LIMITED_PARTNERSHIP = 'limited_partnership'
+    SCOTTISH_LIMITED_PARTNERSHIP = 'scottish_limited_partnership'
     PUBLIC_LIMITED_COMPANY = 'public_limited_company'
     LIMITED_COMPANY = 'limited_company'
+    LIMITED_LIABILITY_CORPORATION = 'limited_liability_corporation'
+    PRIVATE_CORPORATION = 'private_corporation'
+    PUBLICLY_TRADED_CORPORATION = 'publicly_traded_corporation'
     PROFESSIONAL_ASSOCIATION = 'professional_association'
     UNINCORPORATED_ASSOCIATION = 'unincorporated_association'
     AUTO_ENTREPRENEUR = 'auto_entrepreneur'
+    GOVERNMENT_AGENCY = 'government_agency'
+    NON_PROFIT_ENTITY = 'non_profit_entity'
+    TRUST = 'trust'
+    CLUB_OR_SOCIETY = 'club_or_society'
+    REGULATED_FINANCIAL_INSTITUTION = 'regulated_financial_institution'
+    CFTC_REGISTERED_ENTITY = 'cftc_registered_entity'
+    SEC_REGISTERED_ENTITY = 'sec_registered_entity'
 
 
 class EntityRoles(str, Enum):
     UBO = 'ubo'
     LEGAL_REPRESENTATIVE = 'legal_representative'
+    AUTHORISED_SIGNATORY = 'authorised_signatory'
+    DIRECTOR = 'director'
+    CONTROL_PERSON = 'control_person'
+
+
+class CompanyPosition(str, Enum):
+    CEO = 'ceo'
+    CFO = 'cfo'
+    COO = 'coo'
+    MANAGING_MEMBER = 'managing_member'
+    GENERAL_PARTNER = 'general_partner'
+    PRESIDENT = 'president'
+    VICE_PRESIDENT = 'vice_president'
+    TREASURER = 'treasurer'
+    OTHER_SENIOR_MANAGEMENT = 'other_senior_management'
+    OTHER_EXECUTIVE_OFFICER = 'other_executive_officer'
+    OTHER_NON_EXECUTIVE_NON_SENIOR = 'other_non_executive_non_senior'
+
+
+class NationalIdType(str, Enum):
+    SSN = 'ssn'
+    ITIN = 'itin'
+    PASSPORT = 'passport'
+    DRIVING_LICENSE = 'driving_license'
+    NATIONAL_ID_CARD = 'national_id_card'
+    RESIDENCE_PERMIT = 'residence_permit'
+    OTHER = 'other'
 
 
 class EntityEmailAddresses:
@@ -108,6 +147,11 @@ class ArticlesOfAssociationType(str, Enum):
     ARTICLES_OF_ASSOCIATION = "articles_of_association"
 
 
+class ArticlesOfAssociation:
+    type: ArticlesOfAssociationType
+    front: str
+
+
 class BankVerificationType(str, Enum):
     BANK_STATEMENT = 'bank_statement'
 
@@ -157,10 +201,19 @@ class FinancialVerification:
     front: str
 
 
+class FinancialStatementsType(str, Enum):
+    FINANCIAL_STATEMENTS = 'financial_statements'
+
+
+class FinancialStatements:
+    type: FinancialStatementsType
+    front: str
+
+
 class OnboardSubEntityDocuments:
     identity_verification: EntityIdentificationDocument
     company_verification: CompanyVerification
-    articles_of_association: ArticlesOfAssociationType
+    articles_of_association: ArticlesOfAssociation
     bank_verification: BankVerification
     shareholder_structure: ShareholderStructure
     proof_of_legality: ProofOfLegality
@@ -170,9 +223,37 @@ class OnboardSubEntityDocuments:
     additional_document3: AdditionalDocument
     tax_verification: TaxVerification
     financial_verification: FinancialVerification
+    financial_statements: FinancialStatements
+
+
+class Citizenship:
+    type: str
+    country: Country
+
+
+class RepresentativeIndividual:
+    first_name: str
+    middle_name: str
+    last_name: str
+    date_of_birth: DateOfBirth
+    place_of_birth: PlaceOfBirth
+    citizenships: list  # Citizenship
+    national_id_type: NationalIdType
+    national_id_number: str
+    email_address: str
+    phone: Phone
+    address: Address
 
 
 class EntityRepresentative:
+    # v3.0 (Accounts API v3.0)
+    id: str
+    individual: RepresentativeIndividual
+    roles: list  # accounts.EntityRoles
+    company_position: CompanyPosition
+    ownership_percentage: int
+    documents: OnboardSubEntityDocuments
+    # v2.0 only — deprecated; use `individual` for v3.0
     first_name: str
     middle_name: str
     last_name: str
@@ -181,8 +262,6 @@ class EntityRepresentative:
     phone: Phone
     date_of_birth: DateOfBirth
     place_of_birth: PlaceOfBirth
-    roles: list  # accounts.EntityRoles
-    documents: OnboardSubEntityDocuments
 
 
 class EntityFinancialDocuments:
@@ -199,6 +278,7 @@ class EntityFinancialDetails:
 
 
 class DateOfIncorporation:
+    day: int
     month: int
     year: int
 
@@ -208,6 +288,8 @@ class Company:
     business_type: BusinessType
     legal_name: str
     trading_name: str
+    additional_trading_names: list  # str
+    is_registered_company: bool
     date_of_incorporation: DateOfIncorporation
     regulatory_licence_number: str
     principal_address: Address
@@ -235,19 +317,49 @@ class Individual:
     financial_details: EntityFinancialDetails
 
 
+class ProcessingDetailsAch:
+    annual_ach_volume: int
+    average_ach_transaction_size: int
+    estimated_monthly_credit_volume: int
+    average_credit_amount: int
+
+
+class ProcessingDetailsPayments:
+    ach: ProcessingDetailsAch
+
+
 class ProcessingDetails:
     settlement_country: str
     target_countries: list  # str
     annual_processing_volume: int
     average_transaction_value: int
+    average_order_fulfillment_time: int
     highest_transaction_value: int
     currency: Currency
+    payments: ProcessingDetailsPayments
 
 
 class AdditionalInfo:
     field1: str
     field2: str
     field3: str
+
+
+class AgreedTerms:
+    date: str
+    ip_address: str
+    name: str
+    email: str
+    version: str
+
+
+class SchemaVersionHeader:
+    accept: str
+
+    def get_header_mappings(self) -> Dict[str, str]:
+        return {
+            'accept': 'Accept'
+        }
 
 
 class OnboardEntityRequest:
@@ -257,9 +369,12 @@ class OnboardEntityRequest:
     contact_details: ContactDetails
     company: Company
     processing_details: ProcessingDetails
-    individual: Individual
+    agreed_terms: AgreedTerms
+    seller_category: str
     documents: OnboardSubEntityDocuments
     additional_info: AdditionalInfo
+    # v2.0 only — deprecated; a v3.0 sole trader is onboarded as a `company` with representatives
+    individual: Individual
 
 
 class InstrumentDocument:

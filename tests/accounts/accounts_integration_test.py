@@ -9,7 +9,10 @@ from checkout_sdk import CheckoutSdk
 from checkout_sdk.accounts.accounts import OnboardEntityRequest, ContactDetails, Profile, Individual, \
     DateOfBirth, Identification, EntityEmailAddresses, Company, EntityRepresentative, PaymentInstrumentRequest, \
     InstrumentDocument, InstrumentDetailsFasterPayments, ReserveRuleRequest, RollingReserveRule, \
-    HoldingDuration, EntityFileRequest, FilePurpose
+    HoldingDuration, EntityFileRequest, FilePurpose, RepresentativeIndividual, PlaceOfBirth, EntityRoles, \
+    CompanyPosition, BusinessType, DateOfIncorporation, ProcessingDetails, ProcessingDetailsPayments, \
+    ProcessingDetailsAch
+from checkout_sdk.common.common import Phone
 from checkout_sdk.common.enums import Currency, Country, InstrumentType
 from checkout_sdk.files.files import FileRequest
 from checkout_sdk.oauth_scopes import OAuthScopes
@@ -51,11 +54,12 @@ def test_should_create_get_and_update_onboard_entity(accounts_checkout_api):
     onboard_entity_request.individual.identification = Identification()
     onboard_entity_request.individual.identification.national_id_number = 'AB123456C'
 
-    create_entity_response = accounts_checkout_api.accounts.create_entity(onboard_entity_request)
+    # v2.0 payload (top-level individual) — pin to schema_version 2.0 (SDK now defaults to 3.0)
+    create_entity_response = accounts_checkout_api.accounts.create_entity(onboard_entity_request, '2.0')
 
     assert_response(create_entity_response, 'id', 'reference')
 
-    get_entity_response = accounts_checkout_api.accounts.get_entity(create_entity_response.id)
+    get_entity_response = accounts_checkout_api.accounts.get_entity(create_entity_response.id, '2.0')
 
     assert_response(get_entity_response,
                     'id',
@@ -72,11 +76,85 @@ def test_should_create_get_and_update_onboard_entity(accounts_checkout_api):
 
     onboard_entity_request.individual.first_name = 'John'
 
-    update_response = accounts_checkout_api.accounts.update_entity(create_entity_response.id, onboard_entity_request)
+    update_response = accounts_checkout_api.accounts.update_entity(create_entity_response.id, onboard_entity_request,
+                                                                   '2.0')
 
     assert_response(update_response, 'id')
 
     assert create_entity_response.id == update_response.id
+
+
+@pytest.mark.skip(reason='Schema 3.0 onboarding pending sandbox account currency-scope confirmation')
+def test_should_onboard_company_v3(accounts_checkout_api):
+    entity_request = OnboardEntityRequest()
+    entity_request.reference = new_uuid()[:14]
+
+    # v3.0: phone.country_code is an ISO 3166-1 alpha-2 code (finding 3), not a dialing code
+    entity_request.contact_details = ContactDetails()
+    v3_phone = Phone()
+    v3_phone.country_code = 'GB'
+    v3_phone.number = '2072343000'
+    entity_request.contact_details.phone = v3_phone
+    entity_request.contact_details.email_addresses = EntityEmailAddresses()
+    entity_request.contact_details.email_addresses.primary = random_email()
+
+    # v3.0: profile currencies are validated against the platform scope (finding 4)
+    entity_request.profile = Profile()
+    entity_request.profile.urls = ['https://www.superheroexample.com']
+    entity_request.profile.mccs = ['0742']
+    entity_request.profile.default_holding_currency = Currency.USD
+    entity_request.profile.holding_currencies = [Currency.USD]
+
+    entity_request.company = Company()
+    entity_request.company.legal_name = 'Super Hero Masks Inc.'
+    entity_request.company.trading_name = 'Super Hero Masks'
+    entity_request.company.business_registration_number = '01234567'
+    entity_request.company.business_type = BusinessType.LIMITED_COMPANY
+    entity_request.company.principal_address = address()
+    entity_request.company.registered_address = address()
+    entity_request.company.date_of_incorporation = DateOfIncorporation()
+    entity_request.company.date_of_incorporation.day = 1
+    entity_request.company.date_of_incorporation.month = 6
+    entity_request.company.date_of_incorporation.year = 2010
+
+    # v3.0: representative is a "person of interest" with a nested individual + roles (finding 2)
+    representative = EntityRepresentative()
+    representative.roles = [EntityRoles.UBO, EntityRoles.AUTHORISED_SIGNATORY]
+    representative.company_position = CompanyPosition.CEO
+    representative.ownership_percentage = 100
+    representative.individual = RepresentativeIndividual()
+    representative.individual.first_name = 'John'
+    representative.individual.last_name = 'Doe'
+    representative.individual.national_id_number = 'AB123456C'
+    representative.individual.email_address = random_email()
+    representative.individual.address = address()
+    representative.individual.date_of_birth = DateOfBirth()
+    representative.individual.date_of_birth.day = 5
+    representative.individual.date_of_birth.month = 6
+    representative.individual.date_of_birth.year = 1996
+    representative.individual.place_of_birth = PlaceOfBirth()
+    representative.individual.place_of_birth.country = Country.GB
+    entity_request.company.representatives = [representative]
+
+    # v3.0: processing currency reflects the sub-entity region and can differ from profile scope (finding 4)
+    entity_request.processing_details = ProcessingDetails()
+    entity_request.processing_details.settlement_country = 'GB'
+    entity_request.processing_details.target_countries = ['GB']
+    entity_request.processing_details.annual_processing_volume = 1000000
+    entity_request.processing_details.average_transaction_value = 5000
+    entity_request.processing_details.highest_transaction_value = 25000
+    entity_request.processing_details.currency = Currency.GBP
+    entity_request.processing_details.payments = ProcessingDetailsPayments()
+    entity_request.processing_details.payments.ach = ProcessingDetailsAch()
+    entity_request.processing_details.payments.ach.annual_ach_volume = 1000000
+    entity_request.processing_details.payments.ach.average_ach_transaction_size = 5000
+
+    # default schema_version is 3.0
+    create_response = accounts_checkout_api.accounts.create_entity(entity_request)
+    assert_response(create_response, 'id', 'reference')
+
+    get_response = accounts_checkout_api.accounts.get_entity(create_response.id)
+    assert_response(get_response, 'id', 'reference', 'company', 'company.representatives')
 
 
 def test_should_upload_file(accounts_checkout_api):
@@ -107,7 +185,8 @@ def test_should_create_and_retrieve_payment_instrument(accounts_checkout_api):
     representative.identification.national_id_number = 'AB123456C'
     entity_request.company.representatives = [representative]
 
-    entity_response = accounts_checkout_api.accounts.create_entity(entity_request)
+    # v2.0 payload (flat representative) — pin to schema_version 2.0
+    entity_response = accounts_checkout_api.accounts.create_entity(entity_request, '2.0')
 
     file = upload_file(accounts_checkout_api)
 
@@ -258,7 +337,8 @@ def create_test_entity(api):
     representative.address = address()
     entity_request.company.representatives = [representative]
 
-    entity_response = api.accounts.create_entity(entity_request)
+    # v2.0 payload (flat representative) — pin to schema_version 2.0
+    entity_response = api.accounts.create_entity(entity_request, '2.0')
     assert_response(entity_response, 'id')
 
     return entity_response.id
