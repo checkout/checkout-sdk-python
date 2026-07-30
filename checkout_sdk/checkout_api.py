@@ -33,6 +33,8 @@ from checkout_sdk.standaloneaccountupdater.standalone_account_updater_client imp
 from checkout_sdk.identities.amlscreening.amlscreening_client import AmlScreeningClient
 from checkout_sdk.identities.faceauthentication.faceauthentication_client import FaceAuthenticationClient
 from checkout_sdk.identities.iddocumentverification.iddocumentverification_client import IdDocumentVerificationClient
+from checkout_sdk.identities.addressdocumentverification.addressdocumentverification_client import \
+    AddressDocumentVerificationClient
 from checkout_sdk.identities.applicants.applicants_client import ApplicantsClient
 from checkout_sdk.identities.identityverification.identityverification_client import IdentityVerificationClient
 from checkout_sdk.networktokens.network_tokens_client import NetworkTokensClient
@@ -111,6 +113,8 @@ class CheckoutApi(CheckoutApmApi):
         self.face_authentication = FaceAuthenticationClient(api_client=identity_api_client, configuration=configuration)
         self.id_document_verification = IdDocumentVerificationClient(api_client=identity_api_client,
                                                                      configuration=configuration)
+        self.address_document_verification = AddressDocumentVerificationClient(api_client=identity_api_client,
+                                                                               configuration=configuration)
         self.applicants = ApplicantsClient(api_client=identity_api_client, configuration=configuration)
         self.identity_verification = IdentityVerificationClient(api_client=identity_api_client,
                                                                 configuration=configuration)
