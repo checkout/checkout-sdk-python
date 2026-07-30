@@ -168,3 +168,39 @@ class TestAccountsClient:
 
         assert client.resolve_entity_requirement('entity_id', 'requirement_id', body) == 'response'
         assert_api_call(mock, 'accounts/entities/entity_id/requirements/requirement_id', body)
+
+    # Accounts API v3.0 — schema_version negotiation via the Accept header
+
+    @staticmethod
+    def _accept_header(mock):
+        return mock.call_args.kwargs['headers'].accept
+
+    def test_should_create_entity_with_default_schema_version(self, mocker, client: AccountsClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+
+        assert client.create_entity(OnboardEntityRequest()) == 'response'
+        assert self._accept_header(mock) == 'application/json;schema_version=3.0'
+
+    def test_should_get_entity_with_default_schema_version(self, mocker, client: AccountsClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+
+        assert client.get_entity('entity_id') == 'response'
+        assert self._accept_header(mock) == 'application/json;schema_version=3.0'
+
+    def test_should_update_entity_with_default_schema_version(self, mocker, client: AccountsClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.put', return_value='response')
+
+        assert client.update_entity('entity_id', OnboardEntityRequest()) == 'response'
+        assert self._accept_header(mock) == 'application/json;schema_version=3.0'
+
+    def test_should_get_entity_requirements_with_default_schema_version(self, mocker, client: AccountsClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+
+        assert client.get_entity_requirements('entity_id') == 'response'
+        assert self._accept_header(mock) == 'application/json;schema_version=3.0'
+
+    def test_should_override_schema_version(self, mocker, client: AccountsClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+
+        assert client.get_entity('entity_id', schema_version='2.0') == 'response'
+        assert self._accept_header(mock) == 'application/json;schema_version=2.0'

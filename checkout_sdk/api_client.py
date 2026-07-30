@@ -36,8 +36,9 @@ class ApiClient:
     def get(self,
             path,
             authorization: SdkAuthorization,
-            params=None):
-        return self.invoke(method='GET', path=path, authorization=authorization, params=params)
+            params=None,
+            headers=None):
+        return self.invoke(method='GET', path=path, authorization=authorization, params=params, headers=headers)
 
     def post(self,
              path,
