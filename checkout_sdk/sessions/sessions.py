@@ -153,8 +153,6 @@ class SessionMarketplaceData:
 
 class SessionsBillingDescriptor:
     name: str
-    city: str
-    reference: str
 
 
 # Channel
@@ -191,6 +189,13 @@ class BrowserSession(ChannelData):
     timezone: str
     user_agent: str
     ip_address: str
+    # Whether the Payment API is enabled for all parent frames. This is required for Google SPA
+    # support in hosted sessions.
+    # [Optional]
+    iframe_payment_allowed: bool
+    # The raw Sec-CH-UA header value. This can improve Google SPA support.
+    # [Optional]
+    user_agent_client_hint: str
 
     def __init__(self):
         super().__init__(ChannelType.BROWSER)
@@ -257,12 +262,17 @@ class SessionSource:
 
 
 class SessionCardSource(SessionSource):
+    """A card source for the authentication.
+
+    The sessions CardSource schema does not define `store_for_future_use`; that field belongs to the
+    payments sources, which create an instrument. A session only authenticates a card, so it is not
+    accepted here.
+    """
     number: str
     expiry_month: int
     expiry_year: int
     name: str
     stored: bool = False
-    store_for_future_use: bool
 
     def __init__(self):
         super().__init__(SessionSourceType.CARD)
@@ -400,6 +410,13 @@ class GoogleSpa:
 
 
 class SessionRequest:
+    """The request body for POST /sessions.
+
+    Declares exactly the 24 properties of the SessionRequest schema. `prior_transaction_reference`
+    was carried here from a June 2022 sessions update but is absent from the current API Reference,
+    from the API schema search and from the developer documentation, so it is no longer declared.
+    Assigning it still serializes, should the API accept it.
+    """
     source: SessionSource = SessionCardSource()
     amount: int
     currency: Currency
@@ -412,7 +429,6 @@ class SessionRequest:
     billing_descriptor: SessionsBillingDescriptor
     reference: str
     merchant_risk_info: MerchantRiskInfo
-    prior_transaction_reference: str
     transaction_type: TransactionType = TransactionType.GOODS_SERVICE
     shipping_address: SessionAddress
     shipping_address_matches_billing: bool

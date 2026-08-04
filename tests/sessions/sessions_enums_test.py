@@ -7,8 +7,13 @@ import pytest
 from checkout_sdk.sessions import sessions as sessions_module
 from checkout_sdk.sessions.sessions import (
     AuthenticationType,
+    BrowserSession,
     Category,
+    ChannelData,
+    SessionCardSource,
     SessionScheme,
+    SessionSource,
+    SessionsBillingDescriptor,
     ShippingIndicator,
     ThreeDsMethodCompletion,
     TransactionType,
@@ -82,6 +87,47 @@ class TestSessionsEnums:
     def test_three_ds_method_completion_is_uppercase(self):
         """The spec enum is Y/N/U. Lowercase values are rejected by the API."""
         assert [member.value for member in ThreeDsMethodCompletion] == ['Y', 'N', 'U']
+
+    def test_browser_session_covers_every_spec_field(self):
+        """The spec Browser schema has 14 properties. iframe_payment_allowed and
+        user_agent_client_hint were previously missing, so Google SPA support could not be signalled.
+        """
+        expected = {
+            'channel',
+            'three_ds_method_completion',
+            'accept_header',
+            'java_enabled',
+            'javascript_enabled',
+            'language',
+            'color_depth',
+            'screen_height',
+            'screen_width',
+            'timezone',
+            'user_agent',
+            'ip_address',
+            'iframe_payment_allowed',
+            'user_agent_client_hint',
+        }
+        declared = set(BrowserSession.__annotations__) | set(ChannelData.__annotations__)
+
+        assert declared == expected
+
+    def test_sessions_billing_descriptor_declares_only_name(self):
+        """The sessions schema defines only `name`. city and reference belong to the payments
+        billing descriptor and are not accepted here.
+        """
+        assert set(SessionsBillingDescriptor.__annotations__) == {'name'}
+
+    def test_session_card_source_does_not_declare_store_for_future_use(self):
+        """The sessions CardSource schema has no store_for_future_use; that field belongs to the
+        payments sources, which create an instrument.
+        """
+        declared = set(SessionCardSource.__annotations__) | set(SessionSource.__annotations__)
+
+        assert 'store_for_future_use' not in declared
+        assert declared == {'type', 'scheme', 'billing_address', 'home_phone', 'mobile_phone',
+                            'work_phone', 'email', 'number', 'expiry_month', 'expiry_year',
+                            'name', 'stored'}
 
     def test_every_sessions_enum_value_is_snake_case_or_single_uppercase_code(self):
         """Structural guard across every enum in the sessions module. Catches camelCase or wrong

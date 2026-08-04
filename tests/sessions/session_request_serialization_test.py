@@ -25,8 +25,7 @@ from checkout_sdk.sessions.sessions import (
     TransactionType,
 )
 
-# Every attribute declared on SessionRequest. The 24 spec properties of the SessionRequest schema
-# plus prior_transaction_reference, which the SDK carries but the API Reference does not define.
+# The 24 properties of the SessionRequest schema in the Checkout.com API Reference.
 EXPECTED_ATTRIBUTES = [
     'source',
     'amount',
@@ -40,7 +39,6 @@ EXPECTED_ATTRIBUTES = [
     'billing_descriptor',
     'reference',
     'merchant_risk_info',
-    'prior_transaction_reference',
     'transaction_type',
     'shipping_address',
     'shipping_address_matches_billing',
@@ -143,7 +141,6 @@ def _fully_populated():
     request.billing_descriptor = billing_descriptor
     request.reference = 'ORD-5023-4E89'
     request.merchant_risk_info = merchant_risk_info
-    request.prior_transaction_reference = 'prior-txn-ref'
     request.transaction_type = TransactionType.GOODS_SERVICE
     request.shipping_address = shipping_address
     request.shipping_address_matches_billing = True
@@ -167,13 +164,18 @@ class TestSessionRequestSerialization:
     attribute without extending the fixture fails the test.
     """
 
-    def test_declared_attributes_match_the_expected_set(self):
+    def test_declared_attributes_match_the_spec_property_set(self):
+        """Guards both directions: a spec property missing from the SDK, and an attribute the SDK
+        declares that the API Reference does not define.
+        """
         declared = [
             name for name in SessionRequest.__annotations__
             if not name.startswith('_')
         ]
 
-        assert declared == EXPECTED_ATTRIBUTES
+        assert sorted(declared) == sorted(EXPECTED_ATTRIBUTES)
+        assert len(declared) == 24
+        assert 'prior_transaction_reference' not in declared
 
     def test_serializes_every_declared_attribute(self):
         payload = _serialize(_fully_populated())
@@ -199,7 +201,6 @@ class TestSessionRequestSerialization:
         assert payload['authentication_category'] == 'payment'
         assert payload['challenge_indicator'] == 'trusted_listing_prompt'
         assert payload['reference'] == 'ORD-5023-4E89'
-        assert payload['prior_transaction_reference'] == 'prior-txn-ref'
         assert payload['transaction_type'] == 'goods_service'
         assert payload['shipping_address_matches_billing'] is True
         assert payload['preferred_experiences'] == ['3ds', 'google_spa']
