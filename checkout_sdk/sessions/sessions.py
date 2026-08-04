@@ -19,9 +19,9 @@ class SdkInterfaceType(str, Enum):
 
 
 class ThreeDsMethodCompletion(str, Enum):
-    Y = 'y'
-    N = 'n'
-    U = 'u'
+    Y = 'Y'
+    N = 'N'
+    U = 'U'
 
 
 class CompletionInfoType(str, Enum):
@@ -49,10 +49,22 @@ class Category(str, Enum):
     NON_PAYMENT = 'non_payment'
 
 
-# Wider variant of common.enums.ChallengeIndicator. Only used by SessionRequest
-# (the /sessions 3DS endpoint), which folds exemption requests into this field
-# instead of having a separate `exemption` field like ThreeDsRequest does.
 class SessionChallengeIndicator(str, Enum):
+    """Indicates whether a challenge is requested for this session.
+
+    Used by SessionRequest.challenge_indicator for POST /sessions. This is the only field in the
+    API that accepts the exemption values below; the 3ds.challenge_indicator field on payments,
+    hosted payments, payment links and payment sessions accepts only the first four values and is
+    modelled by checkout_sdk.common.enums.ChallengeIndicator.
+
+    The following are requests for exemption: LOW_VALUE, TRUSTED_LISTING, TRUSTED_LISTING_PROMPT
+    and TRANSACTION_RISK_ASSESSMENT. If an exemption cannot be applied, then the value
+    NO_CHALLENGE_REQUESTED will be used instead.
+
+    [Optional]
+    Default: NO_PREFERENCE
+    max 50 characters
+    """
     NO_PREFERENCE = 'no_preference'
     NO_CHALLENGE_REQUESTED = 'no_challenge_requested'
     CHALLENGE_REQUESTED = 'challenge_requested'
@@ -87,6 +99,8 @@ class SessionScheme(str, Enum):
     AMEX = 'amex'
     DINERS = 'diners'
     CARTES_BANCAIRES = 'cartes_bancaires'
+    DISCOVER = 'discover'
+    UPI = 'upi'
 
 
 class AuthenticationMethod(str, Enum):
@@ -106,7 +120,20 @@ class DeliveryTimeframe(str, Enum):
 
 
 class ShippingIndicator(str, Enum):
-    VISA = 'visa'
+    """Indicates the shipping method chosen for the transaction.
+
+    Used by MerchantRiskInfo.shipping_indicator. Please choose an option that accurately describes
+    the cardholder's specific transaction.
+
+    [Optional]
+    """
+    BILLING_ADDRESS = 'billing_address'
+    ANOTHER_ADDRESS_ON_FILE = 'another_address_on_file'
+    NOT_ON_FILE = 'not_on_file'
+    STORE_PICK_UP = 'store_pick_up'
+    DIGITAL_GOODS = 'digital_goods'
+    TRAVEL_AND_EVENT_NO_SHIPPING = 'travel_and_event_no_shipping'
+    OTHER = 'other'
 
 
 class SdkEphemeralPublicKey:
