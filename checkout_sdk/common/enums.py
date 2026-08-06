@@ -484,9 +484,20 @@ class PaymentSourceType(str, Enum):
     BLIK = 'blik'
 
 
-# Used by ThreeDsRequest (in payments). The /sessions endpoint accepts
-# additional exemption-like values — see SessionChallengeIndicator.
 class ChallengeIndicator(str, Enum):
+    """Indicates the preference for whether or not a 3DS challenge should be performed.
+
+    The customer's bank has the final say on whether or not the customer receives the challenge.
+
+    This is the four-value indicator accepted by the 3ds.challenge_indicator field on POST
+    /payments, POST /hosted-payments, POST /payment-links and POST /payment-sessions.
+
+    For POST /sessions, which additionally supports requests for exemption, use
+    checkout_sdk.sessions.sessions.SessionChallengeIndicator.
+
+    [Optional]
+    Default: NO_PREFERENCE
+    """
     NO_PREFERENCE = 'no_preference'
     NO_CHALLENGE_REQUESTED = 'no_challenge_requested'
     CHALLENGE_REQUESTED = 'challenge_requested'

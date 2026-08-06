@@ -19,9 +19,9 @@ class SdkInterfaceType(str, Enum):
 
 
 class ThreeDsMethodCompletion(str, Enum):
-    Y = 'y'
-    N = 'n'
-    U = 'u'
+    Y = 'Y'
+    N = 'N'
+    U = 'U'
 
 
 class CompletionInfoType(str, Enum):
@@ -49,10 +49,22 @@ class Category(str, Enum):
     NON_PAYMENT = 'non_payment'
 
 
-# Wider variant of common.enums.ChallengeIndicator. Only used by SessionRequest
-# (the /sessions 3DS endpoint), which folds exemption requests into this field
-# instead of having a separate `exemption` field like ThreeDsRequest does.
 class SessionChallengeIndicator(str, Enum):
+    """Indicates whether a challenge is requested for this session.
+
+    Used by SessionRequest.challenge_indicator for POST /sessions. This is the only field in the
+    API that accepts the exemption values below; the 3ds.challenge_indicator field on payments,
+    hosted payments, payment links and payment sessions accepts only the first four values and is
+    modelled by checkout_sdk.common.enums.ChallengeIndicator.
+
+    The following are requests for exemption: LOW_VALUE, TRUSTED_LISTING, TRUSTED_LISTING_PROMPT
+    and TRANSACTION_RISK_ASSESSMENT. If an exemption cannot be applied, then the value
+    NO_CHALLENGE_REQUESTED will be used instead.
+
+    [Optional]
+    Default: NO_PREFERENCE
+    max 50 characters
+    """
     NO_PREFERENCE = 'no_preference'
     NO_CHALLENGE_REQUESTED = 'no_challenge_requested'
     CHALLENGE_REQUESTED = 'challenge_requested'
@@ -87,6 +99,8 @@ class SessionScheme(str, Enum):
     AMEX = 'amex'
     DINERS = 'diners'
     CARTES_BANCAIRES = 'cartes_bancaires'
+    DISCOVER = 'discover'
+    UPI = 'upi'
 
 
 class AuthenticationMethod(str, Enum):
@@ -106,7 +120,20 @@ class DeliveryTimeframe(str, Enum):
 
 
 class ShippingIndicator(str, Enum):
-    VISA = 'visa'
+    """Indicates the shipping method chosen for the transaction.
+
+    Used by MerchantRiskInfo.shipping_indicator. Please choose an option that accurately describes
+    the cardholder's specific transaction.
+
+    [Optional]
+    """
+    BILLING_ADDRESS = 'billing_address'
+    ANOTHER_ADDRESS_ON_FILE = 'another_address_on_file'
+    NOT_ON_FILE = 'not_on_file'
+    STORE_PICK_UP = 'store_pick_up'
+    DIGITAL_GOODS = 'digital_goods'
+    TRAVEL_AND_EVENT_NO_SHIPPING = 'travel_and_event_no_shipping'
+    OTHER = 'other'
 
 
 class SdkEphemeralPublicKey:
@@ -126,8 +153,6 @@ class SessionMarketplaceData:
 
 class SessionsBillingDescriptor:
     name: str
-    city: str
-    reference: str
 
 
 # Channel
@@ -164,6 +189,13 @@ class BrowserSession(ChannelData):
     timezone: str
     user_agent: str
     ip_address: str
+    # Whether the Payment API is enabled for all parent frames. This is required for Google SPA
+    # support in hosted sessions.
+    # [Optional]
+    iframe_payment_allowed: bool
+    # The raw Sec-CH-UA header value. This can improve Google SPA support.
+    # [Optional]
+    user_agent_client_hint: str
 
     def __init__(self):
         super().__init__(ChannelType.BROWSER)
@@ -230,12 +262,17 @@ class SessionSource:
 
 
 class SessionCardSource(SessionSource):
+    """A card source for the authentication.
+
+    The sessions CardSource schema does not define `store_for_future_use`; that field belongs to the
+    payments sources, which create an instrument. A session only authenticates a card, so it is not
+    accepted here.
+    """
     number: str
     expiry_month: int
     expiry_year: int
     name: str
     stored: bool = False
-    store_for_future_use: bool
 
     def __init__(self):
         super().__init__(SessionSourceType.CARD)
@@ -373,6 +410,13 @@ class GoogleSpa:
 
 
 class SessionRequest:
+    """The request body for POST /sessions.
+
+    Declares exactly the 24 properties of the SessionRequest schema. `prior_transaction_reference`
+    was carried here from a June 2022 sessions update but is absent from the current API Reference,
+    from the API schema search and from the developer documentation, so it is no longer declared.
+    Assigning it still serializes, should the API accept it.
+    """
     source: SessionSource = SessionCardSource()
     amount: int
     currency: Currency
@@ -385,7 +429,6 @@ class SessionRequest:
     billing_descriptor: SessionsBillingDescriptor
     reference: str
     merchant_risk_info: MerchantRiskInfo
-    prior_transaction_reference: str
     transaction_type: TransactionType = TransactionType.GOODS_SERVICE
     shipping_address: SessionAddress
     shipping_address_matches_billing: bool
