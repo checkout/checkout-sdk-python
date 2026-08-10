@@ -16,18 +16,19 @@ from checkout_sdk.common.common import Phone
 from checkout_sdk.common.enums import Currency, Country, InstrumentType
 from checkout_sdk.files.files import FileRequest
 from checkout_sdk.oauth_scopes import OAuthScopes
+from tests.conftest import configure_domain
 from tests.checkout_test_utils import assert_response, phone, address, new_uuid, get_project_root, random_email
 
 
 @pytest.fixture(scope='class')
 def accounts_checkout_api():
-    return CheckoutSdk \
+    builder = CheckoutSdk \
         .builder() \
         .oauth() \
         .client_credentials(client_id=os.environ.get('CHECKOUT_DEFAULT_OAUTH_ACCOUNTS_CLIENT_ID'),
                             client_secret=os.environ.get('CHECKOUT_DEFAULT_OAUTH_ACCOUNTS_CLIENT_SECRET')) \
-        .scopes([OAuthScopes.ACCOUNTS, OAuthScopes.FILES]) \
-        .build()
+        .scopes([OAuthScopes.ACCOUNTS, OAuthScopes.FILES])
+    return configure_domain(builder).build()
 
 
 def test_should_create_get_and_update_onboard_entity(accounts_checkout_api):

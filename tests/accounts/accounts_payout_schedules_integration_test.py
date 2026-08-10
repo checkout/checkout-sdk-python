@@ -9,18 +9,19 @@ from checkout_sdk.accounts.accounts import UpdateScheduleRequest, ScheduleFreque
 from checkout_sdk.checkout_sdk import CheckoutSdk
 from checkout_sdk.common.enums import Currency
 from checkout_sdk.oauth_scopes import OAuthScopes
+from tests.conftest import configure_domain
 from tests.checkout_test_utils import assert_response
 
 
 @pytest.fixture(scope='class')
 def payout_schedules_api():
-    return CheckoutSdk \
+    builder = CheckoutSdk \
         .builder() \
         .oauth() \
         .client_credentials(client_id=os.environ.get('CHECKOUT_DEFAULT_OAUTH_PAYOUT_SCHEDULE_CLIENT_ID'),
                             client_secret=os.environ.get('CHECKOUT_DEFAULT_OAUTH_PAYOUT_SCHEDULE_CLIENT_SECRET')) \
-        .scopes([OAuthScopes.MARKETPLACE]) \
-        .build()
+        .scopes([OAuthScopes.MARKETPLACE])
+    return configure_domain(builder).build()
 
 
 @pytest.mark.skip(reason='not available')

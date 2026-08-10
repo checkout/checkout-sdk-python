@@ -1,5 +1,6 @@
 import logging
 import os
+import warnings
 
 import pytest
 import requests
@@ -18,6 +19,22 @@ logging.basicConfig()
 logging.getLogger('checkout').setLevel(logging.INFO)
 
 
+def configure_domain(builder):
+    """
+    Every client the suite builds has to choose a domain now that the merchant-specific
+    subdomain is mandatory, so they all come through here.
+
+    The suite uses the shared hosts. It would be better to exercise the merchant-specific
+    subdomain, since that is the path merchants are being moved to, but the sandbox OAuth
+    clients are not provisioned for it: pointing the token request at
+    {subdomain}.access.sandbox.checkout.com returns invalid_client for every integration test.
+    Until those clients are bound to the subdomain, CI has to use the legacy hosts.
+    """
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore', DeprecationWarning)
+        return builder.use_legacy_domain()
+
+
 @pytest.fixture(scope='session', autouse=True)
 def previous_api():
     return CheckoutSdk \
@@ -30,16 +47,15 @@ def previous_api():
 
 @pytest.fixture(scope='session', autouse=True)
 def default_api():
-    return CheckoutSdk() \
-        .builder() \
-        .secret_key(os.environ.get('CHECKOUT_DEFAULT_SECRET_KEY')) \
-        .public_key(os.environ.get('CHECKOUT_DEFAULT_PUBLIC_KEY')) \
-        .build()
+    return configure_domain(CheckoutSdk()
+                            .builder()
+                            .secret_key(os.environ.get('CHECKOUT_DEFAULT_SECRET_KEY'))
+                            .public_key(os.environ.get('CHECKOUT_DEFAULT_PUBLIC_KEY'))).build()
 
 
 @pytest.fixture(scope='session', autouse=True)
 def oauth_api():
-    return CheckoutSdk() \
+    builder = CheckoutSdk() \
         .builder() \
         .oauth() \
         .client_credentials(client_id=os.environ.get('CHECKOUT_DEFAULT_OAUTH_CLIENT_ID'),
@@ -50,8 +66,8 @@ def oauth_api():
                  OAuthScopes.FILES, OAuthScopes.TRANSFERS, OAuthScopes.BALANCES_VIEW,
                  OAuthScopes.VAULT_CARD_METADATA, OAuthScopes.FINANCIAL_ACTIONS,
                  OAuthScopes.VAULT_REAL_TIME_ACCOUNT_UPDATER, OAuthScopes.PAYMENTS_SEARCH,
-                 OAuthScopes.GATEWAY_PAYMENT_CANCELLATIONS]) \
-        .build()
+                 OAuthScopes.GATEWAY_PAYMENT_CANCELLATIONS])
+    return configure_domain(builder).build()
 
 
 @pytest.fixture(scope='session', autouse=True)

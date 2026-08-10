@@ -10,13 +10,15 @@ from checkout_sdk.common.enums import Currency, Country
 from checkout_sdk.exception import CheckoutApiException
 from checkout_sdk.payments.payment_apm import RequestIdealSource, RequestTamaraSource, \
     PaymentRequestWeChatPaySource, RequestAlipayPlusSource, RequestP24Source, RequestKnetSource, \
-    RequestBancontactSource, RequestMultiBancoSource, RequestPostFinanceSource, RequestStcPaySource, RequestAlmaSource, \
+    RequestBancontactSource, RequestMultiBancoSource, RequestPostFinanceSource, RequestStcPaySource, \
+    RequestAlmaSource, \
     RequestKlarnaSource, RequestFawrySource, RequestTrustlySource, RequestCvConnectSource, RequestIllicadoSource, \
     RequestSepaSource, RequestGiropaySource, RequestEpsSource, RequestBizumSource, RequestOctopusSource, \
     RequestPlaidSource, RequestSequraSource
 from checkout_sdk.payments.payments import PaymentRequest, ProcessingSettings, FawryProduct, PaymentCustomerRequest, \
     ShippingDetails, PaymentMethodDetails
 from checkout_sdk.payments.payments_apm_previous import RequestSofortSource
+from tests.conftest import configure_domain
 from tests.checkout_test_utils import assert_response, SUCCESS_URL, FAILURE_URL, retriable, address, FIRST_NAME, \
     LAST_NAME, phone, check_error_item, PAYEE_NOT_ONBOARDED, APM_SERVICE_UNAVAILABLE, random_email, new_uuid, \
     account_holder, REFERENCE, DESCRIPTION, APM_CURRENCY_NOT_SUPPORTED
@@ -143,12 +145,12 @@ def test_should_request_tamara_payment():
     payment_request.reference = 'ORD-5023-4E89'
     payment_request.items = [product]
 
-    preview_api = CheckoutSdk \
+    preview_builder = CheckoutSdk \
         .builder() \
         .oauth() \
         .client_credentials(client_id=os.environ.get('CHECKOUT_PREVIEW_OAUTH_CLIENT_ID'),
-                            client_secret=os.environ.get('CHECKOUT_PREVIEW_OAUTH_CLIENT_SECRET')) \
-        .build()
+                            client_secret=os.environ.get('CHECKOUT_PREVIEW_OAUTH_CLIENT_SECRET'))
+    preview_api = configure_domain(preview_builder).build()
 
     payment_response = retriable(callback=preview_api.payments.request_payment,
                                  payment_request=payment_request)

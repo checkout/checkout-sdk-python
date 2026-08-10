@@ -2,6 +2,7 @@ import re
 from urllib.parse import urlparse, urlunparse
 
 from checkout_sdk.environment import Environment
+from checkout_sdk.exception import CheckoutArgumentException
 
 
 class EnvironmentSubdomain:
@@ -12,39 +13,41 @@ class EnvironmentSubdomain:
     @staticmethod
     def create_url_with_subdomain(original_url: str, subdomain: str):
         """
-        Applies subdomain transformation to any given URL.
-        If the subdomain is valid (alphanumeric pattern), prepends it to the host.
-        Otherwise, returns the original URL unchanged.
+        Applies subdomain transformation to any given URL, prepending the subdomain to the host.
 
         Args:
             original_url: the original URL to transform
             subdomain: the subdomain to prepend
 
         Returns:
-            the transformed URL with subdomain, or original URL if subdomain is invalid
+            the transformed URL with subdomain
+
+        Raises:
+            CheckoutArgumentException: if the subdomain is not a valid merchant-specific subdomain
         """
-        new_environment = original_url
-
         regex = r'^(?:pl-)?[a-z0-9]+$'
-        if re.match(regex, subdomain):
-            url_parts = urlparse(original_url)
-            if url_parts.port:
-                new_host = subdomain + '.' + url_parts.hostname + ':' + str(url_parts.port)
-            else:
-                new_host = subdomain + '.' + url_parts.hostname
+        if subdomain is None or not re.match(regex, subdomain):
+            raise CheckoutArgumentException(
+                'invalid environment subdomain - provide your merchant-specific subdomain, the '
+                'first 8 characters of your client ID (see '
+                'https://api-reference.checkout.com/#section/Base-URLs)')
 
-            new_url_parts = (
-                url_parts.scheme,
-                new_host,
-                url_parts.path,
-                url_parts.params,
-                url_parts.query,
-                url_parts.fragment
-            )
+        url_parts = urlparse(original_url)
+        if url_parts.port:
+            new_host = subdomain + '.' + url_parts.hostname + ':' + str(url_parts.port)
+        else:
+            new_host = subdomain + '.' + url_parts.hostname
 
-            new_environment = urlunparse(new_url_parts)
+        new_url_parts = (
+            url_parts.scheme,
+            new_host,
+            url_parts.path,
+            url_parts.params,
+            url_parts.query,
+            url_parts.fragment
+        )
 
-        return new_environment
+        return urlunparse(new_url_parts)
 
     def base_uri(self) -> str:
         return self.base_uri

@@ -24,6 +24,7 @@ def test_should_fail_init_authorization_invalid_credentials():
             .client_credentials(client_id='fake_id',
                                 client_secret='fake_secret') \
             .environment(Environment.sandbox()) \
+            .use_legacy_domain() \
             .scopes([OAuthScopes.GATEWAY, OAuthScopes.VAULT]) \
             .build()
     except CheckoutException as err:
@@ -39,6 +40,7 @@ def test_should_fail_init_authorization_invalid_credentials_and_host():
                                 client_secret='fake_secret') \
             .authorization_uri('https://test.checkout.com') \
             .environment(Environment.sandbox()) \
+            .environment_subdomain('123domain') \
             .scopes([OAuthScopes.GATEWAY, OAuthScopes.VAULT]) \
             .build()
     except CheckoutException as err:

@@ -31,9 +31,12 @@ class OAuthSdk(CheckoutSdkBuilder, metaclass=ABCMeta):
         return self
 
     def build(self):
+        self._validate_environment_settings()
+        environment_subdomain = self._environment_subdomain
+
         # Determine the authorization URI based on subdomain configuration
-        if self._environment_subdomain is not None:
-            authorization_uri = self._environment_subdomain.authorization_uri
+        if environment_subdomain is not None:
+            authorization_uri = environment_subdomain.authorization_uri
         else:
             authorization_uri = self._environment.authorization_uri
 
@@ -41,25 +44,14 @@ class OAuthSdk(CheckoutSdkBuilder, metaclass=ABCMeta):
         if self._authorization_uri:
             authorization_uri = self._authorization_uri
 
-        if self._environment_subdomain is not None:
-            configuration = CheckoutConfiguration(
-                credentials=OAuthSdkCredentials.init(http_client=self._http_client,
-                                                     environment=self._environment,
-                                                     client_id=self._client_id,
-                                                     client_secret=self._client_secret,
-                                                     scopes=self._scopes,
-                                                     authorization_uri=authorization_uri),
-                environment=self._environment,
-                http_client=self._http_client,
-                environment_subdomain=self._environment_subdomain)
-        else:
-            configuration = CheckoutConfiguration(
-                credentials=OAuthSdkCredentials.init(http_client=self._http_client,
-                                                     environment=self._environment,
-                                                     client_id=self._client_id,
-                                                     client_secret=self._client_secret,
-                                                     scopes=self._scopes,
-                                                     authorization_uri=authorization_uri),
-                environment=self._environment,
-                http_client=self._http_client)
+        configuration = CheckoutConfiguration(
+            credentials=OAuthSdkCredentials.init(http_client=self._http_client,
+                                                 environment=self._environment,
+                                                 client_id=self._client_id,
+                                                 client_secret=self._client_secret,
+                                                 scopes=self._scopes,
+                                                 authorization_uri=authorization_uri),
+            environment=self._environment,
+            http_client=self._http_client,
+            environment_subdomain=environment_subdomain)
         return CheckoutApi(configuration)
