@@ -1,3 +1,4 @@
+from tests.conftest import configure_domain
 from checkout_sdk.checkout_sdk import CheckoutSdk
 from checkout_sdk.customers.customers import CustomerRequest
 from checkout_sdk.environment import Environment
@@ -18,15 +19,14 @@ def test_should_create_customer_with_oauth(oauth_api):
 
 def test_should_fail_init_authorization_invalid_credentials():
     try:
-        CheckoutSdk \
+        builder = CheckoutSdk \
             .builder() \
             .oauth() \
             .client_credentials(client_id='fake_id',
                                 client_secret='fake_secret') \
             .environment(Environment.sandbox()) \
-            .use_legacy_domain() \
-            .scopes([OAuthScopes.GATEWAY, OAuthScopes.VAULT]) \
-            .build()
+            .scopes([OAuthScopes.GATEWAY, OAuthScopes.VAULT])
+        configure_domain(builder).build()
     except CheckoutException as err:
         assert err.args[0] == 'OAuth client_credentials authentication failed with error: (invalid_client)'
 
