@@ -1,3 +1,4 @@
+import warnings
 import os
 import pytest
 
@@ -11,7 +12,6 @@ from checkout_sdk.issuing.testing import CardSimulation, Merchant, TransactionSi
     AuthorizationType, CardAuthorizationRequest
 from checkout_sdk.oauth_scopes import OAuthScopes
 from tests.checkout_test_utils import phone, address, assert_response
-from tests.conftest import configure_domain
 
 
 @pytest.fixture(scope='module', autouse=True)
@@ -23,7 +23,11 @@ def issuing_checkout_api():
                             client_secret=os.environ.get('CHECKOUT_DEFAULT_OAUTH_ISSUING_CLIENT_SECRET')) \
         .scopes([OAuthScopes.ISSUING_CLIENT, OAuthScopes.ISSUING_CARD_MGMT,
                  OAuthScopes.ISSUING_CONTROLS_READ, OAuthScopes.ISSUING_CONTROLS_WRITE])
-    return configure_domain(builder).build()
+    # The sandbox OAuth clients are not provisioned for the merchant-specific subdomain, so the
+    # token request would come back invalid_client. Opting out explicitly until they are.
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore', DeprecationWarning)
+        return builder.use_legacy_domain().build()
 
 
 @pytest.fixture(scope='module')

@@ -287,18 +287,6 @@ checkout_api = CheckoutSdk.builder() \
 
 This routes requests to `api.checkout.com` (or `api.sandbox.checkout.com`) and `access.checkout.com` (or `access.sandbox.checkout.com`). The method raises a `DeprecationWarning`, so `python -W error::DeprecationWarning` and most linters will flag it. Exactly one of `environment_subdomain(...)` or `use_legacy_domain()` must be set: the SDK raises a `CheckoutArgumentException` if both, or neither, are. The Previous (ABC) platform predates merchant-specific subdomains and is exempt from this requirement.
 
-## Running the tests against your subdomain
-
-The test suite builds every client through `tests/conftest.py`, which has two modes. By default it uses the shared hosts, because the sandbox OAuth clients are not provisioned for merchant-specific subdomains and the token request would come back `invalid_client`. To run against a subdomain instead:
-
-```bash
-export CHECKOUT_MERCHANT_SUBDOMAIN="your_subdomain"
-export CHECKOUT_TEST_USE_SUBDOMAIN=true
-python -m pytest tests
-```
-
-The switch is separate from `CHECKOUT_MERCHANT_SUBDOMAIN` on purpose: CI already exports that secret, so provisioning is what should flip the behaviour, not the presence of a value. Once sandbox is provisioned like production, set `CHECKOUT_TEST_USE_SUBDOMAIN: 'true'` in the workflows and CI exercises the subdomain path end to end.
-
 ## Code of Conduct
 
 Please refer to [Code of Conduct](CODE_OF_CONDUCT.md)

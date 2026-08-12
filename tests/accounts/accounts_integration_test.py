@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import warnings
 import os
 from datetime import datetime, timedelta, timezone
 
@@ -16,7 +17,6 @@ from checkout_sdk.common.common import Phone
 from checkout_sdk.common.enums import Currency, Country, InstrumentType
 from checkout_sdk.files.files import FileRequest
 from checkout_sdk.oauth_scopes import OAuthScopes
-from tests.conftest import configure_domain
 from tests.checkout_test_utils import assert_response, phone, address, new_uuid, get_project_root, random_email
 
 
@@ -28,7 +28,11 @@ def accounts_checkout_api():
         .client_credentials(client_id=os.environ.get('CHECKOUT_DEFAULT_OAUTH_ACCOUNTS_CLIENT_ID'),
                             client_secret=os.environ.get('CHECKOUT_DEFAULT_OAUTH_ACCOUNTS_CLIENT_SECRET')) \
         .scopes([OAuthScopes.ACCOUNTS, OAuthScopes.FILES])
-    return configure_domain(builder).build()
+    # The sandbox OAuth clients are not provisioned for the merchant-specific subdomain, so the
+    # token request would come back invalid_client. Opting out explicitly until they are.
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore', DeprecationWarning)
+        return builder.use_legacy_domain().build()
 
 
 def test_should_create_get_and_update_onboard_entity(accounts_checkout_api):

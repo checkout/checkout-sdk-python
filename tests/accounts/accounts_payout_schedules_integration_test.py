@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import warnings
 import os
 
 import pytest
@@ -9,7 +10,6 @@ from checkout_sdk.accounts.accounts import UpdateScheduleRequest, ScheduleFreque
 from checkout_sdk.checkout_sdk import CheckoutSdk
 from checkout_sdk.common.enums import Currency
 from checkout_sdk.oauth_scopes import OAuthScopes
-from tests.conftest import configure_domain
 from tests.checkout_test_utils import assert_response
 
 
@@ -21,7 +21,11 @@ def payout_schedules_api():
         .client_credentials(client_id=os.environ.get('CHECKOUT_DEFAULT_OAUTH_PAYOUT_SCHEDULE_CLIENT_ID'),
                             client_secret=os.environ.get('CHECKOUT_DEFAULT_OAUTH_PAYOUT_SCHEDULE_CLIENT_SECRET')) \
         .scopes([OAuthScopes.MARKETPLACE])
-    return configure_domain(builder).build()
+    # The sandbox OAuth clients are not provisioned for the merchant-specific subdomain, so the
+    # token request would come back invalid_client. Opting out explicitly until they are.
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore', DeprecationWarning)
+        return builder.use_legacy_domain().build()
 
 
 @pytest.mark.skip(reason='not available')

@@ -1,4 +1,4 @@
-from tests.conftest import configure_domain
+import warnings
 from checkout_sdk.checkout_sdk import CheckoutSdk
 from checkout_sdk.customers.customers import CustomerRequest
 from checkout_sdk.environment import Environment
@@ -26,7 +26,11 @@ def test_should_fail_init_authorization_invalid_credentials():
                                 client_secret='fake_secret') \
             .environment(Environment.sandbox()) \
             .scopes([OAuthScopes.GATEWAY, OAuthScopes.VAULT])
-        configure_domain(builder).build()
+        # The sandbox OAuth clients are not provisioned for the merchant-specific subdomain, so
+        # the token request would come back invalid_client. Opting out explicitly until they are.
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore', DeprecationWarning)
+            builder.use_legacy_domain().build()
     except CheckoutException as err:
         assert err.args[0] == 'OAuth client_credentials authentication failed with error: (invalid_client)'
 

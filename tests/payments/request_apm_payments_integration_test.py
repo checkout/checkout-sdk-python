@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import warnings
 import os
 
 import pytest
@@ -18,7 +19,6 @@ from checkout_sdk.payments.payment_apm import RequestIdealSource, RequestTamaraS
 from checkout_sdk.payments.payments import PaymentRequest, ProcessingSettings, FawryProduct, PaymentCustomerRequest, \
     ShippingDetails, PaymentMethodDetails
 from checkout_sdk.payments.payments_apm_previous import RequestSofortSource
-from tests.conftest import configure_domain
 from tests.checkout_test_utils import assert_response, SUCCESS_URL, FAILURE_URL, retriable, address, FIRST_NAME, \
     LAST_NAME, phone, check_error_item, PAYEE_NOT_ONBOARDED, APM_SERVICE_UNAVAILABLE, random_email, new_uuid, \
     account_holder, REFERENCE, DESCRIPTION, APM_CURRENCY_NOT_SUPPORTED
@@ -150,7 +150,11 @@ def test_should_request_tamara_payment():
         .oauth() \
         .client_credentials(client_id=os.environ.get('CHECKOUT_PREVIEW_OAUTH_CLIENT_ID'),
                             client_secret=os.environ.get('CHECKOUT_PREVIEW_OAUTH_CLIENT_SECRET'))
-    preview_api = configure_domain(preview_builder).build()
+    # The sandbox OAuth clients are not provisioned for the merchant-specific subdomain, so the
+    # token request would come back invalid_client. Opting out explicitly until they are.
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore', DeprecationWarning)
+        preview_api = preview_builder.use_legacy_domain().build()
 
     payment_response = retriable(callback=preview_api.payments.request_payment,
                                  payment_request=payment_request)

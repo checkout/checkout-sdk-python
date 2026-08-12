@@ -19,34 +19,6 @@ logging.basicConfig()
 logging.getLogger('checkout').setLevel(logging.INFO)
 
 
-def use_subdomain():
-    return os.environ.get('CHECKOUT_TEST_USE_SUBDOMAIN', '').lower() == 'true'
-
-
-def configure_domain(builder):
-    """
-    Every client the suite builds has to choose a domain now that the merchant-specific subdomain
-    is mandatory, so they all come through here. There are deliberately two modes.
-
-    Default: the shared hosts. The sandbox OAuth clients are not provisioned for the
-    merchant-specific subdomain, so pointing the token request at
-    {subdomain}.access.sandbox.checkout.com returns invalid_client for every integration test.
-
-    Opt-in: set CHECKOUT_TEST_USE_SUBDOMAIN=true and the suite runs against
-    CHECKOUT_MERCHANT_SUBDOMAIN instead, exercising end to end the path merchants are being moved
-    to. Once sandbox is provisioned like production, set that variable in the workflows and this
-    becomes the mode CI runs in. The switch is deliberately separate from
-    CHECKOUT_MERCHANT_SUBDOMAIN, which CI already exports, so provisioning drives the change rather
-    than the presence of a secret.
-    """
-    subdomain = os.environ.get('CHECKOUT_MERCHANT_SUBDOMAIN')
-    if use_subdomain() and subdomain and subdomain.strip():
-        return builder.environment_subdomain(subdomain)
-    with warnings.catch_warnings():
-        warnings.simplefilter('ignore', DeprecationWarning)
-        return builder.use_legacy_domain()
-
-
 @pytest.fixture(scope='session', autouse=True)
 def previous_api():
     return CheckoutSdk \
@@ -59,10 +31,16 @@ def previous_api():
 
 @pytest.fixture(scope='session', autouse=True)
 def default_api():
-    return configure_domain(CheckoutSdk()
-                            .builder()
-                            .secret_key(os.environ.get('CHECKOUT_DEFAULT_SECRET_KEY'))
-                            .public_key(os.environ.get('CHECKOUT_DEFAULT_PUBLIC_KEY'))).build()
+    # The sandbox OAuth clients are not provisioned for the merchant-specific subdomain, so the
+    # token request would come back invalid_client. Opting out explicitly until they are.
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore', DeprecationWarning)
+        return CheckoutSdk() \
+            .builder() \
+            .secret_key(os.environ.get('CHECKOUT_DEFAULT_SECRET_KEY')) \
+            .public_key(os.environ.get('CHECKOUT_DEFAULT_PUBLIC_KEY')) \
+            .use_legacy_domain() \
+            .build()
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -79,7 +57,10 @@ def oauth_api():
                  OAuthScopes.VAULT_CARD_METADATA, OAuthScopes.FINANCIAL_ACTIONS,
                  OAuthScopes.VAULT_REAL_TIME_ACCOUNT_UPDATER, OAuthScopes.PAYMENTS_SEARCH,
                  OAuthScopes.GATEWAY_PAYMENT_CANCELLATIONS])
-    return configure_domain(builder).build()
+    # See default_api above for why the legacy domain is used here.
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore', DeprecationWarning)
+        return builder.use_legacy_domain().build()
 
 
 @pytest.fixture(scope='session', autouse=True)
