@@ -550,12 +550,21 @@ class AccountHolderIdentificationType(str, Enum):
 
 
 class DocumentType(str, Enum):
+    """Identity documents. The document type accepted when verifying a bank account is a
+    separate enum, InstrumentDocumentType, because the API keeps the two apart."""
     PASSPORT = 'passport'
     NATIONAL_IDENTITY_CARD = 'national_identity_card'
     DRIVING_LICENSE = 'driving_license'
     CITIZEN_CARD = 'citizen_card'
     RESIDENCE_PERMIT = 'residence_permit'
     ELECTORAL_ID = 'electoral_id'
+
+
+class InstrumentDocumentType(str, Enum):
+    """The document type accepted by the legal document that verifies a bank account when
+    creating a payment instrument. The API accepts only bank_statement here, which is also the
+    default, and rejects the identity document types in DocumentType."""
+    BANK_STATEMENT = 'bank_statement'
 
 
 class AccountChangeIndicatorType(str, Enum):
