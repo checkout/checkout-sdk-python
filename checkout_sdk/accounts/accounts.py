@@ -520,11 +520,15 @@ class ScheduleRequest:
 
 
 class ScheduleFrequencyDailyRequest(ScheduleRequest):
+    # For ISV (SaaS seller) sub-entities, a daily schedule runs on working days only
+    # (Monday to Friday); payouts do not take place on weekends.
     def __init__(self):
         super().__init__(ScheduleFrequency.DAILY)
 
 
 class ScheduleFrequencyMonthlyRequest(ScheduleRequest):
+    # For ISV (SaaS seller) sub-entities, by_month_day accepts only the combinations
+    # [1], [15], [1, 15] or [1, 16], in any order.
     by_month_day: list  # int
 
     def __init__(self):
@@ -532,6 +536,8 @@ class ScheduleFrequencyMonthlyRequest(ScheduleRequest):
 
 
 class ScheduleFrequencyWeeklyRequest(ScheduleRequest):
+    # For ISV (SaaS seller) sub-entities, by_day accepts working days only
+    # (Monday to Friday); payouts set to take place on weekends are rejected.
     by_day: list  # DaySchedule
 
     def __init__(self):
@@ -541,6 +547,14 @@ class ScheduleFrequencyWeeklyRequest(ScheduleRequest):
 class UpdateScheduleRequest:
     enabled: bool
     threshold: int
+    # The amount, in the minor units of the schedule's currency, to retain in the
+    # sub-entity's available balance. ISV (SaaS seller) sub-entities only. Min 0.
+    balance_minimum: int
+    # Indicates whether to carry forward any balance below the configured minimum
+    # to the next payout. ISV (SaaS seller) sub-entities only.
+    carry_forward_enabled: bool
+    # The ID of the platforms payment instrument used as the payout destination.
+    payment_instrument_id: str
     recurrence: ScheduleRequest
 
 
