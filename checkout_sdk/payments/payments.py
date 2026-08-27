@@ -883,6 +883,8 @@ class RefundRequest:
 
 # Voids
 class VoidRequest:
+    # If not specified, the full payment amount is voided (min 0, max 9999999999)
+    amount: int
     reference: str
     metadata: dict
 
