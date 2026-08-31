@@ -93,6 +93,12 @@ def test_should_fail_with_bad_subdomain(subdomain):
     assert "invalid environment subdomain" in str(excinfo.value)
 
 
+def test_should_fail_with_subdomain_containing_trailing_newline():
+    with pytest.raises(CheckoutArgumentException) as excinfo:
+        EnvironmentSubdomain(Environment.sandbox(), "abc123\n")
+    assert "invalid environment subdomain" in str(excinfo.value)
+
+
 def test_should_create_configuration_with_subdomain_for_production():
     subdomain = "1234prod"
     credentials = DefaultKeysSdkCredentials(

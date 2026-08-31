@@ -72,7 +72,7 @@ class CheckoutSdkBuilder:
         if self._subdomain is None and not self._use_legacy_domain and self._requires_environment_subdomain():
             raise CheckoutArgumentException(
                 'environment_subdomain is required - provide your merchant-specific subdomain '
-                '(the first 8 characters of your client ID, see '
+                '(typically your client ID excluding the cli_ prefix, see '
                 'https://api-reference.checkout.com/#section/Base-URLs), or call '
                 'use_legacy_domain() to opt out only if merchant specific sub domains are '
                 'causing issues')

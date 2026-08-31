@@ -31,16 +31,12 @@ def previous_api():
 
 @pytest.fixture(scope='session', autouse=True)
 def default_api():
-    # The sandbox OAuth clients are not provisioned for the merchant-specific subdomain, so the
-    # token request would come back invalid_client. Opting out explicitly until they are.
-    with warnings.catch_warnings():
-        warnings.simplefilter('ignore', DeprecationWarning)
-        return CheckoutSdk() \
-            .builder() \
-            .secret_key(os.environ.get('CHECKOUT_DEFAULT_SECRET_KEY')) \
-            .public_key(os.environ.get('CHECKOUT_DEFAULT_PUBLIC_KEY')) \
-            .use_legacy_domain() \
-            .build()
+    return CheckoutSdk() \
+        .builder() \
+        .secret_key(os.environ.get('CHECKOUT_DEFAULT_SECRET_KEY')) \
+        .public_key(os.environ.get('CHECKOUT_DEFAULT_PUBLIC_KEY')) \
+        .environment_subdomain(os.environ.get('CHECKOUT_MERCHANT_SUBDOMAIN')) \
+        .build()
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -57,7 +53,8 @@ def oauth_api():
                  OAuthScopes.VAULT_CARD_METADATA, OAuthScopes.FINANCIAL_ACTIONS,
                  OAuthScopes.VAULT_REAL_TIME_ACCOUNT_UPDATER, OAuthScopes.PAYMENTS_SEARCH,
                  OAuthScopes.GATEWAY_PAYMENT_CANCELLATIONS])
-    # See default_api above for why the legacy domain is used here.
+    # The sandbox OAuth clients are not provisioned for the merchant-specific subdomain, so the
+    # token request would come back invalid_client. Opting out explicitly until they are.
     with warnings.catch_warnings():
         warnings.simplefilter('ignore', DeprecationWarning)
         return builder.use_legacy_domain().build()

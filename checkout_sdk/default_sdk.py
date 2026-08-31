@@ -37,12 +37,13 @@ class DefaultSdk(StaticKeys):
         return OAuthSdk()
 
     def build(self):
+        self._validate_environment_settings()
         validate_secret_key(self._SECRET_KEY_PATTERN, self._secret_key)
         validate_public_key(self._PUBLIC_KEY_PATTERN, self._public_key)
-        self._validate_environment_settings()
+        environment_subdomain = self._environment_subdomain
         configuration = CheckoutConfiguration(
             credentials=DefaultKeysSdkCredentials(secret_key=self._secret_key, public_key=self._public_key),
             environment=self._environment,
             http_client=self._http_client,
-            environment_subdomain=self._environment_subdomain)
+            environment_subdomain=environment_subdomain)
         return CheckoutApi(configuration)

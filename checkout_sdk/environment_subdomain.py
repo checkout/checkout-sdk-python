@@ -25,11 +25,11 @@ class EnvironmentSubdomain:
         Raises:
             CheckoutArgumentException: if the subdomain is not a valid merchant-specific subdomain
         """
-        regex = r'^(?:pl-)?[a-z0-9]+$'
-        if subdomain is None or not re.match(regex, subdomain):
+        regex = r'(?:pl-)?[a-z0-9]+'
+        if subdomain is None or not re.fullmatch(regex, subdomain):
             raise CheckoutArgumentException(
-                'invalid environment subdomain - provide your merchant-specific subdomain, the '
-                'first 8 characters of your client ID (see '
+                'invalid environment subdomain - provide your merchant-specific subdomain, '
+                'typically your client ID excluding the cli_ prefix (see '
                 'https://api-reference.checkout.com/#section/Base-URLs)')
 
         url_parts = urlparse(original_url)
@@ -48,6 +48,3 @@ class EnvironmentSubdomain:
         )
 
         return urlunparse(new_url_parts)
-
-    def base_uri(self) -> str:
-        return self.base_uri
