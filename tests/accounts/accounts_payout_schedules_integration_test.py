@@ -18,8 +18,8 @@ def payout_schedules_api():
     builder = CheckoutSdk \
         .builder() \
         .oauth() \
-        .client_credentials(client_id=os.environ.get('CHECKOUT_DEFAULT_OAUTH_CLIENT_ID'),
-                            client_secret=os.environ.get('CHECKOUT_DEFAULT_OAUTH_CLIENT_SECRET')) \
+        .client_credentials(client_id=os.environ.get('CHECKOUT_DEFAULT_OAUTH_PAYOUT_SCHEDULE_CLIENT_ID'),
+                            client_secret=os.environ.get('CHECKOUT_DEFAULT_OAUTH_PAYOUT_SCHEDULE_CLIENT_SECRET')) \
         .scopes([OAuthScopes.MARKETPLACE])
     # The sandbox OAuth clients are not provisioned for the merchant-specific subdomain, so the
     # token request would come back invalid_client. Opting out explicitly until they are.

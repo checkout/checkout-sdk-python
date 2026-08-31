@@ -19,8 +19,8 @@ def issuing_checkout_api():
     builder = CheckoutSdk \
         .builder() \
         .oauth() \
-        .client_credentials(client_id=os.environ.get('CHECKOUT_DEFAULT_OAUTH_CLIENT_ID'),
-                            client_secret=os.environ.get('CHECKOUT_DEFAULT_OAUTH_CLIENT_SECRET')) \
+        .client_credentials(client_id=os.environ.get('CHECKOUT_DEFAULT_OAUTH_ISSUING_CLIENT_ID'),
+                            client_secret=os.environ.get('CHECKOUT_DEFAULT_OAUTH_ISSUING_CLIENT_SECRET')) \
         .scopes([OAuthScopes.ISSUING_CLIENT, OAuthScopes.ISSUING_CARD_MGMT,
                  OAuthScopes.ISSUING_CONTROLS_READ, OAuthScopes.ISSUING_CONTROLS_WRITE])
     # The sandbox OAuth clients are not provisioned for the merchant-specific subdomain, so the
