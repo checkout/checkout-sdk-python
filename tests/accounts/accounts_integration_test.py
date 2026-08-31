@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import warnings
 import os
 from datetime import datetime, timedelta, timezone
 
@@ -21,13 +22,17 @@ from tests.checkout_test_utils import assert_response, phone, address, new_uuid,
 
 @pytest.fixture(scope='class')
 def accounts_checkout_api():
-    return CheckoutSdk \
+    builder = CheckoutSdk \
         .builder() \
         .oauth() \
         .client_credentials(client_id=os.environ.get('CHECKOUT_DEFAULT_OAUTH_ACCOUNTS_CLIENT_ID'),
                             client_secret=os.environ.get('CHECKOUT_DEFAULT_OAUTH_ACCOUNTS_CLIENT_SECRET')) \
-        .scopes([OAuthScopes.ACCOUNTS, OAuthScopes.FILES]) \
-        .build()
+        .scopes([OAuthScopes.ACCOUNTS, OAuthScopes.FILES])
+    # The sandbox OAuth clients are not provisioned for the merchant-specific subdomain, so the
+    # token request would come back invalid_client. Opting out explicitly until they are.
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore', DeprecationWarning)
+        return builder.use_legacy_domain().build()
 
 
 def test_should_create_get_and_update_onboard_entity(accounts_checkout_api):

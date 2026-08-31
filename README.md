@@ -66,6 +66,10 @@ account [here](https://www.checkout.com/get-test-account).
 
 **PLEASE NEVER SHARE OR PUBLISH YOUR CHECKOUT CREDENTIALS.**
 
+### Subdomain value
+
+Requests must be made through your merchant-specific subdomain (MSSD): the first 8 characters of your client ID (excluding `cli_`). For example, if your client ID is `cli_vkuhvk4vjn2edkps7dfsq6emqm`, your subdomain is `vkuhvk4v`. When `environment_subdomain` is set the SDK sends requests to `https://vkuhvk4v.api.checkout.com`. Private Link merchants use their `pl-` prefixed subdomain (for example `pl-vkuhvk4v`), which the SDK also accepts. See [Base URLs](https://api-reference.checkout.com/#section/Base-URLs) and [API endpoints](https://www.checkout.com/docs/developer-resources/api/api-endpoints) for further details, and for where to find your unique client ID.
+
 ### Default
 
 Default keys client instantiation can be done as follows:
@@ -82,7 +86,7 @@ def default():
         .secret_key('secret_key')
         .public_key('public_key') # optional, only required for operations related with tokens
         .environment(Environment.sandbox()) # or production()
-        .environment_subdomain("subdomain") # optional, Merchant-specific DNS name
+        .environment_subdomain("subdomain") # required, Merchant-specific DNS name, the first 8 characters of your client ID
         .build()
 
     payments_client = checkout_api.payments
@@ -105,7 +109,7 @@ def oauth():
         .oauth()
         .client_credentials(client_id='client_id', client_secret='client_secret')
         .environment(Environment.sandbox()) # or production()
-        .environment_subdomain("subdomain") # optional, Merchant-specific DNS name
+        .environment_subdomain("subdomain") # required, Merchant-specific DNS name, the first 8 characters of your client ID
         .scopes([OAuthScopes.GATEWAY_PAYMENT_REFUNDS, OAuthScopes.FILES]) # optional, array of scopes
         .build()
 
@@ -129,7 +133,7 @@ def previous():
         .secret_key('secret_key')
         .public_key('public_key') # optional, only required for operations related with tokens
         .environment(Environment.sandbox()) # or production()
-        .environment_subdomain("subdomain") # optional, Merchant-specific DNS name
+        .environment_subdomain("subdomain") # optional for the Previous platform, Merchant-specific DNS name
         .build()
 
     payments_client = checkout_api.payments
@@ -175,7 +179,7 @@ def oauth():
         .oauth()
         .client_credentials(client_id='client_id', client_secret='client_secret')
         .environment(Environment.sandbox()) # or production()
-        .environment_subdomain("subdomain") # optional, Merchant-specific DNS name
+        .environment_subdomain("subdomain") # required, Merchant-specific DNS name, the first 8 characters of your client ID
         .http_client_builder(CustomHttpClientBuilder()) # optional
         .scopes([OAuthScopes.GATEWAY_PAYMENT_REFUNDS, OAuthScopes.FILES]) # optional, array of scopes
         .build()
@@ -266,6 +270,22 @@ The execution of integration tests require the following environment variables s
 * For OAuth account systems: `CHECKOUT_DEFAULT_OAUTH_CLIENT_ID` & `CHECKOUT_DEFAULT_OAUTH_CLIENT_SECRET`
 * For Previous account systems: `CHECKOUT_PREVIOUS_PUBLIC_KEY` & `CHECKOUT_PREVIOUS_SECRET_KEY`
 * Processing channel: `CHECKOUT_PROCESSING_CHANNEL_ID`
+
+## Legacy domain (emergency use only)
+
+> :warning: **Only use if merchant specific sub domains are causing issues.** Connecting through your merchant-specific subdomain (see [Subdomain value](#subdomain-value)) is the supported way of using the Checkout.com API, and non-subdomain usage will be deprecated.
+
+If, in exceptional circumstances, you cannot use your merchant-specific subdomain, you can explicitly opt out by calling `use_legacy_domain()` instead of `environment_subdomain(...)`:
+
+```python
+checkout_api = CheckoutSdk.builder() \
+    .secret_key("secret_key") \
+    .environment(Environment.sandbox()) \
+    .use_legacy_domain() \
+    .build()
+```
+
+This routes requests to `api.checkout.com` (or `api.sandbox.checkout.com`) and `access.checkout.com` (or `access.sandbox.checkout.com`). The method raises a `DeprecationWarning`, so `python -W error::DeprecationWarning` and most linters will flag it. Exactly one of `environment_subdomain(...)` or `use_legacy_domain()` must be set: the SDK raises a `CheckoutArgumentException` if both, or neither, are. The Previous (ABC) platform predates merchant-specific subdomains and is exempt from this requirement.
 
 ## Code of Conduct
 

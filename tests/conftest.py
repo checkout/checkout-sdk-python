@@ -1,5 +1,6 @@
 import logging
 import os
+import warnings
 
 import pytest
 import requests
@@ -34,12 +35,13 @@ def default_api():
         .builder() \
         .secret_key(os.environ.get('CHECKOUT_DEFAULT_SECRET_KEY')) \
         .public_key(os.environ.get('CHECKOUT_DEFAULT_PUBLIC_KEY')) \
+        .environment_subdomain(os.environ.get('CHECKOUT_MERCHANT_SUBDOMAIN')) \
         .build()
 
 
 @pytest.fixture(scope='session', autouse=True)
 def oauth_api():
-    return CheckoutSdk() \
+    builder = CheckoutSdk() \
         .builder() \
         .oauth() \
         .client_credentials(client_id=os.environ.get('CHECKOUT_DEFAULT_OAUTH_CLIENT_ID'),
@@ -50,8 +52,12 @@ def oauth_api():
                  OAuthScopes.FILES, OAuthScopes.TRANSFERS, OAuthScopes.BALANCES_VIEW,
                  OAuthScopes.VAULT_CARD_METADATA, OAuthScopes.FINANCIAL_ACTIONS,
                  OAuthScopes.VAULT_REAL_TIME_ACCOUNT_UPDATER, OAuthScopes.PAYMENTS_SEARCH,
-                 OAuthScopes.GATEWAY_PAYMENT_CANCELLATIONS]) \
-        .build()
+                 OAuthScopes.GATEWAY_PAYMENT_CANCELLATIONS])
+    # The sandbox OAuth clients are not provisioned for the merchant-specific subdomain, so the
+    # token request would come back invalid_client. Opting out explicitly until they are.
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore', DeprecationWarning)
+        return builder.use_legacy_domain().build()
 
 
 @pytest.fixture(scope='session', autouse=True)

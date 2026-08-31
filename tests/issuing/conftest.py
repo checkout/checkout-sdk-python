@@ -1,3 +1,4 @@
+import warnings
 import os
 import pytest
 
@@ -15,15 +16,18 @@ from tests.checkout_test_utils import phone, address, assert_response
 
 @pytest.fixture(scope='module', autouse=True)
 def issuing_checkout_api():
-    api = CheckoutSdk \
+    builder = CheckoutSdk \
         .builder() \
         .oauth() \
         .client_credentials(client_id=os.environ.get('CHECKOUT_DEFAULT_OAUTH_ISSUING_CLIENT_ID'),
                             client_secret=os.environ.get('CHECKOUT_DEFAULT_OAUTH_ISSUING_CLIENT_SECRET')) \
         .scopes([OAuthScopes.ISSUING_CLIENT, OAuthScopes.ISSUING_CARD_MGMT,
-                 OAuthScopes.ISSUING_CONTROLS_READ, OAuthScopes.ISSUING_CONTROLS_WRITE]) \
-        .build()
-    return api
+                 OAuthScopes.ISSUING_CONTROLS_READ, OAuthScopes.ISSUING_CONTROLS_WRITE])
+    # The sandbox OAuth clients are not provisioned for the merchant-specific subdomain, so the
+    # token request would come back invalid_client. Opting out explicitly until they are.
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore', DeprecationWarning)
+        return builder.use_legacy_domain().build()
 
 
 @pytest.fixture(scope='module')

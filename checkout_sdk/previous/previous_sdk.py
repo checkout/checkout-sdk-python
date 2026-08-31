@@ -27,18 +27,19 @@ class PreviousSdk(PreviousStaticKeys):
     def __init__(self):
         super().__init__()
 
+    # The Previous (ABC) platform predates merchant-specific subdomains, so it is exempt from
+    # the mandatory environment_subdomain/use_legacy_domain configuration.
+    def _requires_environment_subdomain(self) -> bool:
+        return False
+
     def build(self):
+        self._validate_environment_settings()
         validate_secret_key(self._SECRET_KEY_PATTERN, self._secret_key)
         validate_public_key(self._PUBLIC_KEY_PATTERN, self._public_key)
-        if self._environment_subdomain is not None:
-            configuration = CheckoutConfiguration(
-                credentials=PreviousKeysSdkCredentials(secret_key=self._secret_key, public_key=self._public_key),
-                environment=self._environment,
-                http_client=self._http_client,
-                environment_subdomain=self._environment_subdomain)
-        else:
-            configuration = CheckoutConfiguration(
-                credentials=PreviousKeysSdkCredentials(secret_key=self._secret_key, public_key=self._public_key),
-                environment=self._environment,
-                http_client=self._http_client)
+        environment_subdomain = self._environment_subdomain
+        configuration = CheckoutConfiguration(
+            credentials=PreviousKeysSdkCredentials(secret_key=self._secret_key, public_key=self._public_key),
+            environment=self._environment,
+            http_client=self._http_client,
+            environment_subdomain=environment_subdomain)
         return CheckoutApi(ApiClient(configuration, configuration.environment.base_uri), configuration)

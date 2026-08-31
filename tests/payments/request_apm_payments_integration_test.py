@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import warnings
 import os
 
 import pytest
@@ -10,7 +11,8 @@ from checkout_sdk.common.enums import Currency, Country
 from checkout_sdk.exception import CheckoutApiException
 from checkout_sdk.payments.payment_apm import RequestIdealSource, RequestTamaraSource, \
     PaymentRequestWeChatPaySource, RequestAlipayPlusSource, RequestP24Source, RequestKnetSource, \
-    RequestBancontactSource, RequestMultiBancoSource, RequestPostFinanceSource, RequestStcPaySource, RequestAlmaSource, \
+    RequestBancontactSource, RequestMultiBancoSource, RequestPostFinanceSource, RequestStcPaySource, \
+    RequestAlmaSource, \
     RequestKlarnaSource, RequestFawrySource, RequestTrustlySource, RequestCvConnectSource, RequestIllicadoSource, \
     RequestSepaSource, RequestGiropaySource, RequestEpsSource, RequestBizumSource, RequestOctopusSource, \
     RequestPlaidSource, RequestSequraSource
@@ -143,12 +145,16 @@ def test_should_request_tamara_payment():
     payment_request.reference = 'ORD-5023-4E89'
     payment_request.items = [product]
 
-    preview_api = CheckoutSdk \
+    preview_builder = CheckoutSdk \
         .builder() \
         .oauth() \
         .client_credentials(client_id=os.environ.get('CHECKOUT_PREVIEW_OAUTH_CLIENT_ID'),
-                            client_secret=os.environ.get('CHECKOUT_PREVIEW_OAUTH_CLIENT_SECRET')) \
-        .build()
+                            client_secret=os.environ.get('CHECKOUT_PREVIEW_OAUTH_CLIENT_SECRET'))
+    # The sandbox OAuth clients are not provisioned for the merchant-specific subdomain, so the
+    # token request would come back invalid_client. Opting out explicitly until they are.
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore', DeprecationWarning)
+        preview_api = preview_builder.use_legacy_domain().build()
 
     payment_response = retriable(callback=preview_api.payments.request_payment,
                                  payment_request=payment_request)
