@@ -1,8 +1,9 @@
 import warnings
+import pytest
 from checkout_sdk.checkout_sdk import CheckoutSdk
 from checkout_sdk.customers.customers import CustomerRequest
 from checkout_sdk.environment import Environment
-from checkout_sdk.exception import CheckoutException
+from checkout_sdk.exception import CheckoutArgumentException, CheckoutException
 from checkout_sdk.oauth_scopes import OAuthScopes
 from tests.checkout_test_utils import assert_response, random_email, phone
 
@@ -36,7 +37,7 @@ def test_should_fail_init_authorization_invalid_credentials():
 
 
 def test_should_fail_init_authorization_invalid_credentials_and_host():
-    try:
+    with pytest.raises(CheckoutArgumentException) as excinfo:
         CheckoutSdk \
             .builder() \
             .oauth() \
@@ -47,8 +48,8 @@ def test_should_fail_init_authorization_invalid_credentials_and_host():
             .environment_subdomain('123domain') \
             .scopes([OAuthScopes.GATEWAY, OAuthScopes.VAULT]) \
             .build()
-    except CheckoutException as err:
-        assert err.args[0] == 'Unable to establish connection to host: (https://test.checkout.com)'
+
+    assert 'authorization_uri and environment_subdomain cannot both be set' in str(excinfo.value)
 
 
 def test_should_fail_oauth_with_subdomain_invalid_credentials():
