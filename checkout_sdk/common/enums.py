@@ -482,7 +482,7 @@ class PaymentSourceType(str, Enum):
     TWINT = 'twint'
     VIPPS = 'vipps'
     BLIK = 'blik'
-
+    BACS = 'bacs'
 
 class ChallengeIndicator(str, Enum):
     """Indicates the preference for whether or not a 3DS challenge should be performed.
@@ -510,6 +510,8 @@ class InstrumentType(str, Enum):
     CARD = 'card'
     SEPA = 'sepa'
     ACH = 'ach'
+    BACS = 'bacs'
+    # Previous API (ABC) only - the current API's instrument type does not declare this value.
     CARD_TOKEN = 'card_token'
 
 
@@ -535,9 +537,44 @@ class SepaMandateType(str, Enum):
     B2B = 'B2B'
 
 
+# The type of payment for a SEPA instrument. The wire values are lowercase.
+# The equivalent Bacs Direct Debit field is capitalised, so do not share one enum between the two.
+# Do not use checkout_sdk.payments.payments.PaymentType either: it serializes capitalised values and
+# also carries MOTO, Installment, PayLater and Unscheduled, which SEPA does not allow.
+class SepaPaymentType(str, Enum):
+    RECURRING = 'recurring'
+    REGULAR = 'regular'
+
+
+# The type of payment for a Bacs Direct Debit instrument. The wire values are capitalised.
+# The equivalent SEPA field is lowercase, so do not share one enum between the two.
+class BacsPaymentType(str, Enum):
+    RECURRING = 'Recurring'
+    REGULAR = 'Regular'
+
+
+# The type of account holder on a stored instrument. The instrument schemas declare individual and
+# corporate only, unlike AccountHolderType which also carries government.
+class InstrumentAccountHolderType(str, Enum):
+    INDIVIDUAL = 'individual'
+    CORPORATE = 'corporate'
+
+
+# Every position this enum serves declares individual, corporate and government:
+#   - common.common.AccountHolder.type          (AccountHolder schema)
+#   - accounts.accounts.AccountsAccountHolder.type
+#   - instruments.instruments.BankAccountFieldQuery.account_holder_type
+#     (the account-holder-type query parameter of
+#      GET /validation/bank-accounts/{country}/{currency})
 class AccountHolderType(str, Enum):
     INDIVIDUAL = 'individual'
     CORPORATE = 'corporate'
+    GOVERNMENT = 'government'
+
+    # Possibly obsolete - do not use.
+    #
+    # Retained rather than removed because removal is breaking and needs confirmation from the API
+    # owners that no undocumented position accepts it. Nothing in this SDK references it.
     INSTRUMENT = 'instrument'
 
 

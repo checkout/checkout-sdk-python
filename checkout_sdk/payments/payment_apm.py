@@ -8,6 +8,17 @@ from checkout_sdk.payments.payments import PaymentRequestSource, BillingPlan, Pa
 from checkout_sdk.tokens.tokens import ApplePayTokenData
 
 
+class RequestBacsSource(PaymentRequestSource):
+    r"""Bacs Direct Debit source.
+
+    id is the Bacs Direct Debit instrument ID and matches the pattern ^(src)_(\w{26})$.
+    """
+    id: str
+
+    def __init__(self):
+        super().__init__(PaymentSourceType.BACS)
+
+
 class RequestIdealSource(PaymentRequestSource):
     description: str
     language: str
@@ -237,6 +248,15 @@ class RequestTrustlySource(PaymentRequestSource):
 
 
 class RequestSepaSource(PaymentRequestSource):
+    """SEPA Direct Debit source, legacy shape.
+
+    Superseded by RequestSepaV4Source, which matches PaymentRequestSEPAV4Source exactly. Prefer that
+    class for new code: this one carries a bank_code that no SEPA schema in the specification
+    declares, and omits mandate_type. Both construct PaymentSourceType.SEPA, so they are
+    interchangeable on the wire apart from those two fields.
+
+    date_of_signature is a yyyy-MM-dd string.
+    """
     country: Country
     account_number: str
     bank_code: str
@@ -325,6 +345,11 @@ class RequestVippsSource(PaymentRequestSource):
 
 
 class RequestSepaV4Source(PaymentRequestSource):
+    """SEPA Direct Debit source.
+
+    Matches PaymentRequestSEPAV4Source exactly. Use this rather than RequestSepaSource, which is the
+    legacy shape. date_of_signature is a yyyy-MM-dd string.
+    """
     country: Country
     account_number: str
     currency: Currency

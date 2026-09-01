@@ -15,6 +15,9 @@ def test_should_instantiate_and_retrieve_clients_previous(mock_api_client, mock_
     assert api.ideal is not None
     assert api.klarna is not None
     assert api.sepa is not None
+    # POST /apms/bacs/notifications is current-platform only, so the client must not be reachable
+    # through the previous API surface.
+    assert not hasattr(api, 'bacs')
 
 
 def test_should_instantiate_and_retrieve_clients_default(mock_sdk_configuration):
@@ -31,3 +34,4 @@ def test_should_instantiate_and_retrieve_clients_default(mock_sdk_configuration)
     assert api.setups is not None
     # APMs
     assert api.ideal is not None
+    assert api.bacs is not None
