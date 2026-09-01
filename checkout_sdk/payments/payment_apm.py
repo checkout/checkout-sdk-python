@@ -259,6 +259,9 @@ class RequestSepaSource(PaymentRequestSource):
     """
     country: Country
     account_number: str
+    # Not declared by PaymentRequestSEPAV4Source. No SEPA schema in the specification declares a
+    # bank code, and the SEPA source is identified by IBAN through account_number. Retained
+    # for retro-compatibility purposes only. Possibly an obsoleted field.
     bank_code: str
     currency: Currency
     mandate_id: str
