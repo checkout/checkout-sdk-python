@@ -484,6 +484,7 @@ class PaymentSourceType(str, Enum):
     BLIK = 'blik'
     BACS = 'bacs'
 
+
 class ChallengeIndicator(str, Enum):
     """Indicates the preference for whether or not a 3DS challenge should be performed.
 

@@ -1,4 +1,3 @@
-from datetime import datetime
 from enum import Enum
 
 from checkout_sdk.common.common import BankDetails, UpdateCustomerRequest, AccountHolder, Phone
