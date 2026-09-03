@@ -1,5 +1,5 @@
 from checkout_sdk.common.common import AccountHolder
-from checkout_sdk.common.enums import (AccountType, AchAccountType,
+from checkout_sdk.common.enums import (AccountType, AchInstrumentAccountType,
                                        AchSourceAccountType, AccountHolderType,
                                        PaymentSourceType)
 from checkout_sdk.instruments.instruments import AchAccountHolder
@@ -27,9 +27,9 @@ def test_ach_source_account_type_differs_from_the_shared_account_type():
 
 
 def test_ach_source_account_type_differs_from_the_instrument_account_type():
-    instrument = [m.value for m in AchAccountType]
+    instrument = [m.value for m in AchInstrumentAccountType]
     source = [m.value for m in AchSourceAccountType]
-    # AchAccountType serves the five stored ACH instrument positions, which declare
+    # AchInstrumentAccountType serves the five stored ACH instrument positions, which declare
     # savings / checking only. It cannot express the source's 'cash'.
     assert instrument == ['savings', 'checking']
     assert 'cash' not in instrument
@@ -39,8 +39,8 @@ def test_ach_source_account_type_differs_from_the_instrument_account_type():
 
 def test_the_instrument_ach_data_still_uses_the_instrument_enum():
     from checkout_sdk.instruments.instruments import AchInstrumentData
-    # The instrument position must keep AchAccountType, not the source enum.
-    assert AchInstrumentData.__annotations__['account_type'] is AchAccountType
+    # The instrument position must keep AchInstrumentAccountType, not the source enum.
+    assert AchInstrumentData.__annotations__['account_type'] is AchInstrumentAccountType
 
 
 def test_request_ach_source_is_typed_with_the_dedicated_enum():
@@ -85,3 +85,54 @@ def test_ach_source_account_holder_type_accepts_government():
     holder.type = AccountHolderType.GOVERNMENT
     # AccountHolderAch.type declares individual, corporate and government.
     assert holder.type.value == 'government'
+
+
+def test_no_enum_name_is_defined_twice_with_different_values():
+    """Guard against the name collision this rename fixed.
+
+    common.enums and payments.setups.setups both used to define AchAccountType and
+    SepaMandateType with different wire values. Each was correct for its own position,
+    but importing the wrong one type-checked, ran, and sent a value the target schema
+    rejects with no error until the API responded.
+    """
+    from enum import Enum
+    import checkout_sdk.common.enums as common_enums
+    import checkout_sdk.payments.setups.setups as setups
+
+    def enums_of(mod):
+        return {
+            name: tuple(m.value for m in obj)
+            for name, obj in vars(mod).items()
+            if isinstance(obj, type) and issubclass(obj, Enum) and obj.__module__ == mod.__name__
+        }
+
+    a, b = enums_of(common_enums), enums_of(setups)
+    clashing = {n for n in set(a) & set(b) if a[n] != b[n]}
+
+    assert clashing == set(), f'enum names defined twice with different values: {clashing}'
+
+
+def test_the_three_ach_account_type_positions_are_named_apart():
+    from checkout_sdk.common.enums import AchInstrumentAccountType, AchSourceAccountType
+    from checkout_sdk.payments.setups.setups import AchAccountType as SetupsAchAccountType
+
+    # Mirrors the java naming: AchInstrumentAccountType / AchSourceAccountType /
+    # setups AchAccountType. Three positions, three value sets, three names.
+    assert [m.value for m in AchInstrumentAccountType] == ['savings', 'checking']
+    assert [m.value for m in AchSourceAccountType] == ['savings', 'checking', 'cash']
+    assert [m.value for m in SetupsAchAccountType] == ['savings', 'current', 'cash']
+
+    names = {AchInstrumentAccountType.__name__, AchSourceAccountType.__name__,
+             SetupsAchAccountType.__name__}
+    assert len(names) == 3
+
+
+def test_the_two_sepa_mandate_positions_are_named_apart():
+    from checkout_sdk.common.enums import SepaMandateType
+    from checkout_sdk.payments.setups.setups import SetupsSepaMandateType
+
+    # The specification declares this field capitalized on the payment source and the
+    # instrument, and lowercase on the Payment Setup. Both casings are real.
+    assert [m.value for m in SepaMandateType] == ['Core', 'B2B']
+    assert [m.value for m in SetupsSepaMandateType] == ['core', 'b2b']
+    assert SepaMandateType.__name__ != SetupsSepaMandateType.__name__

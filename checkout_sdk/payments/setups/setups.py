@@ -338,14 +338,20 @@ class Ach(PaymentSetupPaymentMethod):
 
 
 # SEPA entities
-class SepaMandateType(str, Enum):
+class SetupsSepaMandateType(str, Enum):
+    """The type of SEPA mandate on a Payment Setup.
+
+    The Sepa.mandate.type schema declares these values lowercase. The payment-source and
+    instrument positions declare them capitalized - see common.enums.SepaMandateType.
+    Named apart so the two casings cannot be mixed up.
+    """
     CORE = 'core'
     B2B = 'b2b'
 
 
 class SepaMandate:
     id: str
-    type: SepaMandateType
+    type: SetupsSepaMandateType
     date_of_signature: datetime
 
 

@@ -527,7 +527,7 @@ class AchSourceAccountType(str, Enum):
 
     PaymentRequestAchSource is the only position declaring this set. AccountType is
     savings / current / cash and serves the bank-account positions, so it cannot express
-    checking. InstrumentAchAccountType is savings / checking and serves the stored ACH
+    checking. AchInstrumentAccountType is savings / checking and serves the stored ACH
     instrument positions, so it does not declare cash.
     """
     SAVINGS = 'savings'
@@ -535,11 +535,16 @@ class AchSourceAccountType(str, Enum):
     CASH = 'cash'
 
 
-# ACH-specific account type. Distinct from AccountType because the ACH endpoint's
-# accepted values are a different set (`savings`, `checking`) — sharing the
-# AccountType enum here would let callers pass `current` or `cash` which the
-# ACH API rejects.
-class AchAccountType(str, Enum):
+class AchInstrumentAccountType(str, Enum):
+    """The type of Direct Debit account on a stored ACH instrument.
+
+    Serves the five stored ACH instrument positions, which declare savings and checking only.
+    Named for its position so it cannot be confused with the two neighbours that declare
+    different value sets: AchSourceAccountType is savings / checking / cash and serves
+    PaymentRequestAchSource, and payments.setups.setups.AchAccountType is
+    savings / current / cash and serves the PaymentSetups Ach schema. Passing the wrong one
+    sends a value the target schema rejects.
+    """
     SAVINGS = 'savings'
     CHECKING = 'checking'
 

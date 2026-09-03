@@ -2,7 +2,7 @@ from enum import Enum
 
 from checkout_sdk.common.common import BankDetails, UpdateCustomerRequest, AccountHolder, Phone
 from checkout_sdk.common.enums import (
-    AccountType, AccountHolderType, AchAccountType, BacsPaymentType, Currency, Country, InstrumentType,
+    AccountType, AccountHolderType, AchInstrumentAccountType, BacsPaymentType, Currency, Country, InstrumentType,
     InstrumentAccountHolderType, SepaMandateType, SepaPaymentType,
 )
 
@@ -154,7 +154,7 @@ class AchInstrumentData:
     account_number min 4 max 17 characters. bank_code is the routing number, min 8 max 9 characters.
     account_type is savings or checking, which AccountType does not declare.
     """
-    account_type: AchAccountType
+    account_type: AchInstrumentAccountType
     account_number: str
     bank_code: str
     currency: Currency

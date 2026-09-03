@@ -1,7 +1,7 @@
 import json
 
 from checkout_sdk.common.enums import (
-    AccountHolderType, AchAccountType, BacsPaymentType, Country, Currency, InstrumentAccountHolderType,
+    AccountHolderType, AchInstrumentAccountType, BacsPaymentType, Country, Currency, InstrumentAccountHolderType,
     InstrumentType, PaymentSourceType, SepaMandateType, SepaPaymentType,
 )
 from checkout_sdk.instruments.instruments import (
@@ -182,7 +182,7 @@ class TestAchInstrumentSerialization:
 
     def test_store_request_serializes_every_property(self):
         data = AchInstrumentData()
-        data.account_type = AchAccountType.CHECKING
+        data.account_type = AchInstrumentAccountType.CHECKING
         data.account_number = '4099999992'
         data.bank_code = '211370545'
         data.currency = Currency.USD
@@ -218,7 +218,7 @@ class TestAchInstrumentSerialization:
     def test_update_request_carries_the_ach_type(self):
         request = UpdateAchInstrumentRequest()
         request.instrument_data = AchInstrumentData()
-        request.instrument_data.account_type = AchAccountType.SAVINGS
+        request.instrument_data.account_type = AchInstrumentAccountType.SAVINGS
 
         serialized = _serialize(request)
 
@@ -231,7 +231,7 @@ class TestAchInstrumentSerialization:
 
     def test_ach_account_type_is_not_the_bank_account_set(self):
         from checkout_sdk.common.enums import AccountType
-        assert [e.value for e in AchAccountType] == ['savings', 'checking']
+        assert [e.value for e in AchInstrumentAccountType] == ['savings', 'checking']
         assert [e.value for e in AccountType] == ['savings', 'current', 'cash']
 
 
