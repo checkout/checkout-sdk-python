@@ -2,10 +2,64 @@ from __future__ import absolute_import
 
 from datetime import datetime
 
-from checkout_sdk.common.common import Address, AccountHolder
-from checkout_sdk.common.enums import PaymentSourceType, Country, Currency, AccountType, SepaMandateType
+from checkout_sdk.common.common import Address, AccountHolder, AccountHolderIdentification
+from checkout_sdk.common.enums import PaymentSourceType, Country, Currency, \
+    SepaMandateType, AccountHolderType, InstrumentAccountHolderType, AchSourceAccountType
 from checkout_sdk.payments.payments import PaymentRequestSource, BillingPlan, PaymentMethodDetails
 from checkout_sdk.tokens.tokens import ApplePayTokenData
+
+
+class SepaSourceBillingAddress:
+    """The account holder's billing address on a SEPA payment source.
+
+    Every property is required. Deliberately not Address, which also declares a state that this
+    position does not accept. address_line2 max 10, city max 35, zip max 16, country max 2.
+    """
+    address_line1: str
+    address_line2: str
+    city: str
+    zip: str
+    country: Country
+
+
+class SepaSourceAccountHolder:
+    """The account holder's personal information on a SEPA payment source.
+
+    Maps the account_holder object of PaymentRequestSEPAV4Source. Deliberately not AccountHolder,
+    which is a 16-property superset. The property names match instruments.SepaAccountHolder, but the
+    two positions differ: only billing_address is required here, where the instrument requires the
+    names too, and the specification declares type capitalized here against lowercase on the
+    instrument. Send type lowercase - every other account-holder-type position is lowercase and
+    every other Checkout.com SDK sends lowercase. Pending confirmation from the API owners.
+
+    first_name, last_name and company_name are each max 50 characters.
+    """
+    billing_address: SepaSourceBillingAddress
+    first_name: str
+    last_name: str
+    company_name: str
+    type: InstrumentAccountHolderType
+
+
+class AchSourceAccountHolder:
+    """The account holder's details on an ACH payment source.
+
+    Maps the AccountHolderAch schema exactly. Deliberately not AccountHolder, which is a 16-property
+    superset, and distinct from instruments.AchAccountHolder, which declares only four properties -
+    the instrument schema has no billing address, date of birth or identification.
+
+    type, first_name and last_name are required. billing_address reuses Address because that
+    schema's six properties are exactly what this position references. identification reuses
+    AccountHolderIdentification, which carries one extra property, date_of_expiry, that this
+    position does not declare - do not set it.
+    """
+    type: AccountHolderType
+    first_name: str
+    last_name: str
+    company_name: str
+    billing_address: Address
+    date_of_birth: str
+    identification: AccountHolderIdentification
 
 
 class RequestBacsSource(PaymentRequestSource):
@@ -266,18 +320,18 @@ class RequestSepaSource(PaymentRequestSource):
     currency: Currency
     mandate_id: str
     date_of_signature: str
-    account_holder: AccountHolder
+    account_holder: SepaSourceAccountHolder
 
     def __init__(self):
         super().__init__(PaymentSourceType.SEPA)
 
 
 class RequestAchSource(PaymentRequestSource):
-    account_type: AccountType
+    account_type: AchSourceAccountType
     country: Country
     account_number: str
     bank_code: str
-    account_holder: AccountHolder
+    account_holder: AchSourceAccountHolder
 
     def __init__(self):
         super().__init__(PaymentSourceType.ACH)
@@ -359,7 +413,7 @@ class RequestSepaV4Source(PaymentRequestSource):
     mandate_id: str
     mandate_type: SepaMandateType
     date_of_signature: str
-    account_holder: AccountHolder
+    account_holder: SepaSourceAccountHolder
 
     def __init__(self):
         super().__init__(PaymentSourceType.SEPA)

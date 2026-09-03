@@ -522,6 +522,19 @@ class AccountType(str, Enum):
     CASH = 'cash'
 
 
+class AchSourceAccountType(str, Enum):
+    """The type of Direct Debit account on an ACH payment source.
+
+    PaymentRequestAchSource is the only position declaring this set. AccountType is
+    savings / current / cash and serves the bank-account positions, so it cannot express
+    checking. InstrumentAchAccountType is savings / checking and serves the stored ACH
+    instrument positions, so it does not declare cash.
+    """
+    SAVINGS = 'savings'
+    CHECKING = 'checking'
+    CASH = 'cash'
+
+
 # ACH-specific account type. Distinct from AccountType because the ACH endpoint's
 # accepted values are a different set (`savings`, `checking`) — sharing the
 # AccountType enum here would let callers pass `current` or `cash` which the
