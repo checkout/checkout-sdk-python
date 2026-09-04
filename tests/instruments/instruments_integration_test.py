@@ -5,26 +5,33 @@ import pytest
 from checkout_sdk.common.common import AccountHolder, UpdateCustomerRequest
 from checkout_sdk.common.enums import AccountHolderType, Country, Currency
 from checkout_sdk.exception import CheckoutApiException
+from checkout_sdk.common.enums import SepaPaymentType
 from checkout_sdk.instruments.instruments import CreateTokenInstrumentRequest, CreateCustomerInstrumentRequest, \
-    UpdateCardInstrumentRequest, BankAccountFieldQuery, PaymentNetwork, CreateSepaInstrumentRequest, InstrumentData
-from checkout_sdk.payments.payments import PaymentType
+    UpdateCardInstrumentRequest, BankAccountFieldQuery, PaymentNetwork, CreateSepaInstrumentRequest, \
+    SepaAccountHolder, SepaBillingAddress, SepaInstrumentData
 from checkout_sdk.tokens.tokens import CardTokenRequest
 from tests.checkout_test_utils import assert_response, phone, VisaCard, address, random_email, FIRST_NAME, LAST_NAME, \
     NAME
 
 
 def test_should_create_sepa_instrument(default_api):
-    instruments_data = InstrumentData
+    instruments_data = SepaInstrumentData()
     instruments_data.account_number = "FR7630006000011234567890189"
     instruments_data.country = Country.FR
     instruments_data.currency = Currency.EUR
-    instruments_data.payment_type = PaymentType.RECURRING
+    instruments_data.payment_type = SepaPaymentType.RECURRING
 
-    account_holder = AccountHolder()
+    billing_address = SepaBillingAddress()
+    billing_address.address_line1 = "Evergreen Terrace"
+    billing_address.address_line2 = "742"
+    billing_address.city = "Paris"
+    billing_address.zip = "75000"
+    billing_address.country = Country.FR
+
+    account_holder = SepaAccountHolder()
     account_holder.first_name = "John"
     account_holder.last_name = "Smith"
-    account_holder.phone = phone()
-    account_holder.billing_address = address()
+    account_holder.billing_address = billing_address
 
     instruments_sepa_request = CreateSepaInstrumentRequest()
     instruments_sepa_request.instrument_data = instruments_data

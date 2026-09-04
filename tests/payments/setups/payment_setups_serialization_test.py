@@ -7,7 +7,7 @@ from checkout_sdk.payments.setups.setups import (
     PaymentMethods, PaymentSetupInstrument, PayNow, AlipayCn, TerminalType, OsType,
     Qpay, Ideal, Knet, KnetLanguage, Bancontact, Multibanco, P24, P24AccountHolder,
     Swish, SwishAccountHolder, Ach, AchAccountType, AchAccountHolder,
-    AchAccountHolderIdentification, Sepa, SepaAccountHolder, SepaMandate, SepaMandateType,
+    AchAccountHolderIdentification, Sepa, SepaAccountHolder, SepaMandate, SetupsSepaMandateType,
     GooglePay, GooglePayTokenData, ApplePay, ApplePayTokenData, ApplePayTokenDataHeader,
     Card, PaymentSetupAccountHolder, PaymentSetupAccountHolderType,
     KlarnaAccountHolder, Bacs, BacsAccountHolder, BacsAccountHolderType, CardPresent,
@@ -134,7 +134,7 @@ class TestPaymentSetupsSerialization:
 
         mandate = SepaMandate()
         mandate.id = 'man_123'
-        mandate.type = SepaMandateType.CORE
+        mandate.type = SetupsSepaMandateType.CORE
         sepa.mandate = mandate
 
         assert _serialize(sepa) == {

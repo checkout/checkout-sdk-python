@@ -482,6 +482,7 @@ class PaymentSourceType(str, Enum):
     TWINT = 'twint'
     VIPPS = 'vipps'
     BLIK = 'blik'
+    BACS = 'bacs'
 
 
 class ChallengeIndicator(str, Enum):
@@ -510,6 +511,8 @@ class InstrumentType(str, Enum):
     CARD = 'card'
     SEPA = 'sepa'
     ACH = 'ach'
+    BACS = 'bacs'
+    # Previous API (ABC) only - the current API's instrument type does not declare this value.
     CARD_TOKEN = 'card_token'
 
 
@@ -519,11 +522,29 @@ class AccountType(str, Enum):
     CASH = 'cash'
 
 
-# ACH-specific account type. Distinct from AccountType because the ACH endpoint's
-# accepted values are a different set (`savings`, `checking`) — sharing the
-# AccountType enum here would let callers pass `current` or `cash` which the
-# ACH API rejects.
-class AchAccountType(str, Enum):
+class AchSourceAccountType(str, Enum):
+    """The type of Direct Debit account on an ACH payment source.
+
+    PaymentRequestAchSource is the only position declaring this set. AccountType is
+    savings / current / cash and serves the bank-account positions, so it cannot express
+    checking. AchInstrumentAccountType is savings / checking and serves the stored ACH
+    instrument positions, so it does not declare cash.
+    """
+    SAVINGS = 'savings'
+    CHECKING = 'checking'
+    CASH = 'cash'
+
+
+class AchInstrumentAccountType(str, Enum):
+    """The type of Direct Debit account on a stored ACH instrument.
+
+    Serves the five stored ACH instrument positions, which declare savings and checking only.
+    Named for its position so it cannot be confused with the two neighbours that declare
+    different value sets: AchSourceAccountType is savings / checking / cash and serves
+    PaymentRequestAchSource, and payments.setups.setups.AchAccountType is
+    savings / current / cash and serves the PaymentSetups Ach schema. Passing the wrong one
+    sends a value the target schema rejects.
+    """
     SAVINGS = 'savings'
     CHECKING = 'checking'
 
@@ -535,9 +556,44 @@ class SepaMandateType(str, Enum):
     B2B = 'B2B'
 
 
+# The type of payment for a SEPA instrument. The wire values are lowercase.
+# The equivalent Bacs Direct Debit field is capitalised, so do not share one enum between the two.
+# Do not use checkout_sdk.payments.payments.PaymentType either: it serializes capitalised values and
+# also carries MOTO, Installment, PayLater and Unscheduled, which SEPA does not allow.
+class SepaPaymentType(str, Enum):
+    RECURRING = 'recurring'
+    REGULAR = 'regular'
+
+
+# The type of payment for a Bacs Direct Debit instrument. The wire values are capitalised.
+# The equivalent SEPA field is lowercase, so do not share one enum between the two.
+class BacsPaymentType(str, Enum):
+    RECURRING = 'Recurring'
+    REGULAR = 'Regular'
+
+
+# The type of account holder on a stored instrument. The instrument schemas declare individual and
+# corporate only, unlike AccountHolderType which also carries government.
+class InstrumentAccountHolderType(str, Enum):
+    INDIVIDUAL = 'individual'
+    CORPORATE = 'corporate'
+
+
+# Every position this enum serves declares individual, corporate and government:
+#   - common.common.AccountHolder.type          (AccountHolder schema)
+#   - accounts.accounts.AccountsAccountHolder.type
+#   - instruments.instruments.BankAccountFieldQuery.account_holder_type
+#     (the account-holder-type query parameter of
+#      GET /validation/bank-accounts/{country}/{currency})
 class AccountHolderType(str, Enum):
     INDIVIDUAL = 'individual'
     CORPORATE = 'corporate'
+    GOVERNMENT = 'government'
+
+    # Possibly obsolete - do not use.
+    #
+    # Retained rather than removed because removal is breaking and needs confirmation from the API
+    # owners that no undocumented position accepts it. Nothing in this SDK references it.
     INSTRUMENT = 'instrument'
 
 
