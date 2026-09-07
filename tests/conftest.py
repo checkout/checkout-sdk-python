@@ -50,6 +50,7 @@ def oauth_api():
         .scopes([OAuthScopes.GATEWAY, OAuthScopes.VAULT, OAuthScopes.PAYOUTS_BANK_DETAILS,
                  OAuthScopes.SESSIONS_APP, OAuthScopes.SESSIONS_BROWSER, OAuthScopes.FX, OAuthScopes.ACCOUNTS,
                  OAuthScopes.FILES, OAuthScopes.TRANSFERS, OAuthScopes.BALANCES_VIEW,
+                 OAuthScopes.BALANCES_TOP_UP_INSTRUCTIONS,
                  OAuthScopes.VAULT_CARD_METADATA, OAuthScopes.FINANCIAL_ACTIONS,
                  OAuthScopes.VAULT_REAL_TIME_ACCOUNT_UPDATER, OAuthScopes.PAYMENTS_SEARCH,
                  OAuthScopes.GATEWAY_PAYMENT_CANCELLATIONS])

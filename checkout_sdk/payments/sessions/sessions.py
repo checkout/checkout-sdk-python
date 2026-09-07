@@ -297,6 +297,7 @@ class SubmitPaymentSessionRequest:
     currency: Currency
     reference: str
     items: list  # Item
+    amount_allocations: list  # AmountAllocations
     three_ds: ThreeDsRequest
     ip_address: str
     payment_type: PaymentType
