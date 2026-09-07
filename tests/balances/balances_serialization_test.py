@@ -55,6 +55,7 @@ class TestBalancesQuerySerialization:
         assert encoded['withCurrencyAccountId'] is True
         assert 'balancesAt' in encoded
 
+
 class TestTopUpInstructionsResponseShape:
     """Response-shape tests for GET .../top-up-instructions.
 

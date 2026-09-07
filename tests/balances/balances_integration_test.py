@@ -21,6 +21,7 @@ def test_should_retrieve_entity_balances(oauth_api):
                         'holding_currency',
                         'balances')
 
+
 def test_should_retrieve_top_up_instructions(oauth_api):
     """GET /entities/{entityId}/currency-accounts/{currencyAccountId}/top-up-instructions
 
