@@ -137,28 +137,33 @@ def test_should_create_payment_setup_with_additional_payment_methods(default_api
     assert response.currency == request.currency
 
 
-@pytest.mark.skip(reason="Integration test - requires valid payment method option")
+@pytest.mark.skip(reason="Integration test - requires a payment setup ready to be confirmed")
 def test_should_confirm_payment_setup(default_api):
     """Test confirming a payment setup"""
     # Arrange
     create_request = create_payment_setups_request()
     create_response = default_api.setups.create_payment_setup(create_request)
 
-    payment_method_option_id = "opt_test_12345"
+    payment_method_name = "klarna"
 
     # Act
     response = default_api.setups.confirm_payment_setup(
         create_response.id,
-        payment_method_option_id
+        payment_method_name
     )
 
     # Assert
+    # The confirm endpoint's response is the full PaymentSetup schema
+    # (same shape as create/update/get), not a slimmer payments-style response.
     assert_response(response,
+                    'http_metadata',
                     'id',
-                    'action_id',
+                    'processing_channel_id',
                     'amount',
                     'currency',
-                    'processed_on')
+                    'payment_type',
+                    'reference',
+                    'description')
 
     assert response.amount == create_request.amount
     assert response.currency == create_request.currency

@@ -46,12 +46,12 @@ class PaymentSetupsClient(Client):
             self._sdk_authorization()
         )
 
-    def confirm_payment_setup(self, setup_id: str, payment_method_option_id: str):
+    def confirm_payment_setup(self, setup_id: str, payment_method_name: str):
         """
         Confirms a Payment Setup
         """
         return self._api_client.post(
             self.build_path(self.__PAYMENTS_PATH, self.__SETUPS_PATH, setup_id,
-                            self.__CONFIRM_PATH, payment_method_option_id),
+                            self.__CONFIRM_PATH, payment_method_name),
             self._sdk_authorization()
         )

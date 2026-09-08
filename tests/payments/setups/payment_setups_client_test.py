@@ -35,5 +35,5 @@ class TestPaymentSetupsClient:
     def test_should_confirm_payment_setup(self, mocker, client: PaymentSetupsClient):
         mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
 
-        assert client.confirm_payment_setup('setup_id', 'payment_method_option_id') == 'response'
-        assert_api_call(mock, 'payments/setups/setup_id/confirm/payment_method_option_id')
+        assert client.confirm_payment_setup('setup_id', 'card') == 'response'
+        assert_api_call(mock, 'payments/setups/setup_id/confirm/card')
