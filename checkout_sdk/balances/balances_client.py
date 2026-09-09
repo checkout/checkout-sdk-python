@@ -5,6 +5,7 @@ from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.balances.balances import BalancesQuery
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
 from checkout_sdk.client import Client
+from checkout_sdk.exception import CheckoutArgumentException
 
 
 class BalancesClient(Client):
@@ -24,6 +25,11 @@ class BalancesClient(Client):
                                     balances_query)
 
     def retrieve_top_up_instructions(self, entity_id: str, currency_account_id: str):
+        if not entity_id or not entity_id.strip():
+            raise CheckoutArgumentException('entity_id cannot be blank')
+        if not currency_account_id or not currency_account_id.strip():
+            raise CheckoutArgumentException('currency_account_id cannot be blank')
+
         return self._api_client.get(
             self.build_path(self.__ENTITIES_PATH, entity_id, self.__CURRENCY_ACCOUNTS_PATH, currency_account_id,
                             self.__TOP_UP_INSTRUCTIONS_PATH),
