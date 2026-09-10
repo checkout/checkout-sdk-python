@@ -7,6 +7,7 @@ class OAuthScopes(str, Enum):
     ACCOUNTS = 'accounts'
     BALANCES = 'balances'
     BALANCES_VIEW = 'balances:view'
+    BALANCES_TOP_UP_INSTRUCTIONS = 'balances:top-up-instructions'
     CARD_MANAGEMENT = 'card-management'
     DISPUTES = 'disputes'
     DISPUTES_ACCEPT = 'disputes:accept'
