@@ -31,6 +31,19 @@ class TestOAuthScopes:
         assert OAuthScopes.COMPLIANCE_REQUESTS_RESPOND.value == 'compliance-requests:respond'
         assert OAuthScopes.VAULT_TOKENS_METADATA.value == 'vault:tokens-metadata'
 
+    def test_should_retain_the_legacy_scopes_the_spec_omits(self):
+        """These five appear nowhere in the spec, so a spec-driven sweep would delete them.
+
+        They are kept deliberately: the authorization server still grants them and callers still
+        request them. marketplace is the proof -- the sandbox payouts client is provisioned for it
+        and answers a request for accounts with invalid_scope.
+        """
+        assert OAuthScopes.ISSUING_CARD_MGMT.value == 'issuing:card-mgmt'
+        assert OAuthScopes.ISSUING_CLIENT.value == 'issuing:client'
+        assert OAuthScopes.MARKETPLACE.value == 'marketplace'
+        assert OAuthScopes.MIDDLEWARE_GATEWAY.value == 'middleware:gateway'
+        assert OAuthScopes.MIDDLEWARE_PAYMENT_CONTEXT.value == 'middleware:payment-context'
+
     def test_should_distinguish_the_two_payment_context_scopes(self):
         """PAYMENT_CONTEXT and GATEWAY_PAYMENT_CONTEXTS read alike but are unrelated scopes.
 
