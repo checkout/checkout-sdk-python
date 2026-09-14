@@ -20,7 +20,9 @@ def payout_schedules_api():
         .oauth() \
         .client_credentials(client_id=os.environ.get('CHECKOUT_DEFAULT_OAUTH_PAYOUT_SCHEDULE_CLIENT_ID'),
                             client_secret=os.environ.get('CHECKOUT_DEFAULT_OAUTH_PAYOUT_SCHEDULE_CLIENT_SECRET')) \
-        .scopes([OAuthScopes.MARKETPLACE])
+        .scopes([OAuthScopes.ACCOUNTS])
+    # The marketplace scope was retired; both payout-schedules operations document accounts as their
+    # OAuth requirement.
     # The sandbox OAuth clients are not provisioned for the merchant-specific subdomain, so the
     # token request would come back invalid_client. Opting out explicitly until they are.
     with warnings.catch_warnings():
