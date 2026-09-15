@@ -21,8 +21,11 @@ def issuing_checkout_api():
         .oauth() \
         .client_credentials(client_id=os.environ.get('CHECKOUT_DEFAULT_OAUTH_ISSUING_CLIENT_ID'),
                             client_secret=os.environ.get('CHECKOUT_DEFAULT_OAUTH_ISSUING_CLIENT_SECRET')) \
-        .scopes([OAuthScopes.ISSUING_CLIENT, OAuthScopes.ISSUING_CARD_MGMT,
+        .scopes([OAuthScopes.ISSUING_CARD_MANAGEMENT_READ, OAuthScopes.ISSUING_CARD_MANAGEMENT_WRITE,
                  OAuthScopes.ISSUING_CONTROLS_READ, OAuthScopes.ISSUING_CONTROLS_WRITE])
+    # issuing:card-mgmt and issuing:client were retired: neither is declared in the spec's scope map
+    # nor requested by any operation. The card-management pair above replaces the former; the latter
+    # has no documented equivalent.
     # The sandbox OAuth clients are not provisioned for the merchant-specific subdomain, so the
     # token request would come back invalid_client. Opting out explicitly until they are.
     with warnings.catch_warnings():
