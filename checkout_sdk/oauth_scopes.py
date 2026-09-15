@@ -26,6 +26,7 @@ class OAuthScopes(str, Enum):
     """
 
     ACCOUNTS = 'accounts'
+    AGENTIC_INVENTORY = 'agentic:inventory'
     BALANCES = 'balances'
     BALANCES_TOP_UP_INSTRUCTIONS = 'balances:top-up-instructions'
     BALANCES_VIEW = 'balances:view'

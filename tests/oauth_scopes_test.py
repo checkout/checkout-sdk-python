@@ -31,6 +31,13 @@ class TestOAuthScopes:
         assert OAuthScopes.COMPLIANCE_REQUESTS_RESPOND.value == 'compliance-requests:respond'
         assert OAuthScopes.VAULT_TOKENS_METADATA.value == 'vault:tokens-metadata'
 
+    def test_should_expose_the_agentic_commerce_inventory_scope(self):
+        """agentic:inventory is declared in clientCredentials.scopes ("Manage agentic commerce
+        inventory and reservations"), and it is the OAuth requirement of the ten /inventory/*
+        operations behind the beta agentic-commerce inventory and reservations endpoints.
+        """
+        assert OAuthScopes.AGENTIC_INVENTORY.value == 'agentic:inventory'
+
     def test_should_retain_the_legacy_scopes_the_spec_omits(self):
         """These five appear nowhere in the spec, so a spec-driven sweep would delete them.
 
