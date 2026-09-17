@@ -19,6 +19,7 @@ from checkout_sdk.payments.setups.setups import (
     PaymentSetupAirline, PaymentSetupAirlineTicket, PaymentSetupAirlinePassenger,
     PaymentSetupAirlinePassengerAddress, PaymentSetupFlightLegDetails,
     PaymentSetupAirlineInsurance, PaymentSetupAirlineInsurancePrice,
+    MerchantAccount, OrderSubMerchant,
 )
 
 
@@ -370,8 +371,6 @@ class TestPaymentSetupsSerialization:
             }]
         }
 
-    # ── INT-1696 additions ───────────────────────────────────────────────────
-
     def test_industry_accommodation_serializes_all_fields(self):
         address = PaymentSetupAccommodationAddress()
         address.address_line1 = '123 High Street'
@@ -525,3 +524,74 @@ class TestPaymentSetupsSerialization:
                 },
             }]
         }
+
+
+class TestDateFieldTypes:
+    """The specification declares these fields `format: date`.
+
+    The serializer renders anything with strftime through isoformat(), so a datetime emits a full
+    ISO timestamp. Only a yyyy-MM-dd string produces the declared format, so these attributes are
+    annotated `str` -- the same convention as BacsNotificationRequest.collection_date and
+    SepaInstrumentData.date_of_signature.
+    """
+
+    def test_merchant_account_date_fields_are_annotated_as_strings(self):
+        for field in (
+            'registration_date', 'last_modified',
+            'first_transaction_date', 'last_transaction_date',
+        ):
+            assert MerchantAccount.__annotations__[field] is str, field
+
+    def test_sub_merchant_and_mandate_date_fields_are_annotated_as_strings(self):
+        assert OrderSubMerchant.__annotations__['registration_date'] is str
+        assert SepaMandate.__annotations__['date_of_signature'] is str
+
+    def test_merchant_account_string_dates_serialize_in_the_declared_format(self):
+        account = MerchantAccount()
+        account.id = 'acct_1'
+        account.registration_date = '2023-05-01'
+        account.last_modified = '2023-05-02'
+        account.first_transaction_date = '2023-09-15'
+        account.last_transaction_date = '2025-03-28'
+
+        serialized = _serialize(account)
+
+        assert serialized['registration_date'] == '2023-05-01'
+        assert serialized['last_modified'] == '2023-05-02'
+        assert serialized['first_transaction_date'] == '2023-09-15'
+        assert serialized['last_transaction_date'] == '2025-03-28'
+
+    def test_sub_merchant_string_date_serializes_in_the_declared_format(self):
+        sub_merchant = OrderSubMerchant()
+        sub_merchant.id = 'sub_1'
+        sub_merchant.registration_date = '2023-01-15'
+
+        assert _serialize(sub_merchant)['registration_date'] == '2023-01-15'
+
+    def test_mandate_string_date_serializes_in_the_declared_format(self):
+        mandate = SepaMandate()
+        mandate.id = 'mandate_1'
+        mandate.date_of_signature = '2020-01-01'
+
+        assert _serialize(mandate)['date_of_signature'] == '2020-01-01'
+
+    def test_unset_date_fields_are_absent(self):
+        account = MerchantAccount()
+        account.id = 'acct_1'
+
+        serialized = _serialize(account)
+
+        for field in (
+            'registration_date', 'last_modified',
+            'first_transaction_date', 'last_transaction_date',
+        ):
+            assert field not in serialized, field
+
+    def test_a_datetime_would_not_serialize_in_the_declared_format(self):
+        # Documents why the annotation is str: this is what a datetime produces. These fields were
+        # annotated `datetime`, so following the annotation put a timestamp on a date-only field.
+        from datetime import datetime
+        account = MerchantAccount()
+        account.registration_date = datetime(2023, 5, 1)
+
+        assert _serialize(account)['registration_date'] == '2023-05-01T00:00:00'
