@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from deprecated import deprecated
 
 from checkout_sdk.common.common import Address, CustomerRequest, AccountHolder
@@ -15,7 +13,7 @@ class PaymentContextsPartnerCustomerRiskData:
 
 class PaymentContextsTicket:
     number: str
-    issue_date: datetime
+    issue_date: str  # Format: yyyy-MM-dd
     issuing_carrier_code: str
     travel_package_indicator: str
     travel_agency_name: str
@@ -25,7 +23,7 @@ class PaymentContextsTicket:
 class PaymentContextsPassenger:
     first_name: str
     last_name: str
-    date_of_birth: datetime
+    date_of_birth: str  # Format: yyyy-MM-dd
     address: Address
 
 
@@ -34,7 +32,7 @@ class PaymentContextsFlightLegDetails:
     carrier_code: str
     class_of_travelling: str
     departure_airport: str
-    departure_date: datetime
+    departure_date: str  # Format: yyyy-MM-dd
     departure_time: str
     arrival_airport: str
     stop_over_code: str

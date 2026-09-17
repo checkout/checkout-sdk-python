@@ -25,11 +25,11 @@ class CustomerDevice:
 
 class MerchantAccount:
     id: str
-    registration_date: datetime
-    last_modified: datetime
+    registration_date: str  # Format: yyyy-MM-dd
+    last_modified: str  # Format: yyyy-MM-dd
     returning_customer: bool
-    first_transaction_date: datetime
-    last_transaction_date: datetime
+    first_transaction_date: str  # Format: yyyy-MM-dd
+    last_transaction_date: str  # Format: yyyy-MM-dd
     total_order_count: int
     last_payment_amount: int
 
@@ -351,7 +351,7 @@ class SetupsSepaMandateType(str, Enum):
 class SepaMandate:
     id: str
     type: SetupsSepaMandateType
-    date_of_signature: datetime
+    date_of_signature: str  # Format: yyyy-MM-dd
 
 
 class SepaAccountHolder:
@@ -552,7 +552,7 @@ class OrderSubMerchant:
     id: str
     product_category: str
     number_of_sales: int
-    registration_date: datetime
+    registration_date: str  # Format: yyyy-MM-dd
 
 
 class AmountAllocationCommission:
