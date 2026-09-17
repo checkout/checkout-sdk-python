@@ -4,7 +4,6 @@ from enum import Enum
 
 from checkout_sdk.common.common import Address, Phone
 from checkout_sdk.common.enums import Currency
-from checkout_sdk.payments.contexts.contexts import PaymentContextsTicket
 from checkout_sdk.payments.payments import PaymentType, ShippingDetails
 
 
@@ -582,15 +581,263 @@ class Order:
 
 
 # Industry entities
-class AirlineData:
-    ticket: PaymentContextsTicket
-    passengers: list  # list of PaymentContextsPassenger
-    flight_leg_details: list  # list of PaymentContextsFlightLegDetails
+
+class PaymentSetupAccommodationAddress:
+    """The accommodation's address."""
+    # The first line of the address.
+    # [Optional]
+    address_line1: str
+    # The address city.
+    # [Optional]
+    city: str
+    # The address state or county.
+    # [Optional]
+    state: str
+    # The address country, in ISO 3166-1 alpha-2 format.
+    # [Optional]
+    country: str
+    # The zip code or postal code.
+    # [Optional]
+    zip: str
+
+
+class PaymentSetupAccommodationGuest:
+    """A guest staying at the accommodation."""
+    # The guest's first name.
+    # [Optional]
+    first_name: str
+    # The guest's last name.
+    # [Optional]
+    last_name: str
+    # The guest's date of birth.
+    # [Optional]
+    # format: date (YYYY-MM-DD)
+    date_of_birth: str
+
+
+class PaymentSetupAccommodationRoom:
+    """A room booked by the customer."""
+    # The rate or cost of the room per day.
+    # [Optional]
+    rate: float
+    # The number of nights the room is booked for.
+    # [Optional]
+    number_of_nights: int
+    # The room class or type booked. For example, `deluxe`. Free-form string, not an enum.
+    # [Optional]
+    type: str
+
+
+class PaymentSetupAccommodationHost:
+    """Details about the host of the accommodation."""
+    # The date the host registered.
+    # [Optional]
+    # format: date (YYYY-MM-DD)
+    registration_date: str
+    # The total number of reservations the host has received.
+    # [Optional]
+    total_reservation_count: int
+
+
+class PaymentSetupAccommodation:
+    """Details about the accommodation booking. For lodging or cruise bookings."""
+    # For lodging, contains the lodging name that appears on the storefront/customer receipts.
+    # For cruise, contains the ship name booked for the cruise.
+    # [Optional]
+    name: str
+    # A unique identifier for the booking.
+    # [Optional]
+    booking_reference: str
+    # For lodging bookings, the customer's check-in date.
+    # For cruise bookings, the cruise departure date (sail date).
+    # [Optional]
+    # format: date (YYYY-MM-DD)
+    check_in_date: str
+    # For lodging bookings, the customer's check-out date.
+    # For cruise bookings, the cruise return date.
+    # [Optional]
+    # format: date (YYYY-MM-DD)
+    check_out_date: str
+    # The accommodation's address.
+    # [Optional]
+    address: PaymentSetupAccommodationAddress
+    # The total number of rooms booked for the accommodation.
+    # [Optional]
+    number_of_rooms: int
+    # The list of guests staying at the accommodation.
+    # [Optional]
+    guests: list  # list of PaymentSetupAccommodationGuest
+    # The list of rooms booked by the customer.
+    # [Optional]
+    room: list  # list of PaymentSetupAccommodationRoom
+    # The total number of guests on the booking.
+    # [Optional]
+    total_number_of_guests: int
+    # Specifies whether the booking is refundable.
+    # [Optional]
+    refundable: bool
+    # The recipient the booking confirmation is delivered to.
+    # [Optional]
+    delivery_recipient: str
+    # Details about the host of the accommodation.
+    # [Optional]
+    host: PaymentSetupAccommodationHost
+
+
+class PaymentSetupAirlineTicket:
+    """Details about the airline ticket."""
+    # The ticket's unique identifier.
+    # [Optional]
+    number: str
+    # The date the airline ticket was issued.
+    # [Optional]
+    # format: date (YYYY-MM-DD)
+    issue_date: str
+    # The carrier code of the ticket issuer.
+    # [Optional]
+    issuing_carrier_code: str
+    # The travel package indicator, as one of the following codes: `A` (Airline flight
+    # reservation), `B` (Car rental and airline reservation), `C` (Car rental reservation),
+    # `N` (Unknown). Free-form string in the spec, not a typed enum.
+    # [Optional]
+    travel_package_indicator: str
+    # The name of the travel agency.
+    # [Optional]
+    travel_agency_name: str
+    # The IATA or ARC unique identifier for the travel agency that issues the ticket.
+    # [Optional]
+    travel_agency_code: str
+
+
+class PaymentSetupAirlinePassengerAddress:
+    """Details about the passenger's address."""
+    # The two-letter ISO country code of the passenger's country of residence.
+    # [Optional]
+    country: str
+
+
+class PaymentSetupAirlinePassenger:
+    """A passenger on the flight."""
+    # The passenger's first name.
+    # [Optional]
+    first_name: str
+    # The passenger's last name.
+    # [Optional]
+    last_name: str
+    # The passenger's date of birth.
+    # [Optional]
+    # format: date (YYYY-MM-DD)
+    date_of_birth: str
+    # Details about the passenger's address.
+    # [Optional]
+    address: PaymentSetupAirlinePassengerAddress
+
+
+class PaymentSetupFlightLegDetails:
+    """A flight leg booked by the customer."""
+    # The flight identifier.
+    # [Optional]
+    flight_number: str
+    # The IATA 2-letter accounting code (PAX) that identifies the carrier. Required if the
+    # airline data includes leg details.
+    # [Optional]
+    carrier_code: str
+    # A one-letter identifier for the travel class. For example: `F` (First class),
+    # `J` (Business class), `W` (Premium economy class), `Y` (Economy class).
+    # [Optional]
+    class_of_travelling: str
+    # The IATA three-letter airport code for the departure airport. Required if the
+    # airline data includes leg details.
+    # [Optional]
+    departure_airport: str
+    # The date of the scheduled take-off.
+    # [Optional]
+    # format: date (YYYY-MM-DD)
+    departure_date: str
+    # The time of the scheduled take-off.
+    # [Optional]
+    departure_time: str
+    # The IATA three-letter airport code for the destination airport. Required if the
+    # airline data includes leg details.
+    # [Optional]
+    arrival_airport: str
+    # A one-letter code that indicates whether the passenger is entitled to make a stopover.
+    # Specify `O` or a blank space if the passenger is entitled. Specify `X` if not entitled.
+    # [Optional]
+    stop_over_code: str
+    # The alphanumeric fare basis code.
+    # [Optional]
+    fare_basis_code: str
+
+
+class PaymentSetupAirlineInsurancePrice:
+    """The price of the travel insurance."""
+    # The insurance amount, in the minor currency unit.
+    # [Optional]
+    amount: float
+    # The currency of the insurance amount, as a three-letter ISO currency code.
+    # [Optional]
+    currency: str
+
+
+class PaymentSetupAirlineInsurance:
+    """Details about the travel insurance purchased with the booking."""
+    # The type of insurance.
+    # [Optional]
+    type: str
+    # The name of the insurance company.
+    # [Optional]
+    company: str
+    # The price of the insurance.
+    # [Optional]
+    price: PaymentSetupAirlineInsurancePrice
+
+
+class PaymentSetupAirline:
+    """Details about the airline ticket and flights the customer booked."""
+    # Details about the airline ticket.
+    # [Optional]
+    ticket: PaymentSetupAirlineTicket
+    # The list of passengers on the flight.
+    # [Optional]
+    passengers: list  # list of PaymentSetupAirlinePassenger
+    # The list of flight legs booked by the customer.
+    # [Optional]
+    flight_leg_details: list  # list of PaymentSetupFlightLegDetails
+    # The total number of passengers on the booking.
+    # [Optional]
+    total_number_of_passengers: int
+    # The type of travel. For example, `domestic` or `international`. Free-form string,
+    # not a typed enum.
+    # [Optional]
+    travel_type: str
+    # The type of trip. For example, `one_way` or `round_trip`. Free-form string,
+    # not a typed enum.
+    # [Optional]
+    trip_type: str
+    # Specifies whether the booking is refundable.
+    # [Optional]
+    refundable: bool
+    # The recipient the ticket is delivered to.
+    # [Optional]
+    delivery_recipient: str
+    # Any additional add-ons purchased with the booking. For example, `extra_baggage`.
+    # A single string per the spec, not an array, despite the plural name.
+    # [Optional]
+    ancillaries: str
+    # Details about the travel insurance purchased with the booking.
+    # [Optional]
+    insurance: PaymentSetupAirlineInsurance
 
 
 class Industry:
-    airline_data: AirlineData
-    accommodation_data: list  # list of AccommodationData
+    """Industry-specific information."""
+    # The list of airline bookings associated with the payment.
+    # [Optional]
+    airline: list  # list of PaymentSetupAirline
+    # The list of accommodation bookings associated with the payment.
+    # [Optional]
+    accommodation: list  # list of PaymentSetupAccommodation
 
 
 # Billing entity

@@ -14,6 +14,11 @@ from checkout_sdk.payments.setups.setups import (
     CardPresentPin, PayByBank, PayByBankAction, PayByBankActionType, PayByBankBank, Stablecoin,
     PaymentSetupBillingDescriptor, PaymentSetupPresentmentDetails, PaymentSetupTerminal,
     PaymentSetupAmountAllocation, AmountAllocationCommission, Order,
+    Industry, PaymentSetupAccommodation, PaymentSetupAccommodationAddress,
+    PaymentSetupAccommodationGuest, PaymentSetupAccommodationRoom, PaymentSetupAccommodationHost,
+    PaymentSetupAirline, PaymentSetupAirlineTicket, PaymentSetupAirlinePassenger,
+    PaymentSetupAirlinePassengerAddress, PaymentSetupFlightLegDetails,
+    PaymentSetupAirlineInsurance, PaymentSetupAirlineInsurancePrice,
 )
 
 
@@ -362,5 +367,161 @@ class TestPaymentSetupsSerialization:
                 'amount': 1000,
                 'reference': 'ORD-5023-4E89',
                 'commission': {'amount': 100, 'percentage': 2.5},
+            }]
+        }
+
+    # ── INT-1696 additions ───────────────────────────────────────────────────
+
+    def test_industry_accommodation_serializes_all_fields(self):
+        address = PaymentSetupAccommodationAddress()
+        address.address_line1 = '123 High Street'
+        address.city = 'London'
+        address.state = 'Greater London'
+        address.country = 'GB'
+        address.zip = 'NE1 1CK'
+
+        guest = PaymentSetupAccommodationGuest()
+        guest.first_name = 'John'
+        guest.last_name = 'Smith'
+        guest.date_of_birth = '1970-03-19'
+
+        room = PaymentSetupAccommodationRoom()
+        room.rate = 42.3
+        room.number_of_nights = 5
+        room.type = 'deluxe'
+
+        host = PaymentSetupAccommodationHost()
+        host.registration_date = '2020-01-01'
+        host.total_reservation_count = 150
+
+        accommodation = PaymentSetupAccommodation()
+        accommodation.name = 'Checkout Lodge'
+        accommodation.booking_reference = 'REF9083748'
+        accommodation.check_in_date = '2025-04-11'
+        accommodation.check_out_date = '2025-04-18'
+        accommodation.address = address
+        accommodation.number_of_rooms = 2
+        accommodation.guests = [guest]
+        accommodation.room = [room]
+        accommodation.total_number_of_guests = 2
+        accommodation.refundable = True
+        accommodation.delivery_recipient = 'jane.smith@example.com'
+        accommodation.host = host
+
+        industry = Industry()
+        industry.accommodation = [accommodation]
+
+        assert _serialize(industry) == {
+            'accommodation': [{
+                'name': 'Checkout Lodge',
+                'booking_reference': 'REF9083748',
+                'check_in_date': '2025-04-11',
+                'check_out_date': '2025-04-18',
+                'address': {
+                    'address_line1': '123 High Street',
+                    'city': 'London',
+                    'state': 'Greater London',
+                    'country': 'GB',
+                    'zip': 'NE1 1CK',
+                },
+                'number_of_rooms': 2,
+                'guests': [{'first_name': 'John', 'last_name': 'Smith', 'date_of_birth': '1970-03-19'}],
+                'room': [{'rate': 42.3, 'number_of_nights': 5, 'type': 'deluxe'}],
+                'total_number_of_guests': 2,
+                'refundable': True,
+                'delivery_recipient': 'jane.smith@example.com',
+                'host': {'registration_date': '2020-01-01', 'total_reservation_count': 150},
+            }]
+        }
+
+    def test_industry_airline_serializes_all_fields(self):
+        ticket = PaymentSetupAirlineTicket()
+        ticket.number = '0742464639523'
+        ticket.issue_date = '2025-05-01'
+        ticket.issuing_carrier_code = '042'
+        ticket.travel_package_indicator = 'A'
+        ticket.travel_agency_name = 'Checkout Travel Agents'
+        ticket.travel_agency_code = '91114362'
+
+        passenger_address = PaymentSetupAirlinePassengerAddress()
+        passenger_address.country = 'GB'
+        passenger = PaymentSetupAirlinePassenger()
+        passenger.first_name = 'John'
+        passenger.last_name = 'Smith'
+        passenger.date_of_birth = '1990-10-31'
+        passenger.address = passenger_address
+
+        leg = PaymentSetupFlightLegDetails()
+        leg.flight_number = 'BA1483'
+        leg.carrier_code = 'BA'
+        leg.class_of_travelling = 'W'
+        leg.departure_airport = 'LHR'
+        leg.departure_date = '2025-10-13'
+        leg.departure_time = '18:30'
+        leg.arrival_airport = 'JFK'
+        leg.stop_over_code = 'X'
+        leg.fare_basis_code = 'WUP14B'
+
+        price = PaymentSetupAirlineInsurancePrice()
+        price.amount = 500
+        price.currency = 'SAR'
+        insurance = PaymentSetupAirlineInsurance()
+        insurance.type = 'travel'
+        insurance.company = 'AXA'
+        insurance.price = price
+
+        airline = PaymentSetupAirline()
+        airline.ticket = ticket
+        airline.passengers = [passenger]
+        airline.flight_leg_details = [leg]
+        airline.total_number_of_passengers = 1
+        airline.travel_type = 'international'
+        airline.trip_type = 'one_way'
+        airline.refundable = True
+        airline.delivery_recipient = 'jane.smith@example.com'
+        airline.ancillaries = 'extra_baggage'
+        airline.insurance = insurance
+
+        industry = Industry()
+        industry.airline = [airline]
+
+        assert _serialize(industry) == {
+            'airline': [{
+                'ticket': {
+                    'number': '0742464639523',
+                    'issue_date': '2025-05-01',
+                    'issuing_carrier_code': '042',
+                    'travel_package_indicator': 'A',
+                    'travel_agency_name': 'Checkout Travel Agents',
+                    'travel_agency_code': '91114362',
+                },
+                'passengers': [{
+                    'first_name': 'John',
+                    'last_name': 'Smith',
+                    'date_of_birth': '1990-10-31',
+                    'address': {'country': 'GB'},
+                }],
+                'flight_leg_details': [{
+                    'flight_number': 'BA1483',
+                    'carrier_code': 'BA',
+                    'class_of_travelling': 'W',
+                    'departure_airport': 'LHR',
+                    'departure_date': '2025-10-13',
+                    'departure_time': '18:30',
+                    'arrival_airport': 'JFK',
+                    'stop_over_code': 'X',
+                    'fare_basis_code': 'WUP14B',
+                }],
+                'total_number_of_passengers': 1,
+                'travel_type': 'international',
+                'trip_type': 'one_way',
+                'refundable': True,
+                'delivery_recipient': 'jane.smith@example.com',
+                'ancillaries': 'extra_baggage',
+                'insurance': {
+                    'type': 'travel',
+                    'company': 'AXA',
+                    'price': {'amount': 500, 'currency': 'SAR'},
+                },
             }]
         }
