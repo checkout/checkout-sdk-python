@@ -525,6 +525,7 @@ class TestPaymentSetupsSerialization:
             }]
         }
 
+
 class TestDateFieldTypes:
     """The specification declares these fields `format: date`.
 
