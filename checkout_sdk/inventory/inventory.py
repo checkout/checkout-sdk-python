@@ -186,27 +186,13 @@ class InventoryProductKnowledgeLinks:
     delete: InventoryHalLink
 
 
-class InventoryProductKnowledge:
-    """Response body for getInventoryProduct and setInventoryProduct. Also embeddable as
-    `InventoryLevels.product` when `?expand=product` is passed.
-
-    Beta: this schema and the endpoints that return it are marked Beta in the specification.
+class InventoryMerchandisingFields:
+    """Merchandising fields shared, with identical shape and constraints, between
+    `InventoryProductKnowledge` (response) and `InventorySetProductRequest` (request). Split out
+    to avoid duplicating ~30 identical field declarations; fields that differ in constraints or
+    required-ness between the two (`title`, `description`, `product_url`, `image_url`, `sku`,
+    `condition`) stay on the subclasses.
     """
-    # Identifier of the variant this product knowledge describes.
-    # [Required]
-    variant_id: str
-    # Product title.
-    # [Required]
-    title: str
-    # Product description.
-    # [Required]
-    description: str
-    # Canonical URL of the product page.
-    # [Required]
-    product_url: str
-    # URL of the primary product image.
-    # [Required]
-    image_url: str
     # Additional image URLs.
     # [Optional]
     additional_image_urls: list  # values of str
@@ -216,9 +202,6 @@ class InventoryProductKnowledge:
     # URL of a 3D model of the product.
     # [Optional]
     model_3d_url: str
-    # Merchant SKU.
-    # [Optional]
-    sku: str
     # Global Trade Item Number.
     # [Optional]
     gtin: str
@@ -262,10 +245,6 @@ class InventoryProductKnowledge:
     # Target gender.
     # [Optional]
     gender: str
-    # Condition of the item. Defaults to `new`.
-    # [Required]
-    # enum: new, used, refurbished
-    condition: InventoryCondition
     # Material composition.
     # [Optional]
     material: str
@@ -311,6 +290,36 @@ class InventoryProductKnowledge:
     # URL of the seller's terms of service.
     # [Optional]
     seller_tos: str
+
+
+class InventoryProductKnowledge(InventoryMerchandisingFields):
+    """Response body for getInventoryProduct and setInventoryProduct. Also embeddable as
+    `InventoryLevels.product` when `?expand=product` is passed.
+
+    Beta: this schema and the endpoints that return it are marked Beta in the specification.
+    """
+    # Identifier of the variant this product knowledge describes.
+    # [Required]
+    variant_id: str
+    # Product title.
+    # [Required]
+    title: str
+    # Product description.
+    # [Required]
+    description: str
+    # Canonical URL of the product page.
+    # [Required]
+    product_url: str
+    # URL of the primary product image.
+    # [Required]
+    image_url: str
+    # Merchant SKU.
+    # [Optional]
+    sku: str
+    # Condition of the item. Defaults to `new`.
+    # [Required]
+    # enum: new, used, refurbished
+    condition: InventoryCondition
     # When the product knowledge was created.
     # [Required]
     created_on: datetime
@@ -322,7 +331,7 @@ class InventoryProductKnowledge:
     _links: InventoryProductKnowledgeLinks
 
 
-class InventorySetProductRequest:
+class InventorySetProductRequest(InventoryMerchandisingFields):
     """Request body for PUT /inventory/{variant_id}/product.
 
     Beta: this schema and the endpoint it targets are marked Beta in the specification.
@@ -343,111 +352,14 @@ class InventorySetProductRequest:
     # [Required]
     # max 2048 characters
     image_url: str
-    # Additional image URLs.
-    # [Optional]
-    additional_image_urls: list  # values of str
-    # URL of a product video.
-    # [Optional]
-    video_url: str
-    # URL of a 3D model of the product.
-    # [Optional]
-    model_3d_url: str
     # Merchant SKU.
     # [Optional]
     # max 128 characters
     sku: str
-    # Global Trade Item Number.
-    # [Optional]
-    gtin: str
-    # Manufacturer Part Number.
-    # [Optional]
-    mpn: str
-    # Brand name.
-    # [Optional]
-    brand: str
-    # Product category.
-    # [Optional]
-    category: str
-    # Regular price.
-    # [Optional]
-    price: InventoryMoney
-    # Discounted price. Must share `price`'s currency and be <= `price`.
-    # [Optional]
-    sale_price: InventoryMoney
-    # Start of the sale price window. Pairs with `sale_price`.
-    # [Optional]
-    sale_price_starts_at: datetime
-    # End of the sale price window. Pairs with `sale_price`.
-    # [Optional]
-    sale_price_ends_at: datetime
-    # Identifier grouping variants of the same product. When set, `color` and `size` are both
-    # expected.
-    # [Optional]
-    group_id: str
-    # Title shared across all variants in `group_id`.
-    # [Optional]
-    group_title: str
-    # Color of this variant. Expected when `group_id` is set.
-    # [Optional]
-    color: str
-    # Size of this variant. Expected when `group_id` is set.
-    # [Optional]
-    size: str
-    # Sizing system used by `size`.
-    # [Optional]
-    size_system: str
-    # Target gender.
-    # [Optional]
-    gender: str
     # Condition of the item. Exact lowercase match. Defaults to `new`.
     # [Optional]
     # enum: new, used, refurbished
     condition: InventoryCondition
-    # Material composition.
-    # [Optional]
-    material: str
-    # Target age group.
-    # [Optional]
-    age_group: str
-    # Length of the item.
-    # [Optional]
-    length: float
-    # Width of the item.
-    # [Optional]
-    width: float
-    # Height of the item.
-    # [Optional]
-    height: float
-    # Unit used by `length`, `width` and `height`.
-    # [Optional]
-    dimension_unit: str
-    # Weight of the item.
-    # [Optional]
-    weight: float
-    # Unit used by `weight`.
-    # [Optional]
-    weight_unit: str
-    # Expiration date of the item, if applicable.
-    # [Optional]
-    expiration_date: datetime
-    # Harmonized System code, for customs.
-    # [Optional]
-    harmonized_system_code: str
-    # 2-letter ISO 3166-1 alpha-2 country of origin.
-    # [Optional]
-    country_of_origin: str
-    # Name of the seller.
-    # [Optional]
-    seller_name: str
-    # URL of the seller.
-    # [Optional]
-    seller_url: str
-    # URL of the seller's privacy policy.
-    # [Optional]
-    seller_privacy_policy: str
-    # URL of the seller's terms of service.
-    # [Optional]
-    seller_tos: str
 
 
 class InventoryLevels:

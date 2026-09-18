@@ -1,4 +1,5 @@
 import json
+import typing
 
 from checkout_sdk.inventory.inventory import (
     InventoryAdjustmentRequest, InventoryCondition, InventoryHalLink, InventoryLevels,
@@ -271,7 +272,9 @@ class TestInventorySetProductRequestSerialization:
         assert serialized['sale_price'] == {'amount': 1499, 'currency': 'USD'}
         assert serialized['condition'] == 'new'
         assert serialized['country_of_origin'] == 'US'
-        assert set(serialized.keys()) == set(InventorySetProductRequest.__annotations__.keys())
+        # get_type_hints merges the InventoryMerchandisingFields base in with the subclass's
+        # own annotations; __annotations__ alone would only see the subclass's direct fields.
+        assert set(serialized.keys()) == set(typing.get_type_hints(InventorySetProductRequest).keys())
 
     def test_condition_enum_defaults_to_new_and_carries_three_values(self):
         assert [e.value for e in InventoryCondition] == ['new', 'used', 'refurbished']
