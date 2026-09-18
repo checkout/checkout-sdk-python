@@ -11,6 +11,7 @@ from checkout_sdk.financial.financial_client import FinancialClient
 from checkout_sdk.forex.forex_client import ForexClient
 from checkout_sdk.checkout_apm_api import CheckoutApmApi
 from checkout_sdk.instruments.instruments_client import InstrumentsClient
+from checkout_sdk.inventory.inventory_client import InventoryClient
 from checkout_sdk.issuing.issuing_client import IssuingClient
 from checkout_sdk.payments.contexts.contexts_client import PaymentContextsClient
 from checkout_sdk.payments.sessions.sessions_client import PaymentSessionsClient
@@ -105,6 +106,7 @@ class CheckoutApi(CheckoutApmApi):
         self.forward = ForwardClient(api_client=forward_api_client, configuration=configuration)
         self.setups = PaymentSetupsClient(api_client=base_api_client, configuration=configuration)
         self.agentic_commerce = AgenticCommerceClient(api_client=base_api_client, configuration=configuration)
+        self.inventory = InventoryClient(api_client=base_api_client, configuration=configuration)
         self.apple_pay = ApplePayClient(api_client=base_api_client, configuration=configuration)
         self.google_pay = GooglePayClient(api_client=base_api_client, configuration=configuration)
         self.standalone_account_updater = StandaloneAccountUpdaterClient(api_client=base_api_client,
