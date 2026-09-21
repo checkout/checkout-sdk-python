@@ -5,8 +5,9 @@ from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
 from checkout_sdk.client import Client
 from checkout_sdk.issuing.cardholders import CardholderRequest
-from checkout_sdk.issuing.cards import CardRequest, ThreeDsEnrollmentRequest, UpdateThreeDsEnrollmentRequest, \
-    CardCredentialsQuery, RevokeRequest, SuspendRequest, UpdateCardRequest, RenewCardRequest
+from checkout_sdk.issuing.cards import CardRequest, CardUpdateHeaders, ThreeDsEnrollmentRequest, \
+    UpdateThreeDsEnrollmentRequest, CardCredentialsQuery, RevokeRequest, SuspendRequest, UpdateCardRequest, \
+    RenewCardRequest
 from checkout_sdk.issuing.controls import CardControlRequest, CardControlsQuery, UpdateCardControlRequest, \
     CreateControlGroupRequest, ControlGroupQueryTarget, ControlProfileRequest
 from checkout_sdk.issuing.disputes import CreateDisputeRequest, EscalateDisputeRequest, AmendDisputeRequest, \
@@ -78,10 +79,25 @@ class IssuingClient(Client):
         return self._api_client.get(self.build_path(self.__ISSUING, self.__CARDS, card_id),
                                     self._sdk_authorization())
 
-    def update_card(self, card_id: str, update_card_request: UpdateCardRequest):
+    def update_card(self, card_id: str, update_card_request: UpdateCardRequest,
+                    headers: CardUpdateHeaders = None):
+        """Update the details of an issued card.
+
+        Only the fields for which you provide values are updated.
+
+        Args:
+            card_id: The card's unique identifier.
+            update_card_request: The card fields to update.
+            headers: Optional return-encrypted-cvv and Encryption-Key HTTP headers. Setting
+                return-encrypted-cvv to "true" without Encryption-Key returns a 422 with error
+                code encryption_key_required.
+        Returns:
+            ResponseWrapper with the update response, including encrypted_cvv when requested.
+        """
         return self._api_client.patch(self.build_path(self.__ISSUING, self.__CARDS, card_id),
                                       self._sdk_authorization(),
-                                      update_card_request)
+                                      update_card_request,
+                                      headers=headers)
 
     def enroll_three_ds(self, card_id: str, three_ds_enrollment_request: ThreeDsEnrollmentRequest):
         return self._api_client.post(self.build_path(self.__ISSUING, self.__CARDS, card_id, self.__THREE_DS),

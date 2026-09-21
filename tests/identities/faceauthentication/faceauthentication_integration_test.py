@@ -4,6 +4,7 @@ from checkout_sdk.identities.entities import AttemptAssetsQueryFilter
 from checkout_sdk.identities.faceauthentication.faceauthentication import (
     FaceAuthenticationRequest, FaceAuthenticationAttemptRequest, ClientInformation
 )
+from checkout_sdk.identities.entities import AttemptsQueryFilter, PhoneNumber
 from tests.checkout_test_utils import assert_response, new_uuid
 
 
@@ -95,6 +96,22 @@ def test_should_perform_face_authentication_workflow(default_api):
     assert_response(anonymized, 'http_metadata', 'id')
 
 
+@pytest.mark.skip(reason='Requires valid test environment setup')
+def test_should_get_face_authentication_attempts_with_pagination(default_api):
+    created = default_api.face_authentication.create_face_authentication(face_authentication_request())
+    default_api.face_authentication.create_face_authentication_attempt(
+        created.id, face_authentication_attempt_request())
+
+    query = AttemptsQueryFilter()
+    query.skip = 0
+    query.limit = 1
+
+    attempts = default_api.face_authentication.get_face_authentication_attempts(created.id, query)
+    assert_response(attempts, 'http_metadata', 'total_count', 'skip', 'limit', 'data')
+    assert attempts.limit == 1
+    assert len(attempts.data) <= 1
+
+
 # common methods
 
 def face_authentication_request() -> FaceAuthenticationRequest:
@@ -109,8 +126,13 @@ def face_authentication_attempt_request() -> FaceAuthenticationAttemptRequest:
     client_information.pre_selected_residence_country = 'US'
     client_information.pre_selected_language = 'en-US'
 
+    phone_number = PhoneNumber()
+    phone_number.country_code = '+1'
+    phone_number.number = '5555550102'
+
     request = FaceAuthenticationAttemptRequest()
     request.redirect_url = 'https://example.com/redirect'
+    request.phone_number = phone_number
     request.client_information = client_information
     return request
 

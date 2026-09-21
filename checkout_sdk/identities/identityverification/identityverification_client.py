@@ -4,7 +4,7 @@ from checkout_sdk.api_client import ApiClient
 from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
 from checkout_sdk.client import Client
-from checkout_sdk.identities.entities import AttemptAssetsQueryFilter
+from checkout_sdk.identities.entities import AttemptAssetsQueryFilter, AttemptsQueryFilter
 from checkout_sdk.identities.identityverification.identityverification import (
     IdentityVerificationRequest,
     IdentityVerificationAndAttemptRequest,
@@ -51,10 +51,22 @@ class IdentityVerificationClient(Client):
             self._sdk_authorization(),
             request)
 
-    def get_identity_verification_attempts(self, identity_verification_id: str):
+    def get_identity_verification_attempts(self, identity_verification_id: str,
+                                           query: AttemptsQueryFilter = None):
+        """Get all the attempts for a specific identity verification.
+
+        Results are paginated. Beta.
+
+        Args:
+            identity_verification_id: The identity verification's unique identifier.
+            query: Optional skip and limit pagination parameters.
+        Returns:
+            ResponseWrapper with the paginated attempt list.
+        """
         return self._api_client.get(
             self.build_path(self.__IDENTITY_VERIFICATIONS_PATH, identity_verification_id, self.__ATTEMPTS_PATH),
-            self._sdk_authorization())
+            self._sdk_authorization(),
+            query)
 
     def get_identity_verification_attempt(self, identity_verification_id: str, attempt_id: str):
         return self._api_client.get(

@@ -1,6 +1,7 @@
 import pytest
 
 from tests._assertions import assert_api_call
+from checkout_sdk.identities.entities import AttemptAssetsQueryFilter, AttemptsQueryFilter
 from checkout_sdk.identities.iddocumentverification.iddocumentverification import (
     IdDocumentVerificationRequest, IdDocumentVerificationAttemptRequest
 )
@@ -57,3 +58,34 @@ class TestIdDocumentVerificationClient:
 
         assert client.get_id_document_verification_report('iddoc_12345') == 'response'
         assert_api_call(mock, 'id-document-verifications/iddoc_12345/pdf-report')
+
+    def test_should_get_id_document_verification_attempts_with_pagination(
+            self, mocker, client: IdDocumentVerificationClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        query = AttemptsQueryFilter()
+        query.skip = 5
+        query.limit = 25
+
+        assert client.get_id_document_verification_attempts('iddv_12345', query) == 'response'
+        assert_api_call(mock, 'id-document-verifications/iddv_12345/attempts')
+        assert mock.call_args.args[2] is query
+
+    def test_should_get_id_document_verification_attempt_assets(
+            self, mocker, client: IdDocumentVerificationClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        query = AttemptAssetsQueryFilter()
+        query.limit = 10
+
+        assert client.get_id_document_verification_attempt_assets(
+            'iddv_12345', 'datp_67890', query) == 'response'
+        assert_api_call(mock, 'id-document-verifications/iddv_12345/attempts/datp_67890/assets')
+        assert mock.call_args.args[2] is query
+
+    def test_should_get_id_document_verification_attempt_assets_without_a_filter(
+            self, mocker, client: IdDocumentVerificationClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+
+        assert client.get_id_document_verification_attempt_assets(
+            'iddv_12345', 'datp_67890') == 'response'
+        assert_api_call(mock, 'id-document-verifications/iddv_12345/attempts/datp_67890/assets')
+        assert mock.call_args.args[2] is None

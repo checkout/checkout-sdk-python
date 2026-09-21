@@ -1,6 +1,7 @@
 import pytest
 
 from tests._assertions import assert_api_call
+from checkout_sdk.identities.entities import AttemptAssetsQueryFilter, AttemptsQueryFilter
 from checkout_sdk.identities.addressdocumentverification.addressdocumentverification import (
     AddressDocumentVerificationRequest, AddressDocumentVerificationAttemptRequest
 )
@@ -62,3 +63,34 @@ class TestAddressDocumentVerificationClient:
 
         assert client.get_address_document_verification_report('adv_12345') == 'response'
         assert_api_call(mock, 'address-document-verifications/adv_12345/pdf-report')
+
+    def test_should_get_address_document_verification_attempts_with_pagination(
+            self, mocker, client: AddressDocumentVerificationClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        query = AttemptsQueryFilter()
+        query.skip = 5
+        query.limit = 25
+
+        assert client.get_address_document_verification_attempts('adv_12345', query) == 'response'
+        assert_api_call(mock, 'address-document-verifications/adv_12345/attempts')
+        assert mock.call_args.args[2] is query
+
+    def test_should_get_address_document_verification_attempt_assets(
+            self, mocker, client: AddressDocumentVerificationClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        query = AttemptAssetsQueryFilter()
+        query.limit = 10
+
+        assert client.get_address_document_verification_attempt_assets(
+            'adv_12345', 'adva_67890', query) == 'response'
+        assert_api_call(mock, 'address-document-verifications/adv_12345/attempts/adva_67890/assets')
+        assert mock.call_args.args[2] is query
+
+    def test_should_get_address_document_verification_attempt_assets_without_a_filter(
+            self, mocker, client: AddressDocumentVerificationClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+
+        assert client.get_address_document_verification_attempt_assets(
+            'adv_12345', 'adva_67890') == 'response'
+        assert_api_call(mock, 'address-document-verifications/adv_12345/attempts/adva_67890/assets')
+        assert mock.call_args.args[2] is None

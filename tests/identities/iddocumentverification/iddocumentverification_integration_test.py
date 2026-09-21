@@ -3,6 +3,7 @@ import pytest
 from checkout_sdk.identities.iddocumentverification.iddocumentverification import (
     IdDocumentVerificationRequest, IdDocumentVerificationAttemptRequest, DeclaredData
 )
+from checkout_sdk.identities.entities import AttemptAssetsQueryFilter, AttemptsQueryFilter
 from tests.checkout_test_utils import assert_response, new_uuid
 
 
@@ -69,7 +70,7 @@ def test_should_get_id_document_verification_report(default_api):
     created = default_api.id_document_verification.create_id_document_verification(
         id_document_verification_request())
     report = default_api.id_document_verification.get_id_document_verification_report(created.id)
-    assert_response(report, 'http_metadata', 'signed_url')
+    assert_response(report, 'http_metadata', 'pdf_report')
 
 
 @pytest.mark.skip(reason='Requires valid test environment setup')
@@ -96,10 +97,45 @@ def test_should_perform_id_document_verification_workflow(default_api):
     assert retrieved_attempt.id == created_attempt.id
 
     report = default_api.id_document_verification.get_id_document_verification_report(created.id)
-    assert_response(report, 'http_metadata', 'signed_url')
+    assert_response(report, 'http_metadata', 'pdf_report')
 
     anonymized = default_api.id_document_verification.anonymize_id_document_verification(created.id)
     assert_response(anonymized, 'http_metadata', 'id')
+
+
+@pytest.mark.skip(reason='Requires valid test environment setup')
+def test_should_get_id_document_verification_attempts_with_pagination(default_api):
+    created = default_api.id_document_verification.create_id_document_verification(
+        id_document_verification_request())
+    default_api.id_document_verification.create_id_document_verification_attempt(
+        created.id, id_document_verification_attempt_request())
+
+    query = AttemptsQueryFilter()
+    query.skip = 0
+    query.limit = 1
+
+    attempts = default_api.id_document_verification.get_id_document_verification_attempts(created.id, query)
+    assert_response(attempts, 'http_metadata', 'total_count', 'skip', 'limit', 'data')
+    assert attempts.limit == 1
+    assert len(attempts.data) <= 1
+
+
+@pytest.mark.skip(reason='Requires valid test environment setup')
+def test_should_get_id_document_verification_attempt_assets(default_api):
+    created = default_api.id_document_verification.create_id_document_verification(
+        id_document_verification_request())
+    created_attempt = default_api.id_document_verification.create_id_document_verification_attempt(
+        created.id, id_document_verification_attempt_request())
+
+    query = AttemptAssetsQueryFilter()
+    query.limit = 10
+
+    assets = default_api.id_document_verification.get_id_document_verification_attempt_assets(
+        created.id, created_attempt.id, query)
+    assert_response(assets, 'http_metadata', 'total_count', 'skip', 'limit', 'data')
+    for asset in assets.data:
+        assert asset.type in ('document_front_image', 'document_back_image')
+        assert asset._links.asset_url.href is not None
 
 
 # common methods

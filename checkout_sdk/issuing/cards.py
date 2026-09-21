@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Dict
 
 from checkout_sdk.common.common import Address, Phone
 
@@ -61,8 +62,19 @@ class CardRequest:
     display_name: str
     activate_card: bool
     metadata: CardMetadata
+    # Date scheduling the card's automatic revocation.
+    # [Optional]
+    # Format: date (YYYY-MM-DD, time is midnight UTC)
+    # Example: 2027-03-12
     revocation_date: str
-    activation_date: str  # ISO-8601 (IssuingActivationDate)
+    # Date scheduling the card's first activation. Only applies to the initial activation of a
+    # card. Two formats are supported: date only (YYYY-MM-DD, treated as midnight UTC), or date
+    # with round hour (YYYY-MM-DDTHH:mmZ in UTC, or YYYY-MM-DDTHH:mm+HH:mm with offset). Only
+    # round hours are allowed when a time is provided (HH:00). The value must be at least the
+    # next round hour after the request time.
+    # [Optional]
+    # Example: 2026-06-01T10:00Z
+    scheduled_activation_date: str
 
     def __init__(self, type_p: CardType):
         self.type = type_p
@@ -86,12 +98,68 @@ class VirtualCardRequest(CardRequest):
 
 
 class UpdateCardRequest:
+    """Request body for PATCH /issuing/cards/{cardId}."""
+    # Your reference.
+    # [Optional]
+    # max 256 characters
+    # Example: X-123456-N11
     reference: str
+    # User's metadata.
+    # [Optional]
     metadata: CardMetadata
+    # The card's expiration month.
+    # [Optional]
+    # Format: int32
+    # min 1, max 12
+    # Example: 5
     expiry_month: int
+    # The card's expiration year.
+    # [Optional]
+    # Format: int32
+    # min 4 characters, max 4 characters
+    # Example: 2025
     expiry_year: int
-    activation_date: str  # ISO-8601 (IssuingActivationDate)
-    revocation_date: str  # yyyy-mm-dd (IssuingRevocationDate)
+    # Date scheduling the card's first activation. Only applies to the initial activation of a
+    # card. Two formats are supported: date only (YYYY-MM-DD, treated as midnight UTC), or date
+    # with round hour (YYYY-MM-DDTHH:mmZ in UTC, or YYYY-MM-DDTHH:mm+HH:mm with offset). Only
+    # round hours are allowed when a time is provided (HH:00). The value must be at least the
+    # next round hour after the request time.
+    # [Optional]
+    # Example: 2026-06-01T10:00Z
+    scheduled_activation_date: str
+    # Date scheduling the card's automatic revocation.
+    # [Optional]
+    # Format: date (YYYY-MM-DD, time is midnight UTC)
+    # Example: 2027-03-12
+    revocation_date: str
+
+
+class CardUpdateHeaders:
+    """The optional HTTP headers accepted when updating a card's details.
+
+    Header values are stringified by ApiClient, so declare the boolean header as the string
+    "true" rather than a Python bool: str(True) is "True", which is not the value the spec
+    shows. All three existing header classes in this SDK use str for the same reason.
+    """
+    # Set to "true" to retrieve the card's encrypted credentials in the response. Requires an RSA
+    # public key to be provided in the Encryption-Key header.
+    # [Optional]
+    # Maps to HTTP header return-encrypted-cvv.
+    # Example: "true"
+    return_encrypted_cvv: str
+    # The RSA public key used to encrypt returned credentials. Required when the
+    # return-encrypted-cvv header is set to "true". Provide the public key with the
+    # BEGIN PUBLIC KEY and END PUBLIC KEY headers and any newline characters removed, encoded as
+    # Base64.
+    # [Optional]
+    # Maps to HTTP header Encryption-Key.
+    encryption_key: str
+
+    def get_header_mappings(self) -> Dict[str, str]:
+        return {
+            'return_encrypted_cvv': 'return-encrypted-cvv',
+            'encryption_key': 'Encryption-Key'
+        }
 
 
 class RenewCardRequest:

@@ -1,7 +1,9 @@
 import json
 
 from checkout_sdk.json_serializer import JsonSerializer
-from checkout_sdk.issuing.cards import CardType, VirtualCardRequest, UpdateCardRequest
+from checkout_sdk.api_client import ApiClient
+from checkout_sdk.issuing.cards import CardRequest, CardType, CardUpdateHeaders, UpdateCardRequest, \
+    VirtualCardRequest
 from checkout_sdk.issuing.disputes import (
     IssuingDisputeFraudType, IssuingDisputeFraudDetails, CreateDisputeRequest,
     EscalateDisputeRequest, AmendDisputeRequest, SubmitDisputeRequest,
@@ -31,28 +33,103 @@ class TestIssuingSerialization:
         actual = {member.name: member.value for member in IssuingDisputeFraudType}
         assert actual == expected
 
-    def test_update_card_serializes_activation_and_revocation_date(self):
+    def test_update_card_serializes_scheduled_activation_and_revocation_date(self):
         request = UpdateCardRequest()
         request.reference = 'ref'
-        request.activation_date = '2026-06-01T10:00Z'
+        request.scheduled_activation_date = '2026-06-01T10:00Z'
         request.revocation_date = '2027-03-12'
 
         assert _serialize(request) == {
             'reference': 'ref',
-            'activation_date': '2026-06-01T10:00Z',
+            'scheduled_activation_date': '2026-06-01T10:00Z',
             'revocation_date': '2027-03-12',
         }
 
-    def test_create_card_serializes_activation_date(self):
+    def test_create_card_serializes_scheduled_activation_date(self):
         request = VirtualCardRequest()
         request.cardholder_id = 'crh_1'
-        request.activation_date = '2026-06-01T10:00Z'
+        request.scheduled_activation_date = '2026-06-01T10:00Z'
         request.revocation_date = '2027-03-12'
 
         result = _serialize(request)
         assert result['type'] == CardType.VIRTUAL.value
-        assert result['activation_date'] == '2026-06-01T10:00Z'
+        assert result['scheduled_activation_date'] == '2026-06-01T10:00Z'
         assert result['revocation_date'] == '2027-03-12'
+        assert 'activation_date' not in result
+
+    def test_update_card_request_declares_no_activation_date(self):
+        """The spec replaced activation_date with scheduled_activation_date and removed
+        IssuingActivationDate. Python attributes are dynamic, so a caller still assigning
+        activation_date would silently serialize a key the API rejects, with no error anywhere.
+        These guards are the only thing that catches a stale assignment."""
+        assert 'scheduled_activation_date' in UpdateCardRequest.__annotations__
+        assert 'activation_date' not in UpdateCardRequest.__annotations__
+
+    def test_card_request_declares_no_activation_date(self):
+        assert 'scheduled_activation_date' in CardRequest.__annotations__
+        assert 'activation_date' not in CardRequest.__annotations__
+
+    def test_update_card_serializes_every_declared_property(self):
+        request = UpdateCardRequest()
+        request.reference = 'X-123456-N11'
+        request.expiry_month = 6
+        request.expiry_year = 2030
+        request.scheduled_activation_date = '2026-06-01T10:00Z'
+        request.revocation_date = '2027-03-12'
+
+        assert _serialize(request) == {
+            'reference': 'X-123456-N11',
+            'expiry_month': 6,
+            'expiry_year': 2030,
+            'scheduled_activation_date': '2026-06-01T10:00Z',
+            'revocation_date': '2027-03-12',
+        }
+
+    def test_update_card_request_from_swagger_example(self):
+        payload = json.loads(
+            '{"reference":"X-123456-N11","expiry_month":6,"expiry_year":2030,'
+            '"revocation_date":"2027-03-12","scheduled_activation_date":"2026-06-01T10:00Z"}'
+        )
+
+        assert payload['scheduled_activation_date'] == '2026-06-01T10:00Z'
+        assert payload['revocation_date'] == '2027-03-12'
+
+    def test_card_update_headers_map_to_the_exact_swagger_header_names(self):
+        assert CardUpdateHeaders().get_header_mappings() == {
+            'return_encrypted_cvv': 'return-encrypted-cvv',
+            'encryption_key': 'Encryption-Key',
+        }
+
+    def test_card_update_headers_reach_the_wire_with_the_exact_names(self):
+        """The header names are case sensitive and return-encrypted-cvv is lower case, which the
+        default snake_case converter would render as Return-Encrypted-Cvv."""
+        headers = CardUpdateHeaders()
+        headers.return_encrypted_cvv = 'true'
+        headers.encryption_key = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A'
+
+        built = ApiClient.__new__(ApiClient)._process_custom_headers(headers)
+
+        assert built['return-encrypted-cvv'] == 'true'
+        assert built['Encryption-Key'] == 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A'
+        assert 'Return-Encrypted-Cvv' not in built
+
+    def test_card_update_headers_omit_unset_values(self):
+        assert ApiClient.__new__(ApiClient)._process_custom_headers(CardUpdateHeaders()) == {}
+
+    def test_card_update_headers_send_the_key_without_the_flag(self):
+        headers = CardUpdateHeaders()
+        headers.encryption_key = 'MIIBIjAN'
+
+        built = ApiClient.__new__(ApiClient)._process_custom_headers(headers)
+
+        assert built == {'Encryption-Key': 'MIIBIjAN'}
+
+    def test_card_update_headers_are_declared_as_strings_not_bools(self):
+        """ApiClient stringifies header values, so a Python bool would reach the wire as the
+        capitalised 'True'/'False' rather than the 'true' the spec shows. Both attributes are
+        therefore str, matching the three header classes that already exist in this SDK."""
+        assert CardUpdateHeaders.__annotations__['return_encrypted_cvv'] is str
+        assert CardUpdateHeaders.__annotations__['encryption_key'] is str
 
     def test_create_dispute_serializes_fraud_details(self):
         fraud_details = IssuingDisputeFraudDetails()

@@ -4,7 +4,7 @@ from checkout_sdk.api_client import ApiClient
 from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
 from checkout_sdk.client import Client
-from checkout_sdk.identities.entities import AttemptAssetsQueryFilter
+from checkout_sdk.identities.entities import AttemptAssetsQueryFilter, AttemptsQueryFilter
 from checkout_sdk.identities.faceauthentication.faceauthentication import (
     FaceAuthenticationRequest, FaceAuthenticationAttemptRequest
 )
@@ -42,10 +42,22 @@ class FaceAuthenticationClient(Client):
             self._sdk_authorization(),
             request)
 
-    def get_face_authentication_attempts(self, face_authentication_id: str):
+    def get_face_authentication_attempts(self, face_authentication_id: str,
+                                         query: AttemptsQueryFilter = None):
+        """Get the details of all attempts for a specific face authentication.
+
+        Results are paginated. Beta.
+
+        Args:
+            face_authentication_id: The face authentication's unique identifier.
+            query: Optional skip and limit pagination parameters.
+        Returns:
+            ResponseWrapper with the paginated attempt list.
+        """
         return self._api_client.get(
             self.build_path(self.__FACE_AUTHENTICATIONS_PATH, face_authentication_id, self.__ATTEMPTS_PATH),
-            self._sdk_authorization())
+            self._sdk_authorization(),
+            query)
 
     def get_face_authentication_attempt(self, face_authentication_id: str, attempt_id: str):
         return self._api_client.get(

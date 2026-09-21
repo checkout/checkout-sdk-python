@@ -4,6 +4,7 @@ from checkout_sdk.api_client import ApiClient
 from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
 from checkout_sdk.client import Client
+from checkout_sdk.identities.entities import AttemptAssetsQueryFilter, AttemptsQueryFilter
 from checkout_sdk.identities.addressdocumentverification.addressdocumentverification import (
     AddressDocumentVerificationRequest, AddressDocumentVerificationAttemptRequest
 )
@@ -14,6 +15,7 @@ class AddressDocumentVerificationClient(Client):
     __ANONYMIZE_PATH = 'anonymize'
     __ATTEMPTS_PATH = 'attempts'
     __PDF_REPORT_PATH = 'pdf-report'
+    __ASSETS_PATH = 'assets'
 
     def __init__(self, api_client: ApiClient, configuration: CheckoutConfiguration):
         super().__init__(api_client=api_client,
@@ -44,11 +46,23 @@ class AddressDocumentVerificationClient(Client):
             self._sdk_authorization(),
             request)
 
-    def get_address_document_verification_attempts(self, address_document_verification_id: str):
+    def get_address_document_verification_attempts(self, address_document_verification_id: str,
+                                                   query: AttemptsQueryFilter = None):
+        """Get the details of all attempts for a specific address document verification.
+
+        Results are paginated. Beta.
+
+        Args:
+            address_document_verification_id: The address document verification's unique identifier.
+            query: Optional skip and limit pagination parameters.
+        Returns:
+            ResponseWrapper with the paginated attempt list.
+        """
         return self._api_client.get(
             self.build_path(self.__ADDRESS_DOCUMENT_VERIFICATIONS_PATH, address_document_verification_id,
                             self.__ATTEMPTS_PATH),
-            self._sdk_authorization())
+            self._sdk_authorization(),
+            query)
 
     def get_address_document_verification_attempt(self, address_document_verification_id: str, attempt_id: str):
         return self._api_client.get(
@@ -61,3 +75,23 @@ class AddressDocumentVerificationClient(Client):
             self.build_path(self.__ADDRESS_DOCUMENT_VERIFICATIONS_PATH, address_document_verification_id,
                             self.__PDF_REPORT_PATH),
             self._sdk_authorization())
+
+    def get_address_document_verification_attempt_assets(self, address_document_verification_id: str,
+                                                         attempt_id: str,
+                                                         query: AttemptAssetsQueryFilter = None):
+        """Get the assets (the document image) uploaded for an address document verification attempt.
+
+        Results are paginated. Beta.
+
+        Args:
+            address_document_verification_id: The address document verification's unique identifier.
+            attempt_id: The attempt's unique identifier.
+            query: Optional skip and limit pagination parameters.
+        Returns:
+            ResponseWrapper with the paginated asset list.
+        """
+        return self._api_client.get(
+            self.build_path(self.__ADDRESS_DOCUMENT_VERIFICATIONS_PATH, address_document_verification_id,
+                            self.__ATTEMPTS_PATH, attempt_id, self.__ASSETS_PATH),
+            self._sdk_authorization(),
+            query)

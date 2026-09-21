@@ -1,6 +1,7 @@
 import pytest
 
 from tests._assertions import assert_api_call
+from checkout_sdk.identities.entities import AttemptsQueryFilter
 from checkout_sdk.identities.entities import AttemptAssetsQueryFilter
 from checkout_sdk.identities.identityverification.identityverification import (
     IdentityVerificationRequest, IdentityVerificationAndAttemptRequest, IdentityVerificationAttemptRequest
@@ -74,3 +75,14 @@ class TestIdentityVerificationClient:
 
         assert client.get_identity_verification_attempt_assets('idv_12345', 'attempt_67890', query) == 'response'
         assert_api_call(mock, 'identity-verifications/idv_12345/attempts/attempt_67890/assets')
+
+    def test_should_get_identity_verification_attempts_with_pagination(
+            self, mocker, client: IdentityVerificationClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        query = AttemptsQueryFilter()
+        query.skip = 5
+        query.limit = 25
+
+        assert client.get_identity_verification_attempts('idv_12345', query) == 'response'
+        assert_api_call(mock, 'identity-verifications/idv_12345/attempts')
+        assert mock.call_args.args[2] is query
