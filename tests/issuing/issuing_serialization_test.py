@@ -1,4 +1,5 @@
 import json
+from datetime import date
 
 from checkout_sdk.json_serializer import JsonSerializer
 from checkout_sdk.api_client import ApiClient
@@ -56,6 +57,23 @@ class TestIssuingSerialization:
         assert result['scheduled_activation_date'] == '2026-06-01T10:00Z'
         assert result['revocation_date'] == '2027-03-12'
         assert 'activation_date' not in result
+
+    def test_revocation_date_accepts_a_date_object_through_the_serializer(self):
+        """revocation_date is `format: date`. The SDK convention is to declare it str with a
+        `# Format: yyyy-MM-dd` comment, and the JsonSerializer date branch added in INT-1699 is
+        the safety net for a caller who passes a real date instead."""
+        request = UpdateCardRequest()
+        request.revocation_date = date(2027, 3, 12)
+
+        assert _serialize(request) == {'revocation_date': '2027-03-12'}
+
+    def test_scheduled_activation_date_is_not_a_date_only_field(self):
+        """Unlike revocation_date it has no `format` in the spec: it accepts a date or a round
+        hour datetime, so it must stay a plain string and carry no yyyy-MM-dd marker."""
+        request = UpdateCardRequest()
+        request.scheduled_activation_date = '2026-06-01T10:00Z'
+
+        assert _serialize(request) == {'scheduled_activation_date': '2026-06-01T10:00Z'}
 
     def test_update_card_request_declares_no_activation_date(self):
         """The spec replaced activation_date with scheduled_activation_date and removed

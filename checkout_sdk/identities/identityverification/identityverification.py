@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from checkout_sdk.identities.entities import IdvAddress, PhoneNumber
+from checkout_sdk.identities.entities import IdvAddress, IdvDocumentType, PhoneNumber
 
 
 class DeclaredData:
@@ -17,7 +17,7 @@ class DeclaredData:
     name: str
     # The applicant's birth date.
     # [Optional]
-    # Format: YYYY-MM-DD
+    # Format: yyyy-MM-dd
     # Example: 1994-10-15
     birth_date: str
     # The applicant's mobile phone number, if sharing the attempt URL via SMS.
@@ -57,7 +57,7 @@ class ClientInformation:
     # The type of identity document the applicant uses for the attempt.
     # [Optional]
     # Enum: "Driving licence" "ID" "Other" "Passport" "Residence Permit" "Travel Document" "Visa"
-    pre_selected_document_type: str
+    pre_selected_document_type: IdvDocumentType
     # The language you want to use for the user interface.
     # [Optional]
     # Format: IETF BCP 47 language tag

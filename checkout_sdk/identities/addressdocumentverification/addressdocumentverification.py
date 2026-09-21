@@ -14,7 +14,7 @@ class DeclaredData:
     name: str
     # The applicant's birth date.
     # [Optional]
-    # Format: YYYY-MM-DD
+    # Format: yyyy-MM-dd
     # Example: 1994-10-15
     birth_date: str
 

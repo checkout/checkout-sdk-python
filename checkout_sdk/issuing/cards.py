@@ -54,17 +54,49 @@ class CardMetadata:
 
 
 class CardRequest:
+    """Shared base for the card creation requests. The concrete type is chosen by the subclass,
+    which sets the discriminator in its constructor."""
+    # The card type.
+    # [Required]
+    # Enum: "virtual" "physical"
+    # Example: virtual
     type: CardType
+    # The cardholder's unique identifier.
+    # [Required]
+    # ^crh_[a-z0-9]{26}$
+    # min 30 characters, max 30 characters
+    # Example: crh_d3ozhf43pcq2xbldn2g45qnb44
     cardholder_id: str
+    # The duration of time during which the card will accept incoming authorizations. The unit
+    # and value combination determines the card's expiry date.
+    # [Optional]
     lifetime: CardLifetime
+    # Your reference.
+    # [Optional]
+    # max 256 characters
+    # Example: X-123456-N11
     reference: str
+    # The card product's unique identifier. Required if more than one card product is associated
+    # with the entity.
+    # [Required]
     card_product_id: str
+    # The name to display on the card.
+    # [Optional]
+    # ^[0-9a-zA-Z.\- ]{2,26}$
+    # min 2 characters, max 26 characters
+    # Example: JOHN KENNEDY
     display_name: str
+    # Sets whether to activate the newly created card upon creation. If false, the cardholder
+    # cannot process transactions until you activate the card.
+    # [Optional]
+    # Default: true
     activate_card: bool
+    # User's metadata.
+    # [Optional]
     metadata: CardMetadata
     # Date scheduling the card's automatic revocation.
     # [Optional]
-    # Format: date (YYYY-MM-DD, time is midnight UTC)
+    # Format: yyyy-MM-dd (time is midnight UTC)
     # Example: 2027-03-12
     revocation_date: str
     # Date scheduling the card's first activation. Only applies to the initial activation of a
@@ -129,7 +161,7 @@ class UpdateCardRequest:
     scheduled_activation_date: str
     # Date scheduling the card's automatic revocation.
     # [Optional]
-    # Format: date (YYYY-MM-DD, time is midnight UTC)
+    # Format: yyyy-MM-dd (time is midnight UTC)
     # Example: 2027-03-12
     revocation_date: str
 

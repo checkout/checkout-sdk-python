@@ -23,16 +23,40 @@ class AddressDocumentVerificationClient(Client):
                          authorization_type=AuthorizationType.SECRET_KEY_OR_OAUTH)
 
     def create_address_document_verification(self, request: AddressDocumentVerificationRequest):
+        """Create an address document verification.
+        Beta.
+
+        Args:
+            request: The address document verification to create.
+        Returns:
+            ResponseWrapper with the created verification.
+        """
         return self._api_client.post(self.__ADDRESS_DOCUMENT_VERIFICATIONS_PATH,
                                      self._sdk_authorization(),
                                      request)
 
     def get_address_document_verification(self, address_document_verification_id: str):
+        """Get the details of an address document verification.
+        Beta.
+
+        Args:
+            address_document_verification_id: The address document verification's unique identifier.
+        Returns:
+            ResponseWrapper with the verification details.
+        """
         return self._api_client.get(
             self.build_path(self.__ADDRESS_DOCUMENT_VERIFICATIONS_PATH, address_document_verification_id),
             self._sdk_authorization())
 
     def anonymize_address_document_verification(self, address_document_verification_id: str):
+        """Anonymize an address document verification and its attempts.
+        Beta.
+
+        Args:
+            address_document_verification_id: The address document verification's unique identifier.
+        Returns:
+            ResponseWrapper with the anonymized verification.
+        """
         return self._api_client.post(
             self.build_path(self.__ADDRESS_DOCUMENT_VERIFICATIONS_PATH, address_document_verification_id,
                             self.__ANONYMIZE_PATH),
@@ -40,6 +64,15 @@ class AddressDocumentVerificationClient(Client):
 
     def create_address_document_verification_attempt(self, address_document_verification_id: str,
                                                      request: AddressDocumentVerificationAttemptRequest):
+        """Create an attempt for an address document verification, uploading the document image.
+        Beta.
+
+        Args:
+            address_document_verification_id: The address document verification's unique identifier.
+            request: The attempt to create, carrying the document image.
+        Returns:
+            ResponseWrapper with the created attempt.
+        """
         return self._api_client.post(
             self.build_path(self.__ADDRESS_DOCUMENT_VERIFICATIONS_PATH, address_document_verification_id,
                             self.__ATTEMPTS_PATH),
@@ -65,12 +98,29 @@ class AddressDocumentVerificationClient(Client):
             query)
 
     def get_address_document_verification_attempt(self, address_document_verification_id: str, attempt_id: str):
+        """Get the details of a single address document verification attempt.
+        Beta.
+
+        Args:
+            address_document_verification_id: The address document verification's unique identifier.
+            attempt_id: The attempt's unique identifier.
+        Returns:
+            ResponseWrapper with the attempt details.
+        """
         return self._api_client.get(
             self.build_path(self.__ADDRESS_DOCUMENT_VERIFICATIONS_PATH, address_document_verification_id,
                             self.__ATTEMPTS_PATH, attempt_id),
             self._sdk_authorization())
 
     def get_address_document_verification_report(self, address_document_verification_id: str):
+        """Get the PDF report for an address document verification.
+        Beta.
+
+        Args:
+            address_document_verification_id: The address document verification's unique identifier.
+        Returns:
+            ResponseWrapper carrying pdf_report, the pre-signed URL to the PDF.
+        """
         return self._api_client.get(
             self.build_path(self.__ADDRESS_DOCUMENT_VERIFICATIONS_PATH, address_document_verification_id,
                             self.__PDF_REPORT_PATH),

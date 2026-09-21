@@ -1,8 +1,10 @@
 import json
 
+import pytest
+
 from checkout_sdk.json_serializer import JsonSerializer
 from checkout_sdk.identities.entities import (
-    AttemptAssetsQueryFilter, AttemptsQueryFilter, IdvAddress, PhoneNumber,
+    AttemptAssetsQueryFilter, AttemptsQueryFilter, IdvAddress, IdvDocumentType, PhoneNumber,
 )
 from checkout_sdk.identities.addressdocumentverification.addressdocumentverification import (
     AddressDocumentVerificationRequest, DeclaredData as AdvDeclaredData,
@@ -55,7 +57,7 @@ def _idv_client_information():
     client_information.pre_selected_residence_country = 'FR'
     client_information.pre_selected_language = 'en-US'
     client_information.pre_selected_document_issuing_country = 'GB'
-    client_information.pre_selected_document_type = 'Travel Document'
+    client_information.pre_selected_document_type = IdvDocumentType.TRAVEL_DOCUMENT
     return client_information
 
 
@@ -142,6 +144,41 @@ class TestIdentitiesSerialization:
             'pre_selected_document_issuing_country': 'GB',
             'pre_selected_document_type': 'Travel Document',
         }
+
+    def test_idv_document_type_matches_the_swagger_enum_exactly(self):
+        expected = {
+            'DRIVING_LICENCE': 'Driving licence',
+            'ID': 'ID',
+            'OTHER': 'Other',
+            'PASSPORT': 'Passport',
+            'RESIDENCE_PERMIT': 'Residence Permit',
+            'TRAVEL_DOCUMENT': 'Travel Document',
+            'VISA': 'Visa',
+        }
+        actual = {member.name: member.value for member in IdvDocumentType}
+        assert actual == expected
+
+    def test_idv_document_type_is_distinct_from_the_accounts_document_type(self):
+        """The accounts endpoints use checkout_sdk.common.enums.DocumentType, which shares no
+        values with this one and even spells the licence differently (driving_license against
+        Driving licence). Modelling them as one type would send values the API rejects."""
+        from checkout_sdk.common.enums import DocumentType as AccountsDocumentType
+
+        idv = {m.value for m in IdvDocumentType}
+        accounts = {m.value for m in AccountsDocumentType}
+        assert idv & accounts == set()
+
+    @pytest.mark.parametrize('document_type', list(IdvDocumentType))
+    def test_every_idv_document_type_serializes_to_its_bare_swagger_value(self, document_type):
+        client_information = IdvClientInformation()
+        client_information.pre_selected_document_type = document_type
+
+        assert _serialize(client_information) == {
+            'pre_selected_document_type': document_type.value,
+        }
+
+    def test_the_document_type_is_a_typed_enum_not_a_bare_string(self):
+        assert IdvClientInformation.__annotations__['pre_selected_document_type'] is IdvDocumentType
 
     def test_identity_verification_attempt_request_serializes_phone_number(self):
         request = IdentityVerificationAttemptRequest()

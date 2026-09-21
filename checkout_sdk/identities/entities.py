@@ -1,5 +1,24 @@
 from __future__ import absolute_import
 
+from enum import Enum
+
+
+class IdvDocumentType(str, Enum):
+    """The type of identity document, for the identity verification endpoints.
+
+    Deliberately separate from checkout_sdk.common.enums.DocumentType, which the accounts
+    endpoints use. The two share no values and even spell the licence differently: accounts sends
+    'driving_license', identity verification sends 'Driving licence'. Modelling them as one type
+    would send values the API rejects.
+    """
+    DRIVING_LICENCE = 'Driving licence'
+    ID = 'ID'
+    OTHER = 'Other'
+    PASSPORT = 'Passport'
+    RESIDENCE_PERMIT = 'Residence Permit'
+    TRAVEL_DOCUMENT = 'Travel Document'
+    VISA = 'Visa'
+
 
 class AttemptsQueryFilter:
     """Pagination for the list-attempts endpoints."""

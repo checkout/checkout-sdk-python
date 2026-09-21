@@ -5,7 +5,8 @@ from checkout_sdk.identities.identityverification.identityverification import (
     IdentityVerificationRequest, IdentityVerificationAndAttemptRequest,
     IdentityVerificationAttemptRequest, DeclaredData, ClientInformation
 )
-from checkout_sdk.identities.entities import AttemptsQueryFilter, IdvAddress, PhoneNumber
+from checkout_sdk.identities.entities import AttemptsQueryFilter, IdvAddress, IdvDocumentType, \
+    PhoneNumber
 from tests.checkout_test_utils import assert_response, new_uuid
 
 
@@ -200,7 +201,7 @@ def identity_verification_attempt_request() -> IdentityVerificationAttemptReques
     client_information.pre_selected_residence_country = 'US'
     client_information.pre_selected_language = 'en-US'
     client_information.pre_selected_document_issuing_country = 'GB'
-    client_information.pre_selected_document_type = 'Passport'
+    client_information.pre_selected_document_type = IdvDocumentType.PASSPORT
 
     phone_number = PhoneNumber()
     phone_number.country_code = '+44'
