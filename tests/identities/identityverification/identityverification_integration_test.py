@@ -5,6 +5,8 @@ from checkout_sdk.identities.identityverification.identityverification import (
     IdentityVerificationRequest, IdentityVerificationAndAttemptRequest,
     IdentityVerificationAttemptRequest, DeclaredData, ClientInformation
 )
+from checkout_sdk.identities.entities import AttemptsQueryFilter, IdvAddress, IdvDocumentType, \
+    PhoneNumber
 from tests.checkout_test_utils import assert_response, new_uuid
 
 
@@ -92,7 +94,7 @@ def test_should_get_identity_verification_report(default_api):
     created = default_api.identity_verification.create_identity_verification(
         identity_verification_request())
     report = default_api.identity_verification.get_identity_verification_report(created.id)
-    assert_response(report, 'http_metadata', 'signed_url')
+    assert_response(report, 'http_metadata', 'pdf_report')
 
 
 @pytest.mark.skip(reason='Requires valid test environment setup')
@@ -119,7 +121,7 @@ def test_should_perform_complete_identity_verification_workflow(default_api):
     assert retrieved_attempt.id == attempt.id
 
     report = default_api.identity_verification.get_identity_verification_report(created_with_attempt.id)
-    assert_response(report, 'http_metadata', 'signed_url')
+    assert_response(report, 'http_metadata', 'pdf_report')
 
     anonymized = default_api.identity_verification.anonymize_identity_verification(created_with_attempt.id)
     assert_response(anonymized, 'http_metadata', 'id')
@@ -149,17 +151,32 @@ def test_should_perform_separate_create_and_attempt_workflow(default_api):
     assert retrieved_attempt.id == attempt.id
 
     report = default_api.identity_verification.get_identity_verification_report(created.id)
-    assert_response(report, 'http_metadata', 'signed_url')
+    assert_response(report, 'http_metadata', 'pdf_report')
 
     anonymized = default_api.identity_verification.anonymize_identity_verification(created.id)
     assert_response(anonymized, 'http_metadata', 'id')
 
 
+@pytest.mark.skip(reason='Requires valid test environment setup')
+def test_should_get_identity_verification_attempts_with_pagination(default_api):
+    created = default_api.identity_verification.create_identity_verification_and_attempt(
+        identity_verification_and_attempt_request())
+
+    query = AttemptsQueryFilter()
+    query.skip = 0
+    query.limit = 1
+
+    attempts = default_api.identity_verification.get_identity_verification_attempts(created.id, query)
+    assert_response(attempts, 'http_metadata', 'total_count', 'skip', 'limit', 'data')
+    assert attempts.limit == 1
+    assert attempts.skip == 0
+    assert len(attempts.data) <= 1
+
+
 # common methods
 
 def identity_verification_and_attempt_request() -> IdentityVerificationAndAttemptRequest:
-    declared_data = DeclaredData()
-    declared_data.name = 'John Doe'
+    declared_data = build_identity_declared_data()
 
     request = IdentityVerificationAndAttemptRequest()
     request.applicant_id = new_uuid()
@@ -170,8 +187,7 @@ def identity_verification_and_attempt_request() -> IdentityVerificationAndAttemp
 
 
 def identity_verification_request() -> IdentityVerificationRequest:
-    declared_data = DeclaredData()
-    declared_data.name = 'John Doe'
+    declared_data = build_identity_declared_data()
 
     request = IdentityVerificationRequest()
     request.applicant_id = new_uuid()
@@ -184,9 +200,16 @@ def identity_verification_attempt_request() -> IdentityVerificationAttemptReques
     client_information = ClientInformation()
     client_information.pre_selected_residence_country = 'US'
     client_information.pre_selected_language = 'en-US'
+    client_information.pre_selected_document_issuing_country = 'GB'
+    client_information.pre_selected_document_type = IdvDocumentType.PASSPORT
+
+    phone_number = PhoneNumber()
+    phone_number.country_code = '+44'
+    phone_number.number = '7700900000'
 
     request = IdentityVerificationAttemptRequest()
     request.redirect_url = 'https://example.com/redirect'
+    request.phone_number = phone_number
     request.client_information = client_information
     return request
 
@@ -201,3 +224,23 @@ def assert_identity_verification_response(response):
 
 def assert_identity_verification_attempt_response(response):
     assert_response(response, 'http_metadata', 'id', 'status')
+
+
+def build_identity_declared_data() -> DeclaredData:
+    address = IdvAddress()
+    address.address_line1 = '123 Main Street'
+    address.city = 'London'
+    address.zip = 'SW1A 1AA'
+    address.country = 'GB'
+
+    phone_number = PhoneNumber()
+    phone_number.country_code = '+44'
+    phone_number.number = '7700900000'
+
+    declared_data = DeclaredData()
+    declared_data.name = 'John Doe'
+    declared_data.birth_date = '1994-10-15'
+    declared_data.email = 'john.doe@example.com'
+    declared_data.phone_number = phone_number
+    declared_data.address = address
+    return declared_data

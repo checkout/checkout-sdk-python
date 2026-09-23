@@ -3,7 +3,8 @@ import pytest
 from tests._assertions import assert_api_call
 from checkout_sdk.issuing.cardholders import CardholderRequest
 from checkout_sdk.issuing.cards import PhysicalCardRequest, PasswordEnrollmentRequest, UpdateThreeDsEnrollmentRequest, \
-    CardCredentialsQuery, RevokeRequest, SuspendRequest, UpdateCardRequest, VirtualCardRenewRequest
+    CardCredentialsQuery, CardUpdateHeaders, RevokeRequest, SuspendRequest, UpdateCardRequest, \
+    VirtualCardRenewRequest
 from checkout_sdk.issuing.controls import MccControlRequest, CardControlsQuery, UpdateCardControlRequest, \
     CreateControlGroupRequest, ControlGroupQueryTarget, ControlProfileRequest
 from checkout_sdk.issuing.disputes import CreateDisputeRequest, EscalateDisputeRequest, AmendDisputeRequest, \
@@ -66,6 +67,18 @@ class TestIssuingClient:
 
         assert client.update_card('card_id', body) == 'response'
         assert_api_call(mock, 'issuing/cards/card_id', body)
+        assert mock.call_args.kwargs['headers'] is None
+
+    def test_should_update_card_with_the_encrypted_cvv_headers(self, mocker, client: IssuingClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.patch', return_value='response')
+        body = UpdateCardRequest()
+        headers = CardUpdateHeaders()
+        headers.return_encrypted_cvv = 'true'
+        headers.encryption_key = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A'
+
+        assert client.update_card('card_id', body, headers) == 'response'
+        assert_api_call(mock, 'issuing/cards/card_id', body)
+        assert mock.call_args.kwargs['headers'] is headers
 
     def test_should_enroll_three_ds(self, mocker, client: IssuingClient):
         mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')

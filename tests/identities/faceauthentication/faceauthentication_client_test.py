@@ -1,6 +1,7 @@
 import pytest
 
 from tests._assertions import assert_api_call
+from checkout_sdk.identities.entities import AttemptsQueryFilter
 from checkout_sdk.identities.entities import AttemptAssetsQueryFilter
 from checkout_sdk.identities.faceauthentication.faceauthentication import (
     FaceAuthenticationRequest, FaceAuthenticationAttemptRequest
@@ -65,3 +66,14 @@ class TestFaceAuthenticationClient:
 
         assert client.get_face_authentication_attempt_assets(_FAV_ID, _ATTEMPT_ID, query) == 'response'
         assert_api_call(mock, f'face-authentications/{_FAV_ID}/attempts/{_ATTEMPT_ID}/assets')
+
+    def test_should_get_face_authentication_attempts_with_pagination(
+            self, mocker, client: FaceAuthenticationClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
+        query = AttemptsQueryFilter()
+        query.skip = 5
+        query.limit = 25
+
+        assert client.get_face_authentication_attempts('fav_12345', query) == 'response'
+        assert_api_call(mock, 'face-authentications/fav_12345/attempts')
+        assert mock.call_args.args[2] is query

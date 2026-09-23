@@ -1,10 +1,11 @@
+import os
 from datetime import datetime, timedelta
 
 import pytest
 
 from checkout_sdk.issuing.cards import PasswordEnrollmentRequest, SecurityPair, UpdateThreeDsEnrollmentRequest, \
-    CardCredentialsQuery, RevokeRequest, RevokeReason, SuspendRequest, SuspendReason, UpdateCardRequest, CardMetadata, \
-    VirtualCardRenewRequest
+    CardCredentialsQuery, CardUpdateHeaders, RevokeRequest, RevokeReason, SuspendRequest, SuspendReason, \
+    UpdateCardRequest, CardMetadata, VirtualCardRenewRequest
 from tests.checkout_test_utils import assert_response, phone
 
 
@@ -55,6 +56,30 @@ class TestCardsIssuing:
         response = issuing_checkout_api.issuing.update_card(card.id, request)
 
         assert_response(response)
+        assert response.http_metadata.status_code == 200
+
+    def test_should_update_card_scheduled_activation_date(self, issuing_checkout_api, card):
+        request = UpdateCardRequest()
+        # The earliest value the API accepts is the next round hour in UTC.
+        request.scheduled_activation_date = (
+            datetime.utcnow() + timedelta(hours=2)).strftime('%Y-%m-%dT%H:00Z')
+
+        response = issuing_checkout_api.issuing.update_card(card.id, request)
+
+        assert_response(response)
+        assert response.http_metadata.status_code == 200
+
+    def test_should_update_card_returning_the_encrypted_cvv(self, issuing_checkout_api, active_card):
+        request = UpdateCardRequest()
+        request.reference = 'UPDATED-REF-123'
+
+        headers = CardUpdateHeaders()
+        headers.return_encrypted_cvv = 'true'
+        headers.encryption_key = os.environ.get('CHECKOUT_ISSUING_ENCRYPTION_KEY', '')
+
+        response = issuing_checkout_api.issuing.update_card(active_card.id, request, headers)
+
+        assert_response(response, 'encrypted_cvv')
         assert response.http_metadata.status_code == 200
 
     def test_should_renew_card(self, issuing_checkout_api, card):
