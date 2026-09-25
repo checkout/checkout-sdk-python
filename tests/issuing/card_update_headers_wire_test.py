@@ -106,18 +106,20 @@ class TestCardUpdateHeadersReachTheWire:
         assert 'encryption_key_required' in exc.value.error_details
         assert exc.value.request_id == '0HLHPN8802NUF:00000003'
 
-    def test_a_successful_update_returns_the_encrypted_cvv(self, mock_sdk_configuration):
-        client, _ = _build(mock_sdk_configuration, body='{'
-                           '"last_modified_date":"2026-06-01T10:00:00Z",'
-                           '"encrypted_cvv":"oJMoNMEEUiQKYOsQ4Zd"}')
+    def test_a_successful_update_with_the_headers_still_has_no_encrypted_cvv(self, mock_sdk_configuration):
+        """The 2026-09-17 spec (INT-1700) removed encrypted_cvv from update-card-response
+        entirely, so return-encrypted-cvv/Encryption-Key no longer make the response carry it.
+        This test previously asserted the opposite (added by INT-1695, when the field still
+        existed)."""
+        client, _ = _build(mock_sdk_configuration, body='{"last_modified_date":"2026-06-01T10:00:00Z"}')
         headers = CardUpdateHeaders()
         headers.return_encrypted_cvv = 'true'
         headers.encryption_key = 'MIIBIjAN'
 
         response = client.update_card('crd_123', UpdateCardRequest(), headers)
 
-        assert response.encrypted_cvv == 'oJMoNMEEUiQKYOsQ4Zd'
         assert response.last_modified_date == '2026-06-01T10:00:00Z'
+        assert not hasattr(response, 'encrypted_cvv')
 
     def test_a_successful_update_without_the_headers_has_no_encrypted_cvv(self, mock_sdk_configuration):
         client, _ = _build(mock_sdk_configuration,
@@ -127,3 +129,15 @@ class TestCardUpdateHeadersReachTheWire:
 
         assert response.last_modified_date == '2026-06-01T10:00:00Z'
         assert not hasattr(response, 'encrypted_cvv')
+
+    def test_update_card_response_round_trips_is_single_use_for_virtual_cards(self, mock_sdk_configuration):
+        """The 2026-09-23 spec update split update-card-response into a virtual/physical
+        discriminator; the virtual variant adds is_single_use."""
+        client, _ = _build(mock_sdk_configuration, body='{'
+                           '"type":"virtual",'
+                           '"last_modified_date":"2026-06-01T10:00:00Z",'
+                           '"is_single_use":true}')
+
+        response = client.update_card('crd_123', UpdateCardRequest())
+
+        assert response.is_single_use is True

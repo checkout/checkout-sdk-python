@@ -25,6 +25,12 @@ class SuspendReason(str, Enum):
     SUSPECTED_STOLEN = 'suspected_stolen'
 
 
+class CardStatusUpdate(str, Enum):
+    # Set on UpdateCardRequest.status to reactivate an inactive or suspended card.
+    # Mutually exclusive with UpdateCardRequest.scheduled_activation_date.
+    ACTIVE = 'active'
+
+
 class ReturnCredentials(str, Enum):
     NUMBER = 'number'
     CVC2 = 'cvc2'
@@ -94,7 +100,8 @@ class CardRequest:
     # User's metadata.
     # [Optional]
     metadata: CardMetadata
-    # Date scheduling the card's automatic revocation.
+    # Deprecated: use scheduled_revocation_date instead. If both are provided,
+    # scheduled_revocation_date overrides this value.
     # [Optional]
     # Format: yyyy-MM-dd (time is midnight UTC)
     # Example: 2027-03-12
@@ -107,6 +114,8 @@ class CardRequest:
     # [Optional]
     # Example: 2026-06-01T10:00Z
     scheduled_activation_date: str
+    # yyyy-mm-dd. The card is revoked at midnight UTC on this date. (IssuingScheduledRevocationDate)
+    scheduled_revocation_date: str
 
     def __init__(self, type_p: CardType):
         self.type = type_p
@@ -131,6 +140,10 @@ class VirtualCardRequest(CardRequest):
 
 class UpdateCardRequest:
     """Request body for PATCH /issuing/cards/{cardId}."""
+    # Set to CardStatusUpdate.ACTIVE to reactivate an inactive or suspended card.
+    # Mutually exclusive with scheduled_activation_date (API returns
+    # scheduled_activation_date_conflicts_with_activation otherwise).
+    status: CardStatusUpdate
     # Your reference.
     # [Optional]
     # max 256 characters
@@ -159,11 +172,14 @@ class UpdateCardRequest:
     # [Optional]
     # Example: 2026-06-01T10:00Z
     scheduled_activation_date: str
-    # Date scheduling the card's automatic revocation.
+    # Deprecated: use scheduled_revocation_date instead. If both are provided,
+    # scheduled_revocation_date overrides this value.
     # [Optional]
     # Format: yyyy-MM-dd (time is midnight UTC)
     # Example: 2027-03-12
     revocation_date: str
+    # yyyy-mm-dd. The card is revoked at midnight UTC on this date. (IssuingScheduledRevocationDate)
+    scheduled_revocation_date: str
 
 
 class CardUpdateHeaders:
