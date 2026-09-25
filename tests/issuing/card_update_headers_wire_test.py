@@ -129,3 +129,15 @@ class TestCardUpdateHeadersReachTheWire:
 
         assert response.last_modified_date == '2026-06-01T10:00:00Z'
         assert not hasattr(response, 'encrypted_cvv')
+
+    def test_update_card_response_round_trips_is_single_use_for_virtual_cards(self, mock_sdk_configuration):
+        """The 2026-09-23 spec update split update-card-response into a virtual/physical
+        discriminator; the virtual variant adds is_single_use."""
+        client, _ = _build(mock_sdk_configuration, body='{'
+                           '"type":"virtual",'
+                           '"last_modified_date":"2026-06-01T10:00:00Z",'
+                           '"is_single_use":true}')
+
+        response = client.update_card('crd_123', UpdateCardRequest())
+
+        assert response.is_single_use is True
