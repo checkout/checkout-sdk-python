@@ -4,7 +4,7 @@ from datetime import date
 from checkout_sdk.json_serializer import JsonSerializer
 from checkout_sdk.api_client import ApiClient
 from checkout_sdk.issuing.cards import CardRequest, CardType, CardUpdateHeaders, UpdateCardRequest, \
-    VirtualCardRequest
+    VirtualCardRequest, CardStatusUpdate
 from checkout_sdk.issuing.disputes import (
     IssuingDisputeFraudType, IssuingDisputeFraudDetails, CreateDisputeRequest,
     EscalateDisputeRequest, AmendDisputeRequest, SubmitDisputeRequest,
@@ -46,16 +46,36 @@ class TestIssuingSerialization:
             'revocation_date': '2027-03-12',
         }
 
+    def test_update_card_serializes_scheduled_revocation_date_alongside_deprecated_field(self):
+        request = UpdateCardRequest()
+        request.reference = 'ref'
+        request.revocation_date = '2027-03-12'
+        request.scheduled_revocation_date = '2027-04-01'
+
+        assert _serialize(request) == {
+            'reference': 'ref',
+            'revocation_date': '2027-03-12',
+            'scheduled_revocation_date': '2027-04-01',
+        }
+
+    def test_update_card_serializes_status_to_reactivate_card(self):
+        request = UpdateCardRequest()
+        request.status = CardStatusUpdate.ACTIVE
+
+        assert _serialize(request) == {'status': 'active'}
+
     def test_create_card_serializes_scheduled_activation_date(self):
         request = VirtualCardRequest()
         request.cardholder_id = 'crh_1'
         request.scheduled_activation_date = '2026-06-01T10:00Z'
         request.revocation_date = '2027-03-12'
+        request.scheduled_revocation_date = '2027-04-01'
 
         result = _serialize(request)
         assert result['type'] == CardType.VIRTUAL.value
         assert result['scheduled_activation_date'] == '2026-06-01T10:00Z'
         assert result['revocation_date'] == '2027-03-12'
+        assert result['scheduled_revocation_date'] == '2027-04-01'
         assert 'activation_date' not in result
 
     def test_revocation_date_accepts_a_date_object_through_the_serializer(self):

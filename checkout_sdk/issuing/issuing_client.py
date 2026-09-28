@@ -93,6 +93,8 @@ class IssuingClient(Client):
                 code encryption_key_required.
         Returns:
             ResponseWrapper with the update response, including encrypted_cvv when requested.
+            For a virtual card, the response may also include is_single_use, specifying whether
+            the card is set to expire after a single use. Physical cards never send it.
         """
         return self._api_client.patch(self.build_path(self.__ISSUING, self.__CARDS, card_id),
                                       self._sdk_authorization(),
