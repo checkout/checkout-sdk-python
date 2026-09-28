@@ -535,34 +535,223 @@ class PartnerCustomerRiskData:
     value: str
 
 
+class Ticket:
+    """Contains information about the airline ticket."""
+    # The ticket's unique identifier.
+    # [Optional]
+    number: str
+    # Date the airline ticket was issued.
+    # [Optional]
+    # format: date (YYYY-MM-DD)
+    issue_date: str
+    # Carrier code of the ticket issuer.
+    # [Optional]
+    issuing_carrier_code: str
+    # C = Car rental reservation, A = Airline flight reservation, B = Both car rental and
+    # airline flight reservations included, N = Unknown. Free-form string in the spec, not a
+    # typed enum.
+    # [Optional]
+    travel_package_indicator: str
+    # The name of the travel agency.
+    # [Optional]
+    travel_agency_name: str
+    # The unique identifier from IATA or ARC for the travel agency that issues the ticket.
+    # [Optional]
+    travel_agency_code: str
+
+
+class PassengerAddress:
+    """Contains information about a passenger's address."""
+    # The two-letter ISO country code of the passenger's country of residence.
+    # [Optional]
+    country: str
+
+
+class Passenger:
+    """Contains information about a passenger on the flight."""
+    # The passenger's first name.
+    # [Optional]
+    first_name: str
+    # The passenger's last name.
+    # [Optional]
+    last_name: str
+    # The passenger's date of birth.
+    # [Optional]
+    # format: date (YYYY-MM-DD)
+    date_of_birth: str
+    # Contains information about the passenger's address. The spec defines exactly one
+    # property on this object, country.
+    # [Optional]
+    address: PassengerAddress
+
+
+class FlightLegDetails:
+    """Contains information about a flight leg booked by the customer."""
+    # The flight identifier.
+    # [Optional]
+    flight_number: str
+    # The IATA 2-letter accounting code (PAX) that identifies the carrier. Required if the
+    # airline data includes leg details.
+    # [Optional]
+    carrier_code: str
+    # A one-letter travel class identifier. The following are common: F = First class,
+    # J = Business class, Y = Economy class, W = Premium economy.
+    # [Optional]
+    class_of_travelling: str
+    # The IATA three-letter airport code of the departure airport. Required if the airline
+    # data includes leg details.
+    # [Optional]
+    departure_airport: str
+    # The date of the scheduled take off.
+    # [Optional]
+    # format: date (YYYY-MM-DD)
+    departure_date: str
+    # The time of the scheduled take off.
+    # [Optional]
+    departure_time: str
+    # The IATA 3-letter airport code of the destination airport. Required if the airline data
+    # includes leg details.
+    # [Optional]
+    arrival_airport: str
+    # A one-letter code that indicates whether the passenger is entitled to make a stopover.
+    # Can be a space, O if the passenger is entitled to make a stopover, or X if they are not.
+    # [Optional]
+    stop_over_code: str
+    # The fare basis code, alphanumeric.
+    # [Optional]
+    fare_basis_code: str
+
+
+class AirlineData:
+    """Contains information about the airline ticket and flights booked by the customer.
+
+    Referenced by ProcessingSettings.airline_data and by the GET /payments/{id} response. The
+    class did not exist before: the only AirlineData in the SDK was the legacy ABC one in
+    payments_previous.py, whose shape differs, so the type comment on
+    ProcessingSettings.airline_data pointed at nothing in this module.
+    """
+    # Contains information about the airline ticket.
+    # [Optional]
+    ticket: Ticket
+    # Contains information about the passenger(s) on the flight.
+    # [Optional]
+    #
+    # Assign a single Passenger, not a one-element list. Verified against the sandbox on
+    # 2026-09-25 with a complete airline_data block:
+    #
+    #   surface                  passenger: object   passenger: array
+    #   POST /payments           201                 201
+    #   POST /hosted-payments    accepted            422 processing_airline_data_0_passenger_invalid
+    #   POST /payment-links      accepted            422 processing_airline_data_0_passenger_invalid
+    #   POST /payment-contexts   201                 422 passenger_required
+    #
+    # A single object is accepted on every request surface; a list only on POST /payments. The
+    # spec declares the opposite, and ProcessingSettings is shared by POST /payments, hosted
+    # payments and payment links, so a list is not a safe default. An empty list and a null are
+    # both rejected, so leave the attribute unset when there are no passengers: the serializer
+    # only emits attributes that were assigned. Several passengers can only be expressed as a
+    # list, which only POST /payments accepts. Recorded in the plan under P1.
+    passenger: Passenger
+    # Contains information about the flight leg(s) booked by the customer.
+    # [Optional]
+    flight_leg_details: list  # FlightLegDetails
+
+
+class AccommodationPhone:
+    """Phone contact information for an accommodation property."""
+    # The phone country code.
+    # [Optional]
+    country_code: str
+    # The phone number.
+    # [Optional]
+    number: str
+
+
 class AccommodationAddress:
+    """The address details of the accommodation."""
+    # The first line of the address.
+    # [Optional]
     address_line1: str
+    # The postal code for the address.
+    # [Optional]
     zip: str
 
 
 class AccommodationGuest:
+    """Contains information about a guest staying at the accommodation."""
+    # The first name of the guest.
+    # [Optional]
     first_name: str
+    # The last name of the guest.
+    # [Optional]
     last_name: str
+    # The date of birth of the guest.
+    # [Optional]
+    # format: date (YYYY-MM-DD)
     date_of_birth: str
 
 
 class AccommodationRoom:
+    """Contains information about a room booked by the customer."""
+    # For lodging, the nightly rate for one room. For cruise, the total cost of the cruise.
+    # Declared as a string in the spec, not a number.
+    # [Optional]
     rate: str
+    # For lodging, the number of nights charged at the rate provided in the rate field. For
+    # cruise, the length of the cruise in days. Declared as a string in the spec.
+    # [Optional]
     number_of_nights_at_room_rate: str
 
 
 class AccommodationData:
+    """Contains information about the accommodation booked by the customer."""
+    # For lodging, the lodging name that appears on the storefront/customer receipts. For
+    # cruise, the ship name booked for the cruise.
+    # [Optional]
     name: str
+    # A unique identifier for the booking.
+    # [Optional]
     booking_reference: str
+    # For lodging, the actual or scheduled date the guest checked-in. For cruise, the cruise
+    # departure date, also known as the sail date.
+    # [Optional]
+    # format: date (YYYY-MM-DD)
     check_in_date: str
+    # For lodging, the actual or scheduled date the guest checked-out. For cruise, the cruise
+    # return date, also known as the sail end date.
+    # [Optional]
+    # format: date (YYYY-MM-DD)
     check_out_date: str
+    # The address details of the accommodation. The spec defines only address_line1 and zip
+    # on this object.
+    # [Optional]
     address: AccommodationAddress
+    # The state or province of the address country (ISO 3166-2 code of up to two alphanumeric
+    # characters). A free-form string, not a country code: the spec's example is "FL".
+    # [Optional]
     state: str
+    # The ISO country code of the address. A free-form string rather than an alpha-2 enum: the
+    # spec's example is the three-letter code "USA".
+    # [Optional]
     country: str
+    # The address city.
+    # [Optional]
     city: str
+    # The total number of rooms booked for the accommodation.
+    # [Optional]
     number_of_rooms: int
+    # Contains information about the guests staying at the accommodation.
+    # [Optional]
     guests: list  # AccommodationGuest
+    # Contains information about the rooms booked by the customer.
+    # [Optional]
     room: list  # AccommodationRoom
+    # The property's phone information.
+    # [Optional]
+    property_phone: list  # AccommodationPhone
+    # The customer service phone information.
+    # [Optional]
+    customer_service_phone: list  # AccommodationPhone
 
 
 class Aggregator:
