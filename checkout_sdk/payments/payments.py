@@ -512,11 +512,12 @@ class DLocalProcessingSettings:
     installments: Installments
 
 
-# Deprecated: SenderInformation is not defined in the current Checkout.com API
-# (NAS) swagger and no documented endpoint accepts a `sender_information` field
-# on ProcessingSettings. Retained for backward compatibility with previous-API
-# (ABC) callers; new code should not set this. Will be removed in a future
-# major version.
+# Deprecated: SenderInformation is not defined in the current Checkout.com API swagger. The
+# property appears under neither `senderInformation` nor `sender_information` in any spec
+# available to this workspace, including the live API reference, and no processing schema declares
+# a sender property of any kind. The current API carries sender details in the top level `sender`
+# object on the payment request instead. Retained for backward compatibility with previous-API
+# (ABC) callers; new code should not set this. Will be removed in a future major version.
 class SenderInformation:
     reference: str
     first_name: str
@@ -531,7 +532,12 @@ class SenderInformation:
 
 
 class PartnerCustomerRiskData:
+    """A key-and-value pair with merchant-specific data for the transaction."""
+    # The key for the pair.
+    # [Optional]
     key: str
+    # The value for the pair.
+    # [Optional]
     value: str
 
 
@@ -629,6 +635,10 @@ class AirlineData:
     class did not exist before: the only AirlineData in the SDK was the legacy ABC one in
     payments_previous.py, whose shape differs, so the type comment on
     ProcessingSettings.airline_data pointed at nothing in this module.
+
+    Import this one for the current (NAS) API. checkout_sdk.payments.payments_previous also
+    defines a class called AirlineData, for the Previous (ABC) API only; its shape is different
+    and the current gateway discards it.
     """
     # Contains information about the airline ticket.
     # [Optional]
@@ -755,60 +765,223 @@ class AccommodationData:
 
 
 class Aggregator:
+    """Information about the payment aggregator."""
+    # The sub-merchant ID.
+    # [Optional]
     sub_merchant_id: str
+    # The Visa identifier for the payment aggregator.
+    # [Optional]
     aggregator_id_visa: str
+    # The Mastercard identifier for the payment aggregator.
+    # [Optional]
     aggregator_id_mc: str
 
 
 class ProcessingSettings:
+    """Settings that control how the payment is processed.
+
+    Shared across several request shapes. POST /payments resolves to PaymentRequestProcessing,
+    while hosted payments, payment links and payment sessions resolve to the wider
+    PaymentInterfacesProcessing. An attribute is therefore not necessarily read by every endpoint
+    that accepts this object; the attributes below name the exceptions.
+    """
+    # The number provided by the cardholder. A purchase order or invoice number may be used.
+    # [Optional]
+    # max 15 characters
     order_id: str
+    # The total amount of sales tax on the total purchase amount.
+    # [Optional]
+    # minimum 0
     tax_amount: int
+    # The discount amount applied to the transaction by the merchant.
+    # [Optional]
+    # minimum 0
     discount_amount: int
+    # The total charges for any import or export duty included in the transaction.
+    # [Optional]
+    # minimum 0
     duty_amount: int
+    # The total freight or shipping and handling charges for the transaction.
+    # [Optional]
+    # minimum 0
     shipping_amount: int
+    # The tax amount of the freight or shipping and handling charges for the transaction.
+    # [Optional]
+    # minimum 0
     shipping_tax_amount: int
+    # Indicates if the payment is an Account Funding Transaction.
+    # [Optional]
     aft: bool
+    # The preferred scheme for co-badged card payment processing. If performing 3DS through a
+    # third party, set this to the scheme that processed 3DS.
+    # [Optional]
+    # One of: mastercard, visa, cartes_bancaires
     preferred_scheme: PreferredSchema
+    # Indicates the reason for a merchant-initiated payment request.
+    # [Optional]
+    # One of: Delayed_charge, Resubmission, No_show, Reauthorization
     merchant_initiated_reason: MerchantInitiatedReason
+    # Unique number of the campaign this payment runs in. Only required for Afterpay campaign
+    # invoices.
+    # [Optional]
     campaign_id: int
+    # Product type of the payment. Required when source.type is wechatpay.
+    # [Optional]
     product_type: ProductType
+    # Value obtained from the WeChat Web Authorization API before initiating Official Account or
+    # Mini Program payments. Required if source.type is wechatpay.
+    # [Optional]
     open_id: str
+    # The payment for a merchant's order may be split; the original order price indicates the
+    # transaction amount of the entire order.
+    # [Optional]
+    # minimum 0
     original_order_amount: int
+    # Merchant receipt ID.
+    # [Optional]
+    # max 32 characters
     receipt_id: str
+    # The client-side terminal type: a website opened in a desktop browser, a mobile browser, or
+    # a mobile application.
+    # [Optional]
+    # One of: APP, WAP, WEB
     terminal_type: TerminalType
+    # The operating system type. Required when terminal_type is not WEB.
+    # [Optional]
+    # One of: ANDROID, IOS
     os_type: OsType
+    # Invoice ID number.
+    # [Optional]
+    # max 127 characters
     invoice_id: str
+    # The label that overrides the business name in the PayPal account on the PayPal pages.
+    # [Optional]
+    # max 127 characters
     brand_name: str
+    # The language and region of the customer in ISO 639-2 language code; the value consists of
+    # language-country.
+    # [Optional]
+    # pattern ^[a-z]{2}(?:-[A-Z][a-z]{3})?(?:-(?:[A-Z]{2}))?$
+    # 2 to 10 characters
     locale: str
+    # Shipping preference. Declared on PaymentContextProcessing only, so it is read by
+    # POST /payment-contexts and not by POST /payments, hosted payments or payment links.
+    # [Optional]
+    # One of: no_shipping, set_provided_address, get_from_file
     shipping_preference: ShippingPreference
+    # Property required by PayPal to have an appropriate payment flow. Declared on
+    # PaymentContextProcessing only.
+    # [Optional]
+    # One of: pay_now, continue
     user_action: UserAction
+    # Not in the current specification, neither NAS nor Previous (ABC). The gateway discards it.
+    # Retained for backwards compatibility.
+    # [Optional]
     set_transaction_context: list  # dict
+    # Contains information about the airline ticket and flights booked by the customer.
+    # [Optional]
     airline_data: list  # AirlineData
+    # One time password sent to the customer by SMS. Declared on the payment contexts payment
+    # request and on the capture request, not on PaymentRequestProcessing.
+    # [Optional]
+    # max 50 characters
     otp_value: str
+    # The two-letter ISO country code of the purchase country.
+    # [Optional]
+    # max 2 characters
     purchase_country: Country
-    custom_payment_method_ids: list  # string
+    # Promo codes. They define which of the configured payment options within a payment category
+    # (pay_later, pay_over_time, and so on) are shown for this purchase.
+    # [Optional]
+    custom_payment_method_ids: list  # str
+    # A URL you can use to notify the customer that the order has been created.
+    # [Optional]
     merchant_callback_url: str
+    # The line of business for the payment. Beta.
+    # [Optional]
     line_of_business: str
+    # Not in the current specification, neither NAS nor Previous (ABC). The gateway discards it.
+    # Retained for backwards compatibility.
+    # [Optional]
     shipping_delay: int
+    # Not in the current specification, neither NAS nor Previous (ABC). The gateway discards it.
+    # Retained for backwards compatibility.
+    # [Optional]
     shipping_info: list  # ShippingInfo
+    # Previous API (ABC) only; absent from the NAS processing schemas.
+    # [Optional]
     dlocal: DLocalProcessingSettings
-    # Deprecated: see SenderInformation class — no current API endpoint reads this.
+    # Previous API (ABC) only, and not in any available specification. See the SenderInformation
+    # class. Left exactly as it was on purpose: the serializer sends this as sender_information,
+    # and there is no evidence establishing which key, if either, the gateway reads, so no
+    # _KEYS_TRANSFORMATIONS entry overrides it.
+    # [Optional]
     sender_information: SenderInformation
+    # Not declared on any processing schema in either specification. The name appears elsewhere
+    # in the spec on unrelated objects. The gateway discards it here.
+    # [Optional]
     purpose: str
+    # Key-and-value pairs with merchant-specific data for the transaction.
+    # [Optional]
     partner_customer_risk_data: list  # PartnerCustomerRiskData
+    # Contains information about the accommodation booked by the customer.
+    # [Optional]
     accommodation_data: list  # AccommodationData
+    # Surcharge amount applied to the transaction by the merchant, in the minor currency unit.
+    # [Optional]
+    # minimum 0
     surcharge_amount: int
+    # Specifies the preferred type of Primary Account Number (PAN) for the payment. Only applies
+    # when source.type is a card, instrument or token.
+    # [Optional]
+    # One of: fpan, dpan
     pan_preference: PanPreference
+    # Indicates whether to provision a network token for the payment.
+    # [Optional]
     provision_network_token: bool
+    # The unique identifier for Visa-registered ramp providers. Required if you are a
+    # Visa-registered ramp provider operating with affiliates.
+    # [Optional]
+    # pattern ^[a-zA-Z0-9]{1,15}$
+    # max 15 characters
     affiliate_id: str
+    # The affiliate URL. Required if you are a Visa-registered ramp provider operating with
+    # affiliates.
+    # [Optional]
     affiliate_url: str
+    # Information about the payment aggregator.
+    # [Optional]
     aggregator: Aggregator
+    # Specifies whether to process the payment as a credit or debit transaction, if a combo card
+    # is used. Required for domestic payments in Brazil.
+    # [Optional]
+    # One of: credit, debit
     card_type: CardFundingType
+    # The foreign retailer amount the merchant applied to the transaction, in the minor currency
+    # unit.
+    # [Optional]
+    # minimum 0
     foreign_retailer_amount: int
+    # The transaction identifier used to track a payment request.
+    # [Optional]
     reconciliation_id: str
+    # Specifies which ACH service to use for the payment, if you set source.type to ach.
+    # [Optional]
+    # One of: same_day, standard
     service_type: ServiceType
+    # The customer's 6-digit Blik code. Required when source.type is blik and merchant_initiated
+    # is false (for example, for Regular payments and the initial payment of a Recurring
+    # agreement).
+    # [Optional]
+    # pattern ^\d{6}$
+    # 6 characters
     partner_code: str
-    processing_speed: str  # 'fast' (only for unreferenced refunds / card payouts)
+    # Not declared on any processing component schema; it appears only in inline schemas.
+    # 'fast' (only for unreferenced refunds / card payouts)
+    # [Optional]
+    processing_speed: str
+    # The scheme transaction link identifier.
+    # [Optional]
     scheme_transaction_link_id: str
 
 

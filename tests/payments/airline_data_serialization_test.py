@@ -95,9 +95,32 @@ class TestAirlineDataSerialization:
         airline.passenger = passenger
         airline.flight_leg_details = [leg]
 
+        result = _serialize(airline)
+
+        # A whole-dict == ignores key order, so order is pinned separately. Note this SDK emits
+        # keys ALPHABETICALLY, not in declaration or specification order, because JsonSerializer
+        # reflects with inspect.getmembers() which sorts by name. That is harmless (JSON object
+        # order is not semantic and the API accepts it) but it is a real difference from the
+        # other SDKs, whose serializers preserve declaration order. Pinned here so a change to
+        # the encoder -- for example reflecting __dict__, which preserves insertion order --
+        # shows up as a test failure rather than a silent change in every payload.
+        assert list(result.keys()) == ['flight_leg_details', 'passenger', 'ticket']
+        assert list(result['ticket'].keys()) == [
+            'issue_date', 'issuing_carrier_code', 'number', 'travel_agency_code',
+            'travel_agency_name', 'travel_package_indicator',
+        ]
+        assert list(result['passenger'].keys()) == [
+            'address', 'date_of_birth', 'first_name', 'last_name',
+        ]
+        assert list(result['flight_leg_details'][0].keys()) == [
+            'arrival_airport', 'carrier_code', 'class_of_travelling', 'departure_airport',
+            'departure_date', 'departure_time', 'fare_basis_code', 'flight_number',
+            'stop_over_code',
+        ]
+
         # Asserted as a whole dict, so a wrong or extra key fails here rather than passing
         # because the assertion happened not to look at it.
-        assert _serialize(airline) == {
+        assert result == {
             'ticket': {
                 'number': '045-21351455613',
                 'issue_date': '2023-05-20',
@@ -168,7 +191,16 @@ class TestAirlineDataSerialization:
         accommodation.property_phone = [property_phone]
         accommodation.customer_service_phone = [service_phone]
 
-        assert _serialize(accommodation) == {
+        result = _serialize(accommodation)
+
+        # Alphabetical, per the note in test_airline_data_serializes_every_spec_key.
+        assert list(result.keys()) == [
+            'address', 'booking_reference', 'check_in_date', 'check_out_date', 'city', 'country',
+            'customer_service_phone', 'guests', 'name', 'number_of_rooms', 'property_phone',
+            'room', 'state',
+        ]
+
+        assert result == {
             'name': 'The Sea View Hotel',
             'booking_reference': 'HOTEL123',
             'check_in_date': '2023-06-20',

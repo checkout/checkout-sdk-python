@@ -94,7 +94,13 @@ class TestPaymentContextsAirlineSerialization:
         airline.passenger = passenger
         airline.flight_leg_details = [leg]
 
-        assert _serialize(airline) == {
+        result = _serialize(airline)
+
+        # Alphabetical: JsonSerializer reflects with inspect.getmembers(), which sorts by
+        # name. Harmless on the wire, but pinned so an encoder change is visible.
+        assert list(result.keys()) == ['flight_leg_details', 'passenger', 'ticket']
+
+        assert result == {
             'ticket': {
                 'number': '045-21351455613',
                 'issue_date': '2023-05-20',
@@ -155,7 +161,16 @@ class TestPaymentContextsAirlineSerialization:
         # same specification schema.
         processing.accommodation_data = [accommodation]
 
-        assert _serialize(processing) == {
+        result = _serialize(processing)
+
+        # Alphabetical, as above.
+        assert list(result.keys()) == [
+            'accommodation_data', 'airline_data', 'brand_name', 'custom_payment_method_ids',
+            'discount_amount', 'invoice_id', 'locale', 'partner_customer_risk_data', 'plan',
+            'shipping_amount', 'tax_amount',
+        ]
+
+        assert result == {
             'plan': {'skip_shipping_address': True},
             'discount_amount': 5,
             'shipping_amount': 300,
