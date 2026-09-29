@@ -124,7 +124,7 @@ class PaymentContextsProcessing:
     plan: BillingPlan
     # The total freight or shipping and handling charges for the transaction.
     # [Optional]
-    shipping_amount: int
+    shipping_amount: float
     # Invoice ID number.
     # [Optional]
     invoice_id: str
@@ -160,10 +160,10 @@ class PaymentContextsProcessing:
     custom_payment_method_ids: list  # str
     # The discount amount the merchant applied to the transaction.
     # [Optional]
-    discount_amount: int
+    discount_amount: float
     # The total tax amount for the transaction, in the minor currency unit.
     # [Optional]
-    tax_amount: int
+    tax_amount: float
 
 
 class PaymentContextsItems:

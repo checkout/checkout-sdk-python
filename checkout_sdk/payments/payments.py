@@ -792,23 +792,23 @@ class ProcessingSettings:
     # The total amount of sales tax on the total purchase amount.
     # [Optional]
     # minimum 0
-    tax_amount: int
+    tax_amount: float
     # The discount amount applied to the transaction by the merchant.
     # [Optional]
     # minimum 0
-    discount_amount: int
+    discount_amount: float
     # The total charges for any import or export duty included in the transaction.
     # [Optional]
     # minimum 0
-    duty_amount: int
+    duty_amount: float
     # The total freight or shipping and handling charges for the transaction.
     # [Optional]
     # minimum 0
-    shipping_amount: int
+    shipping_amount: float
     # The tax amount of the freight or shipping and handling charges for the transaction.
     # [Optional]
     # minimum 0
-    shipping_tax_amount: int
+    shipping_tax_amount: float
     # Indicates if the payment is an Account Funding Transaction.
     # [Optional]
     aft: bool
@@ -836,7 +836,7 @@ class ProcessingSettings:
     # transaction amount of the entire order.
     # [Optional]
     # minimum 0
-    original_order_amount: int
+    original_order_amount: float
     # Merchant receipt ID.
     # [Optional]
     # max 32 characters
@@ -923,7 +923,11 @@ class ProcessingSettings:
     purpose: str
     # Key-and-value pairs with merchant-specific data for the transaction.
     # [Optional]
-    partner_customer_risk_data: list  # PartnerCustomerRiskData
+    # The specification declares this as a single object with `key` and `value`, even though
+    # its description calls it "an array of key-and-value pairs". The sandbox accepts both a
+    # bare object and an array; Java, .NET, Go and Ruby all model the declared single object,
+    # so this follows them rather than keeping a third shape in the family.
+    partner_customer_risk_data: PartnerCustomerRiskData
     # Contains information about the accommodation booked by the customer.
     # [Optional]
     accommodation_data: list  # AccommodationData
