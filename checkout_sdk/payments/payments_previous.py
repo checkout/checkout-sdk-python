@@ -76,6 +76,14 @@ class AirlineFlightLegDetails:
 
 
 class AirlineData:
+    """Previous API (ABC) airline data. NOT the current shape.
+
+    Distinct from checkout_sdk.payments.payments.AirlineData, which maps the current (NAS)
+    schema and is what ProcessingSettings.airline_data expects. The two share a class name and
+    differ in shape: this one nests the passenger name under AirlinePassengerName.full_name and
+    spells the flight-leg fields service_class and stopover_code, none of which the current API
+    defines. Importing this one by mistake builds a payload the gateway discards.
+    """
     ticket: AirlineTicket
     passenger: AirlinePassenger
     flight_leg_details: list  # AirlineFlightLegDetails

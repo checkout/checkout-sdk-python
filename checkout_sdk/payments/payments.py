@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 from datetime import datetime
 from enum import Enum
+from typing import List, Union
 
 from checkout_sdk.common.common import AccountHolder, BankDetails, MarketplaceData, Address, Phone, CustomerRequest, \
     AccountHolderIdentification, QueryFilterDateRange
@@ -512,11 +513,12 @@ class DLocalProcessingSettings:
     installments: Installments
 
 
-# Deprecated: SenderInformation is not defined in the current Checkout.com API
-# (NAS) swagger and no documented endpoint accepts a `sender_information` field
-# on ProcessingSettings. Retained for backward compatibility with previous-API
-# (ABC) callers; new code should not set this. Will be removed in a future
-# major version.
+# Deprecated: SenderInformation is not defined in the current Checkout.com API swagger. The
+# property appears under neither `senderInformation` nor `sender_information` in any spec
+# available to this workspace, including the live API reference, and no processing schema declares
+# a sender property of any kind. The current API carries sender details in the top level `sender`
+# object on the payment request instead. Retained for backward compatibility with previous-API
+# (ABC) callers; new code should not set this. Will be removed in a future major version.
 class SenderInformation:
     reference: str
     first_name: str
@@ -531,95 +533,469 @@ class SenderInformation:
 
 
 class PartnerCustomerRiskData:
+    """A key-and-value pair with merchant-specific data for the transaction."""
+    # The key for the pair.
+    # [Optional]
     key: str
+    # The value for the pair.
+    # [Optional]
     value: str
 
 
+class Ticket:
+    """Contains information about the airline ticket."""
+    # The ticket's unique identifier.
+    # [Optional]
+    number: str
+    # Date the airline ticket was issued.
+    # [Optional]
+    # format: date (YYYY-MM-DD)
+    issue_date: str
+    # Carrier code of the ticket issuer.
+    # [Optional]
+    issuing_carrier_code: str
+    # C = Car rental reservation, A = Airline flight reservation, B = Both car rental and
+    # airline flight reservations included, N = Unknown. Free-form string in the spec, not a
+    # typed enum.
+    # [Optional]
+    travel_package_indicator: str
+    # The name of the travel agency.
+    # [Optional]
+    travel_agency_name: str
+    # The unique identifier from IATA or ARC for the travel agency that issues the ticket.
+    # [Optional]
+    travel_agency_code: str
+
+
+class PassengerAddress:
+    """Contains information about a passenger's address."""
+    # The two-letter ISO country code of the passenger's country of residence.
+    # [Optional]
+    country: str
+
+
+class Passenger:
+    """Contains information about a passenger on the flight."""
+    # The passenger's first name.
+    # [Optional]
+    first_name: str
+    # The passenger's last name.
+    # [Optional]
+    last_name: str
+    # The passenger's date of birth.
+    # [Optional]
+    # format: date (YYYY-MM-DD)
+    date_of_birth: str
+    # Contains information about the passenger's address. The spec defines exactly one
+    # property on this object, country.
+    # [Optional]
+    address: PassengerAddress
+
+
+class FlightLegDetails:
+    """Contains information about a flight leg booked by the customer."""
+    # The flight identifier.
+    # [Optional]
+    flight_number: str
+    # The IATA 2-letter accounting code (PAX) that identifies the carrier. Required if the
+    # airline data includes leg details.
+    # [Optional]
+    carrier_code: str
+    # A one-letter travel class identifier. The following are common: F = First class,
+    # J = Business class, Y = Economy class, W = Premium economy.
+    # [Optional]
+    class_of_travelling: str
+    # The IATA three-letter airport code of the departure airport. Required if the airline
+    # data includes leg details.
+    # [Optional]
+    departure_airport: str
+    # The date of the scheduled take off.
+    # [Optional]
+    # format: date (YYYY-MM-DD)
+    departure_date: str
+    # The time of the scheduled take off.
+    # [Optional]
+    departure_time: str
+    # The IATA 3-letter airport code of the destination airport. Required if the airline data
+    # includes leg details.
+    # [Optional]
+    arrival_airport: str
+    # A one-letter code that indicates whether the passenger is entitled to make a stopover.
+    # Can be a space, O if the passenger is entitled to make a stopover, or X if they are not.
+    # [Optional]
+    stop_over_code: str
+    # The fare basis code, alphanumeric.
+    # [Optional]
+    fare_basis_code: str
+
+
+class AirlineData:
+    """Contains information about the airline ticket and flights booked by the customer.
+
+    Referenced by ProcessingSettings.airline_data and by the GET /payments/{id} response. The
+    class did not exist before: the only AirlineData in the SDK was the legacy ABC one in
+    payments_previous.py, whose shape differs, so the type comment on
+    ProcessingSettings.airline_data pointed at nothing in this module.
+
+    Import this one for the current (NAS) API. checkout_sdk.payments.payments_previous also
+    defines a class called AirlineData, for the Previous (ABC) API only; its shape is different
+    and the current gateway discards it.
+    """
+    # Contains information about the airline ticket.
+    # [Optional]
+    ticket: Ticket
+    # Contains information about the passenger(s) on the flight.
+    # [Optional]
+    #
+    # Accepts a single Passenger or a list of them, and the choice is not cosmetic. Every row
+    # below was sent to the sandbox, the first four on 2026-09-25 and re-verified with the fifth
+    # on 2026-09-28:
+    #
+    #   surface                  passenger: object   passenger: array
+    #   POST /payments           201                 201
+    #   POST /payment-sessions   201                 201
+    #   POST /hosted-payments    201                 422 processing_airline_data_0_passenger_invalid
+    #   POST /payment-links      201                 422 processing_airline_data_0_passenger_invalid
+    #   POST /payment-contexts   201                 422 passenger_required
+    #
+    # So prefer a single Passenger: that is accepted on every request surface. Use a list only
+    # for two or more passengers, and only against POST /payments or POST /payment-sessions,
+    # which are the only surfaces that take it. ProcessingSettings is shared by POST /payments,
+    # hosted payments and payment links, so a list is not a safe default even though the
+    # specification declares the property array-only.
+    #
+    # Note that hosted payments, payment links and payment sessions all resolve to the same
+    # PaymentInterfacesProcessing schema, yet the first two reject the array and the third
+    # accepts it: validation is per endpoint, not per schema.
+    #
+    # An empty list and an explicit null are both rejected, so leave the attribute unset when
+    # there are no passengers; the serializer only emits attributes that were assigned.
+    # Recorded in the plan under P1.
+    passenger: Union[Passenger, List[Passenger]]
+    # Contains information about the flight leg(s) booked by the customer.
+    # [Optional]
+    flight_leg_details: list  # FlightLegDetails
+
+
+class AccommodationPhone:
+    """Phone contact information for an accommodation property."""
+    # The phone country code.
+    # [Optional]
+    country_code: str
+    # The phone number.
+    # [Optional]
+    number: str
+
+
 class AccommodationAddress:
+    """The address details of the accommodation."""
+    # The first line of the address.
+    # [Optional]
     address_line1: str
+    # The postal code for the address.
+    # [Optional]
     zip: str
 
 
 class AccommodationGuest:
+    """Contains information about a guest staying at the accommodation."""
+    # The first name of the guest.
+    # [Optional]
     first_name: str
+    # The last name of the guest.
+    # [Optional]
     last_name: str
+    # The date of birth of the guest.
+    # [Optional]
+    # format: date (YYYY-MM-DD)
     date_of_birth: str
 
 
 class AccommodationRoom:
+    """Contains information about a room booked by the customer."""
+    # For lodging, the nightly rate for one room. For cruise, the total cost of the cruise.
+    # Declared as a string in the spec, not a number.
+    # [Optional]
     rate: str
+    # For lodging, the number of nights charged at the rate provided in the rate field. For
+    # cruise, the length of the cruise in days. Declared as a string in the spec.
+    # [Optional]
     number_of_nights_at_room_rate: str
 
 
 class AccommodationData:
+    """Contains information about the accommodation booked by the customer."""
+    # For lodging, the lodging name that appears on the storefront/customer receipts. For
+    # cruise, the ship name booked for the cruise.
+    # [Optional]
     name: str
+    # A unique identifier for the booking.
+    # [Optional]
     booking_reference: str
+    # For lodging, the actual or scheduled date the guest checked-in. For cruise, the cruise
+    # departure date, also known as the sail date.
+    # [Optional]
+    # format: date (YYYY-MM-DD)
     check_in_date: str
+    # For lodging, the actual or scheduled date the guest checked-out. For cruise, the cruise
+    # return date, also known as the sail end date.
+    # [Optional]
+    # format: date (YYYY-MM-DD)
     check_out_date: str
+    # The address details of the accommodation. The spec defines only address_line1 and zip
+    # on this object.
+    # [Optional]
     address: AccommodationAddress
+    # The state or province of the address country (ISO 3166-2 code of up to two alphanumeric
+    # characters). A free-form string, not a country code: the spec's example is "FL".
+    # [Optional]
     state: str
+    # The ISO country code of the address. A free-form string rather than an alpha-2 enum: the
+    # spec's example is the three-letter code "USA".
+    # [Optional]
     country: str
+    # The address city.
+    # [Optional]
     city: str
+    # The total number of rooms booked for the accommodation.
+    # [Optional]
     number_of_rooms: int
+    # Contains information about the guests staying at the accommodation.
+    # [Optional]
     guests: list  # AccommodationGuest
+    # Contains information about the rooms booked by the customer.
+    # [Optional]
     room: list  # AccommodationRoom
+    # The property's phone information.
+    # [Optional]
+    property_phone: list  # AccommodationPhone
+    # The customer service phone information.
+    # [Optional]
+    customer_service_phone: list  # AccommodationPhone
 
 
 class Aggregator:
+    """Information about the payment aggregator."""
+    # The sub-merchant ID.
+    # [Optional]
     sub_merchant_id: str
+    # The Visa identifier for the payment aggregator.
+    # [Optional]
     aggregator_id_visa: str
+    # The Mastercard identifier for the payment aggregator.
+    # [Optional]
     aggregator_id_mc: str
 
 
 class ProcessingSettings:
+    """Settings that control how the payment is processed.
+
+    Shared across several request shapes. POST /payments resolves to PaymentRequestProcessing,
+    while hosted payments, payment links and payment sessions resolve to the wider
+    PaymentInterfacesProcessing. An attribute is therefore not necessarily read by every endpoint
+    that accepts this object; the attributes below name the exceptions.
+    """
+    # The number provided by the cardholder. A purchase order or invoice number may be used.
+    # [Optional]
+    # max 15 characters
     order_id: str
-    tax_amount: int
-    discount_amount: int
-    duty_amount: int
-    shipping_amount: int
-    shipping_tax_amount: int
+    # The total amount of sales tax on the total purchase amount.
+    # [Optional]
+    # minimum 0
+    tax_amount: float
+    # The discount amount applied to the transaction by the merchant.
+    # [Optional]
+    # minimum 0
+    discount_amount: float
+    # The total charges for any import or export duty included in the transaction.
+    # [Optional]
+    # minimum 0
+    duty_amount: float
+    # The total freight or shipping and handling charges for the transaction.
+    # [Optional]
+    # minimum 0
+    shipping_amount: float
+    # The tax amount of the freight or shipping and handling charges for the transaction.
+    # [Optional]
+    # minimum 0
+    shipping_tax_amount: float
+    # Indicates if the payment is an Account Funding Transaction.
+    # [Optional]
     aft: bool
+    # The preferred scheme for co-badged card payment processing. If performing 3DS through a
+    # third party, set this to the scheme that processed 3DS.
+    # [Optional]
+    # One of: mastercard, visa, cartes_bancaires
     preferred_scheme: PreferredSchema
+    # Indicates the reason for a merchant-initiated payment request.
+    # [Optional]
+    # One of: Delayed_charge, Resubmission, No_show, Reauthorization
     merchant_initiated_reason: MerchantInitiatedReason
+    # Unique number of the campaign this payment runs in. Only required for Afterpay campaign
+    # invoices.
+    # [Optional]
     campaign_id: int
+    # Product type of the payment. Required when source.type is wechatpay.
+    # [Optional]
     product_type: ProductType
+    # Value obtained from the WeChat Web Authorization API before initiating Official Account or
+    # Mini Program payments. Required if source.type is wechatpay.
+    # [Optional]
     open_id: str
-    original_order_amount: int
+    # The payment for a merchant's order may be split; the original order price indicates the
+    # transaction amount of the entire order.
+    # [Optional]
+    # minimum 0
+    original_order_amount: float
+    # Merchant receipt ID.
+    # [Optional]
+    # max 32 characters
     receipt_id: str
+    # The client-side terminal type: a website opened in a desktop browser, a mobile browser, or
+    # a mobile application.
+    # [Optional]
+    # One of: APP, WAP, WEB
     terminal_type: TerminalType
+    # The operating system type. Required when terminal_type is not WEB.
+    # [Optional]
+    # One of: ANDROID, IOS
     os_type: OsType
+    # Invoice ID number.
+    # [Optional]
+    # max 127 characters
     invoice_id: str
+    # The label that overrides the business name in the PayPal account on the PayPal pages.
+    # [Optional]
+    # max 127 characters
     brand_name: str
+    # The language and region of the customer in ISO 639-2 language code; the value consists of
+    # language-country.
+    # [Optional]
+    # pattern ^[a-z]{2}(?:-[A-Z][a-z]{3})?(?:-(?:[A-Z]{2}))?$
+    # 2 to 10 characters
     locale: str
+    # Shipping preference. Declared on PaymentContextProcessing only, so it is read by
+    # POST /payment-contexts and not by POST /payments, hosted payments or payment links.
+    # [Optional]
+    # One of: no_shipping, set_provided_address, get_from_file
     shipping_preference: ShippingPreference
+    # Property required by PayPal to have an appropriate payment flow. Declared on
+    # PaymentContextProcessing only.
+    # [Optional]
+    # One of: pay_now, continue
     user_action: UserAction
+    # Not in the current specification, neither NAS nor Previous (ABC). The gateway discards it.
+    # Retained for backwards compatibility.
+    # [Optional]
     set_transaction_context: list  # dict
+    # Contains information about the airline ticket and flights booked by the customer.
+    # [Optional]
     airline_data: list  # AirlineData
+    # One time password sent to the customer by SMS. Declared on the payment contexts payment
+    # request and on the capture request, not on PaymentRequestProcessing.
+    # [Optional]
+    # max 50 characters
     otp_value: str
+    # The two-letter ISO country code of the purchase country.
+    # [Optional]
+    # max 2 characters
     purchase_country: Country
-    custom_payment_method_ids: list  # string
+    # Promo codes. They define which of the configured payment options within a payment category
+    # (pay_later, pay_over_time, and so on) are shown for this purchase.
+    # [Optional]
+    custom_payment_method_ids: list  # str
+    # A URL you can use to notify the customer that the order has been created.
+    # [Optional]
     merchant_callback_url: str
+    # The line of business for the payment. Beta.
+    # [Optional]
     line_of_business: str
+    # Not in the current specification, neither NAS nor Previous (ABC). The gateway discards it.
+    # Retained for backwards compatibility.
+    # [Optional]
     shipping_delay: int
+    # Not in the current specification, neither NAS nor Previous (ABC). The gateway discards it.
+    # Retained for backwards compatibility.
+    # [Optional]
     shipping_info: list  # ShippingInfo
+    # Previous API (ABC) only; absent from the NAS processing schemas.
+    # [Optional]
     dlocal: DLocalProcessingSettings
-    # Deprecated: see SenderInformation class — no current API endpoint reads this.
+    # Previous API (ABC) only, and not in any available specification. See the SenderInformation
+    # class. Left exactly as it was on purpose: the serializer sends this as sender_information,
+    # and there is no evidence establishing which key, if either, the gateway reads, so no
+    # _KEYS_TRANSFORMATIONS entry overrides it.
+    # [Optional]
     sender_information: SenderInformation
+    # Not declared on any processing schema in either specification. The name appears elsewhere
+    # in the spec on unrelated objects. The gateway discards it here.
+    # [Optional]
     purpose: str
-    partner_customer_risk_data: list  # PartnerCustomerRiskData
+    # Key-and-value pairs with merchant-specific data for the transaction.
+    # [Optional]
+    # The specification declares this as a single object with `key` and `value`, even though
+    # its description calls it "an array of key-and-value pairs". The sandbox accepts both a
+    # bare object and an array; Java, .NET, Go and Ruby all model the declared single object,
+    # so this follows them rather than keeping a third shape in the family.
+    partner_customer_risk_data: PartnerCustomerRiskData
+    # Contains information about the accommodation booked by the customer.
+    # [Optional]
     accommodation_data: list  # AccommodationData
+    # Surcharge amount applied to the transaction by the merchant, in the minor currency unit.
+    # [Optional]
+    # minimum 0
     surcharge_amount: int
+    # Specifies the preferred type of Primary Account Number (PAN) for the payment. Only applies
+    # when source.type is a card, instrument or token.
+    # [Optional]
+    # One of: fpan, dpan
     pan_preference: PanPreference
+    # Indicates whether to provision a network token for the payment.
+    # [Optional]
     provision_network_token: bool
+    # The unique identifier for Visa-registered ramp providers. Required if you are a
+    # Visa-registered ramp provider operating with affiliates.
+    # [Optional]
+    # pattern ^[a-zA-Z0-9]{1,15}$
+    # max 15 characters
     affiliate_id: str
+    # The affiliate URL. Required if you are a Visa-registered ramp provider operating with
+    # affiliates.
+    # [Optional]
     affiliate_url: str
+    # Information about the payment aggregator.
+    # [Optional]
     aggregator: Aggregator
+    # Specifies whether to process the payment as a credit or debit transaction, if a combo card
+    # is used. Required for domestic payments in Brazil.
+    # [Optional]
+    # One of: credit, debit
     card_type: CardFundingType
+    # The foreign retailer amount the merchant applied to the transaction, in the minor currency
+    # unit.
+    # [Optional]
+    # minimum 0
     foreign_retailer_amount: int
+    # The transaction identifier used to track a payment request.
+    # [Optional]
     reconciliation_id: str
+    # Specifies which ACH service to use for the payment, if you set source.type to ach.
+    # [Optional]
+    # One of: same_day, standard
     service_type: ServiceType
+    # The customer's 6-digit Blik code. Required when source.type is blik and merchant_initiated
+    # is false (for example, for Regular payments and the initial payment of a Recurring
+    # agreement).
+    # [Optional]
+    # pattern ^\d{6}$
+    # 6 characters
     partner_code: str
-    processing_speed: str  # 'fast' (only for unreferenced refunds / card payouts)
+    # Not declared on any processing component schema; it appears only in inline schemas.
+    # 'fast' (only for unreferenced refunds / card payouts)
+    # [Optional]
+    processing_speed: str
+    # The scheme transaction link identifier.
+    # [Optional]
     scheme_transaction_link_id: str
 
 
