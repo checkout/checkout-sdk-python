@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 from datetime import datetime
 from enum import Enum
+from typing import List, Union
 
 from checkout_sdk.common.common import AccountHolder, BankDetails, MarketplaceData, Address, Phone, CustomerRequest, \
     AccountHolderIdentification, QueryFilterDateRange
@@ -646,22 +647,31 @@ class AirlineData:
     # Contains information about the passenger(s) on the flight.
     # [Optional]
     #
-    # Assign a single Passenger, not a one-element list. Verified against the sandbox on
-    # 2026-09-25 with a complete airline_data block:
+    # Accepts a single Passenger or a list of them, and the choice is not cosmetic. Every row
+    # below was sent to the sandbox, the first four on 2026-09-25 and re-verified with the fifth
+    # on 2026-09-28:
     #
     #   surface                  passenger: object   passenger: array
     #   POST /payments           201                 201
-    #   POST /hosted-payments    accepted            422 processing_airline_data_0_passenger_invalid
-    #   POST /payment-links      accepted            422 processing_airline_data_0_passenger_invalid
+    #   POST /payment-sessions   201                 201
+    #   POST /hosted-payments    201                 422 processing_airline_data_0_passenger_invalid
+    #   POST /payment-links      201                 422 processing_airline_data_0_passenger_invalid
     #   POST /payment-contexts   201                 422 passenger_required
     #
-    # A single object is accepted on every request surface; a list only on POST /payments. The
-    # spec declares the opposite, and ProcessingSettings is shared by POST /payments, hosted
-    # payments and payment links, so a list is not a safe default. An empty list and a null are
-    # both rejected, so leave the attribute unset when there are no passengers: the serializer
-    # only emits attributes that were assigned. Several passengers can only be expressed as a
-    # list, which only POST /payments accepts. Recorded in the plan under P1.
-    passenger: Passenger
+    # So prefer a single Passenger: that is accepted on every request surface. Use a list only
+    # for two or more passengers, and only against POST /payments or POST /payment-sessions,
+    # which are the only surfaces that take it. ProcessingSettings is shared by POST /payments,
+    # hosted payments and payment links, so a list is not a safe default even though the
+    # specification declares the property array-only.
+    #
+    # Note that hosted payments, payment links and payment sessions all resolve to the same
+    # PaymentInterfacesProcessing schema, yet the first two reject the array and the third
+    # accepts it: validation is per endpoint, not per schema.
+    #
+    # An empty list and an explicit null are both rejected, so leave the attribute unset when
+    # there are no passengers; the serializer only emits attributes that were assigned.
+    # Recorded in the plan under P1.
+    passenger: Union[Passenger, List[Passenger]]
     # Contains information about the flight leg(s) booked by the customer.
     # [Optional]
     flight_leg_details: list  # FlightLegDetails
