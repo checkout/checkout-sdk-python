@@ -1,6 +1,7 @@
 import json
 
 from checkout_sdk.json_serializer import JsonSerializer
+from checkout_sdk.common.common import Address
 from checkout_sdk.common.enums import Country, Currency, DocumentType
 from checkout_sdk.accounts.accounts import (
     ProcessingDetails, ProcessingDetailsPayments, ProcessingDetailsAch,
@@ -15,6 +16,7 @@ from checkout_sdk.accounts.accounts import (
     TaxVerification, TaxVerificationType, FinancialVerification, FinancialVerificationType,
     RepresentativeDocuments, CertifiedAuthorisedSignatory, CertifiedAuthorisedSignatoryType,
     ProofOfResidentialAddress, ProofOfResidentialAddressType, ProofOfRegistration, ProofOfRegistrationType,
+    FilePurpose,
 )
 
 
@@ -159,6 +161,107 @@ class TestAccountsV3Serialization:
             'certified_authorised_signatory': {'type': 'power_of_attorney', 'front': 'file_signatory'},
             'proof_of_residential_address': {'type': 'proof_of_address', 'front': 'file_residential'},
             'proof_of_registration': {'type': 'extract_from_trade_register', 'front': 'file_registration'},
+        }
+
+    # Regression: EEA Sole Trader (3.0) needs proof_of_residential_address and proof_of_registration
+    # on the representative, with bank_verification alone at the top level.
+    def test_serializes_eea_sole_trader_representative_documents(self):
+        identity = EntityIdentificationDocument()
+        identity.type = DocumentType.PASSPORT
+        identity.front = 'file_identityverificationaaaaaa'
+        residential = ProofOfResidentialAddress()
+        residential.type = ProofOfResidentialAddressType.PROOF_OF_ADDRESS
+        residential.front = 'file_proofofresidentialaddressa'
+        registration = ProofOfRegistration()
+        registration.type = ProofOfRegistrationType.EXTRACT_FROM_TRADE_REGISTER
+        registration.front = 'file_proofofregistrationaaaaaaa'
+        rep_documents = RepresentativeDocuments()
+        rep_documents.identity_verification = identity
+        rep_documents.proof_of_residential_address = residential
+        rep_documents.proof_of_registration = registration
+        individual = RepresentativeIndividual()
+        individual.first_name = 'Jane'
+        individual.last_name = 'Doe'
+        representative = EntityRepresentative()
+        representative.individual = individual
+        representative.roles = [EntityRoles.UBO]
+        representative.documents = rep_documents
+        company = Company()
+        company.business_type = BusinessType.INDIVIDUAL_OR_SOLE_PROPRIETORSHIP
+        company.representatives = [representative]
+        bank = BankVerification()
+        bank.type = BankVerificationType.BANK_STATEMENT
+        bank.front = 'file_bankverificationaaaaaaaaaa'
+        documents = OnboardSubEntityDocuments()
+        documents.bank_verification = bank
+        request = OnboardEntityRequest()
+        request.reference = 'ref_sole_trader'
+        request.company = company
+        request.documents = documents
+
+        body = json.dumps(request, cls=JsonSerializer)
+        result = json.loads(body)
+
+        assert result['company']['representatives'][0]['documents'] == {
+            'identity_verification': {'type': 'passport', 'front': 'file_identityverificationaaaaaa'},
+            'proof_of_residential_address': {'type': 'proof_of_address', 'front': 'file_proofofresidentialaddressa'},
+            'proof_of_registration': {'type': 'extract_from_trade_register', 'front': 'file_proofofregistrationaaaaaaa'},
+        }
+        assert result['documents'] == {
+            'bank_verification': {'type': 'bank_statement', 'front': 'file_bankverificationaaaaaaaaaa'}}
+        # Key-level check on the raw body, so a naming change cannot pass silently.
+        assert '"proof_of_residential_address": {' in body
+        assert '"proof_of_registration": {' in body
+
+    # The API rejects any key on company.representatives[].documents other than these four
+    # (additionalProperties: false), so an attribute added here by mistake would fail the request.
+    def test_representative_documents_declares_only_the_keys_the_api_accepts(self):
+        assert list(RepresentativeDocuments.__annotations__) == [
+            'identity_verification',
+            'certified_authorised_signatory',
+            'proof_of_residential_address',
+            'proof_of_registration',
+        ]
+
+    # Leaving an attribute unset omits it; assigning None sends null, which the docstring on
+    # RepresentativeDocuments warns about.
+    def test_representative_documents_unset_attributes_are_omitted_and_none_is_sent(self):
+        registration = ProofOfRegistration()
+        registration.type = ProofOfRegistrationType.OTHER
+        registration.front = 'file_proofofregistrationaaaaaaa'
+        documents = RepresentativeDocuments()
+        documents.proof_of_registration = registration
+
+        assert _serialize(documents) == {
+            'proof_of_registration': {'type': 'other', 'front': 'file_proofofregistrationaaaaaaa'}}
+
+        documents.identity_verification = None
+        assert _serialize(documents)['identity_verification'] is None
+
+    # EEA and GB Company Full (3.0) allow a representative that is a company:
+    # { company: { legal_name, trading_name, registered_address }, ownership_percentage }.
+    def test_serializes_controlling_company_representative(self):
+        address = Address()
+        address.address_line1 = '1 Main Street'
+        address.city = 'London'
+        address.zip = 'W1T 4TJ'
+        address.country = Country.GB
+        company = Company()
+        company.legal_name = 'Parent Holdings Ltd'
+        company.trading_name = 'Parent Holdings'
+        company.registered_address = address
+        representative = EntityRepresentative()
+        representative.company = company
+        representative.ownership_percentage = 60
+
+        assert _serialize(representative) == {
+            'company': {
+                'legal_name': 'Parent Holdings Ltd',
+                'trading_name': 'Parent Holdings',
+                'registered_address': {
+                    'address_line1': '1 Main Street', 'city': 'London', 'zip': 'W1T 4TJ', 'country': 'GB'},
+            },
+            'ownership_percentage': 60,
         }
 
     def test_serializes_financial_statements_document(self):
@@ -313,6 +416,28 @@ class TestAccountsV3Serialization:
         assert result['identity_verification']['back'] == 'file_identity_back'
         assert result['articles_of_association'] == {
             'type': 'articles_of_association', 'front': 'file_articles_of_association'
+        }
+
+    # POST /entities/{entity_id}/files sends the purpose's value on the wire; the first fourteen are
+    # the PlatformsFileUpload enum, the last two are not accepted by that endpoint.
+    def test_file_purpose_enum_values(self):
+        assert {p.name: p.value for p in FilePurpose} == {
+            'ADDITIONAL_DOCUMENT': 'additional_document',
+            'ARTICLES_OF_ASSOCIATION': 'articles_of_association',
+            'BANK_VERIFICATION': 'bank_verification',
+            'CERTIFIED_AUTHORISED_SIGNATORY': 'certified_authorised_signatory',
+            'COMPANY_OWNERSHIP': 'company_ownership',
+            'IDENTITY_VERIFICATION': 'identity_verification',
+            'COMPANY_VERIFICATION': 'company_verification',
+            'FINANCIAL_VERIFICATION': 'financial_verification',
+            'TAX_VERIFICATION': 'tax_verification',
+            'PROOF_OF_LEGALITY': 'proof_of_legality',
+            'PROOF_OF_PRINCIPAL_ADDRESS': 'proof_of_principal_address',
+            'SHAREHOLDER_STRUCTURE': 'shareholder_structure',
+            'PROOF_OF_RESIDENTIAL_ADDRESS': 'proof_of_residential_address',
+            'PROOF_OF_REGISTRATION': 'proof_of_registration',
+            'IDENTIFICATION': 'identification',
+            'DISPUTE_EVIDENCE': 'dispute_evidence',
         }
 
     def test_entity_roles_enum_values(self):

@@ -43,6 +43,14 @@ class AccountsClient(Client):
         return headers
 
     def upload_file(self, file_request: FileRequest):
+        """Upload a file to the Files API (POST /files on the Files host), as a multipart request.
+
+        Args:
+            file_request: The path to the file and its purpose.
+
+        Returns:
+            ResponseWrapper with the file ID, which document front and back attributes take.
+        """
         return self.__files_client.submit_file(
             self.__FILES_PATH,
             self._sdk_authorization(),
@@ -182,12 +190,35 @@ class AccountsClient(Client):
             self._sdk_authorization(), request)
 
     def upload_entity_file(self, entity_id: str, entity_file_request: EntityFileRequest):
+        """Create a file upload for a sub-entity (POST /entities/{entity_id}/files on the Files host).
+
+        The response carries the file ID and an upload link; the file content itself is sent to that
+        link, not in this request.
+
+        Args:
+            entity_id: The ID of the sub-entity.
+            entity_file_request: The purpose of the file upload.
+
+        Returns:
+            ResponseWrapper with the file ID, the maximum size allowed, the MIME types allowed for the
+            purpose, and the upload link.
+        """
         return self.__files_client.post(
             self.build_path(self.__ENTITIES_PATH, entity_id, self.__FILES_PATH),
             self._sdk_authorization(),
             entity_file_request)
 
     def retrieve_entity_file(self, entity_id: str, file_id: str):
+        """Retrieve the details of a sub-entity's file (GET /entities/{entity_id}/files/{file_id} on the
+        Files host).
+
+        Args:
+            entity_id: The ID of the sub-entity.
+            file_id: The ID of the file.
+
+        Returns:
+            ResponseWrapper with the file's status, size, MIME type, upload date and purpose.
+        """
         return self.__files_client.get(
             self.build_path(self.__ENTITIES_PATH, entity_id, self.__FILES_PATH, file_id),
             self._sdk_authorization())
