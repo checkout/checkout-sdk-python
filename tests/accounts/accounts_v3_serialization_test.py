@@ -16,6 +16,7 @@ from checkout_sdk.accounts.accounts import (
     TaxVerification, TaxVerificationType, FinancialVerification, FinancialVerificationType,
     RepresentativeDocuments, CertifiedAuthorisedSignatory, CertifiedAuthorisedSignatoryType,
     ProofOfResidentialAddress, ProofOfResidentialAddressType, ProofOfRegistration, ProofOfRegistrationType,
+    FilePurpose,
 )
 
 
@@ -415,6 +416,28 @@ class TestAccountsV3Serialization:
         assert result['identity_verification']['back'] == 'file_identity_back'
         assert result['articles_of_association'] == {
             'type': 'articles_of_association', 'front': 'file_articles_of_association'
+        }
+
+    # POST /entities/{entity_id}/files sends the purpose's value on the wire; the first fourteen are
+    # the PlatformsFileUpload enum, the last two are not accepted by that endpoint.
+    def test_file_purpose_enum_values(self):
+        assert {p.name: p.value for p in FilePurpose} == {
+            'ADDITIONAL_DOCUMENT': 'additional_document',
+            'ARTICLES_OF_ASSOCIATION': 'articles_of_association',
+            'BANK_VERIFICATION': 'bank_verification',
+            'CERTIFIED_AUTHORISED_SIGNATORY': 'certified_authorised_signatory',
+            'COMPANY_OWNERSHIP': 'company_ownership',
+            'IDENTITY_VERIFICATION': 'identity_verification',
+            'COMPANY_VERIFICATION': 'company_verification',
+            'FINANCIAL_VERIFICATION': 'financial_verification',
+            'TAX_VERIFICATION': 'tax_verification',
+            'PROOF_OF_LEGALITY': 'proof_of_legality',
+            'PROOF_OF_PRINCIPAL_ADDRESS': 'proof_of_principal_address',
+            'SHAREHOLDER_STRUCTURE': 'shareholder_structure',
+            'PROOF_OF_RESIDENTIAL_ADDRESS': 'proof_of_residential_address',
+            'PROOF_OF_REGISTRATION': 'proof_of_registration',
+            'IDENTIFICATION': 'identification',
+            'DISPUTE_EVIDENCE': 'dispute_evidence',
         }
 
     def test_entity_roles_enum_values(self):

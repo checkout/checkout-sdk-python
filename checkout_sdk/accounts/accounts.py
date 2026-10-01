@@ -124,7 +124,12 @@ class Profile:
 
 
 class EntityDocument:
+    """Deprecated: not defined by any Accounts API onboarding schema. Referenced only by
+    Company.document and EntityFinancialDocuments, both deprecated; retained so existing code keeps
+    working."""
+    # Deprecated: see the class docstring.
     file_id: str
+    # Deprecated: see the class docstring.
     type: str
 
 
@@ -160,12 +165,26 @@ class EntityIdentification:
 
 
 class DateOfBirth:
+    """The date of birth of the person according to the Gregorian calendar."""
+    # The calendar day of the month they were born.
+    # [Required]
+    # min 1, max 31
     day: int
+    # The month of the year they were born.
+    # [Required]
+    # min 1, max 12
     month: int
+    # The year they were born.
+    # [Required]
+    # min 1900, max 2999
     year: int
 
 
 class PlaceOfBirth:
+    """The place of birth of the person."""
+    # The country code (iso-3166-1 alpha-2).
+    # [Required]
+    # Format: iso-3166-1-alpha-2
     country: Country
 
 
@@ -471,6 +490,9 @@ class RepresentativeDocuments:
     EEA, GB and US Company Full (3.0) variants accept identity_verification and
     certified_authorised_signatory, both optional.
 
+    The v2.0 company representatives use this class too, with identity_verification only; on v2.0
+    the object is not strict.
+
     Leave an attribute unset rather than assigning None: an attribute set to None is sent as null.
     """
     # The document to use to confirm the individual's identity.
@@ -577,7 +599,8 @@ class EntityRepresentative:
     ownership_percentage: int
     # Verification documents for the individual representative. See RepresentativeDocuments: the API
     # validates this object strictly and rejects any key other than its four.
-    # [Required] for the EEA, GB and US Sole Trader Full (3.0) variants; [Optional] otherwise.
+    # [Required] for the EEA, GB and US Sole Trader Full (3.0) variants and EEA Company Full (2.0);
+    # [Optional] otherwise.
     documents: RepresentativeDocuments
     # The controlling company, when the representative is a company rather than an individual.
     # [Required] for a controlling company representative (EEA and GB Company Full (3.0) only).
@@ -616,21 +639,50 @@ class EntityRepresentative:
 
 
 class EntityFinancialDocuments:
+    """Deprecated: not defined by any Accounts API schema. financial_details carries the three amounts
+    and the currency only. Retained so existing code keeps working."""
+    # Deprecated: see the class docstring.
     bank_statement: EntityDocument
+    # Deprecated: see the class docstring.
     financial_statement: EntityDocument
 
 
 class EntityFinancialDetails:
+    """Seller financial questions (financial_details): on the company of EEA and US Company Full and
+    Lite (2.0), and on the individual of US Sole Trader Full and Lite (2.0)."""
+    # The estimated annual processing volume. In minor units without decimals.
+    # [Required] on the Full (2.0) variants; [Optional] on the Lite (2.0) variants.
+    # min 0
     annual_processing_volume: int
+    # The expected average transaction value. In minor units without decimals.
+    # [Required] on the Full (2.0) variants; [Optional] on the Lite (2.0) variants.
+    # min 0
     average_transaction_value: int
+    # The expected highest transaction value. In minor units without decimals.
+    # [Required] on the Full (2.0) variants; [Optional] on the Lite (2.0) variants.
+    # min 0
     highest_transaction_value: int
+    # Deprecated: not defined by any Accounts API schema; the API does not read it. Supporting
+    # documents go on the top-level request documents (OnboardSubEntityDocuments) instead.
     documents: EntityFinancialDocuments
+    # The currency used for the financial details provided.
+    # [Required] on US Company Full and US Sole Trader Full (2.0); [Optional] on the other variants.
     currency: Currency
 
 
 class DateOfIncorporation:
+    """The date the company was incorporated, or the date the sole trader started trading."""
+    # The day of the month the company was incorporated.
+    # [Optional]
+    # min 1, max 31
     day: int
+    # The month the company was incorporated.
+    # [Required]
+    # min 1, max 12
     month: int
+    # The year the company was incorporated.
+    # [Required]
+    # min 1500, max 2999
     year: int
 
 
@@ -983,13 +1035,18 @@ class ReserveRuleRequest:
 
 
 class FilePurpose(str, Enum):
+    """The purpose of a sub-entity file upload (POST /entities/{entity_id}/files). The fourteen values
+    the endpoint accepts (PlatformsFileUpload), plus two that it does not, noted below."""
     ADDITIONAL_DOCUMENT = 'additional_document'
     ARTICLES_OF_ASSOCIATION = 'articles_of_association'
     BANK_VERIFICATION = 'bank_verification'
     CERTIFIED_AUTHORISED_SIGNATORY = 'certified_authorised_signatory'
     COMPANY_OWNERSHIP = 'company_ownership'
+    # Not an onboarding upload purpose: not among the values PlatformsFileUpload defines. Use
+    # IDENTITY_VERIFICATION.
     IDENTIFICATION = 'identification'
     IDENTITY_VERIFICATION = 'identity_verification'
+    # Not an onboarding upload purpose: POST /entities/{entity_id}/files does not accept it.
     DISPUTE_EVIDENCE = 'dispute_evidence'
     COMPANY_VERIFICATION = 'company_verification'
     FINANCIAL_VERIFICATION = 'financial_verification'
@@ -1002,6 +1059,9 @@ class FilePurpose(str, Enum):
 
 
 class EntityFileRequest:
+    """The request body of POST /entities/{entity_id}/files (PlatformsFileUpload)."""
+    # The purpose of the file upload: the onboarding document the file is for.
+    # [Required]
     purpose: FilePurpose
 
 

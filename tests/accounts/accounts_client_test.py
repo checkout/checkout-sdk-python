@@ -139,7 +139,7 @@ class TestAccountsClient:
     def test_should_upload_entity_file(self, mocker, client: AccountsClient):
         mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
         body = EntityFileRequest()
-        body.purpose = FilePurpose.IDENTIFICATION
+        body.purpose = FilePurpose.IDENTITY_VERIFICATION
 
         assert client.upload_entity_file('entity_id', body) == 'response'
         assert_api_call(mock, 'entities/entity_id/files', body)
