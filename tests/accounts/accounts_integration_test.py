@@ -11,10 +11,11 @@ from checkout_sdk.accounts.accounts import OnboardEntityRequest, ContactDetails,
     DateOfBirth, Identification, EntityEmailAddresses, Company, EntityRepresentative, PaymentInstrumentRequest, \
     InstrumentDocument, InstrumentDetailsFasterPayments, ReserveRuleRequest, RollingReserveRule, \
     HoldingDuration, EntityFileRequest, FilePurpose, RepresentativeIndividual, PlaceOfBirth, EntityRoles, \
-    CompanyPosition, BusinessType, DateOfIncorporation, ProcessingDetails, ProcessingDetailsPayments, \
-    ProcessingDetailsAch
+    BusinessType, DateOfIncorporation, ProcessingDetails, ProcessingDetailsPayments, \
+    ProcessingDetailsAch, RepresentativeDocuments, EntityIdentificationDocument, CertifiedAuthorisedSignatory, \
+    CertifiedAuthorisedSignatoryType
 from checkout_sdk.common.common import Phone
-from checkout_sdk.common.enums import Currency, Country, InstrumentType
+from checkout_sdk.common.enums import Currency, Country, InstrumentType, DocumentType
 from checkout_sdk.files.files import FileRequest
 from checkout_sdk.oauth_scopes import OAuthScopes
 from tests.checkout_test_utils import assert_response, phone, address, new_uuid, get_project_root, random_email
@@ -96,70 +97,8 @@ def test_should_create_get_and_update_onboard_entity(accounts_checkout_api):
     assert create_entity_response.id == update_response.id
 
 
-@pytest.mark.skip(reason='Schema 3.0 onboarding pending sandbox account currency-scope confirmation')
 def test_should_onboard_company_v3(accounts_checkout_api):
-    entity_request = OnboardEntityRequest()
-    entity_request.reference = new_uuid()[:14]
-
-    # v3.0: phone.country_code is an ISO 3166-1 alpha-2 code (finding 3), not a dialing code
-    entity_request.contact_details = ContactDetails()
-    v3_phone = Phone()
-    v3_phone.country_code = 'GB'
-    v3_phone.number = '2072343000'
-    entity_request.contact_details.phone = v3_phone
-    entity_request.contact_details.email_addresses = EntityEmailAddresses()
-    entity_request.contact_details.email_addresses.primary = random_email()
-
-    # v3.0: profile currencies are validated against the platform scope (finding 4)
-    entity_request.profile = Profile()
-    entity_request.profile.urls = ['https://www.superheroexample.com']
-    entity_request.profile.mccs = ['0742']
-    entity_request.profile.default_holding_currency = Currency.USD
-    entity_request.profile.holding_currencies = [Currency.USD]
-
-    entity_request.company = Company()
-    entity_request.company.legal_name = 'Super Hero Masks Inc.'
-    entity_request.company.trading_name = 'Super Hero Masks'
-    entity_request.company.business_registration_number = '01234567'
-    entity_request.company.business_type = BusinessType.LIMITED_COMPANY
-    entity_request.company.principal_address = address()
-    entity_request.company.registered_address = address()
-    entity_request.company.date_of_incorporation = DateOfIncorporation()
-    entity_request.company.date_of_incorporation.day = 1
-    entity_request.company.date_of_incorporation.month = 6
-    entity_request.company.date_of_incorporation.year = 2010
-
-    # v3.0: representative is a "person of interest" with a nested individual + roles (finding 2)
-    representative = EntityRepresentative()
-    representative.roles = [EntityRoles.UBO, EntityRoles.AUTHORISED_SIGNATORY]
-    representative.company_position = CompanyPosition.CEO
-    representative.ownership_percentage = 100
-    representative.individual = RepresentativeIndividual()
-    representative.individual.first_name = 'John'
-    representative.individual.last_name = 'Doe'
-    representative.individual.national_id_number = 'AB123456C'
-    representative.individual.email_address = random_email()
-    representative.individual.address = address()
-    representative.individual.date_of_birth = DateOfBirth()
-    representative.individual.date_of_birth.day = 5
-    representative.individual.date_of_birth.month = 6
-    representative.individual.date_of_birth.year = 1996
-    representative.individual.place_of_birth = PlaceOfBirth()
-    representative.individual.place_of_birth.country = Country.GB
-    entity_request.company.representatives = [representative]
-
-    # v3.0: processing currency reflects the sub-entity region and can differ from profile scope (finding 4)
-    entity_request.processing_details = ProcessingDetails()
-    entity_request.processing_details.settlement_country = 'GB'
-    entity_request.processing_details.target_countries = ['GB']
-    entity_request.processing_details.annual_processing_volume = 1000000
-    entity_request.processing_details.average_transaction_value = 5000
-    entity_request.processing_details.highest_transaction_value = 25000
-    entity_request.processing_details.currency = Currency.GBP
-    entity_request.processing_details.payments = ProcessingDetailsPayments()
-    entity_request.processing_details.payments.ach = ProcessingDetailsAch()
-    entity_request.processing_details.payments.ach.annual_ach_volume = 1000000
-    entity_request.processing_details.payments.ach.average_ach_transaction_size = 5000
+    entity_request = build_company_v3_request()
 
     # default schema_version is 3.0
     create_response = accounts_checkout_api.accounts.create_entity(entity_request)
@@ -167,6 +106,56 @@ def test_should_onboard_company_v3(accounts_checkout_api):
 
     get_response = accounts_checkout_api.accounts.get_entity(create_response.id)
     assert_response(get_response, 'id', 'reference', 'company', 'company.representatives')
+
+
+# The representative's documents on schema 3.0. The sandbox platform resolves to a company variant
+# (GB/US scope, USD only), where identity_verification and certified_authorised_signatory are the
+# representative documents the API accepts; the EEA Sole Trader keys are covered by
+# accounts_v3_serialization_test, since this platform rejects them.
+def test_should_onboard_entity_with_representative_documents(accounts_checkout_api):
+    identity_file = upload_file(accounts_checkout_api, 'identity_verification')
+    signatory_file = upload_file(accounts_checkout_api, 'certified_authorised_signatory')
+
+    identity = EntityIdentificationDocument()
+    identity.type = DocumentType.PASSPORT
+    identity.front = identity_file.id
+    signatory = CertifiedAuthorisedSignatory()
+    signatory.type = CertifiedAuthorisedSignatoryType.POWER_OF_ATTORNEY
+    signatory.front = signatory_file.id
+    documents = RepresentativeDocuments()
+    documents.identity_verification = identity
+    documents.certified_authorised_signatory = signatory
+
+    entity_request = build_company_v3_request()
+    entity_request.company.representatives[0].documents = documents
+
+    create_response = accounts_checkout_api.accounts.create_entity(entity_request)
+    assert_response(create_response, 'id')
+
+    # The documents are linked on the representative, not dropped: the API echoes them back.
+    get_response = accounts_checkout_api.accounts.get_entity(create_response.id)
+    linked = get_response.company.representatives[0].documents
+    assert linked.identity_verification.type == 'passport'
+    assert linked.identity_verification.front == identity_file.id
+    assert linked.certified_authorised_signatory.type == 'power_of_attorney'
+    assert linked.certified_authorised_signatory.front == signatory_file.id
+
+
+# The two EEA Sole Trader representative documents need their own upload purposes before they can
+# be linked. Goes through POST /entities/{id}/files, the endpoint whose request schema
+# (PlatformsFileUpload) defines the purpose enum.
+def test_should_upload_representative_proof_files(accounts_checkout_api):
+    entity_id = accounts_checkout_api.accounts.create_entity(build_company_v3_request()).id
+
+    for purpose in (FilePurpose.PROOF_OF_RESIDENTIAL_ADDRESS, FilePurpose.PROOF_OF_REGISTRATION):
+        request = EntityFileRequest()
+        request.purpose = purpose
+        upload_response = accounts_checkout_api.accounts.upload_entity_file(entity_id, request)
+        assert_response(upload_response, 'id', '_links')
+
+        retrieve_response = accounts_checkout_api.accounts.retrieve_entity_file(entity_id, upload_response.id)
+        assert_response(retrieve_response, 'id', 'purpose')
+        assert retrieve_response.purpose == purpose.value
 
 
 def test_should_upload_file(accounts_checkout_api):
@@ -345,18 +334,12 @@ def test_update_reserve_rule_should_return_valid_response(accounts_checkout_api)
     assert response.id == create_response.id
 
 
-@pytest.mark.skip(
-    reason='sandbox rejects POST accounts/entities with 422 for the individual v2 '
-           'entity this test builds. The company v3 path still passes - see '
-           'test_should_onboard_company_v3. Unrelated to the instruments work; needs '
-           'an accounts-owned fix to the entity payload. Same breakage as '
-           'checkout-sdk-ruby.'
-)
 def test_should_upload_entity_file_and_retrieve(accounts_checkout_api):
-    entity_id = create_test_entity(accounts_checkout_api)
+    # A schema 3.0 entity: the sandbox rejects the schema 2.0 one create_test_entity builds.
+    entity_id = accounts_checkout_api.accounts.create_entity(build_company_v3_request()).id
 
     request = EntityFileRequest()
-    request.purpose = FilePurpose.IDENTIFICATION
+    request.purpose = FilePurpose.IDENTITY_VERIFICATION
 
     upload_response = accounts_checkout_api.accounts.upload_entity_file(entity_id, request)
 
@@ -372,13 +355,75 @@ def test_should_upload_entity_file_and_retrieve(accounts_checkout_api):
 
 
 # Common methods
-def upload_file(api):
+def upload_file(api, purpose='bank_verification'):
     request = FileRequest()
     request.file = os.path.join(get_project_root(), 'tests', 'resources', 'checkout.jpeg')
-    request.purpose = 'bank_verification'
+    request.purpose = purpose
     response = api.accounts.upload_file(request)
     assert_response(response, 'id', '_links')
     return response
+
+
+# A schema 3.0 company request the sandbox platform accepts: every currency sits inside its USD-only
+# currency scope, including the processing details currency.
+def build_company_v3_request():
+    entity_request = OnboardEntityRequest()
+    entity_request.reference = new_uuid()[:14]
+
+    entity_request.contact_details = ContactDetails()
+    v3_phone = Phone()
+    v3_phone.country_code = 'GB'
+    v3_phone.number = '2072343000'
+    entity_request.contact_details.phone = v3_phone
+    entity_request.contact_details.email_addresses = EntityEmailAddresses()
+    entity_request.contact_details.email_addresses.primary = random_email()
+
+    entity_request.profile = Profile()
+    entity_request.profile.urls = ['https://www.example-test-entity.com']
+    entity_request.profile.mccs = ['0742']
+    entity_request.profile.default_holding_currency = Currency.USD
+    entity_request.profile.holding_currencies = [Currency.USD]
+
+    entity_request.company = Company()
+    entity_request.company.legal_name = 'Test Sub-Entity Company Inc.'
+    entity_request.company.trading_name = 'Test Sub-Entity Trading'
+    entity_request.company.business_registration_number = '01234567'
+    entity_request.company.business_type = BusinessType.LIMITED_COMPANY
+    entity_request.company.principal_address = address()
+    entity_request.company.registered_address = address()
+    entity_request.company.date_of_incorporation = DateOfIncorporation()
+    entity_request.company.date_of_incorporation.day = 1
+    entity_request.company.date_of_incorporation.month = 6
+    entity_request.company.date_of_incorporation.year = 2010
+
+    representative = EntityRepresentative()
+    representative.roles = [EntityRoles.UBO, EntityRoles.AUTHORISED_SIGNATORY, EntityRoles.DIRECTOR,
+                            EntityRoles.CONTROL_PERSON]
+    representative.individual = RepresentativeIndividual()
+    representative.individual.first_name = 'John'
+    representative.individual.last_name = 'Representative'
+    representative.individual.address = address()
+    representative.individual.date_of_birth = DateOfBirth()
+    representative.individual.date_of_birth.day = 5
+    representative.individual.date_of_birth.month = 6
+    representative.individual.date_of_birth.year = 1996
+    representative.individual.place_of_birth = PlaceOfBirth()
+    representative.individual.place_of_birth.country = Country.GB
+    entity_request.company.representatives = [representative]
+
+    entity_request.processing_details = ProcessingDetails()
+    entity_request.processing_details.target_countries = ['GB']
+    entity_request.processing_details.annual_processing_volume = 1000000
+    entity_request.processing_details.average_transaction_value = 5000
+    entity_request.processing_details.average_order_fulfillment_time = 3
+    entity_request.processing_details.currency = Currency.USD
+    entity_request.processing_details.payments = ProcessingDetailsPayments()
+    entity_request.processing_details.payments.ach = ProcessingDetailsAch()
+    entity_request.processing_details.payments.ach.annual_ach_volume = 1000000
+    entity_request.processing_details.payments.ach.average_ach_transaction_size = 5000
+    entity_request.processing_details.payments.ach.estimated_monthly_credit_volume = 100000
+    entity_request.processing_details.payments.ach.average_credit_amount = 5000
+    return entity_request
 
 
 def create_test_entity(api):
