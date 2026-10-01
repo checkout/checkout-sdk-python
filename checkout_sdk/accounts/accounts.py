@@ -644,9 +644,12 @@ class Company:
     # variants. Not part of the sole trader variants.
     # The format depends on the variant:
     #   EEA: min 2 characters, max 39 characters; a SIRET number for sub-entities based in France.
-    #   GB (3.0): a Companies House number,
-    #   ^(((AC|CE|CS|FC|FE|GE|GS|IC|LP|NC|NF|NI|NL|NO|NP|OC|OE|PC|R0|RC|SA|SC|SE|SF|SG|SI|SL|SO|SR|SZ|ZC|\d{2})\d{6})|((IP|SP|RS)[A-Z\d]{6})|(SL\d{5}[\dA]))$,
-    #   8 characters. GB (2.0) accepts the same pattern case-insensitively.
+    #   GB (3.0): a Companies House number, 8 characters, matching one of the three alternatives of
+    #   the spec's pattern, ^(A|B|C)$:
+    #     A: ((AC|CE|CS|FC|FE|GE|GS|IC|LP|NC|NF|NI|NL|NO|NP|OC|OE|PC|R0|RC|SA|SC|SE|SF|SG|SI|SL|SO|SR|SZ|ZC|\d{2})\d{6})
+    #     B: ((IP|SP|RS)[A-Z\d]{6})
+    #     C: (SL\d{5}[\dA])
+    #   GB (2.0) accepts the same pattern case-insensitively.
     #   US: an Employer Identification Number (EIN), ^[0-9]{9}$, 9 characters; US ISV Seller Company
     #   (3.0) also accepts the hyphenated form, ^[0-9]{2}-?[0-9]{7}$, min 9 characters, max 11.
     business_registration_number: str
