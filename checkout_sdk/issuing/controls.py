@@ -75,7 +75,7 @@ class MccControlRequest(CardControlRequest):
 
 # Parallel hierarchy for controls declared INLINE on VirtualCardRequest.controls.
 # The standalone POST /issuing/controls endpoint requires target_id (a separate
-# card to attach the control to). The inline variant does NOT — the card being
+# card to attach the control to). The inline variant does NOT: the card being
 # created is the implicit target. Reusing CardControlRequest here would let
 # callers set target_id on the wire, which the API ignores or rejects. These
 # classes prevent that misuse at the type level.

@@ -8,17 +8,19 @@ import pytest
 
 from checkout_sdk import CheckoutSdk
 from checkout_sdk.accounts.accounts import OnboardEntityRequest, ContactDetails, Profile, Individual, \
-    DateOfBirth, Identification, EntityEmailAddresses, Company, EntityRepresentative, PaymentInstrumentRequest, \
+    DateOfBirth, Identification, EntityIdentification, EntityEmailAddresses, Company, EntityRepresentative, \
+    PaymentInstrumentRequest, \
     InstrumentDocument, InstrumentDetailsFasterPayments, ReserveRuleRequest, RollingReserveRule, \
     HoldingDuration, EntityFileRequest, FilePurpose, RepresentativeIndividual, PlaceOfBirth, EntityRoles, \
     BusinessType, DateOfIncorporation, ProcessingDetails, ProcessingDetailsPayments, \
     ProcessingDetailsAch, RepresentativeDocuments, EntityIdentificationDocument, CertifiedAuthorisedSignatory, \
-    CertifiedAuthorisedSignatoryType
+    CertifiedAuthorisedSignatoryType, InstrumentDetailsAch, InstrumentAccountType, UpdatePaymentInstrumentRequest, \
+    Headers
 from checkout_sdk.common.common import Phone
 from checkout_sdk.common.enums import Currency, Country, InstrumentType, DocumentType
 from checkout_sdk.files.files import FileRequest
 from checkout_sdk.oauth_scopes import OAuthScopes
-from tests.checkout_test_utils import assert_response, phone, address, new_uuid, get_project_root, random_email
+from tests.checkout_test_utils import assert_response, address, new_uuid, get_project_root, random_email
 
 
 @pytest.fixture(scope='class')
@@ -49,7 +51,7 @@ def test_should_create_get_and_update_onboard_entity(accounts_checkout_api):
     email_addresses = EntityEmailAddresses()
     email_addresses.primary = random_email()
     onboard_entity_request.contact_details = ContactDetails()
-    onboard_entity_request.contact_details.phone = phone()
+    onboard_entity_request.contact_details.phone = build_v2_phone()
     onboard_entity_request.contact_details.email_addresses = email_addresses
     onboard_entity_request.profile = Profile()
     onboard_entity_request.profile.urls = ['https://www.superheroexample.com']
@@ -59,13 +61,12 @@ def test_should_create_get_and_update_onboard_entity(accounts_checkout_api):
     onboard_entity_request.individual.last_name = 'Wayne'
     onboard_entity_request.individual.trading_name = "Batman's Super Hero Masks"
     onboard_entity_request.individual.registered_address = address()
-    onboard_entity_request.individual.national_tax_id = 'TAX123456'
     onboard_entity_request.individual.date_of_birth = DateOfBirth()
     onboard_entity_request.individual.date_of_birth.day = 5
     onboard_entity_request.individual.date_of_birth.month = 6
     onboard_entity_request.individual.date_of_birth.year = 1996
     onboard_entity_request.individual.identification = Identification()
-    onboard_entity_request.individual.identification.national_id_number = 'AB123456C'
+    onboard_entity_request.individual.identification.national_id_number = '123456789'
 
     # v2.0 payload (top-level individual) — pin to schema_version 2.0 (SDK now defaults to 3.0)
     create_entity_response = accounts_checkout_api.accounts.create_entity(onboard_entity_request, '2.0')
@@ -84,8 +85,7 @@ def test_should_create_get_and_update_onboard_entity(accounts_checkout_api):
                     'individual',
                     'individual.first_name',
                     'individual.last_name',
-                    'individual.trading_name',
-                    'individual.national_tax_id')
+                    'individual.trading_name')
 
     onboard_entity_request.individual.first_name = 'John'
 
@@ -173,7 +173,7 @@ def test_should_create_and_retrieve_payment_instrument(accounts_checkout_api):
     entity_request = OnboardEntityRequest()
     entity_request.reference = new_uuid()[:14]
     entity_request.contact_details = ContactDetails()
-    entity_request.contact_details.phone = phone()
+    entity_request.contact_details.phone = build_v2_phone()
     entity_request.contact_details.email_addresses = EntityEmailAddresses()
     entity_request.contact_details.email_addresses.primary = random_email()
     entity_request.profile = Profile()
@@ -189,8 +189,8 @@ def test_should_create_and_retrieve_payment_instrument(accounts_checkout_api):
     representative.first_name = 'John'
     representative.last_name = 'Doe'
     representative.address = address()
-    representative.identification = Identification()
-    representative.identification.national_id_number = 'AB123456C'
+    representative.identification = EntityIdentification()
+    representative.identification.national_id_number = '123456789'
     entity_request.company.representatives = [representative]
 
     # v2.0 payload (flat representative) — pin to schema_version 2.0
@@ -354,6 +354,42 @@ def test_should_upload_entity_file_and_retrieve(accounts_checkout_api):
     assert retrieve_response.id == file_id
 
 
+def test_should_update_payment_instrument_with_etag(accounts_checkout_api):
+    # The update only succeeds when the ETag reaches the API as the If-Match HTTP header: a request
+    # without it fails with 428, and one with a stale ETag with 412.
+    entity_id = accounts_checkout_api.accounts.create_entity(build_company_v3_request()).id
+    file = upload_file(accounts_checkout_api)
+
+    instrument_request = PaymentInstrumentRequest()
+    instrument_request.label = 'Main account'
+    instrument_request.type = InstrumentType.BANK_ACCOUNT
+    instrument_request.currency = Currency.USD
+    instrument_request.country = Country.US
+    instrument_request.document = InstrumentDocument()
+    instrument_request.document.type = 'bank_statement'
+    instrument_request.document.file_id = file.id
+    instrument_request.instrument_details = InstrumentDetailsAch()
+    instrument_request.instrument_details.account_number = '123456789'
+    instrument_request.instrument_details.routing_number = '026009593'
+    # The sandbox rejects checking (instrument_details_account_type_invalid), although the spec lists it.
+    instrument_request.instrument_details.account_type = InstrumentAccountType.SAVINGS
+    instrument_id = accounts_checkout_api.accounts.add_payment_instrument(entity_id, instrument_request).id
+
+    details = accounts_checkout_api.accounts.retrieve_payment_instrument_details(entity_id, instrument_id)
+    etag = {k.lower(): v for k, v in details.http_metadata.headers.items()}['etag']
+
+    update_request = UpdatePaymentInstrumentRequest()
+    update_request.label = 'Renamed account'
+    update_request.headers = Headers()
+    update_request.headers.if_match = etag
+    update_response = accounts_checkout_api.accounts.update_payment_instrument(entity_id, instrument_id,
+                                                                               update_request)
+
+    assert update_response.id == instrument_id
+    updated = accounts_checkout_api.accounts.retrieve_payment_instrument_details(entity_id, instrument_id)
+    assert updated.label == 'Renamed account'
+
+
 # Common methods
 def upload_file(api, purpose='bank_verification'):
     request = FileRequest()
@@ -452,10 +488,18 @@ def create_test_entity(api):
 
 def build_contact_details():
     contact_details = ContactDetails()
-    contact_details.phone = phone()
+    contact_details.phone = build_v2_phone()
     contact_details.email_addresses = EntityEmailAddresses()
     contact_details.email_addresses.primary = random_email()
     return contact_details
+
+
+# The v2.0 contact phone takes a number only, with no country_code. The value fits the EEA and GB
+# pattern (^[1-9][0-9]{7,15}$) and the US one (^[2-9]{1}[0-9]{9,15}$).
+def build_v2_phone():
+    v2_phone = Phone()
+    v2_phone.number = '2072343000'
+    return v2_phone
 
 
 def build_profile():

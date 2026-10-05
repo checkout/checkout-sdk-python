@@ -7,12 +7,15 @@ from checkout_sdk.common.enums import Currency, InstrumentType, Country, Account
 
 
 class ScheduleFrequency(str, Enum):
+    """How often funds are paid out to a sub-entity: the recurrence.frequency of a payout schedule."""
     WEEKLY = 'weekly'
     DAILY = 'daily'
     MONTHLY = 'monthly'
 
 
 class DaySchedule(str, Enum):
+    """The days of the week a weekly payout can take place on (by_day). For ISV (SaaS seller)
+    sub-entities, only monday to friday are accepted."""
     MONDAY = 'monday'
     TUESDAY = 'tuesday'
     WEDNESDAY = 'wednesday'
@@ -23,6 +26,9 @@ class DaySchedule(str, Enum):
 
 
 class BusinessType(str, Enum):
+    """The legal type of the company (company.business_type). The union of the values every variant
+    accepts; each variant accepts a subset, and the sole trader variants accept
+    individual_or_sole_proprietorship only."""
     INDIVIDUAL_OR_SOLE_PROPRIETORSHIP = 'individual_or_sole_proprietorship'
     GENERAL_PARTNERSHIP = 'general_partnership'
     LIMITED_PARTNERSHIP = 'limited_partnership'
@@ -45,6 +51,9 @@ class BusinessType(str, Enum):
 
 
 class EntityRoles(str, Enum):
+    """The roles of a representative within the company (representatives[].roles). Each variant
+    accepts a subset: director on GB Company Full (3.0) only; legal_representative on the EEA
+    Company variants only; ubo only on the sole trader variants."""
     UBO = 'ubo'
     LEGAL_REPRESENTATIVE = 'legal_representative'
     AUTHORISED_SIGNATORY = 'authorised_signatory'
@@ -53,6 +62,8 @@ class EntityRoles(str, Enum):
 
 
 class CompanyPosition(str, Enum):
+    """The position of a representative within the company (representatives[].company_position), on
+    EEA, GB and US Company Full (3.0) and US ISV Seller Company (3.0)."""
     CEO = 'ceo'
     CFO = 'cfo'
     COO = 'coo'
@@ -67,6 +78,8 @@ class CompanyPosition(str, Enum):
 
 
 class NationalIdType(str, Enum):
+    """The classification of a representative's national identification number
+    (individual.national_id_type), US ISV Seller variants (3.0) only."""
     SSN = 'ssn'
     ITIN = 'itin'
     PASSPORT = 'passport'
@@ -79,16 +92,21 @@ class NationalIdType(str, Enum):
 class EntityEmailAddresses:
     """Email addresses for this sub-entity."""
     # The main email address for this sub-entity.
-    # [Required]
+    # [Required] in every variant that takes email_addresses.
     # Format: email
     primary: str
+    # The email address of the person responsible for PCI compliance at this sub-entity.
+    # [Required] for the US ISV Seller variants (3.0), together with primary; not part of the other variants.
+    # Format: email
+    pci_compliance_contact: str
 
 
 class Invitee:
     """The details of the user responsible for onboarding the sub-entity."""
-    # The main email address for this sub-entity. Despite the spec's wording, this is the address of
-    # the invitee, the user responsible for onboarding the sub-entity.
-    # [Optional]
+    # The email of the user responsible for onboarding the sub-entity. The full onboarding variants
+    # describe it as the main email address for this sub-entity, but it is the invitee's address.
+    # [Required] in the hosted onboarding invite request; [Optional] in the Full and Lite onboarding
+    # variants; not part of the US ISV Seller variants.
     # Format: email
     email: str
 
@@ -112,15 +130,37 @@ class ContactDetails:
     # the other v3.0 variants.
     email_addresses: EntityEmailAddresses
     # The details of the user responsible for onboarding the sub-entity.
-    # [Optional] (not part of the US ISV Seller variants)
+    # [Required] in the hosted onboarding invite request, where it is the only contact detail; [Optional]
+    # in the Full and Lite onboarding variants; not part of the US ISV Seller variants.
     invitee: Invitee
 
 
 class Profile:
-    urls: list
-    mccs: list
+    """Information about the profile of the sub-entity, primarily regarding the products and services
+    offered."""
+    # A collection of website URLs the sub-entity accepts payments on (str items).
+    # [Required]
+    # max 100 items; each item Format: uri, ^(http|https):\/\/\S{2,293}$, min 4 characters, max 300
+    # characters
+    urls: list  # str
+    # The merchant category codes that most closely describe the business (str items).
+    # [Required]
+    # min 1 item, max 5 items; each item ^[0-9]{4}$
+    mccs: list  # str
+    # The default holding currency's three-letter ISO 4217 code.
+    # [Required] for every v3.0 variant; [Optional] for the v2.0 Full variants; not part of the v2.0
+    # Lite variants.
+    # Format: iso-4217. On the US ISV Seller variants (3.0), USD only.
     default_holding_currency: Currency
-    holding_currencies: list
+    # The currencies in which incoming funds are held (Currency items).
+    # [Required] for every v3.0 variant; [Optional] for the v2.0 Full variants; not part of the v2.0
+    # Lite variants.
+    # min 1 item on v3.0. Enum per variant:
+    #   GB (3.0): AED, AUD, CAD, CHF, CZK, DKK, EUR, GBP, HKD, JPY, KWD, NOK, NZD, PLN, RON, SEK, SGD,
+    #   USD, ZAR
+    #   EEA (3.0) and EEA Company Full (2.0): the GB (3.0) list without KWD
+    #   US and US ISV Seller (3.0): USD
+    holding_currencies: list  # Currency
 
 
 class EntityDocument:
@@ -483,15 +523,19 @@ class RepresentativeDocuments:
     """Verification documents for an individual representative, sent as
     company.representatives[].documents (Accounts API v3.0).
 
-    The API validates this object strictly: a key it does not recognise is rejected, not ignored.
-    These four are the only keys it accepts, and which apply depends on the onboarding variant:
-    EEA Sole Trader Full (3.0) requires identity_verification, proof_of_residential_address and
-    proof_of_registration; GB and US Sole Trader Full (3.0) require identity_verification; the
-    EEA, GB and US Company Full (3.0) variants accept identity_verification and
-    certified_authorised_signatory, both optional.
+    These four are the only keys any variant defines, and which apply depends on the onboarding
+    variant: EEA Sole Trader Full (3.0) requires identity_verification, proof_of_residential_address
+    and proof_of_registration; GB and US Sole Trader Full (3.0) require identity_verification; the
+    EEA, GB and US Company Full (3.0) variants (person of interest) and US ISV Seller Company (3.0)
+    accept identity_verification and certified_authorised_signatory, both optional; US ISV Seller
+    Sole Trader (3.0) accepts identity_verification, optional.
 
-    The v2.0 company representatives use this class too, with identity_verification only; on v2.0
-    the object is not strict.
+    The API validates this object strictly (additionalProperties false), rejecting a key it does not
+    recognise rather than ignoring it, only on the EEA, GB and US Company Full (3.0) person of
+    interest and the EEA, GB and US Sole Trader Full (3.0) variants. It is not strict on the US ISV
+    Seller variants (3.0) nor on v2.0.
+
+    The v2.0 company representatives use this class too, with identity_verification only.
 
     Leave an attribute unset rather than assigning None: an attribute set to None is sent as null.
     """
@@ -500,7 +544,7 @@ class RepresentativeDocuments:
     identity_verification: EntityIdentificationDocument
     # Certified authorised signatory document. Required when the legal representative or other role
     # owner is not registered on the certificate of incorporation.
-    # [Optional] (company full variants only)
+    # [Optional] (EEA, GB and US Company Full (3.0) and US ISV Seller Company (3.0) only)
     certified_authorised_signatory: CertifiedAuthorisedSignatory
     # Proof of residential address of the representative.
     # [Optional] (required for EEA Sole Trader Full (3.0), and only valid there)
@@ -597,8 +641,10 @@ class EntityRepresentative:
     # min 25, max 100 on the EEA, GB and US Company Full (3.0) variants; min 0, max 100 on the US ISV
     # Seller variants
     ownership_percentage: int
-    # Verification documents for the individual representative. See RepresentativeDocuments: the API
-    # validates this object strictly and rejects any key other than its four.
+    # Verification documents for the individual representative. See RepresentativeDocuments: on the
+    # EEA, GB and US Company Full (3.0) person of interest and the EEA, GB and US Sole Trader Full
+    # (3.0) variants the API validates this object strictly and rejects any key the variant does not
+    # define; on the US ISV Seller variants (3.0) and v2.0 it is not strict.
     # [Required] for the EEA, GB and US Sole Trader Full (3.0) variants and EEA Company Full (2.0);
     # [Optional] otherwise.
     documents: RepresentativeDocuments
@@ -607,7 +653,7 @@ class EntityRepresentative:
     # The API reads only three attributes here, all [Required]: legal_name, trading_name and
     # registered_address. Leave the other Company attributes unset.
     company: 'Company'
-    # v2.0 only — deprecated; use `individual` for v3.0
+    # v2.0 only, deprecated; use `individual` for v3.0
     # The representative's first name.
     # [Required] (v2.0)
     # min 2 characters, max 50 characters
@@ -808,42 +854,116 @@ class Individual:
 
 
 class ProcessingDetailsAch:
+    """ACH payment processing details (processing_details.payments.ach), US ISV Seller variants (3.0)
+    only."""
+    # The estimated annual ACH processing volume in minor units without decimals.
+    # [Required]
+    # min 0
     annual_ach_volume: int
+    # The expected average ACH transaction size in minor units without decimals.
+    # [Required]
+    # min 0
     average_ach_transaction_size: int
+    # The estimated monthly volume of ACH credit transactions (for example, refunds issued to
+    # customers) in minor units without decimals.
+    # [Required]
+    # min 0
     estimated_monthly_credit_volume: int
+    # The average value of an ACH credit transaction (for example, a refund) in minor units without
+    # decimals.
+    # [Required]
+    # min 0
     average_credit_amount: int
 
 
 class ProcessingDetailsPayments:
+    """Payment method-specific processing details (processing_details.payments), US ISV Seller
+    variants (3.0) only."""
+    # ACH payment processing details.
+    # [Required]
     ach: ProcessingDetailsAch
 
 
 class ProcessingDetails:
+    """Information about the sub-entity's expected processing (processing_details). Part of every
+    Accounts API v3.0 variant; not part of v2.0."""
+    # The country code (iso-3166-1 alpha-2) where the settlement bank account is located.
+    # [Required] for EEA, GB and US Company and Sole Trader Full (3.0); not part of the US ISV Seller
+    # variants.
+    # Format: iso-3166-1-alpha-2
+    # [a-zA-Z]{2}
+    # 2 characters
     settlement_country: str
+    # Target country codes (iso-3166-1 alpha-2) with more than 10% expected volume processing with
+    # Checkout.com (str items).
+    # [Required]
+    # min 1 item, max 10 items; each item Format: iso-3166-1-alpha-2, [a-zA-Z]{2}, 2 characters
     target_countries: list  # str
+    # The estimated annual processing volume. In minor units without decimals.
+    # [Required]
+    # min 0
     annual_processing_volume: int
+    # The expected average transaction value. In minor units without decimals.
+    # [Required]
+    # min 0
     average_transaction_value: int
+    # The average time in days between accepting payment and fulfilling the order.
+    # [Required] for the US ISV Seller variants (3.0); not part of the other variants.
+    # min 0
     average_order_fulfillment_time: int
+    # The expected highest transaction value. In minor units without decimals.
+    # [Required] for EEA, GB and US Company and Sole Trader Full (3.0); not part of the US ISV Seller
+    # variants.
+    # min 0
     highest_transaction_value: int
+    # The currency used for the processing details provided.
+    # [Required]
+    # Enum per variant: GBP on the GB variants, EUR on the EEA variants, USD on the US and US ISV
+    # Seller variants.
     currency: Currency
+    # Payment method-specific processing details.
+    # [Required] for the US ISV Seller variants (3.0); not part of the other variants.
     payments: ProcessingDetailsPayments
 
 
 class AdditionalInfo:
+    """Deprecated: not defined by any Accounts API onboarding schema. Referenced only by
+    OnboardEntityRequest.additional_info; retained so existing code keeps working."""
+    # Deprecated: see the class docstring.
     field1: str
+    # Deprecated: see the class docstring.
     field2: str
+    # Deprecated: see the class docstring.
     field3: str
 
 
 class AgreedTerms:
+    """Details of the person (or sole trader) who agreed to the terms and conditions on behalf of the
+    sub-entity, captured as evidence of consent to Checkout.com onboarding (agreed_terms). US ISV
+    Seller variants (3.0) only."""
+    # Date and time the terms were agreed in RFC 3339 or ISO 8601 format.
+    # [Required]
+    # Format: date-time
     date: str
+    # IP address (IPv4 or IPv6) of the person at the time they agreed the terms.
+    # [Required]
     ip_address: str
+    # First and last name of the person who agreed to the terms.
+    # [Required]
     name: str
+    # Email address of the person who agreed to the terms.
+    # [Required]
+    # Format: email
     email: str
+    # Identifier of the terms version that was agreed.
+    # [Required]
     version: str
 
 
 class SchemaVersionHeader:
+    """The Accept header that selects the Accounts API payload version, for example
+    'application/json;schema_version=3.0'. Built by AccountsClient from its schema_version argument."""
+    # The Accept header value: application/json with a schema_version parameter.
     accept: str
 
     def get_header_mappings(self) -> Dict[str, str]:
@@ -853,119 +973,290 @@ class SchemaVersionHeader:
 
 
 class OnboardEntityRequest:
+    """The request body of POST /accounts/entities (onboard a sub-entity) and PUT
+    /accounts/entities/{id} (update a sub-entity). One class covers every variant the API defines:
+    the Accounts API v3.0 and v2.0 company and sole trader variants (EEA, GB and US, Full and Lite),
+    the US ISV Seller variants (3.0), and the hosted onboarding invite request, which takes only
+    reference, is_draft and contact_details (with invitee). Select the version with the
+    schema_version argument of the client method. Leave unset the attributes the chosen variant does
+    not define."""
+    # A unique reference you can later use to identify the sub-entity. Immutable after creation.
+    # [Required]
+    # min 1 character, max 50 characters
     reference: str
+    # Specifies whether the sub-entity details are in draft. Marking a sub-entity as a draft allows
+    # its details to be updated without triggering due diligence checks. On the US ISV Seller
+    # variants, POST always creates the sub-entity in Draft regardless of this field.
+    # [Required] in the hosted onboarding invite request; [Optional] in the other variants.
     is_draft: bool
+    # Information about the profile of the sub-entity, primarily regarding the products and services
+    # offered.
+    # [Required] for every variant except the hosted onboarding invite request, which does not take
+    # it.
     profile: Profile
+    # Contact details of this sub-entity.
+    # [Required] for every variant except EEA Company Full (3.0), where it is [Optional]. In the
+    # hosted onboarding invite request it carries invitee only.
     contact_details: ContactDetails
+    # Information about the company represented by the sub-entity, or about the sole trader's
+    # business on the v3.0 sole trader variants.
+    # [Required] for every company variant and every v3.0 sole trader variant, US ISV Seller
+    # included; not part of the v2.0 sole trader variants (they use individual) nor the hosted
+    # onboarding invite request.
     company: Company
+    # Information about the sub-entity's expected processing.
+    # [Required] for every v3.0 variant; not part of v2.0 nor the hosted onboarding invite request.
     processing_details: ProcessingDetails
+    # Details of the person who agreed to the terms and conditions on behalf of the sub-entity.
+    # [Required] for the US ISV Seller variants (3.0); not part of the other variants.
     agreed_terms: AgreedTerms
+    # The identifier of a seller category set up for your platform. Seller categories define the
+    # pricing, capabilities and risk profile applied to sub-entities, and are configured during your
+    # platform's onboarding with Checkout.com; contact your account manager for the list of available
+    # identifiers.
+    # [Required] for the US ISV Seller variants (3.0); not part of the other variants.
     seller_category: str
+    # The documents used to support the verification of the company or business details.
+    # [Required] for EEA, GB and US Company Full (3.0), EEA, GB and US Sole Trader Full (3.0), EEA
+    # Company Full (2.0) and EEA Sole Trader Full (2.0); [Optional] for the other variants, US ISV
+    # Seller included. Not part of the hosted onboarding invite request.
     documents: OnboardSubEntityDocuments
+    # Deprecated: not defined by any Accounts API onboarding schema. Retained so existing code keeps
+    # working; the API does not document reading it.
     additional_info: AdditionalInfo
-    # v2.0 only — deprecated; a v3.0 sole trader is onboarded as a `company` with representatives
+    # v2.0 only, deprecated; a v3.0 sole trader is onboarded as a `company` with representatives.
+    # Information about the individual represented by the sub-entity.
+    # [Required] for the six v2.0 sole trader variants (EEA, GB and US, Full and Lite); not part of
+    # the other variants.
     individual: Individual
 
 
 class InstrumentDocument:
+    """A legal document used to verify the bank account (document): on a bank_account
+    PaymentInstrumentRequest, and on the deprecated AccountsPaymentInstrument."""
+    # The document type. Enum: bank_statement.
+    # [Optional] (defaults to bank_statement)
     type: str
+    # The file ID of the uploaded document. The document must have been uploaded for the purpose of
+    # bank_verification.
+    # [Optional]
     file_id: str
 
 
 class InstrumentDetails:
-    pass
+    """Details of the payment instrument being created (instrument_details). Base class: use
+    InstrumentDetailsFasterPayments, InstrumentDetailsSepa or InstrumentDetailsAch for a bank_account
+    instrument, and InstrumentDetailsCardToken for a card_token instrument."""
 
 
 class InstrumentDetailsFasterPayments(InstrumentDetails):
+    """Faster Payments bank account details of a bank_account payment instrument."""
+    # The alphanumeric value that identifies the account.
+    # [Required]
     account_number: str
+    # The code that identifies the bank.
+    # [Required]
     bank_code: str
 
 
 class InstrumentDetailsSepa(InstrumentDetails):
+    """SEPA bank account details of a bank_account payment instrument."""
+    # The account's International Bank Account Number (IBAN).
+    # [Required]
+    # min 5 characters, max 34 characters
     iban: str
+    # An 8 or 11 character code that identifies the bank or bank branch.
+    # [Required]
+    # Format: ISO 9362:2009
     swift_bic: str
 
 
 class InstrumentDetailsCardToken(InstrumentDetails):
+    """Card details of a card_token payment instrument."""
+    # The token that identifies the card.
+    # [Required]
     token: str
 
 
 class InstrumentAccountType(str, Enum):
+    """The type of bank account of an ACH payment instrument (instrument_details.account_type)."""
     SAVINGS = 'savings'
     CHECKING = 'checking'
 
 
 class InstrumentDetailsAch(InstrumentDetails):
+    """ACH bank account details of a bank_account payment instrument."""
+    # The alphanumeric value that identifies the account.
+    # [Required]
     account_number: str
+    # The 9-digit American Bankers Association (ABA) routing number that identifies the financial
+    # institution.
+    # [Required]
+    # ^[0-9]{9}$
     routing_number: str
+    # The type of bank account.
+    # [Required]
     account_type: InstrumentAccountType
 
 
 class BankDetails:
+    """Deprecated: part of the deprecated AccountsPaymentInstrument (AccountsPaymentInstrument.bank)
+    only; retained so existing code keeps working. Not the shared common.common.BankDetails."""
+    # Deprecated: see the class docstring.
     name: str
+    # Deprecated: see the class docstring.
     branch: str
+    # Deprecated: see the class docstring.
     address: Address
 
 
 class AccountsAccountHolder:
+    """Deprecated: the account holder of the deprecated AccountsPaymentInstrument
+    (AccountsPaymentInstrument.account_holder) only; retained so existing code keeps working. Use
+    AccountsCorporateAccountHolder or AccountsIndividualAccountHolder."""
+    # Deprecated: see the class docstring.
     type: AccountHolderType
+    # Deprecated: see the class docstring.
     tax_id: str
+    # Deprecated: see the class docstring.
     date_of_birth: DateOfBirth
+    # Deprecated: see the class docstring.
     country_of_birth: Country
+    # Deprecated: see the class docstring.
     residential_status: ResidentialStatusType
+    # Deprecated: see the class docstring.
     billing_address: Address
+    # Deprecated: see the class docstring.
     phone: Phone
+    # Deprecated: see the class docstring.
     identification: AccountHolderIdentification
+    # Deprecated: see the class docstring.
     email: str
 
 
 class AccountsCorporateAccountHolder(AccountsAccountHolder):
+    """Deprecated: a corporate account holder of the deprecated AccountsPaymentInstrument; see
+    AccountsAccountHolder."""
+    # Deprecated: see the class docstring.
     company_name: str
 
 
 class AccountsIndividualAccountHolder(AccountsAccountHolder):
+    """Deprecated: an individual account holder of the deprecated AccountsPaymentInstrument; see
+    AccountsAccountHolder."""
+    # Deprecated: see the class docstring.
     first_name: str
+    # Deprecated: see the class docstring.
     last_name: str
 
 
 class AccountsPaymentInstrument:
+    """Deprecated: the request body of AccountsClient.create_payment_instrument (POST
+    /accounts/entities/{id}/instruments), itself deprecated in favour of add_payment_instrument. The
+    API reference does not describe this endpoint. Use PaymentInstrumentRequest with
+    add_payment_instrument instead; retained so existing code keeps working."""
+    # Deprecated: see the class docstring. Always bank_account.
     type = InstrumentType.BANK_ACCOUNT
+    # Deprecated: see the class docstring.
     label: str
+    # Deprecated: see the class docstring.
     account_type: AccountType
+    # Deprecated: see the class docstring.
     account_number: str
+    # Deprecated: see the class docstring.
     bank_code: str
+    # Deprecated: see the class docstring.
     branch_code: str
+    # Deprecated: see the class docstring.
     iban: str
+    # Deprecated: see the class docstring.
     bban: str
+    # Deprecated: see the class docstring.
     swift_bic: str
+    # Deprecated: see the class docstring.
     currency: Currency
+    # Deprecated: see the class docstring.
     country: Country
+    # Deprecated: see the class docstring.
     document: InstrumentDocument
+    # Deprecated: see the class docstring.
     account_holder: AccountsAccountHolder
+    # Deprecated: see the class docstring.
     bank: BankDetails
 
 
 class PaymentInstrumentRequest:
+    """The request body of POST /accounts/entities/{id}/payment-instruments (add a payment
+    instrument), PlatformsPaymentInstrumentCreate. Two variants, selected by type: bank_account and
+    card_token."""
+    # A reference that you can use to identify the payment instrument.
+    # [Required]
+    # min 1 character, max 50 characters
     label: str
+    # The instrument type. Enum: bank_account, card_token.
+    # [Required]
     type: InstrumentType
+    # The account's currency, as a three-letter ISO 4217 currency code.
+    # [Required]
+    # Format: ISO 4217
+    # 3 characters
     currency: Currency
+    # The account's country, as a two-letter ISO country code.
+    # [Required] for bank_account; not part of card_token.
+    # Format: ISO 3166-1
     country: Country
+    # Deprecated: specifies whether the payment instrument should be set as the default payout
+    # destination. For ad-hoc payouts, the payment instrument is explicitly specified in the payout
+    # request; for scheduled payouts, the first payment instrument created for a given currency is
+    # used for that currency's payout schedule. To change it, update the payout schedule.
+    # [Optional] (bank_account only)
     default: bool
+    # A legal document used to verify the bank account.
+    # [Required] for bank_account; not part of card_token.
     document: InstrumentDocument
+    # Details of the payment instrument being created: InstrumentDetailsFasterPayments,
+    # InstrumentDetailsSepa or InstrumentDetailsAch for bank_account; InstrumentDetailsCardToken for
+    # card_token.
+    # [Required]
     instrument_details: InstrumentDetails
 
 
 class Headers:
+    """The headers object of PlatformsPaymentInstrumentUpdate (UpdatePaymentInstrumentRequest.headers).
+    The API reference models it inside the request body, with the key if-match, but the API reads the
+    ETag only from the If-Match HTTP header. AccountsClient.update_payment_instrument sends it as that
+    header."""
+    # The payment instrument ETag value, as returned in the ETag header of the GET. Sent as the If-Match
+    # HTTP header; the update fails with 428 when it is missing and 412 when it does not match.
+    # [Required]
     if_match: str
 
 
 class UpdatePaymentInstrumentRequest:
+    """The request body of PATCH /accounts/entities/{entityId}/payment-instruments/{id} (update a
+    payment instrument), PlatformsPaymentInstrumentUpdate."""
+    # A reference that you can use to identify the payment instrument.
+    # [Optional]
+    # min 1 character, max 50 characters
     label: str
+    # Deprecated: specifies whether the payment instrument should be set as the default payout
+    # destination. For scheduled payouts, the first payment instrument created for a given currency
+    # is used for that currency's payout schedule; to change it, update the payout schedule.
+    # [Optional]
     default: bool
+    # The payment instrument ETag, sent as the If-Match HTTP header.
+    # [Required] by the API: the update fails with 428 Precondition Required without it.
     headers: Headers
 
 
 class ScheduleRequest:
+    """Information about how often the payout schedule takes place (recurrence). Base class, selected
+    by frequency: use ScheduleFrequencyDailyRequest, ScheduleFrequencyWeeklyRequest or
+    ScheduleFrequencyMonthlyRequest."""
+    # Used to indicate how often funds should be paid out to a sub-entity. Enum: daily, weekly,
+    # monthly. For ISV (SaaS seller) sub-entities, the payout is based on the sub-entity's available
+    # balance as of 00:00 in the sub-entity's time zone.
+    # [Required]
     frequency: ScheduleFrequency
 
     def __init__(self, frequency_p: ScheduleFrequency):
@@ -973,15 +1264,19 @@ class ScheduleRequest:
 
 
 class ScheduleFrequencyDailyRequest(ScheduleRequest):
-    # For ISV (SaaS seller) sub-entities, a daily schedule runs on working days only
-    # (Monday to Friday); payouts do not take place on weekends.
+    """A daily payout schedule (frequency daily). For ISV (SaaS seller) sub-entities, a daily schedule
+    runs on working days only (Monday to Friday); payouts do not take place on weekends."""
     def __init__(self):
         super().__init__(ScheduleFrequency.DAILY)
 
 
 class ScheduleFrequencyMonthlyRequest(ScheduleRequest):
+    """A monthly payout schedule (frequency monthly)."""
+    # The day or days of the month the payout should take place (int items).
+    # [Required]
+    # each item min 1, max 28.
     # For ISV (SaaS seller) sub-entities, by_month_day accepts only the combinations
-    # [1], [15], [1, 15] or [1, 16], in any order.
+    # [1], [15], [1, 15] or [1, 16], in any order (min 1 item, max 2 items).
     by_month_day: list  # int
 
     def __init__(self):
@@ -989,6 +1284,10 @@ class ScheduleFrequencyMonthlyRequest(ScheduleRequest):
 
 
 class ScheduleFrequencyWeeklyRequest(ScheduleRequest):
+    """A weekly payout schedule (frequency weekly)."""
+    # The day or days of the week the payout should take place (DaySchedule items).
+    # [Required]
+    # Enum: monday, tuesday, wednesday, thursday, friday, saturday, sunday.
     # For ISV (SaaS seller) sub-entities, by_day accepts working days only
     # (Monday to Friday); payouts set to take place on weekends are rejected.
     by_day: list  # DaySchedule
@@ -998,39 +1297,84 @@ class ScheduleFrequencyWeeklyRequest(ScheduleRequest):
 
 
 class UpdateScheduleRequest:
+    """The payout schedule for one currency, in PUT /accounts/entities/{id}/payout-schedules. The
+    client sends it keyed by the currency's three-letter ISO 4217 code. One class covers both
+    variants the API defines: Standard and SaaS seller (ISV)."""
+    # Indicates whether the payout schedule is enabled.
+    # [Required] for ISV (SaaS seller) sub-entities; [Optional] otherwise.
     enabled: bool
+    # The minimum available balance required for a payout to take place; below it, Checkout.com does
+    # not send the payout instruction. For ISV (SaaS seller) sub-entities, in the minor units of the
+    # schedule's currency, and defaults to 0 if you do not set it.
+    # [Optional]
     threshold: int
     # The amount, in the minor units of the schedule's currency, to retain in the
-    # sub-entity's available balance. ISV (SaaS seller) sub-entities only. Min 0.
+    # sub-entity's available balance. ISV (SaaS seller) sub-entities only. Checkout.com pays out only
+    # the funds above it, and generates no payout otherwise. Defaults to 0 if you do not set it.
+    # [Optional] (ISV (SaaS seller) sub-entities only)
+    # min 0
     balance_minimum: int
     # Indicates whether to carry forward any balance below the configured minimum
     # to the next payout. ISV (SaaS seller) sub-entities only.
+    # Defaults to False if you do not set it.
+    # [Optional] (ISV (SaaS seller) sub-entities only)
     carry_forward_enabled: bool
     # The ID of the platforms payment instrument used as the payout destination.
+    # For ISV (SaaS seller) sub-entities, if included it must reference a verified payment
+    # instrument, otherwise the request fails.
+    # [Optional]
     payment_instrument_id: str
+    # Information about how often the schedule takes place.
+    # [Required] for ISV (SaaS seller) sub-entities; [Optional] otherwise.
     recurrence: ScheduleRequest
 
 
 class PaymentInstrumentsQuery:
+    """The query parameters of GET /accounts/entities/{id}/payment-instruments."""
+    # The status of the sub-entity's payment instrument: its stage of verification, and whether it
+    # can be used for payouts. Enum: pending, verified, unverified.
+    # [Optional]
     status: str
 
 
 class ReserveRuleType(str, Enum):
+    """The type of a reserve rule (ReserveRuleRequest.type)."""
     ROLLING = 'rolling'
 
 
 class HoldingDuration:
+    """The length of time the collateral balance will be reserved for."""
+    # The number of weeks the collateral balance is reserved for.
+    # [Required]
+    # min 2, max 104
     weeks: int
 
 
 class RollingReserveRule:
+    """The rolling reserve rule details (rolling)."""
+    # The percentage of captured funds that will be reserved as a collateral balance.
+    # [Required]
+    # min 0, max 100
     percentage: float
+    # The length of time the collateral balance will be reserved for.
+    # [Required]
     holding_duration: HoldingDuration
 
 
 class ReserveRuleRequest:
+    """The request body of POST /accounts/entities/{id}/reserve-rules (ReserveRuleCreateRequest) and
+    PUT /accounts/entities/{entityId}/reserve-rules/{id} (ReserveRuleUpdateRequest, sent with the
+    If-Match header from the etag argument)."""
+    # The reserve rule type. Enum: rolling.
+    # [Required]
     type: ReserveRuleType
+    # The rolling reserve rule details.
+    # [Required]
     rolling: RollingReserveRule
+    # The date and time the reserve rule will come into effect. Must be at least 15 minutes in the
+    # future.
+    # [Required] on create; not part of the update request.
+    # Format: date-time
     valid_from: str
 
 
@@ -1066,10 +1410,22 @@ class EntityFileRequest:
 
 
 class EntityRequirementUpdateRequest:
+    """The request body of PUT /accounts/entities/{id}/requirements/{requirementId} (resolve a
+    requirement). The shape of value is defined by the requirement's _schema, returned from GET
+    /accounts/entities/{id}/requirements/{requirementId}."""
+    # The response to the requirement. The expected shape depends on the requirement and is defined
+    # by the JSON Schema returned in the requirement details response. Common shapes include a file
+    # reference (for document uploads), a primitive value, or a structured object. One of: object,
+    # array, string, number, boolean.
+    # [Required]
     value: object
 
 
 class EtagHeader:
+    """The If-Match header of PUT /accounts/entities/{entityId}/reserve-rules/{id}. Built by
+    AccountsClient.update_reserve_rule from its etag argument."""
+    # Identifies a specific version of a reserve rule to update.
+    # [Required]
     etag: str
 
     def get_header_mappings(self) -> Dict[str, str]:

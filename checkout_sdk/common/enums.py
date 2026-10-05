@@ -512,7 +512,8 @@ class InstrumentType(str, Enum):
     SEPA = 'sepa'
     ACH = 'ach'
     BACS = 'bacs'
-    # Previous API (ABC) only - the current API's instrument type does not declare this value.
+    # A card token payment instrument for a sub-entity (PlatformsPaymentInstrument.type, the Accounts
+    # payment instruments).
     CARD_TOKEN = 'card_token'
 
 
@@ -550,7 +551,7 @@ class AchInstrumentAccountType(str, Enum):
 
 
 # SEPA mandate type. Used by both RequestSepaV4Source.mandate_type and
-# StoreSepaInstrumentRequest.instrument_data.type — same enum, two callsites.
+# StoreSepaInstrumentRequest.instrument_data.type: same enum, two callsites.
 class SepaMandateType(str, Enum):
     CORE = 'Core'
     B2B = 'B2B'

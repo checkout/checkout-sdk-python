@@ -45,6 +45,12 @@ class AccountsClient(Client):
     def upload_file(self, file_request: FileRequest):
         """Upload a file to the Files API (POST /files on the Files host), as a multipart request.
 
+        The Files host POST /files is not described in the API reference: the reference's POST /files
+        is the disputes upload on the API host, whose purpose mentions only dispute_evidence and
+        arbitration_evidence. For onboarding documents, set the purpose to one of the PlatformsFileUpload
+        purposes the reference lists for the sub-entity upload, POST /entities/{entity_id}/files
+        (FilePurpose in checkout_sdk.accounts.accounts).
+
         Args:
             file_request: The path to the file and its purpose.
 
@@ -105,6 +111,8 @@ class AccountsClient(Client):
                                   entity_id: str,
                                   instrument_id: str,
                                   update_payment_instrument_request: UpdatePaymentInstrumentRequest):
+        # The API reads the ETag only from the If-Match HTTP header; without it the update fails with
+        # 428 Precondition Required. So the request's headers are sent as HTTP headers.
         return self._api_client.patch(
             self.build_path(self.__ACCOUNTS_PATH,
                             self.__ENTITIES_PATH,
@@ -112,7 +120,8 @@ class AccountsClient(Client):
                             self.__PAYMENT_INSTRUMENTS_PATH,
                             instrument_id),
             self._sdk_authorization(),
-            update_payment_instrument_request
+            update_payment_instrument_request,
+            headers=getattr(update_payment_instrument_request, 'headers', None)
         )
 
     def query_payment_instruments(self, entity_id: str, query: PaymentInstrumentsQuery = None):
