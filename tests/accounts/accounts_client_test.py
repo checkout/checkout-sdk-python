@@ -2,9 +2,10 @@ import pytest
 
 from tests._assertions import assert_api_call
 from checkout_sdk.accounts.accounts import OnboardEntityRequest, AccountsPaymentInstrument, UpdateScheduleRequest, \
-    PaymentInstrumentRequest, PaymentInstrumentsQuery, UpdatePaymentInstrumentRequest, ReserveRuleRequest, \
+    PaymentInstrumentRequest, PaymentInstrumentsQuery, UpdatePaymentInstrumentRequest, ReserveRuleRequest, Headers, \
     EntityFileRequest, FilePurpose, EntityRequirementUpdateRequest
 from checkout_sdk.accounts.accounts_client import AccountsClient
+from checkout_sdk.api_client import ApiClient
 from checkout_sdk.common.enums import Currency
 from checkout_sdk.files.files import FileRequest
 
@@ -58,6 +59,19 @@ class TestAccountsClient:
 
         assert client.update_payment_instrument('entity_id', 'instrument_id', body) == 'response'
         assert_api_call(mock, 'accounts/entities/entity_id/payment-instruments/instrument_id', body)
+        assert mock.call_args.kwargs['headers'] is None
+
+    def test_should_send_update_payment_instrument_etag_as_if_match_header(self, mocker, client: AccountsClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.patch', return_value='response')
+        body = UpdatePaymentInstrumentRequest()
+        body.headers = Headers()
+        body.headers.if_match = '"Y3Y9MCZydj0w"'
+
+        assert client.update_payment_instrument('entity_id', 'instrument_id', body) == 'response'
+        assert_api_call(mock, 'accounts/entities/entity_id/payment-instruments/instrument_id', body)
+        assert mock.call_args.kwargs['headers'] is body.headers
+        # The HTTP layer turns the attribute into the If-Match header.
+        assert ApiClient.__new__(ApiClient)._process_custom_headers(body.headers) == {'If-Match': '"Y3Y9MCZydj0w"'}
 
     def test_should_query_payment_instruments(self, mocker, client: AccountsClient):
         mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
@@ -139,7 +153,7 @@ class TestAccountsClient:
     def test_should_upload_entity_file(self, mocker, client: AccountsClient):
         mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
         body = EntityFileRequest()
-        body.purpose = FilePurpose.IDENTIFICATION
+        body.purpose = FilePurpose.IDENTITY_VERIFICATION
 
         assert client.upload_entity_file('entity_id', body) == 'response'
         assert_api_call(mock, 'entities/entity_id/files', body)

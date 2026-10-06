@@ -43,6 +43,20 @@ class AccountsClient(Client):
         return headers
 
     def upload_file(self, file_request: FileRequest):
+        """Upload a file to the Files API (POST /files on the Files host), as a multipart request.
+
+        The Files host POST /files is not described in the API reference: the reference's POST /files
+        is the disputes upload on the API host, whose purpose mentions only dispute_evidence and
+        arbitration_evidence. For onboarding documents, set the purpose to one of the PlatformsFileUpload
+        purposes the reference lists for the sub-entity upload, POST /entities/{entity_id}/files
+        (FilePurpose in checkout_sdk.accounts.accounts).
+
+        Args:
+            file_request: The path to the file and its purpose.
+
+        Returns:
+            ResponseWrapper with the file ID, which document front and back attributes take.
+        """
         return self.__files_client.submit_file(
             self.__FILES_PATH,
             self._sdk_authorization(),
@@ -97,6 +111,8 @@ class AccountsClient(Client):
                                   entity_id: str,
                                   instrument_id: str,
                                   update_payment_instrument_request: UpdatePaymentInstrumentRequest):
+        # The API reads the ETag only from the If-Match HTTP header; without it the update fails with
+        # 428 Precondition Required. So the request's headers are sent as HTTP headers.
         return self._api_client.patch(
             self.build_path(self.__ACCOUNTS_PATH,
                             self.__ENTITIES_PATH,
@@ -104,7 +120,8 @@ class AccountsClient(Client):
                             self.__PAYMENT_INSTRUMENTS_PATH,
                             instrument_id),
             self._sdk_authorization(),
-            update_payment_instrument_request
+            update_payment_instrument_request,
+            headers=getattr(update_payment_instrument_request, 'headers', None)
         )
 
     def query_payment_instruments(self, entity_id: str, query: PaymentInstrumentsQuery = None):
@@ -182,12 +199,35 @@ class AccountsClient(Client):
             self._sdk_authorization(), request)
 
     def upload_entity_file(self, entity_id: str, entity_file_request: EntityFileRequest):
+        """Create a file upload for a sub-entity (POST /entities/{entity_id}/files on the Files host).
+
+        The response carries the file ID and an upload link; the file content itself is sent to that
+        link, not in this request.
+
+        Args:
+            entity_id: The ID of the sub-entity.
+            entity_file_request: The purpose of the file upload.
+
+        Returns:
+            ResponseWrapper with the file ID, the maximum size allowed, the MIME types allowed for the
+            purpose, and the upload link.
+        """
         return self.__files_client.post(
             self.build_path(self.__ENTITIES_PATH, entity_id, self.__FILES_PATH),
             self._sdk_authorization(),
             entity_file_request)
 
     def retrieve_entity_file(self, entity_id: str, file_id: str):
+        """Retrieve the details of a sub-entity's file (GET /entities/{entity_id}/files/{file_id} on the
+        Files host).
+
+        Args:
+            entity_id: The ID of the sub-entity.
+            file_id: The ID of the file.
+
+        Returns:
+            ResponseWrapper with the file's status, size, MIME type, upload date and purpose.
+        """
         return self.__files_client.get(
             self.build_path(self.__ENTITIES_PATH, entity_id, self.__FILES_PATH, file_id),
             self._sdk_authorization())
