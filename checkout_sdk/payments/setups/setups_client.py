@@ -18,8 +18,15 @@ class PaymentSetupsClient(Client):
                          authorization_type=AuthorizationType.SECRET_KEY_OR_OAUTH)
 
     def create_payment_setup(self, payment_setups_request: PaymentSetupsRequest):
-        """
-        Creates a Payment Setup
+        """Create a Payment Setup (POST /payments/setups).
+
+        Args:
+            payment_setups_request: The Payment Setup request body. To offer Cash App Pay, set
+                payment_methods.cashapp (initialization, customer_profile_sharing) and
+                customer.device.client.
+        Returns:
+            ResponseWrapper with the Payment Setup. For Cash App Pay, the customer is sent to
+            payment_methods.cashapp.action.redirect_url to authorize the payment.
         """
         return self._api_client.post(
             self.build_path(self.__PAYMENTS_PATH, self.__SETUPS_PATH),
@@ -28,8 +35,13 @@ class PaymentSetupsClient(Client):
         )
 
     def update_payment_setup(self, setup_id: str, payment_setups_request: PaymentSetupsRequest):
-        """
-        Updates a Payment Setup
+        """Update a Payment Setup (PUT /payments/setups/{id}).
+
+        Args:
+            setup_id: The unique identifier of the Payment Setup to update.
+            payment_setups_request: The Payment Setup request body.
+        Returns:
+            ResponseWrapper with the updated Payment Setup.
         """
         return self._api_client.put(
             self.build_path(self.__PAYMENTS_PATH, self.__SETUPS_PATH, setup_id),
@@ -38,8 +50,15 @@ class PaymentSetupsClient(Client):
         )
 
     def get_payment_setup(self, setup_id: str):
-        """
-        Gets a Payment Setup
+        """Retrieve a Payment Setup (GET /payments/setups/{id}).
+
+        Args:
+            setup_id: The unique identifier of the Payment Setup to retrieve.
+        Returns:
+            ResponseWrapper with the Payment Setup. For Cash App Pay with
+            customer_profile_sharing enabled, payment_methods.cashapp.customer_profile is
+            present only in the first successful response after the customer authorizes the
+            payment, so store it on first read.
         """
         return self._api_client.get(
             self.build_path(self.__PAYMENTS_PATH, self.__SETUPS_PATH, setup_id),
@@ -47,8 +66,14 @@ class PaymentSetupsClient(Client):
         )
 
     def confirm_payment_setup(self, setup_id: str, payment_method_name: str):
-        """
-        Confirms a Payment Setup
+        """Confirm a Payment Setup (POST /payments/setups/{id}/confirm/{payment_method_name}).
+
+        Args:
+            setup_id: The unique identifier of the Payment Setup to confirm.
+            payment_method_name: The name of the payment method to confirm the Payment Setup
+                with. For example, card, klarna, tabby or cashapp.
+        Returns:
+            ResponseWrapper with the Payment Setup.
         """
         return self._api_client.post(
             self.build_path(self.__PAYMENTS_PATH, self.__SETUPS_PATH, setup_id,

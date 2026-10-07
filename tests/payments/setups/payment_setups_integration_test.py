@@ -9,7 +9,8 @@ from checkout_sdk.payments.payments import PaymentType
 from checkout_sdk.payments.setups.setups import (
     PaymentSetupsRequest, Settings, Customer, CustomerEmail, CustomerDevice,
     PaymentMethods, Klarna, KlarnaAccountHolder, PaymentMethodInitialization,
-    Ideal, Knet, KnetLanguage, Bancontact, P24, P24AccountHolder
+    Ideal, Knet, KnetLanguage, Bancontact, P24, P24AccountHolder,
+    CashApp, CustomerDeviceClient, OsType
 )
 from tests.checkout_test_utils import assert_response, new_uuid
 
@@ -135,6 +136,78 @@ def test_should_create_payment_setup_with_additional_payment_methods(default_api
 
     assert response.amount == request.amount
     assert response.currency == request.currency
+
+
+def test_should_create_payment_setup_with_customer_device_fields(default_api):
+    """The five customer.device fields added with Cash App Pay are accepted and echoed."""
+    # Arrange
+    request = create_payment_setups_request()
+    device = request.customer.device
+    device.fingerprint = "fp_abc123xyz"
+    device.ipv4 = "203.0.113.0"
+    device.ipv6 = "2001:db8:85a3::8a2e:370:7334"
+    device.client = CustomerDeviceClient.WEB
+    device.os = OsType.ANDROID
+
+    # Act
+    response = default_api.setups.create_payment_setup(request)
+
+    # Assert
+    assert_response(response, 'http_metadata', 'id', 'customer.device')
+    assert response.customer.device.locale == device.locale
+    assert response.customer.device.fingerprint == device.fingerprint
+    assert response.customer.device.ipv4 == device.ipv4
+    assert response.customer.device.ipv6 == device.ipv6
+    assert response.customer.device.client == CustomerDeviceClient.WEB
+    assert response.customer.device.os == OsType.ANDROID
+
+
+def test_should_create_payment_setup_with_customer_identifiers(default_api):
+    """customer.id, customer.country and customer.tax_number are accepted and echoed."""
+    # Arrange
+    request = create_payment_setups_request()
+    request.customer.id = "cus_123456789"
+    request.customer.country = "GB"
+    request.customer.tax_number = "GB123456789"
+
+    # Act
+    response = default_api.setups.create_payment_setup(request)
+
+    # Assert
+    assert_response(response, 'http_metadata', 'id', 'customer')
+    assert response.customer.id == "cus_123456789"
+    assert response.customer.country == "GB"
+    assert response.customer.tax_number == "GB123456789"
+
+
+def test_should_create_payment_setup_with_cash_app(default_api):
+    """Cash App Pay: the response carries payment_methods.cashapp and its redirect action.
+
+    Skipped at runtime when the sandbox processing channel does not offer Cash App Pay.
+    """
+    # Arrange
+    request = create_payment_setups_request()
+    request.currency = Currency.USD
+    cashapp = CashApp()
+    cashapp.initialization = PaymentMethodInitialization.ENABLED
+    cashapp.customer_profile_sharing = True
+    request.payment_methods.cashapp = cashapp
+    request.customer.device.client = CustomerDeviceClient.WEB
+
+    # Act
+    response = default_api.setups.create_payment_setup(request)
+
+    # Assert
+    assert_response(response, 'http_metadata', 'id')
+    if 'cashapp' not in getattr(response, 'available_payment_methods', []):
+        pytest.skip("Cash App Pay is not enabled on the sandbox processing channel")
+
+    assert_response(response, 'payment_methods.cashapp.status')
+    assert response.payment_methods.cashapp.initialization == PaymentMethodInitialization.ENABLED
+    assert response.payment_methods.cashapp.customer_profile_sharing is True
+    if hasattr(response.payment_methods.cashapp, 'action'):
+        assert response.payment_methods.cashapp.action.type == 'redirect'
+        assert response.payment_methods.cashapp.action.redirect_url
 
 
 @pytest.mark.skip(reason="Integration test - requires a payment setup ready to be confirmed")
