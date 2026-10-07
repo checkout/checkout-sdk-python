@@ -687,6 +687,16 @@ class TestCashAppSerialization:
 
         assert _serialize(device) == {'os': expected}
 
+    def test_cash_app_customer_profile_sharing_false_is_sent(self):
+        cashapp = CashApp()
+        cashapp.customer_profile_sharing = False
+
+        body = json.loads(json.dumps(cashapp, cls=JsonSerializer))
+
+        # Only unset attributes are omitted; an explicit False must still reach the API.
+        assert 'customer_profile_sharing' in body
+        assert body['customer_profile_sharing'] is False
+
     def test_device_with_only_locale_serializes_only_locale(self):
         device = CustomerDevice()
         device.locale = 'en_US'
@@ -833,6 +843,7 @@ class TestCashAppSerialization:
                     '"administrative_district_level_1"', '"redirect_url"'):
             assert key in body, key
         assert 'address_line1' not in body
+        assert 'administrative_district_level1' not in body
 
         read = ResponseWrapper(None, json.loads(body))
 

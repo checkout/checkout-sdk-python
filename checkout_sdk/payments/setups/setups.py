@@ -65,9 +65,11 @@ class CustomerDevice:
     # The type of client the customer uses to initiate the payment. Required when using
     # Cash App Pay.
     # [Optional]
+    # Enum: "web" "mobile_web" "app"
     client: CustomerDeviceClient
     # The operating system of the customer's device.
     # [Optional]
+    # Enum: "android" "ios"
     os: OsType
 
 
@@ -204,6 +206,8 @@ class PaymentMethodBase:
     # The initialization state of the payment method. When you create a Payment Setup, this
     # defaults to disabled.
     # [Optional]
+    # Default: "disabled"
+    # Enum: "disabled" "enabled"
     initialization: PaymentMethodInitialization = PaymentMethodInitialization.DISABLED
 
 
@@ -963,6 +967,7 @@ class CashAppAction:
     # The type of action.
     # [Optional]
     # readOnly
+    # Enum: "redirect"
     type: CashAppActionType
     # The URL to redirect the customer to so they can authorize the payment with Cash App.
     # [Optional]

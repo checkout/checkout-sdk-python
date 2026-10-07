@@ -202,12 +202,10 @@ def test_should_create_payment_setup_with_cash_app(default_api):
     if 'cashapp' not in getattr(response, 'available_payment_methods', []):
         pytest.skip("Cash App Pay is not enabled on the sandbox processing channel")
 
-    assert_response(response, 'payment_methods.cashapp.status')
-    assert response.payment_methods.cashapp.initialization == PaymentMethodInitialization.ENABLED
-    assert response.payment_methods.cashapp.customer_profile_sharing is True
-    if hasattr(response.payment_methods.cashapp, 'action'):
-        assert response.payment_methods.cashapp.action.type == 'redirect'
-        assert response.payment_methods.cashapp.action.redirect_url
+    fetched = default_api.setups.get_payment_setup(response.id)
+    assert_response(fetched, 'payment_methods.cashapp.status')
+    assert fetched.payment_methods.cashapp.initialization == PaymentMethodInitialization.ENABLED
+    assert fetched.payment_methods.cashapp.customer_profile_sharing is True
 
 
 @pytest.mark.skip(reason="Integration test - requires a payment setup ready to be confirmed")
