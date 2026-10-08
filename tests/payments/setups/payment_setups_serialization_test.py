@@ -1,5 +1,8 @@
 import json
 
+import pytest
+
+from checkout_sdk.checkout_response import ResponseWrapper
 from checkout_sdk.json_serializer import JsonSerializer
 from checkout_sdk.common.common import Phone
 from checkout_sdk.common.enums import Currency
@@ -20,6 +23,9 @@ from checkout_sdk.payments.setups.setups import (
     PaymentSetupAirlinePassengerAddress, PaymentSetupFlightLegDetails,
     PaymentSetupAirlineInsurance, PaymentSetupAirlineInsurancePrice,
     MerchantAccount, OrderSubMerchant,
+    PaymentSetupsRequest, Customer, CustomerEmail, CustomerDevice, CustomerDeviceClient,
+    PaymentMethodInitialization, CashApp, CashAppAction, CashAppActionType, CashAppAddress,
+    CashAppCustomerProfile,
 )
 
 
@@ -595,3 +601,364 @@ class TestDateFieldTypes:
         account.registration_date = datetime(2023, 5, 1)
 
         assert _serialize(account)['registration_date'] == '2023-05-01T00:00:00'
+
+
+_CASH_APP_REDIRECT_URL = ('https://sandbox.api.cash.app/customer-request/v1/requests/'
+                          'GRR_f5xg6wrxhtv3p4w24g0wrexa/interstitial?validity_token=bap03y')
+
+_CASH_APP_CUSTOMER_ID = 'CST_AYVkuLzfsRqEhf4OyQFxQNv22m7IjNFjO6f2J5CDE2nxAC4-21wJ2H8_2kvsdIsDZMN4'
+
+
+class TestCashAppSerialization:
+    """Cash App Pay on Payment Setups: payment_methods.cashapp and the customer device fields."""
+
+    def test_cash_app_request_serializes_to_the_spec_body(self):
+        cashapp = CashApp()
+        cashapp.initialization = PaymentMethodInitialization.ENABLED
+        cashapp.customer_profile_sharing = True
+        payment_methods = PaymentMethods()
+        payment_methods.cashapp = cashapp
+
+        device = CustomerDevice()
+        device.locale = 'en_US'
+        device.fingerprint = 'fp_abc123xyz'
+        device.ipv4 = '203.0.113.0'
+        device.ipv6 = '2001:db8:85a3::8a2e:370:7334'
+        device.client = CustomerDeviceClient.WEB
+        device.os = OsType.ANDROID
+        customer = Customer()
+        customer.device = device
+
+        request = PaymentSetupsRequest()
+        request.processing_channel_id = 'pc_aaaaaaaaaaaaaaaaaaaaaaaaaa'
+        request.amount = 1000
+        request.currency = Currency.USD
+        request.payment_methods = payment_methods
+        request.customer = customer
+
+        body = json.dumps(request, cls=JsonSerializer)
+
+        # The wire key is one lowercase word. Checked on the raw string, case-sensitively.
+        assert '"cashapp"' in body
+        assert 'cash_app' not in body
+        assert 'cashApp' not in body
+        assert '"customer_profile_sharing"' in body
+        assert 'customerProfileSharing' not in body
+        assert json.loads(body) == {
+            'processing_channel_id': 'pc_aaaaaaaaaaaaaaaaaaaaaaaaaa',
+            'amount': 1000,
+            'currency': 'USD',
+            'payment_methods': {
+                'cashapp': {'initialization': 'enabled', 'customer_profile_sharing': True},
+            },
+            'customer': {
+                'device': {
+                    'locale': 'en_US',
+                    'fingerprint': 'fp_abc123xyz',
+                    'ipv4': '203.0.113.0',
+                    'ipv6': '2001:db8:85a3::8a2e:370:7334',
+                    'client': 'web',
+                    'os': 'android',
+                },
+            },
+        }
+
+    def test_cash_app_initialization_defaults_to_disabled(self):
+        assert _serialize(CashApp()) == {'initialization': 'disabled'}
+
+    @pytest.mark.parametrize('client, expected', [
+        (CustomerDeviceClient.WEB, 'web'),
+        (CustomerDeviceClient.MOBILE_WEB, 'mobile_web'),
+        (CustomerDeviceClient.APP, 'app'),
+    ])
+    def test_device_client_serializes_each_spec_value(self, client, expected):
+        device = CustomerDevice()
+        device.client = client
+
+        assert _serialize(device) == {'client': expected}
+
+    @pytest.mark.parametrize('os_type, expected', [
+        (OsType.ANDROID, 'android'),
+        (OsType.IOS, 'ios'),
+    ])
+    def test_device_os_serializes_each_spec_value(self, os_type, expected):
+        device = CustomerDevice()
+        device.os = os_type
+
+        assert _serialize(device) == {'os': expected}
+
+    def test_cash_app_customer_profile_sharing_false_is_sent(self):
+        cashapp = CashApp()
+        cashapp.customer_profile_sharing = False
+
+        body = json.loads(json.dumps(cashapp, cls=JsonSerializer))
+
+        # Only unset attributes are omitted; an explicit False must still reach the API.
+        assert 'customer_profile_sharing' in body
+        assert body['customer_profile_sharing'] is False
+
+    def test_device_with_only_locale_serializes_only_locale(self):
+        device = CustomerDevice()
+        device.locale = 'en_US'
+
+        assert _serialize(device) == {'locale': 'en_US'}
+
+    def test_cash_app_response_reads_every_field(self):
+        # The Payment Setup response, as returned by create, update, get and confirm.
+        response = ResponseWrapper(None, {
+            'id': 'pset_123',
+            'processing_channel_id': 'pc_aaaaaaaaaaaaaaaaaaaaaaaaaa',
+            'amount': 1000,
+            'currency': 'USD',
+            'customer': {
+                'device': {
+                    'locale': 'en_US',
+                    'fingerprint': 'fp_abc123xyz',
+                    'ipv4': '203.0.113.0',
+                    'ipv6': '2001:db8:85a3::8a2e:370:7334',
+                    'client': 'web',
+                    'os': 'android',
+                },
+            },
+            'payment_methods': {
+                'cashapp': {
+                    'status': 'action_required',
+                    'flags': [],
+                    'initialization': 'enabled',
+                    'customer_profile_sharing': True,
+                    'reference': 'ORDER-99',
+                    'action': {'type': 'redirect', 'redirect_url': _CASH_APP_REDIRECT_URL},
+                    'customer_profile': {
+                        'customer_id': _CASH_APP_CUSTOMER_ID,
+                        'cashtag': '$CASHTAG_C_TOKEN',
+                        'reference_id': 'value',
+                        'full_name': 'John Middle Doe',
+                        'given_name': 'John',
+                        'middle_name': 'Middle',
+                        'family_name': 'Doe',
+                        'suffix': 'Jr.',
+                        'birth_date': '1990-01-01T00:00:00.0000000',
+                        'address': {
+                            'address_line_1': '123 Main St',
+                            'address_line_2': 'Apt 2',
+                            'address_line_3': 'Floor 3',
+                            'locality': 'Springfield',
+                            'sublocality': 'Downtown',
+                            'administrative_district_level_1': 'IL',
+                            'postal_code': '62701',
+                            'country': 'US',
+                        },
+                        'phone_number': '5555555555',
+                        'email_address': 'cash@cash.com',
+                        'customer_since': '1970-01-18T12:46:04.8000000+00:00',
+                    },
+                },
+            },
+            'available_payment_methods': ['cashapp'],
+        })
+
+        device = response.customer.device
+        assert device.locale == 'en_US'
+        assert device.fingerprint == 'fp_abc123xyz'
+        assert device.ipv4 == '203.0.113.0'
+        assert device.ipv6 == '2001:db8:85a3::8a2e:370:7334'
+        assert device.client == CustomerDeviceClient.WEB
+        assert device.os == OsType.ANDROID
+
+        cashapp = response.payment_methods.cashapp
+        assert cashapp.status == 'action_required'
+        assert cashapp.flags == []
+        assert cashapp.initialization == PaymentMethodInitialization.ENABLED
+        assert cashapp.customer_profile_sharing is True
+        assert cashapp.reference == 'ORDER-99'
+        assert cashapp.action.type == CashAppActionType.REDIRECT
+        assert cashapp.action.redirect_url == _CASH_APP_REDIRECT_URL
+
+        profile = cashapp.customer_profile
+        assert profile.customer_id == _CASH_APP_CUSTOMER_ID
+        assert profile.cashtag == '$CASHTAG_C_TOKEN'
+        assert profile.reference_id == 'value'
+        assert profile.full_name == 'John Middle Doe'
+        assert profile.given_name == 'John'
+        assert profile.middle_name == 'Middle'
+        assert profile.family_name == 'Doe'
+        assert profile.suffix == 'Jr.'
+        assert profile.birth_date == '1990-01-01T00:00:00.0000000'
+        assert profile.phone_number == '5555555555'
+        assert profile.email_address == 'cash@cash.com'
+        assert profile.customer_since == '1970-01-18T12:46:04.8000000+00:00'
+
+        address = profile.address
+        assert address.address_line_1 == '123 Main St'
+        assert address.address_line_2 == 'Apt 2'
+        assert address.address_line_3 == 'Floor 3'
+        assert address.locality == 'Springfield'
+        assert address.sublocality == 'Downtown'
+        assert address.administrative_district_level_1 == 'IL'
+        assert address.postal_code == '62701'
+        assert address.country == 'US'
+
+    def test_cash_app_round_trip_keeps_every_property_and_the_literal_address_keys(self):
+        address = CashAppAddress()
+        address.address_line_1 = '123 Main St'
+        address.address_line_2 = 'Apt 2'
+        address.address_line_3 = 'Floor 3'
+        address.locality = 'Springfield'
+        address.sublocality = 'Downtown'
+        address.administrative_district_level_1 = 'IL'
+        address.postal_code = '62701'
+        address.country = 'US'
+
+        profile = CashAppCustomerProfile()
+        profile.customer_id = _CASH_APP_CUSTOMER_ID
+        profile.cashtag = '$CASHTAG_C_TOKEN'
+        profile.reference_id = 'value'
+        profile.full_name = 'John Middle Doe'
+        profile.given_name = 'John'
+        profile.middle_name = 'Middle'
+        profile.family_name = 'Doe'
+        profile.suffix = 'Jr.'
+        profile.birth_date = '1990-01-01T00:00:00.0000000'
+        profile.address = address
+        profile.phone_number = '5555555555'
+        profile.email_address = 'cash@cash.com'
+        profile.customer_since = '1970-01-18T12:46:04.8000000+00:00'
+
+        action = CashAppAction()
+        action.type = CashAppActionType.REDIRECT
+        action.redirect_url = _CASH_APP_REDIRECT_URL
+
+        cashapp = CashApp()
+        cashapp.status = 'action_required'
+        cashapp.flags = []
+        cashapp.initialization = PaymentMethodInitialization.ENABLED
+        cashapp.customer_profile_sharing = True
+        cashapp.reference = 'ORDER-99'
+        cashapp.action = action
+        cashapp.customer_profile = profile
+
+        body = json.dumps(cashapp, cls=JsonSerializer)
+
+        for key in ('"address_line_1"', '"address_line_2"', '"address_line_3"',
+                    '"administrative_district_level_1"', '"redirect_url"'):
+            assert key in body, key
+        assert 'address_line1' not in body
+        assert 'administrative_district_level1' not in body
+
+        read = ResponseWrapper(None, json.loads(body))
+
+        assert read.status == cashapp.status
+        assert read.flags == cashapp.flags
+        assert read.initialization == cashapp.initialization
+        assert read.customer_profile_sharing is True
+        assert read.reference == cashapp.reference
+        assert read.action.type == action.type
+        assert read.action.redirect_url == action.redirect_url
+        for field in ('customer_id', 'cashtag', 'reference_id', 'full_name', 'given_name',
+                      'middle_name', 'family_name', 'suffix', 'birth_date', 'phone_number',
+                      'email_address', 'customer_since'):
+            assert getattr(read.customer_profile, field) == getattr(profile, field), field
+        for field in ('address_line_1', 'address_line_2', 'address_line_3', 'locality',
+                      'sublocality', 'administrative_district_level_1', 'postal_code', 'country'):
+            assert getattr(read.customer_profile.address, field) == getattr(address, field), field
+
+
+class TestPaymentSetupCustomerSerialization:
+    """PaymentSetup.customer, all eight properties."""
+
+    def test_customer_round_trip_keeps_every_property(self):
+        email = CustomerEmail()
+        email.address = 'johnsmith@example.com'
+        email.verified = True
+        phone = Phone()
+        phone.country_code = '+44'
+        phone.number = '207 946 0000'
+        device = CustomerDevice()
+        device.locale = 'en_GB'
+        device.fingerprint = 'fp_abc123xyz'
+        device.ipv4 = '203.0.113.0'
+        device.ipv6 = '2001:db8:85a3::8a2e:370:7334'
+        device.client = CustomerDeviceClient.MOBILE_WEB
+        device.os = OsType.IOS
+        merchant_account = MerchantAccount()
+        merchant_account.id = 'acct_1'
+        merchant_account.registration_date = '2023-05-01'
+        merchant_account.last_modified = '2023-05-02'
+        merchant_account.returning_customer = True
+        merchant_account.first_transaction_date = '2023-09-15'
+        merchant_account.last_transaction_date = '2025-03-28'
+        merchant_account.total_order_count = 6
+        merchant_account.last_payment_amount = 5599
+
+        customer = Customer()
+        customer.country = 'GB'
+        customer.id = 'cus_123456789'
+        customer.email = email
+        customer.name = 'John Smith'
+        customer.tax_number = 'GB123456789'
+        customer.phone = phone
+        customer.device = device
+        customer.merchant_account = merchant_account
+
+        body = json.dumps(customer, cls=JsonSerializer)
+
+        assert '"id": "cus_123456789"' in body
+        assert '"country": "GB"' in body
+        assert '"tax_number": "GB123456789"' in body
+        assert 'taxNumber' not in body
+
+        read = ResponseWrapper(None, json.loads(body))
+
+        assert read.country == 'GB'
+        assert read.id == 'cus_123456789'
+        assert read.name == 'John Smith'
+        assert read.tax_number == 'GB123456789'
+        assert read.email.address == email.address
+        assert read.email.verified is True
+        assert read.phone.country_code == phone.country_code
+        assert read.phone.number == phone.number
+        for field in ('locale', 'fingerprint', 'ipv4', 'ipv6', 'client', 'os'):
+            assert getattr(read.device, field) == getattr(device, field), field
+        for field in ('id', 'registration_date', 'last_modified', 'returning_customer',
+                      'first_transaction_date', 'last_transaction_date', 'total_order_count',
+                      'last_payment_amount'):
+            assert getattr(read.merchant_account, field) == getattr(merchant_account, field), field
+
+    def test_customer_spec_example_reads(self):
+        read = ResponseWrapper(None, {
+            'country': 'GB',
+            'id': 'cus_123456789',
+            'email': {'address': 'johnsmith@example.com', 'verified': True},
+            'name': 'John Smith',
+            'tax_number': 'GB123456789',
+            'phone': {'country_code': '+44', 'number': '207 946 0000'},
+            'device': {'locale': 'en_GB'},
+            'merchant_account': {
+                'id': '1234',
+                'registration_date': '2023-05-01T00:00:00.0000000',
+                'last_modified': '2023-05-01T00:00:00.0000000',
+                'returning_customer': True,
+                'first_transaction_date': '2023-09-15T00:00:00.0000000',
+                'last_transaction_date': '2025-03-28T00:00:00.0000000',
+                'total_order_count': 6,
+                'last_payment_amount': 55.99,
+            },
+        })
+
+        assert read.country == 'GB'
+        assert read.id == 'cus_123456789'
+        assert read.email.address == 'johnsmith@example.com'
+        assert read.email.verified is True
+        assert read.name == 'John Smith'
+        assert read.tax_number == 'GB123456789'
+        assert read.phone.country_code == '+44'
+        assert read.phone.number == '207 946 0000'
+        assert read.device.locale == 'en_GB'
+        assert read.merchant_account.id == '1234'
+        assert read.merchant_account.registration_date == '2023-05-01T00:00:00.0000000'
+        assert read.merchant_account.last_modified == '2023-05-01T00:00:00.0000000'
+        assert read.merchant_account.returning_customer is True
+        assert read.merchant_account.first_transaction_date == '2023-09-15T00:00:00.0000000'
+        assert read.merchant_account.last_transaction_date == '2025-03-28T00:00:00.0000000'
+        assert read.merchant_account.total_order_count == 6
+        assert read.merchant_account.last_payment_amount == 55.99
