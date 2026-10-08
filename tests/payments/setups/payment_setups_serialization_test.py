@@ -933,6 +933,16 @@ class TestPaymentSetupCustomerSerialization:
             'tax_number': 'GB123456789',
             'phone': {'country_code': '+44', 'number': '207 946 0000'},
             'device': {'locale': 'en_GB'},
+            'merchant_account': {
+                'id': '1234',
+                'registration_date': '2023-05-01T00:00:00.0000000',
+                'last_modified': '2023-05-01T00:00:00.0000000',
+                'returning_customer': True,
+                'first_transaction_date': '2023-09-15T00:00:00.0000000',
+                'last_transaction_date': '2025-03-28T00:00:00.0000000',
+                'total_order_count': 6,
+                'last_payment_amount': 55.99,
+            },
         })
 
         assert read.country == 'GB'
@@ -944,3 +954,11 @@ class TestPaymentSetupCustomerSerialization:
         assert read.phone.country_code == '+44'
         assert read.phone.number == '207 946 0000'
         assert read.device.locale == 'en_GB'
+        assert read.merchant_account.id == '1234'
+        assert read.merchant_account.registration_date == '2023-05-01T00:00:00.0000000'
+        assert read.merchant_account.last_modified == '2023-05-01T00:00:00.0000000'
+        assert read.merchant_account.returning_customer is True
+        assert read.merchant_account.first_transaction_date == '2023-09-15T00:00:00.0000000'
+        assert read.merchant_account.last_transaction_date == '2025-03-28T00:00:00.0000000'
+        assert read.merchant_account.total_order_count == 6
+        assert read.merchant_account.last_payment_amount == 55.99

@@ -181,7 +181,8 @@ def test_should_create_payment_setup_with_customer_identifiers(default_api):
 
 
 def test_should_create_payment_setup_with_cash_app(default_api):
-    """Cash App Pay: the response carries payment_methods.cashapp and its redirect action.
+    """Cash App Pay: the fetched Payment Setup carries payment_methods.cashapp with its status,
+    initialization and customer_profile_sharing.
 
     Skipped at runtime when the sandbox processing channel does not offer Cash App Pay.
     """
