@@ -1303,8 +1303,11 @@ class PaymentMethods:
     # The card-present payment method. Not present in the current Payment Setup schema.
     # [Optional]
     card_present: CardPresent
-    # The Pay by Bank (Open Banking) payment method's details and configuration. The spec
-    # names this key paybybank.
+    # The Pay by Bank (Open Banking) payment method's details and configuration.
+    # [Optional]
+    paybybank: PayByBank
+    # Deprecated: the API does not recognise the pay_by_bank key and ignores it without
+    # error, so a value set here is never applied. Use paybybank instead.
     # [Optional]
     pay_by_bank: PayByBank
     # The Stablecoin payment method's details and configuration.
@@ -1313,6 +1316,14 @@ class PaymentMethods:
     # The Cash App payment method's details and configuration. Serialized as cashapp.
     # [Optional]
     cashapp: CashApp
+
+
+# Risk entity
+class PaymentSetupRisk:
+    """Risk assessment settings for the Payment Setup."""
+    # Indicates whether a risk assessment should be performed. Defaults to true.
+    # [Optional]
+    enabled: bool
 
 
 # Settings entity
@@ -1876,6 +1887,9 @@ class PaymentSetupsRequest:
     # Settings for the Payment Setup.
     # [Optional]
     settings: Settings
+    # Risk assessment settings for the Payment Setup.
+    # [Optional]
+    risk: PaymentSetupRisk
     # The customer's details.
     # [Optional]
     customer: Customer

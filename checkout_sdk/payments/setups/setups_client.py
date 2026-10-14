@@ -23,10 +23,13 @@ class PaymentSetupsClient(Client):
         Args:
             payment_setups_request: The Payment Setup request body. To offer Cash App Pay, set
                 payment_methods.cashapp (initialization, customer_profile_sharing) and
-                customer.device.client.
+                customer.device.client. To offer Pay by Bank, set payment_methods.paybybank
+                (the deprecated pay_by_bank attribute is ignored by the API). Set risk.enabled
+                to control whether a risk assessment is performed (defaults to true).
         Returns:
             ResponseWrapper with the Payment Setup. For Cash App Pay, the customer is sent to
-            payment_methods.cashapp.action.redirect_url to authorize the payment.
+            payment_methods.cashapp.action.redirect_url to authorize the payment. For Pay by
+            Bank, the banks to choose from are in payment_methods.paybybank.action.banks.
         """
         return self._api_client.post(
             self.build_path(self.__PAYMENTS_PATH, self.__SETUPS_PATH),
@@ -39,7 +42,8 @@ class PaymentSetupsClient(Client):
 
         Args:
             setup_id: The unique identifier of the Payment Setup to update.
-            payment_setups_request: The Payment Setup request body.
+            payment_setups_request: The Payment Setup request body. Pay by Bank goes in
+                payment_methods.paybybank and risk settings in risk.enabled.
         Returns:
             ResponseWrapper with the updated Payment Setup.
         """
