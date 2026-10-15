@@ -9,11 +9,11 @@ from tests.checkout_test_utils import assert_response, new_idempotency_key
 def test_should_initiate_transfer_of_funds_idempotently(oauth_api):
     transfer_source = TransferSource()
     transfer_source.id = 'ent_kidtcgc3ge5unf4a5i6enhnr5m'
-    transfer_source.amount = 100
+    transfer_source.amount = 1
     transfer_source.currency = Currency.GBP
 
     transfer_destination = TransferDestination()
-    transfer_destination.id = 'ent_w4jelhppmfiufdnatam37wrfc4'
+    transfer_destination.id = 'ent_ocw5i74vowfg2edpy66izhts2u'
 
     transfer_request = CreateTransferRequest()
     transfer_request.transfer_type = TransferType.COMMISSION
