@@ -25,7 +25,7 @@ from checkout_sdk.payments.setups.setups import (
     MerchantAccount, OrderSubMerchant,
     PaymentSetupsRequest, Customer, CustomerEmail, CustomerDevice, CustomerDeviceClient,
     PaymentMethodInitialization, CashApp, CashAppAction, CashAppActionType, CashAppAddress,
-    CashAppCustomerProfile,
+    CashAppCustomerProfile, PaymentSetupRisk,
 )
 
 
@@ -962,3 +962,76 @@ class TestPaymentSetupCustomerSerialization:
         assert read.merchant_account.last_transaction_date == '2025-03-28T00:00:00.0000000'
         assert read.merchant_account.total_order_count == 6
         assert read.merchant_account.last_payment_amount == 55.99
+
+
+class TestPayByBankKeyAndRiskSerialization:
+
+    def _request(self):
+        request = PaymentSetupsRequest()
+        request.processing_channel_id = 'pc_aaaaaaaaaaaaaaaaaaaaaaaaaa'
+        request.amount = 1000
+        request.currency = Currency.GBP
+        pay_by_bank = PayByBank()
+        pay_by_bank.bank_id = 'ob-natwest'
+        methods = PaymentMethods()
+        methods.paybybank = pay_by_bank
+        request.payment_methods = methods
+        risk = PaymentSetupRisk()
+        risk.enabled = False
+        request.risk = risk
+        return request
+
+    def test_request_sends_the_literal_paybybank_key(self):
+        body = json.dumps(self._request(), cls=JsonSerializer)
+
+        assert '"paybybank"' in body
+        assert 'pay_by_bank' not in body
+        assert json.loads(body)['payment_methods'] == {'paybybank': {'bank_id': 'ob-natwest'}}
+
+    def test_request_sends_risk_enabled_false(self):
+        assert _serialize(self._request())['risk'] == {'enabled': False}
+
+    def test_risk_enabled_true_serializes(self):
+        risk = PaymentSetupRisk()
+        risk.enabled = True
+
+        assert _serialize(risk) == {'enabled': True}
+
+    def test_request_round_trip_keeps_paybybank_and_risk(self):
+        read = ResponseWrapper(None, _serialize(self._request()))
+
+        assert read.payment_methods.paybybank.bank_id == 'ob-natwest'
+        assert read.risk.enabled is False
+        assert not hasattr(read.payment_methods, 'pay_by_bank')
+
+    def test_response_reads_paybybank_action(self):
+        response = ResponseWrapper(None, {
+            'id': 'pset_123',
+            'risk': {'enabled': True},
+            'payment_methods': {
+                'paybybank': {
+                    'status': 'action_required',
+                    'flags': [],
+                    'action': {
+                        'type': 'select_bank',
+                        'banks': [{
+                            'bank_id': 'ob-natwest',
+                            'display_name': 'NatWest',
+                            'logo_url': 'https://example.com/natwest.png',
+                            'available': True,
+                        }],
+                    },
+                },
+            },
+        })
+
+        method = response.payment_methods.paybybank
+        assert method.status == 'action_required'
+        assert method.flags == []
+        assert method.action.type == 'select_bank'
+        bank = method.action.banks[0]
+        assert bank.bank_id == 'ob-natwest'
+        assert bank.display_name == 'NatWest'
+        assert bank.logo_url == 'https://example.com/natwest.png'
+        assert bank.available is True
+        assert response.risk.enabled is True
