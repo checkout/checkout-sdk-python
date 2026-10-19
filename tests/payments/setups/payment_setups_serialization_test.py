@@ -1178,36 +1178,17 @@ class TestPaymentSetupCardSerialization:
         assert read.schemes == [PaymentSetupCardScheme.VISA, PaymentSetupCardScheme.MASTERCARD]
         assert read.preferred_scheme == PreferredSchema.VISA
 
-    @pytest.mark.parametrize('field', _CARD_DETAIL_FIELDS)
-    def test_deprecated_flat_card_attribute_is_sent_under_details(self, field):
+    def test_deprecated_flat_card_attributes_are_still_declared(self):
+        for field in _CARD_DETAIL_FIELDS:
+            assert field in Card.__annotations__, field
+            assert field in CardDetails.__annotations__, field
+
+    def test_deprecated_flat_card_attribute_does_not_write_into_details(self):
         card = Card()
+        card.number = '4242424242424242'
 
-        with pytest.deprecated_call():
-            setattr(card, field, _CARD_DETAIL_VALUES[field])
-        with pytest.deprecated_call():
-            assert getattr(card, field) == _CARD_DETAIL_VALUES[field]
-
-        assert getattr(card.details, field) == _CARD_DETAIL_VALUES[field]
-        assert _serialize(card) == {'details': {field: _CARD_DETAIL_WIRE[field]}}
-
-    def test_deprecated_flat_card_attributes_write_into_existing_details(self):
-        details = CardDetails()
-        details.number = '4242424242424242'
-        card = Card()
-        card.details = details
-
-        with pytest.deprecated_call():
-            card.cvv = '100'
-
-        assert card.details is details
-        assert _serialize(card) == {'details': {'number': '4242424242424242', 'cvv': '100'}}
-
-    def test_unset_deprecated_flat_card_attribute_reads_as_missing(self):
-        card = Card()
-
-        with pytest.deprecated_call(), pytest.raises(AttributeError):
-            _ = card.number
-        assert _serialize(card) == {}
+        assert not hasattr(card, 'details')
+        assert 'details' not in _serialize(card)
 
 
 class TestPaymentSetupWalletSerialization:
@@ -1314,9 +1295,12 @@ class TestPaymentSetupWalletSerialization:
         assert read.flags == ['flag_a']
         assert read.token.id == _WALLET_TOKEN_ID
         assert read.token.expires_on == '2026-06-01T10:00:00'
-        for field in vars(method.token_data):
-            if field != 'header':
-                assert getattr(read.token_data, field) == getattr(method.token_data, field), field
+        for field, value in vars(method.token_data).items():
+            if field == 'header':
+                for header_field, header_value in vars(value).items():
+                    assert getattr(read.token_data.header, header_field) == header_value, header_field
+            else:
+                assert getattr(read.token_data, field) == value, field
         assert read.store_for_future_use is True
         assert read.phone.number == '207 946 0000'
         for field, value in _ACCOUNT_HOLDER_WIRE.items():
@@ -1340,31 +1324,17 @@ class TestPaymentSetupWalletSerialization:
         assert read.preferred_scheme == GooglePayPreferredScheme.VISA
 
     @pytest.mark.parametrize('wallet_type', [ApplePay, GooglePay])
-    def test_deprecated_wallet_expires_on_is_sent_under_token(self, wallet_type):
+    def test_deprecated_wallet_expires_on_is_still_declared(self, wallet_type):
+        assert 'expires_on' in wallet_type.__annotations__
+        assert 'expires_on' in WalletToken.__annotations__
+
+    @pytest.mark.parametrize('wallet_type', [ApplePay, GooglePay])
+    def test_wallet_token_set_as_a_legacy_string_does_not_raise(self, wallet_type):
         wallet = wallet_type()
-        expires_on = datetime(2026, 6, 1, 10, 0, 0)
+        wallet.token = _WALLET_TOKEN_ID
+        wallet.expires_on = datetime(2026, 6, 1, 10, 0, 0)
 
-        with pytest.deprecated_call():
-            wallet.expires_on = expires_on
-        with pytest.deprecated_call():
-            assert wallet.expires_on == expires_on
-
-        assert wallet.token.expires_on == expires_on
-        assert _serialize(wallet) == {'token': {'expires_on': '2026-06-01T10:00:00'}}
-
-    def test_deprecated_wallet_expires_on_writes_into_existing_token(self):
-        token = WalletToken()
-        token.id = _WALLET_TOKEN_ID
-        applepay = ApplePay()
-        applepay.token = token
-
-        with pytest.deprecated_call():
-            applepay.expires_on = datetime(2026, 6, 1, 10, 0, 0)
-
-        assert applepay.token is token
-        assert _serialize(applepay) == {
-            'token': {'id': _WALLET_TOKEN_ID, 'expires_on': '2026-06-01T10:00:00'}
-        }
+        assert _serialize(wallet)['token'] == _WALLET_TOKEN_ID
 
 
 class TestPaymentSetupSchemeEnums:

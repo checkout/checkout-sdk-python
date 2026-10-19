@@ -1,49 +1,10 @@
 from __future__ import absolute_import
-import warnings
 from datetime import datetime
 from enum import Enum
 
 from checkout_sdk.common.common import Address, Phone
 from checkout_sdk.common.enums import Currency
 from checkout_sdk.payments.payments import PaymentType, PreferredSchema, ShippingDetails
-
-
-# Deprecated attributes that moved into a nested object
-def _moved_attribute(name: str, container: str, container_type: type):
-    """Builds a deprecated attribute kept for existing code after the spec moved it into a nested
-    object. Reading or writing it emits a DeprecationWarning and uses container.name instead, so a
-    value set through the old attribute is serialized under the nested object."""
-
-    def _warn(obj):
-        warnings.warn(
-            '{0}.{1} is deprecated and will be removed in the next major version. Use '
-            '{0}.{2}.{1} instead.'.format(type(obj).__name__, name, container),
-            DeprecationWarning,
-            stacklevel=3)
-
-    def getter(self):
-        _warn(self)
-        return getattr(getattr(self, container), name)
-
-    def setter(self, value):
-        _warn(self)
-        if not hasattr(self, container):
-            setattr(self, container, container_type())
-        setattr(getattr(self, container), name, value)
-
-    return property(getter, setter)
-
-
-class _SerializesOwnAttributes:
-    """Serializes only the attributes set on the instance.
-
-    JsonSerializer reflects every readable attribute, which would also emit the deprecated
-    attributes built by _moved_attribute at their old position. Their values are stored on the
-    nested object, so serializing the instance attributes sends each value once, where the API
-    reads it."""
-
-    def to_json(self):
-        return dict(vars(self))
 
 
 # Enums
@@ -814,7 +775,7 @@ class WalletToken:
     expires_on: datetime
 
 
-class GooglePay(_SerializesOwnAttributes, PaymentSetupPaymentMethod):
+class GooglePay(PaymentSetupPaymentMethod):
     """The Google Pay payment method's details and configuration."""
     # The Google Pay token data.
     # [Optional]
@@ -844,11 +805,11 @@ class GooglePay(_SerializesOwnAttributes, PaymentSetupPaymentMethod):
     # [Optional]
     preferred_scheme: GooglePayPreferredScheme
     # Deprecated: use token.expires_on instead. Will be removed in the next major version.
-    # Reading or writing it uses token.expires_on, so the value is sent under token.
+    # The API does not read expires_on at this level, so a value set here is ignored.
     # The date and time the token expires, in ISO 8601 format.
     # [Optional]
     # Format: date-time (RFC 3339)
-    expires_on = _moved_attribute('expires_on', 'token', WalletToken)
+    expires_on: datetime
 
 
 # Apple Pay entities
@@ -883,7 +844,7 @@ class ApplePayTokenData:
     header: ApplePayTokenDataHeader
 
 
-class ApplePay(_SerializesOwnAttributes, PaymentSetupPaymentMethod):
+class ApplePay(PaymentSetupPaymentMethod):
     """The Apple Pay payment method's details and configuration."""
     # The Apple Pay token data.
     # [Optional]
@@ -912,11 +873,11 @@ class ApplePay(_SerializesOwnAttributes, PaymentSetupPaymentMethod):
     # [Optional]
     preferred_scheme: PreferredSchema
     # Deprecated: use token.expires_on instead. Will be removed in the next major version.
-    # Reading or writing it uses token.expires_on, so the value is sent under token.
+    # The API does not read expires_on at this level, so a value set here is ignored.
     # The date and time the token expires, in ISO 8601 format.
     # [Optional]
     # Format: date-time (RFC 3339)
-    expires_on = _moved_attribute('expires_on', 'token', WalletToken)
+    expires_on: datetime
 
 
 # Bacs entities
@@ -1273,13 +1234,13 @@ class CardDetails:
     allow_update: bool
 
 
-class Card(_SerializesOwnAttributes, PaymentSetupPaymentMethod):
+class Card(PaymentSetupPaymentMethod):
     """The Card payment method's details and configuration.
 
     The card fields live under details. The attributes of the same name directly on Card
     (number, last4, bin, scheme, expiry_month, expiry_year, name, cvv, stored, expires_on,
-    allow_update) are deprecated: they read and write details, so their values are sent under
-    details and never at the top level of the card object.
+    allow_update) are deprecated: the API does not read them at this level, so set them on
+    details instead.
     """
     # The Checkout.com card token.
     # [Optional]
@@ -1308,54 +1269,65 @@ class Card(_SerializesOwnAttributes, PaymentSetupPaymentMethod):
     preferred_scheme: PreferredSchema
 
     # Deprecated: use details.number instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
     # The card number (without separators).
     # [Optional]
-    number = _moved_attribute('number', 'details', CardDetails)
+    number: str
     # Deprecated: use details.last4 instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
     # The last four digits of the card number.
     # [Optional]
     # readOnly
-    last4 = _moved_attribute('last4', 'details', CardDetails)
+    last4: str
     # Deprecated: use details.bin instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
     # The card issuer's Bank Identification Number (BIN).
     # [Optional]
     # readOnly
-    bin = _moved_attribute('bin', 'details', CardDetails)
+    bin: str
     # Deprecated: use details.scheme instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
     # The card scheme.
     # [Optional]
     # readOnly
-    scheme = _moved_attribute('scheme', 'details', CardDetails)
+    scheme: str
     # Deprecated: use details.expiry_month instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
     # The expiry month of the card.
     # [Optional]
-    expiry_month = _moved_attribute('expiry_month', 'details', CardDetails)
+    expiry_month: int
     # Deprecated: use details.expiry_year instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
     # The expiry year of the card.
     # [Optional]
-    expiry_year = _moved_attribute('expiry_year', 'details', CardDetails)
+    expiry_year: int
     # Deprecated: use details.name instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
     # The cardholder's name.
     # [Optional]
-    name = _moved_attribute('name', 'details', CardDetails)
+    name: str
     # Deprecated: use details.cvv instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
     # The card verification value/code. 3 digits, except for American Express (4 digits).
     # [Optional]
-    cvv = _moved_attribute('cvv', 'details', CardDetails)
+    cvv: str
     # Deprecated: use details.stored instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
     # Indicates whether this card is being submitted from your own stored card-on-file system.
     # [Optional]
-    stored = _moved_attribute('stored', 'details', CardDetails)
+    stored: bool
     # Deprecated: use details.expires_on instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
     # The time by which the card details must be confirmed.
     # [Optional]
     # readOnly
     # Format: date-time (RFC 3339)
-    expires_on = _moved_attribute('expires_on', 'details', CardDetails)
+    expires_on: datetime
     # Deprecated: use details.allow_update instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
     # Indicates whether to use the Real-Time Account Updater to update the card information.
     # [Optional]
-    allow_update = _moved_attribute('allow_update', 'details', CardDetails)
+    allow_update: bool
 
 
 class PaymentMethods:
@@ -1539,7 +1511,7 @@ class Settings:
     capture: bool
     # The list of payment methods excluded from the Payment Setup.
     # [Optional]
-    excluded_payment_methods: list  # list of str (PaymentSourceType values)
+    excluded_payment_methods: list  # list of str (payment method names, for example card)
 
 
 # Order entities
