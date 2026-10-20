@@ -4,7 +4,7 @@ from enum import Enum
 
 from checkout_sdk.common.common import Address, Phone
 from checkout_sdk.common.enums import Currency
-from checkout_sdk.payments.payments import PaymentType, ShippingDetails
+from checkout_sdk.payments.payments import PaymentType, PreferredSchema, ShippingDetails
 
 
 # Enums
@@ -26,6 +26,34 @@ class OsType(str, Enum):
     """An operating system type. Used by the wallet payment methods and by the customer device."""
     ANDROID = 'android'
     IOS = 'ios'
+
+
+class PaymentSetupCardScheme(str, Enum):
+    """A supported card scheme name, as listed in the schemes of the card and wallet payment
+    methods."""
+    ACCEL = 'accel'
+    AMEX = 'amex'
+    CARTES_BANCAIRES = 'cartes_bancaires'
+    CHINA_UNION_PAY = 'china_union_pay'
+    DINERS = 'diners'
+    DISCOVER = 'discover'
+    JCB = 'jcb'
+    MADA = 'mada'
+    MAESTRO = 'maestro'
+    MASTERCARD = 'mastercard'
+    NYCE = 'nyce'
+    OMANNET = 'omannet'
+    PULSE = 'pulse'
+    SHAZAM = 'shazam'
+    STAR = 'star'
+    UPI = 'upi'
+    VISA = 'visa'
+
+
+class GooglePayPreferredScheme(str, Enum):
+    """The preferred card scheme to process a Google Pay payment."""
+    VISA = 'visa'
+    MASTERCARD = 'mastercard'
 
 
 # Customer entities
@@ -367,9 +395,14 @@ class PaymentSetupAccountHolder:
 # Instrument entities
 class PaymentSetupInstrument(PaymentSetupPaymentMethod):
     """The instrument payment method's details and configuration."""
-    # The unique identifier of the selected instrument.
+    # The unique identifier of the selected instrument. For example,
+    # src_wmlfc3zttb4uzmk6snpwb43jbi.
     # [Optional]
     id: str
+    # The type of the instrument. For example, bacs.
+    # [Optional]
+    # readOnly
+    type: str
     # The customer's phone number. Not present in the current instrument schema.
     # [Optional]
     phone: Phone
@@ -380,7 +413,7 @@ class PaymentSetupInstrument(PaymentSetupPaymentMethod):
     # Not present in the current instrument schema.
     # [Optional]
     allow_update: bool
-    # The next available action for the payment method.
+    # The next available action for the payment method. Its type is set_instrument.
     # [Optional]
     # readOnly
     action: PaymentMethodAction
@@ -730,29 +763,53 @@ class GooglePayTokenData:
     tokenization_key: str
 
 
+class WalletToken:
+    """The Checkout.com token of a wallet payment method (Apple Pay, Google Pay)."""
+    # The token identifier, prefixed by tok_.
+    # [Required]
+    # ^(tok)_(\w{26})$
+    id: str
+    # The date and time the token expires, in ISO 8601 format.
+    # [Optional]
+    # Format: date-time (RFC 3339)
+    expires_on: datetime
+
+
 class GooglePay(PaymentSetupPaymentMethod):
     """The Google Pay payment method's details and configuration."""
     # The Google Pay token data.
     # [Optional]
+    # writeOnly
     token_data: GooglePayTokenData
-    # The Checkout.com Google Pay token. The spec declares token as an object with id and
-    # expires_on; this SDK field carries the token identifier only.
+    # The Checkout.com Google Pay token.
     # [Optional]
-    token: str
-    # The date and time the token expires, in ISO 8601 format. The spec nests it under token.
-    # [Optional]
-    # Format: date-time (RFC 3339)
-    expires_on: datetime
+    token: WalletToken
     # Set to true if you intend to reuse the payment credentials in subsequent payments. If set
     # to false, a payment instrument will not be included in the payment response.
     # [Optional]
+    # writeOnly
     store_for_future_use: bool
-    # The customer's phone number.
+    # The customer's phone number. country_code is min 1, max 7 characters; number is min 6,
+    # max 25 characters.
     # [Optional]
     phone: Phone
     # Account holder details for the payment.
     # [Optional]
     account_holder: PaymentSetupAccountHolder
+    # The list of supported card scheme names. The Google Pay schema lists every
+    # PaymentSetupCardScheme value except cartes_bancaires.
+    # [Optional]
+    # readOnly
+    schemes: list  # list of PaymentSetupCardScheme
+    # The preferred card scheme to process the payment.
+    # [Optional]
+    preferred_scheme: GooglePayPreferredScheme
+    # Deprecated: use token.expires_on instead. Will be removed in the next major version.
+    # The API does not read expires_on at this level, so a value set here is ignored.
+    # The date and time the token expires, in ISO 8601 format.
+    # [Optional]
+    # Format: date-time (RFC 3339)
+    expires_on: datetime
 
 
 # Apple Pay entities
@@ -791,25 +848,36 @@ class ApplePay(PaymentSetupPaymentMethod):
     """The Apple Pay payment method's details and configuration."""
     # The Apple Pay token data.
     # [Optional]
+    # writeOnly
     token_data: ApplePayTokenData
-    # The Checkout.com Apple Pay token. The spec declares token as an object with id and
-    # expires_on; this SDK field carries the token identifier only.
+    # The Checkout.com Apple Pay token.
     # [Optional]
-    token: str
-    # The date and time the token expires, in ISO 8601 format. The spec nests it under token.
-    # [Optional]
-    # Format: date-time (RFC 3339)
-    expires_on: datetime
+    token: WalletToken
     # Set to true if you intend to reuse the payment credentials in subsequent payments. If set
     # to false, a payment instrument will not be included in the payment response.
     # [Optional]
+    # writeOnly
     store_for_future_use: bool
-    # The customer's phone number.
+    # The customer's phone number. country_code is min 1, max 7 characters; number is min 6,
+    # max 25 characters.
     # [Optional]
     phone: Phone
     # Account holder details for the payment.
     # [Optional]
     account_holder: PaymentSetupAccountHolder
+    # The list of supported card scheme names.
+    # [Optional]
+    # readOnly
+    schemes: list  # list of PaymentSetupCardScheme
+    # The preferred card scheme to process the payment.
+    # [Optional]
+    preferred_scheme: PreferredSchema
+    # Deprecated: use token.expires_on instead. Will be removed in the next major version.
+    # The API does not read expires_on at this level, so a value set here is ignored.
+    # The date and time the token expires, in ISO 8601 format.
+    # [Optional]
+    # Format: date-time (RFC 3339)
+    expires_on: datetime
 
 
 # Bacs entities
@@ -1111,68 +1179,163 @@ class Stablecoin(PaymentSetupPaymentMethod):
 
 
 # Card entities
-class Card(PaymentSetupPaymentMethod):
-    """The Card payment method's details and configuration.
-
-    The spec nests the card fields under details (and the token under token.id); this class
-    keeps them at the top level of the card object.
-    """
-    # The card number (without separators). The spec nests it under details.
+class CardToken:
+    """The Checkout.com card token of the card payment method."""
+    # The Checkout.com card token identifier.
     # [Optional]
+    id: str
+
+
+class CardDetails:
+    """The card details of the card payment method."""
+    # The card number (without separators).
+    # [Optional]
+    # writeOnly
     number: str
-    # The last four digits of the card number. The spec nests it under details.
+    # The last four digits of the card number.
     # [Optional]
     # readOnly
     last4: str
-    # The card issuer's Bank Identification Number (BIN). The spec nests it under details.
+    # The card issuer's Bank Identification Number (BIN).
     # [Optional]
     # readOnly
     bin: str
-    # The card scheme. The spec nests it under details.
+    # The card scheme.
     # [Optional]
     # readOnly
     scheme: str
-    # The expiry month of the card. The spec nests it under details.
+    # The expiry month of the card.
     # [Optional]
     expiry_month: int
-    # The expiry year of the card. The spec nests it under details.
+    # The expiry year of the card.
     # [Optional]
     expiry_year: int
-    # The cardholder's name. The spec nests it under details.
+    # The cardholder's name.
     # [Optional]
+    # writeOnly
     name: str
     # The card verification value/code. 3 digits, except for American Express (4 digits).
-    # The spec nests it under details.
     # [Optional]
+    # writeOnly
     cvv: str
     # Indicates whether this card is being submitted from your own stored card-on-file system,
-    # rather than being entered by the customer at the time of payment. The spec nests it
-    # under details.
+    # rather than being entered by the customer at the time of payment. Set to true when you
+    # provide card details that you already have on file for the customer.
     # [Optional]
+    # writeOnly
     stored: bool
-    # The time by which the card details must be confirmed. The spec nests it under details.
+    # The time by which the card details must be confirmed.
     # [Optional]
     # readOnly
     # Format: date-time (RFC 3339)
     expires_on: datetime
+    # Indicates whether to use the Real-Time Account Updater to update the card information.
+    # [Optional]
+    allow_update: bool
+
+
+class Card(PaymentSetupPaymentMethod):
+    """The Card payment method's details and configuration.
+
+    The card fields live under details. The attributes of the same name directly on Card
+    (number, last4, bin, scheme, expiry_month, expiry_year, name, cvv, stored, expires_on,
+    allow_update) are deprecated: the API does not read them at this level, so set them on
+    details instead.
+    """
+    # The Checkout.com card token.
+    # [Optional]
+    token: CardToken
+    # The card details.
+    # [Optional]
+    details: CardDetails
     # Set to true if you intend to reuse the payment credentials in subsequent payments. If set
     # to false, a payment instrument will not be included in the payment response.
     # [Optional]
+    # writeOnly
     store_for_future_use: bool
-    # The customer's phone number.
+    # The customer's phone number. country_code is min 1, max 7 characters; number is min 6,
+    # max 25 characters.
     # [Optional]
     phone: Phone
     # Account holder details for the payment.
     # [Optional]
     account_holder: PaymentSetupAccountHolder
+    # The list of supported card scheme names.
+    # [Optional]
+    # readOnly
+    schemes: list  # list of PaymentSetupCardScheme
+    # The preferred card scheme to process the payment.
+    # [Optional]
+    preferred_scheme: PreferredSchema
+
+    # Deprecated: use details.number instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
+    # The card number (without separators).
+    # [Optional]
+    number: str
+    # Deprecated: use details.last4 instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
+    # The last four digits of the card number.
+    # [Optional]
+    # readOnly
+    last4: str
+    # Deprecated: use details.bin instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
+    # The card issuer's Bank Identification Number (BIN).
+    # [Optional]
+    # readOnly
+    bin: str
+    # Deprecated: use details.scheme instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
+    # The card scheme.
+    # [Optional]
+    # readOnly
+    scheme: str
+    # Deprecated: use details.expiry_month instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
+    # The expiry month of the card.
+    # [Optional]
+    expiry_month: int
+    # Deprecated: use details.expiry_year instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
+    # The expiry year of the card.
+    # [Optional]
+    expiry_year: int
+    # Deprecated: use details.name instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
+    # The cardholder's name.
+    # [Optional]
+    name: str
+    # Deprecated: use details.cvv instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
+    # The card verification value/code. 3 digits, except for American Express (4 digits).
+    # [Optional]
+    cvv: str
+    # Deprecated: use details.stored instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
+    # Indicates whether this card is being submitted from your own stored card-on-file system.
+    # [Optional]
+    stored: bool
+    # Deprecated: use details.expires_on instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
+    # The time by which the card details must be confirmed.
+    # [Optional]
+    # readOnly
+    # Format: date-time (RFC 3339)
+    expires_on: datetime
+    # Deprecated: use details.allow_update instead. Will be removed in the next major version.
+    # The API does not read it at the top level of the card, so a value set here is ignored.
     # Indicates whether to use the Real-Time Account Updater to update the card information.
-    # The spec nests it under details.
     # [Optional]
     allow_update: bool
 
 
 class PaymentMethods:
     """The payment methods that are enabled on your account and available for use."""
+    # The payment method that automatically confirms the payment when it is ready. For example,
+    # card.
+    # [Optional]
+    auto_confirm: str
     # The instrument payment method's details and configuration.
     # [Optional]
     instrument: PaymentSetupInstrument
@@ -1348,7 +1511,7 @@ class Settings:
     capture: bool
     # The list of payment methods excluded from the Payment Setup.
     # [Optional]
-    excluded_payment_methods: list  # list of str (PaymentSourceType values)
+    excluded_payment_methods: list  # list of str (payment method names, for example card)
 
 
 # Order entities
@@ -1915,3 +2078,9 @@ class PaymentSetupsRequest:
     # Account funding transaction details for the payment.
     # [Optional]
     account_funding_transaction: PaymentSetupAccountFundingTransaction
+    # A set of key/value pairs you can attach to a payment. It can be useful for storing
+    # additional information about the payment. Each value is a string (max 255 characters),
+    # a number or a boolean.
+    # [Optional]
+    # max 20 properties
+    metadata: dict

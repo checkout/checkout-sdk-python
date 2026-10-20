@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 import pytest
 
@@ -25,8 +26,10 @@ from checkout_sdk.payments.setups.setups import (
     MerchantAccount, OrderSubMerchant,
     PaymentSetupsRequest, Customer, CustomerEmail, CustomerDevice, CustomerDeviceClient,
     PaymentMethodInitialization, CashApp, CashAppAction, CashAppActionType, CashAppAddress,
-    CashAppCustomerProfile, PaymentSetupRisk,
+    CashAppCustomerProfile, PaymentSetupRisk, CardDetails, CardToken, WalletToken, PaymentSetupCardScheme,
+    GooglePayPreferredScheme,
 )
+from checkout_sdk.payments.payments import PreferredSchema
 
 
 def _serialize(obj):
@@ -159,7 +162,9 @@ class TestPaymentSetupsSerialization:
 
     def test_googlepay_serializes_token_data(self):
         googlepay = GooglePay()
-        googlepay.token = 'tok_x'
+        token = WalletToken()
+        token.id = 'tok_x'
+        googlepay.token = token
         token_data = GooglePayTokenData()
         token_data.protocol_version = 'ECv2'
         token_data.signature = 'sig'
@@ -168,7 +173,7 @@ class TestPaymentSetupsSerialization:
         googlepay.token_data = token_data
 
         assert _serialize(googlepay) == {
-            'token': 'tok_x',
+            'token': {'id': 'tok_x'},
             'token_data': {
                 'protocol_version': 'ECv2',
                 'signature': 'sig',
@@ -204,12 +209,14 @@ class TestPaymentSetupsSerialization:
         }
 
     def test_card_serializes_writable_fields_and_account_holder(self):
+        details = CardDetails()
+        details.number = '4242424242424242'
+        details.expiry_month = 12
+        details.expiry_year = 2030
+        details.name = 'John Smith'
+        details.cvv = '100'
         card = Card()
-        card.number = '4242424242424242'
-        card.expiry_month = 12
-        card.expiry_year = 2030
-        card.name = 'John Smith'
-        card.cvv = '100'
+        card.details = details
 
         holder = PaymentSetupAccountHolder()
         holder.type = PaymentSetupAccountHolderType.INDIVIDUAL
@@ -218,11 +225,13 @@ class TestPaymentSetupsSerialization:
         card.account_holder = holder
 
         assert _serialize(card) == {
-            'number': '4242424242424242',
-            'expiry_month': 12,
-            'expiry_year': 2030,
-            'name': 'John Smith',
-            'cvv': '100',
+            'details': {
+                'number': '4242424242424242',
+                'expiry_month': 12,
+                'expiry_year': 2030,
+                'name': 'John Smith',
+                'cvv': '100',
+            },
             'account_holder': {'type': 'individual', 'first_name': 'John', 'last_name': 'Smith'},
         }
 
@@ -1035,3 +1044,369 @@ class TestPayByBankKeyAndRiskSerialization:
         assert bank.logo_url == 'https://example.com/natwest.png'
         assert bank.available is True
         assert response.risk.enabled is True
+
+
+_CARD_DETAIL_FIELDS = ('number', 'last4', 'bin', 'scheme', 'expiry_month', 'expiry_year', 'name',
+                       'cvv', 'stored', 'expires_on', 'allow_update')
+
+_CARD_DETAIL_VALUES = {
+    'number': '4242424242424242',
+    'last4': '4242',
+    'bin': '424242',
+    'scheme': 'Visa',
+    'expiry_month': 12,
+    'expiry_year': 2030,
+    'name': 'John Smith',
+    'cvv': '100',
+    'stored': True,
+    'expires_on': datetime(2026, 6, 1, 10, 0, 0),
+    'allow_update': True,
+}
+
+_CARD_DETAIL_WIRE = dict(_CARD_DETAIL_VALUES, expires_on='2026-06-01T10:00:00')
+
+_WALLET_TOKEN_ID = 'tok_ubfj2q76miwundwlk72vxt2i7q'
+
+
+def _phone():
+    phone = Phone()
+    phone.country_code = '+44'
+    phone.number = '207 946 0000'
+    return phone
+
+
+def _account_holder():
+    holder = PaymentSetupAccountHolder()
+    holder.type = PaymentSetupAccountHolderType.INDIVIDUAL
+    holder.first_name = 'John'
+    holder.last_name = 'Smith'
+    holder.middle_name = 'Paul'
+    holder.company_name = 'ACME Ltd'
+    holder.account_name_inquiry = True
+    return holder
+
+
+_ACCOUNT_HOLDER_WIRE = {
+    'type': 'individual', 'first_name': 'John', 'last_name': 'Smith', 'middle_name': 'Paul',
+    'company_name': 'ACME Ltd', 'account_name_inquiry': True,
+}
+
+
+class TestPaymentSetupCardSerialization:
+    """payment_methods.card: token, details and the card-level properties, all of them."""
+
+    def _card(self):
+        details = CardDetails()
+        for field, value in _CARD_DETAIL_VALUES.items():
+            setattr(details, field, value)
+        token = CardToken()
+        token.id = 'tok_4gzeau5o2uqubbk6fufs3m7p54'
+        card = Card()
+        card.status = 'ready'
+        card.flags = ['flag_a']
+        card.token = token
+        card.details = details
+        card.store_for_future_use = True
+        card.phone = _phone()
+        card.account_holder = _account_holder()
+        card.schemes = [PaymentSetupCardScheme.VISA, PaymentSetupCardScheme.CARTES_BANCAIRES]
+        card.preferred_scheme = PreferredSchema.CARTES_BANCAIRES
+        return card
+
+    def test_card_serializes_every_property_under_the_spec_keys(self):
+        body = json.dumps(self._card(), cls=JsonSerializer)
+
+        for key in ('"token"', '"details"', '"store_for_future_use"', '"schemes"',
+                    '"preferred_scheme"', '"expiry_month"', '"allow_update"'):
+            assert key in body, key
+        assert json.loads(body) == {
+            'status': 'ready',
+            'flags': ['flag_a'],
+            'token': {'id': 'tok_4gzeau5o2uqubbk6fufs3m7p54'},
+            'details': _CARD_DETAIL_WIRE,
+            'store_for_future_use': True,
+            'phone': {'country_code': '+44', 'number': '207 946 0000'},
+            'account_holder': _ACCOUNT_HOLDER_WIRE,
+            'schemes': ['visa', 'cartes_bancaires'],
+            'preferred_scheme': 'cartes_bancaires',
+        }
+
+    def test_card_round_trip_keeps_every_property(self):
+        card = self._card()
+
+        read = ResponseWrapper(None, _serialize(card))
+
+        assert read.status == 'ready'
+        assert read.flags == ['flag_a']
+        assert read.token.id == card.token.id
+        for field in _CARD_DETAIL_FIELDS:
+            assert getattr(read.details, field) == _CARD_DETAIL_WIRE[field], field
+        assert read.store_for_future_use is True
+        assert read.phone.country_code == '+44'
+        assert read.phone.number == '207 946 0000'
+        for field, value in _ACCOUNT_HOLDER_WIRE.items():
+            assert getattr(read.account_holder, field) == value, field
+        assert read.schemes == [PaymentSetupCardScheme.VISA, PaymentSetupCardScheme.CARTES_BANCAIRES]
+        assert read.preferred_scheme == PreferredSchema.CARTES_BANCAIRES
+
+    def test_card_spec_example_reads(self):
+        read = ResponseWrapper(None, {
+            'status': 'ready',
+            'flags': [],
+            'token': {'id': 'tok_4gzeau5o2uqubbk6fufs3m7p54'},
+            'details': {
+                'last4': '4242', 'bin': '424242', 'scheme': 'Visa', 'expiry_month': 12,
+                'expiry_year': 2030, 'expires_on': '2026-06-01T10:00:00Z', 'allow_update': True,
+            },
+            'phone': {'country_code': '+44', 'number': '207 946 0000'},
+            'account_holder': {'type': 'individual', 'first_name': 'John', 'last_name': 'Smith'},
+            'schemes': ['visa', 'mastercard'],
+            'preferred_scheme': 'visa',
+        })
+
+        assert read.status == 'ready'
+        assert read.token.id == 'tok_4gzeau5o2uqubbk6fufs3m7p54'
+        assert read.details.last4 == '4242'
+        assert read.details.bin == '424242'
+        assert read.details.scheme == 'Visa'
+        assert read.details.expiry_month == 12
+        assert read.details.expiry_year == 2030
+        assert read.details.expires_on == '2026-06-01T10:00:00Z'
+        assert read.details.allow_update is True
+        assert read.phone.number == '207 946 0000'
+        assert read.account_holder.type == PaymentSetupAccountHolderType.INDIVIDUAL
+        assert read.schemes == [PaymentSetupCardScheme.VISA, PaymentSetupCardScheme.MASTERCARD]
+        assert read.preferred_scheme == PreferredSchema.VISA
+
+    def test_deprecated_flat_card_attributes_are_still_declared(self):
+        for field in _CARD_DETAIL_FIELDS:
+            assert field in Card.__annotations__, field
+            assert field in CardDetails.__annotations__, field
+
+    def test_deprecated_flat_card_attribute_does_not_write_into_details(self):
+        card = Card()
+        card.number = '4242424242424242'
+
+        assert not hasattr(card, 'details')
+        assert 'details' not in _serialize(card)
+
+
+class TestPaymentSetupWalletSerialization:
+    """payment_methods.applepay and payment_methods.googlepay: token object, schemes and
+    preferred_scheme. Neither wallet has a details object."""
+
+    @staticmethod
+    def _token():
+        token = WalletToken()
+        token.id = _WALLET_TOKEN_ID
+        token.expires_on = datetime(2026, 6, 1, 10, 0, 0)
+        return token
+
+    def _applepay(self):
+        header = ApplePayTokenDataHeader()
+        header.ephemeral_public_key = 'key'
+        header.public_key_hash = 'hash'
+        header.transaction_id = 'txn'
+        token_data = ApplePayTokenData()
+        token_data.version = 'EC_v1'
+        token_data.data = 'encrypted'
+        token_data.signature = 'sig'
+        token_data.header = header
+        applepay = ApplePay()
+        applepay.status = 'ready'
+        applepay.flags = ['flag_a']
+        applepay.token_data = token_data
+        applepay.token = self._token()
+        applepay.store_for_future_use = True
+        applepay.phone = _phone()
+        applepay.account_holder = _account_holder()
+        applepay.schemes = [PaymentSetupCardScheme.VISA, PaymentSetupCardScheme.CARTES_BANCAIRES]
+        applepay.preferred_scheme = PreferredSchema.CARTES_BANCAIRES
+        return applepay
+
+    def _googlepay(self):
+        token_data = GooglePayTokenData()
+        token_data.protocol_version = 'ECv2'
+        token_data.signature = 'sig'
+        token_data.signed_message = 'msg'
+        token_data.tokenization_key = 'pk_x'
+        googlepay = GooglePay()
+        googlepay.status = 'ready'
+        googlepay.flags = ['flag_a']
+        googlepay.token_data = token_data
+        googlepay.token = self._token()
+        googlepay.store_for_future_use = True
+        googlepay.phone = _phone()
+        googlepay.account_holder = _account_holder()
+        googlepay.schemes = [PaymentSetupCardScheme.VISA, PaymentSetupCardScheme.MASTERCARD]
+        googlepay.preferred_scheme = GooglePayPreferredScheme.MASTERCARD
+        return googlepay
+
+    def test_applepay_serializes_every_property_with_the_token_as_an_object(self):
+        body = json.dumps(self._applepay(), cls=JsonSerializer)
+
+        assert '"token": {' in body
+        assert '"id": "%s"' % _WALLET_TOKEN_ID in body
+        assert '"details"' not in body
+        assert json.loads(body) == {
+            'status': 'ready',
+            'flags': ['flag_a'],
+            'token_data': {
+                'version': 'EC_v1', 'data': 'encrypted', 'signature': 'sig',
+                'header': {'ephemeral_public_key': 'key', 'public_key_hash': 'hash',
+                           'transaction_id': 'txn'},
+            },
+            'token': {'id': _WALLET_TOKEN_ID, 'expires_on': '2026-06-01T10:00:00'},
+            'store_for_future_use': True,
+            'phone': {'country_code': '+44', 'number': '207 946 0000'},
+            'account_holder': _ACCOUNT_HOLDER_WIRE,
+            'schemes': ['visa', 'cartes_bancaires'],
+            'preferred_scheme': 'cartes_bancaires',
+        }
+
+    def test_googlepay_serializes_every_property_with_the_token_as_an_object(self):
+        body = json.dumps(self._googlepay(), cls=JsonSerializer)
+
+        assert '"token": {' in body
+        assert '"id": "%s"' % _WALLET_TOKEN_ID in body
+        assert '"details"' not in body
+        assert json.loads(body) == {
+            'status': 'ready',
+            'flags': ['flag_a'],
+            'token_data': {
+                'protocol_version': 'ECv2', 'signature': 'sig', 'signed_message': 'msg',
+                'tokenization_key': 'pk_x',
+            },
+            'token': {'id': _WALLET_TOKEN_ID, 'expires_on': '2026-06-01T10:00:00'},
+            'store_for_future_use': True,
+            'phone': {'country_code': '+44', 'number': '207 946 0000'},
+            'account_holder': _ACCOUNT_HOLDER_WIRE,
+            'schemes': ['visa', 'mastercard'],
+            'preferred_scheme': 'mastercard',
+        }
+
+    @pytest.mark.parametrize('wallet', ['_applepay', '_googlepay'])
+    def test_wallet_round_trip_keeps_every_property(self, wallet):
+        method = getattr(self, wallet)()
+
+        read = ResponseWrapper(None, _serialize(method))
+
+        assert read.status == 'ready'
+        assert read.flags == ['flag_a']
+        assert read.token.id == _WALLET_TOKEN_ID
+        assert read.token.expires_on == '2026-06-01T10:00:00'
+        for field, value in vars(method.token_data).items():
+            if field == 'header':
+                for header_field, header_value in vars(value).items():
+                    assert getattr(read.token_data.header, header_field) == header_value, header_field
+            else:
+                assert getattr(read.token_data, field) == value, field
+        assert read.store_for_future_use is True
+        assert read.phone.number == '207 946 0000'
+        for field, value in _ACCOUNT_HOLDER_WIRE.items():
+            assert getattr(read.account_holder, field) == value, field
+        assert read.schemes == method.schemes
+        assert read.preferred_scheme == method.preferred_scheme
+
+    def test_wallet_spec_example_reads(self):
+        read = ResponseWrapper(None, {
+            'status': 'ready',
+            'flags': [],
+            'token': {'id': _WALLET_TOKEN_ID, 'expires_on': '2026-06-01T10:00:00Z'},
+            'schemes': ['visa', 'mastercard'],
+            'preferred_scheme': 'visa',
+        })
+
+        assert read.status == 'ready'
+        assert read.token.id == _WALLET_TOKEN_ID
+        assert read.token.expires_on == '2026-06-01T10:00:00Z'
+        assert read.schemes == [PaymentSetupCardScheme.VISA, PaymentSetupCardScheme.MASTERCARD]
+        assert read.preferred_scheme == GooglePayPreferredScheme.VISA
+
+    @pytest.mark.parametrize('wallet_type', [ApplePay, GooglePay])
+    def test_deprecated_wallet_expires_on_is_still_declared(self, wallet_type):
+        assert 'expires_on' in wallet_type.__annotations__
+        assert 'expires_on' in WalletToken.__annotations__
+
+    @pytest.mark.parametrize('wallet_type', [ApplePay, GooglePay])
+    def test_wallet_token_set_as_a_legacy_string_does_not_raise(self, wallet_type):
+        wallet = wallet_type()
+        wallet.token = _WALLET_TOKEN_ID
+        wallet.expires_on = datetime(2026, 6, 1, 10, 0, 0)
+
+        assert _serialize(wallet)['token'] == _WALLET_TOKEN_ID
+
+
+class TestPaymentSetupSchemeEnums:
+
+    def test_card_scheme_has_every_spec_value(self):
+        assert [s.value for s in PaymentSetupCardScheme] == [
+            'accel', 'amex', 'cartes_bancaires', 'china_union_pay', 'diners', 'discover', 'jcb',
+            'mada', 'maestro', 'mastercard', 'nyce', 'omannet', 'pulse', 'shazam', 'star', 'upi',
+            'visa',
+        ]
+
+    def test_preferred_scheme_enums_have_every_spec_value(self):
+        assert [s.value for s in PreferredSchema] == ['visa', 'mastercard', 'cartes_bancaires']
+        assert [s.value for s in GooglePayPreferredScheme] == ['visa', 'mastercard']
+
+
+class TestPaymentSetupRequestTopLevelSerialization:
+    """payment_methods.auto_confirm, payment_methods.instrument and the request metadata."""
+
+    def test_instrument_round_trip_keeps_every_spec_property(self):
+        instrument = PaymentSetupInstrument()
+        instrument.status = 'ready'
+        instrument.flags = []
+        instrument.id = 'src_wmlfc3zttb4uzmk6snpwb43jbi'
+        instrument.type = 'bacs'
+
+        body = json.dumps(instrument, cls=JsonSerializer)
+
+        assert '"type": "bacs"' in body
+        read = ResponseWrapper(None, json.loads(body))
+        assert read.status == 'ready'
+        assert read.flags == []
+        assert read.id == 'src_wmlfc3zttb4uzmk6snpwb43jbi'
+        assert read.type == 'bacs'
+
+    def test_instrument_spec_example_reads(self):
+        read = ResponseWrapper(None, {
+            'status': 'ready',
+            'id': 'src_wmlfc3zttb4uzmk6snpwb43jbi',
+            'type': 'bacs',
+            'action': {'type': 'set_instrument'},
+        })
+
+        assert read.id == 'src_wmlfc3zttb4uzmk6snpwb43jbi'
+        assert read.type == 'bacs'
+        assert read.action.type == 'set_instrument'
+
+    def test_auto_confirm_and_metadata_serialize_under_the_spec_keys(self):
+        payment_methods = PaymentMethods()
+        payment_methods.auto_confirm = 'card'
+        request = PaymentSetupsRequest()
+        request.processing_channel_id = 'pc_aaaaaaaaaaaaaaaaaaaaaaaaaa'
+        request.amount = 1000
+        request.currency = Currency.GBP
+        request.payment_methods = payment_methods
+        request.metadata = {'coupon_code': 'NY2018', 'partner_id': 123989, 'vip': True}
+
+        body = json.dumps(request, cls=JsonSerializer)
+
+        assert '"auto_confirm": "card"' in body
+        assert 'autoConfirm' not in body
+        assert '"metadata"' in body
+        assert json.loads(body) == {
+            'processing_channel_id': 'pc_aaaaaaaaaaaaaaaaaaaaaaaaaa',
+            'amount': 1000,
+            'currency': 'GBP',
+            'payment_methods': {'auto_confirm': 'card'},
+            'metadata': {'coupon_code': 'NY2018', 'partner_id': 123989, 'vip': True},
+        }
+
+        read = ResponseWrapper(None, json.loads(body))
+        assert read.payment_methods.auto_confirm == 'card'
+        assert read.metadata.coupon_code == 'NY2018'
+        assert read.metadata.partner_id == 123989
+        assert read.metadata.vip is True
