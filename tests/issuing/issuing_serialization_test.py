@@ -1,10 +1,12 @@
 import json
+
+import pytest
 from datetime import date
 
 from checkout_sdk.json_serializer import JsonSerializer
 from checkout_sdk.api_client import ApiClient
 from checkout_sdk.issuing.cards import CardRequest, CardType, CardUpdateHeaders, UpdateCardRequest, \
-    VirtualCardRequest, CardStatusUpdate
+    VirtualCardRequest, CardStatusUpdate, RevokeRequest, RevokeReason, SuspendRequest, SuspendReason
 from checkout_sdk.issuing.disputes import (
     IssuingDisputeFraudType, IssuingDisputeFraudDetails, CreateDisputeRequest,
     EscalateDisputeRequest, AmendDisputeRequest, SubmitDisputeRequest,
@@ -80,7 +82,7 @@ class TestIssuingSerialization:
 
     def test_revocation_date_accepts_a_date_object_through_the_serializer(self):
         """revocation_date is `format: date`. The SDK convention is to declare it str with a
-        `# Format: yyyy-MM-dd` comment, and the JsonSerializer date branch added in INT-1699 is
+        `# Format: yyyy-MM-dd` comment, and the JsonSerializer date branch is
         the safety net for a caller who passes a real date instead."""
         request = UpdateCardRequest()
         request.revocation_date = date(2027, 3, 12)
@@ -225,3 +227,44 @@ class TestIssuingSerialization:
         request.amount = 100
 
         assert _serialize(request) == {'reason': '4807', 'amount': 100}
+
+
+class TestRevokeAndSuspendRequestSerialization:
+    """revoke-card-request and suspend-card-request: one optional `reason` property each."""
+
+    @pytest.mark.parametrize('reason, wire', [(RevokeReason.EXPIRED, 'expired'),
+                                              (RevokeReason.REPORTED_LOST, 'reported_lost'),
+                                              (RevokeReason.REPORTED_STOLEN, 'reported_stolen')])
+    def test_revoke_request_round_trips_every_reason(self, reason, wire):
+        request = RevokeRequest()
+        request.reason = reason
+
+        payload = _serialize(request)
+
+        assert payload == {'reason': wire}
+        assert RevokeReason(payload['reason']) is reason
+
+    @pytest.mark.parametrize('reason, wire', [(SuspendReason.SUSPECTED_LOST, 'suspected_lost'),
+                                              (SuspendReason.SUSPECTED_STOLEN, 'suspected_stolen')])
+    def test_suspend_request_round_trips_every_reason(self, reason, wire):
+        request = SuspendRequest()
+        request.reason = reason
+
+        payload = _serialize(request)
+
+        assert payload == {'reason': wire}
+        assert SuspendReason(payload['reason']) is reason
+
+    def test_reason_enums_match_the_swagger_values_exactly(self):
+        assert [m.value for m in RevokeReason] == ['expired', 'reported_lost', 'reported_stolen']
+        assert [m.value for m in SuspendReason] == ['suspected_lost', 'suspected_stolen']
+
+    def test_swagger_examples_deserialize_into_the_enums(self):
+        assert RevokeReason(json.loads('{"reason":"reported_lost"}')['reason']) is RevokeReason.REPORTED_LOST
+        assert SuspendReason(json.loads('{"reason":"suspected_lost"}')['reason']) is SuspendReason.SUSPECTED_LOST
+
+    @pytest.mark.parametrize('request_type', [RevokeRequest, SuspendRequest])
+    def test_an_empty_request_serializes_to_an_empty_object(self, request_type):
+        """An empty request object serializes to {}. Passing no request at all sends no body,
+        which the wire tests assert."""
+        assert json.dumps(request_type(), cls=JsonSerializer) == '{}'

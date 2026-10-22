@@ -4,7 +4,6 @@ import pytest
 from requests import HTTPError
 
 from checkout_sdk.api_client import ApiClient
-from checkout_sdk.exception import CheckoutApiException
 from checkout_sdk.issuing.cards import CardUpdateHeaders, UpdateCardRequest
 from checkout_sdk.issuing.issuing_client import IssuingClient
 
@@ -49,7 +48,8 @@ class TestCardUpdateHeadersReachTheWire:
         headers.return_encrypted_cvv = 'true'
         headers.encryption_key = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A'
 
-        client.update_card('crd_123', UpdateCardRequest(), headers)
+        with pytest.warns(DeprecationWarning, match='next major version'):
+            client.update_card('crd_123', UpdateCardRequest(), headers)
 
         sent = _sent_headers(http_client)
         assert sent['return-encrypted-cvv'] == 'true'
@@ -70,7 +70,8 @@ class TestCardUpdateHeadersReachTheWire:
         headers = CardUpdateHeaders()
         headers.encryption_key = 'MIIBIjAN'
 
-        client.update_card('crd_123', UpdateCardRequest(), headers)
+        with pytest.warns(DeprecationWarning, match='next major version'):
+            client.update_card('crd_123', UpdateCardRequest(), headers)
 
         sent = _sent_headers(http_client)
         assert sent['Encryption-Key'] == 'MIIBIjAN'
@@ -85,39 +86,23 @@ class TestCardUpdateHeadersReachTheWire:
         headers = CardUpdateHeaders()
         headers.return_encrypted_cvv = True
 
-        client.update_card('crd_123', UpdateCardRequest(), headers)
+        with pytest.warns(DeprecationWarning, match='next major version'):
+            client.update_card('crd_123', UpdateCardRequest(), headers)
 
         assert _sent_headers(http_client)['return-encrypted-cvv'] == 'True'
 
-    def test_a_422_surfaces_the_encryption_key_required_error(self, mock_sdk_configuration):
-        """The API answers 422 with error code encryption_key_required when return-encrypted-cvv
-        is true without an Encryption-Key header."""
-        client, _ = _build(mock_sdk_configuration, status=422, body='{'
-                           '"request_id":"0HLHPN8802NUF:00000003",'
-                           '"error_type":"request_invalid",'
-                           '"error_codes":["encryption_key_required"]}')
-        headers = CardUpdateHeaders()
-        headers.return_encrypted_cvv = 'true'
-
-        with pytest.raises(CheckoutApiException) as exc:
-            client.update_card('crd_123', UpdateCardRequest(), headers)
-
-        assert exc.value.error_type == 'request_invalid'
-        assert 'encryption_key_required' in exc.value.error_details
-        assert exc.value.request_id == '0HLHPN8802NUF:00000003'
-
-    def test_a_successful_update_with_the_headers_still_has_no_encrypted_cvv(self, mock_sdk_configuration):
-        """The 2026-09-17 spec (INT-1700) removed encrypted_cvv from update-card-response
-        entirely, so return-encrypted-cvv/Encryption-Key no longer make the response carry it.
-        This test previously asserted the opposite (added by INT-1695, when the field still
-        existed)."""
+    def test_the_deprecated_headers_do_not_change_the_response(self, mock_sdk_configuration):
+        """The API no longer supports these headers and ignores them: an update that sends them
+        gets the same update card response, with no encrypted credentials."""
         client, _ = _build(mock_sdk_configuration, body='{"last_modified_date":"2026-06-01T10:00:00Z"}')
         headers = CardUpdateHeaders()
         headers.return_encrypted_cvv = 'true'
         headers.encryption_key = 'MIIBIjAN'
 
-        response = client.update_card('crd_123', UpdateCardRequest(), headers)
+        with pytest.warns(DeprecationWarning, match='next major version'):
+            response = client.update_card('crd_123', UpdateCardRequest(), headers)
 
+        assert response.http_metadata.status_code == 200
         assert response.last_modified_date == '2026-06-01T10:00:00Z'
         assert not hasattr(response, 'encrypted_cvv')
 
@@ -131,8 +116,7 @@ class TestCardUpdateHeadersReachTheWire:
         assert not hasattr(response, 'encrypted_cvv')
 
     def test_update_card_response_round_trips_is_single_use_for_virtual_cards(self, mock_sdk_configuration):
-        """The 2026-09-23 spec update split update-card-response into a virtual/physical
-        discriminator; the virtual variant adds is_single_use."""
+        """update-card-response has a type discriminator; the virtual variant adds is_single_use."""
         client, _ = _build(mock_sdk_configuration, body='{'
                            '"type":"virtual",'
                            '"last_modified_date":"2026-06-01T10:00:00Z",'

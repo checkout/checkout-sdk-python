@@ -71,7 +71,7 @@ class TestIssuingClient:
         assert_api_call(mock, 'issuing/cards/card_id', body)
         assert mock.call_args.kwargs['headers'] is None
 
-    def test_should_update_card_with_the_encrypted_cvv_headers(self, mocker, client: IssuingClient):
+    def test_should_update_card_with_the_deprecated_headers(self, mocker, client: IssuingClient):
         mock = mocker.patch('checkout_sdk.api_client.ApiClient.patch', return_value='response')
         body = UpdateCardRequest()
         headers = CardUpdateHeaders()
