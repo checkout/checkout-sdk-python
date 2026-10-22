@@ -141,3 +141,18 @@ class TestCardUpdateHeadersReachTheWire:
         response = client.update_card('crd_123', UpdateCardRequest())
 
         assert response.is_single_use is True
+
+
+class TestRevokeAndSuspendWithoutBodyReachTheWire:
+    """The revoke and suspend request bodies are optional in the spec: omitting them sends no body."""
+
+    @pytest.mark.parametrize('operation, path', [('revoke_card', 'revoke'), ('suspend_card', 'suspend')])
+    def test_no_body_is_sent_when_the_request_is_omitted(self, mock_sdk_configuration, operation, path):
+        client, http_client = _build(mock_sdk_configuration)
+
+        getattr(client, operation)('crd_123')
+
+        kwargs = http_client.request.call_args.kwargs
+        assert kwargs['data'] is None
+        assert kwargs['method'] == 'POST'
+        assert kwargs['url'].endswith('issuing/cards/crd_123/' + path)

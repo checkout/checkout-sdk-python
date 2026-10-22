@@ -185,6 +185,9 @@ class UpdateCardRequest:
 class CardUpdateHeaders:
     """The optional HTTP headers accepted when updating a card's details.
 
+    Deprecated: the API no longer supports these headers; use the method without headers.
+    Will be removed in the next major version. When set, they are still sent unchanged.
+
     Header values are stringified by ApiClient, so declare the boolean header as the string
     "true" rather than a Python bool: str(True) is "True", which is not the value the spec
     shows. All three existing header classes in this SDK use str for the same reason.
@@ -254,8 +257,16 @@ class CardCredentialsQuery:
 
 
 class RevokeRequest:
+    """Optional request body for POST /issuing/cards/{cardId}/revoke."""
+    # The reason for revoking the card.
+    # [Optional]
+    # Enum: expired, reported_lost, reported_stolen
     reason: RevokeReason
 
 
 class SuspendRequest:
+    """Optional request body for POST /issuing/cards/{cardId}/suspend."""
+    # The reason for suspending the card.
+    # [Optional]
+    # Enum: suspected_lost, suspected_stolen
     reason: SuspendReason
