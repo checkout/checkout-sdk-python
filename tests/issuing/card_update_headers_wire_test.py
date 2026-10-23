@@ -42,7 +42,7 @@ def _sent_headers(http_client):
 
 class TestCardUpdateHeadersReachTheWire:
 
-    def test_both_headers_use_their_exact_swagger_names(self, mock_sdk_configuration):
+    def test_deprecated_headers_are_still_sent_with_their_exact_names(self, mock_sdk_configuration):
         client, http_client = _build(mock_sdk_configuration)
         headers = CardUpdateHeaders()
         headers.return_encrypted_cvv = 'true'
@@ -92,8 +92,8 @@ class TestCardUpdateHeadersReachTheWire:
         assert _sent_headers(http_client)['return-encrypted-cvv'] == 'True'
 
     def test_the_deprecated_headers_do_not_change_the_response(self, mock_sdk_configuration):
-        """The API no longer supports these headers and ignores them: an update that sends them
-        gets the same update card response, with no encrypted credentials."""
+        """The headers are no longer documented by the API but are still sent when set: an update
+        that sends them gets the same update card response, with no encrypted credentials."""
         client, _ = _build(mock_sdk_configuration, body='{"last_modified_date":"2026-06-01T10:00:00Z"}')
         headers = CardUpdateHeaders()
         headers.return_encrypted_cvv = 'true'

@@ -134,7 +134,7 @@ class TestIssuingSerialization:
         assert payload['scheduled_activation_date'] == '2026-06-01T10:00Z'
         assert payload['revocation_date'] == '2027-03-12'
 
-    def test_card_update_headers_map_to_the_exact_swagger_header_names(self):
+    def test_deprecated_card_update_headers_keep_their_exact_header_names(self):
         assert CardUpdateHeaders().get_header_mappings() == {
             'return_encrypted_cvv': 'return-encrypted-cvv',
             'encryption_key': 'Encryption-Key',

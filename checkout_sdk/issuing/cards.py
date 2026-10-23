@@ -222,12 +222,12 @@ class CardUpdateHeaders:
     "true" rather than a Python bool: str(True) is "True", which is not the value the spec
     shows. All three existing header classes in this SDK use str for the same reason.
     """
-    # Deprecated: the API no longer supports this header and ignores it. Sent unchanged when set.
+    # Deprecated: no longer documented by the API. Still sent when set.
     # [Optional]
     # Maps to HTTP header return-encrypted-cvv.
     # Example: "true"
     return_encrypted_cvv: str
-    # Deprecated: the API no longer supports this header and ignores it. Sent unchanged when set.
+    # Deprecated: no longer documented by the API. Still sent when set.
     # [Optional]
     # Maps to HTTP header Encryption-Key.
     encryption_key: str
@@ -284,7 +284,7 @@ class CardCredentialsQuery:
 
 class RevokeRequest:
     """Optional request body for POST /issuing/cards/{cardId}/revoke."""
-    # The reason for revoking the card.
+    # The reason why the card is being revoked.
     # [Optional]
     # Enum: expired, reported_lost, reported_stolen
     reason: RevokeReason
@@ -292,7 +292,7 @@ class RevokeRequest:
 
 class SuspendRequest:
     """Optional request body for POST /issuing/cards/{cardId}/suspend."""
-    # The reason for suspending the card.
+    # The reason why the card is being suspended.
     # [Optional]
     # Enum: suspected_lost, suspected_stolen
     reason: SuspendReason
