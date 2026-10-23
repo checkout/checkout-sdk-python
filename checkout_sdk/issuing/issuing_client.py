@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+import warnings
+
 from checkout_sdk.api_client import ApiClient
 from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
@@ -88,14 +90,17 @@ class IssuingClient(Client):
         Args:
             card_id: The card's unique identifier.
             update_card_request: The card fields to update.
-            headers: Optional return-encrypted-cvv and Encryption-Key HTTP headers. Setting
-                return-encrypted-cvv to "true" without Encryption-Key returns a 422 with error
-                code encryption_key_required.
+            headers: Deprecated. The API no longer documents these headers; use the method
+                without headers. Will be removed in the next major version. When set, the
+                headers are still sent unchanged.
         Returns:
-            ResponseWrapper with the update response, including encrypted_cvv when requested.
-            For a virtual card, the response may also include is_single_use, specifying whether
-            the card is set to expire after a single use. Physical cards never send it.
+            ResponseWrapper with the update card response. For a virtual card, the response
+            may also include is_single_use, specifying whether the card is set to expire after
+            a single use. Physical cards never send it.
         """
+        if headers is not None:
+            warnings.warn('The API no longer documents these headers; use the method without headers. '
+                          'Will be removed in the next major version.', DeprecationWarning, stacklevel=2)
         return self._api_client.patch(self.build_path(self.__ISSUING, self.__CARDS, card_id),
                                       self._sdk_authorization(),
                                       update_card_request,
@@ -129,12 +134,28 @@ class IssuingClient(Client):
                                      self._sdk_authorization(),
                                      renew_card_request)
 
-    def revoke_card(self, card_id: str, revoke_request: RevokeRequest):
+    def revoke_card(self, card_id: str, revoke_request: RevokeRequest = None):
+        """Revoke an issued card. Revoking is permanent.
+
+        Args:
+            card_id: The card's unique identifier.
+            revoke_request: Optional request body with the reason. When omitted, no body is sent.
+        Returns:
+            ResponseWrapper with the revoke card response.
+        """
         return self._api_client.post(self.build_path(self.__ISSUING, self.__CARDS, card_id, self.__REVOKE),
                                      self._sdk_authorization(),
                                      revoke_request)
 
-    def suspend_card(self, card_id: str, suspend_request: SuspendRequest):
+    def suspend_card(self, card_id: str, suspend_request: SuspendRequest = None):
+        """Suspend an issued card.
+
+        Args:
+            card_id: The card's unique identifier.
+            suspend_request: Optional request body with the reason. When omitted, no body is sent.
+        Returns:
+            ResponseWrapper with the suspend card response.
+        """
         return self._api_client.post(self.build_path(self.__ISSUING, self.__CARDS, card_id, self.__SUSPEND),
                                      self._sdk_authorization(),
                                      suspend_request)

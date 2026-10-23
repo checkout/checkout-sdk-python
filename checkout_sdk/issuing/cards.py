@@ -52,10 +52,31 @@ class ShippingInstructions:
 
 
 class CardMetadata:
+    """User's metadata."""
+    # User defined field 1
+    # [Optional]
+    # Pattern: ^.{0,255}$
+    # Example: metadata1
     udf1: str
+    # User defined field 2
+    # [Optional]
+    # Pattern: ^.{0,255}$
+    # Example: metadata2
     udf2: str
+    # User defined field 3
+    # [Optional]
+    # Pattern: ^.{0,255}$
+    # Example: metadata3
     udf3: str
+    # User defined field 4
+    # [Optional]
+    # Pattern: ^.{0,255}$
+    # Example: metadata4
     udf4: str
+    # User defined field 5
+    # [Optional]
+    # Pattern: ^.{0,255}$
+    # Example: metadata5
     udf5: str
 
 
@@ -114,7 +135,10 @@ class CardRequest:
     # [Optional]
     # Example: 2026-06-01T10:00Z
     scheduled_activation_date: str
-    # yyyy-mm-dd. The card is revoked at midnight UTC on this date. (IssuingScheduledRevocationDate)
+    # The card will be revoked at midnight UTC on the date specified.
+    # [Optional]
+    # Format: date (YYYY-MM-DD)
+    # Example: 2027-03-12
     scheduled_revocation_date: str
 
     def __init__(self, type_p: CardType):
@@ -140,9 +164,12 @@ class VirtualCardRequest(CardRequest):
 
 class UpdateCardRequest:
     """Request body for PATCH /issuing/cards/{cardId}."""
-    # Set to CardStatusUpdate.ACTIVE to reactivate an inactive or suspended card.
-    # Mutually exclusive with scheduled_activation_date (API returns
-    # scheduled_activation_date_conflicts_with_activation otherwise).
+    # Set the card's status to active to activate an inactive or suspended card. If you submit
+    # this field, you cannot specify a scheduled_activation_date. If you do, you receive a
+    # scheduled_activation_date_conflicts_with_activation error.
+    # [Optional]
+    # Enum: active
+    # Example: active
     status: CardStatusUpdate
     # Your reference.
     # [Optional]
@@ -178,27 +205,29 @@ class UpdateCardRequest:
     # Format: yyyy-MM-dd (time is midnight UTC)
     # Example: 2027-03-12
     revocation_date: str
-    # yyyy-mm-dd. The card is revoked at midnight UTC on this date. (IssuingScheduledRevocationDate)
+    # The card will be revoked at midnight UTC on the date specified.
+    # [Optional]
+    # Format: date (YYYY-MM-DD)
+    # Example: 2027-03-12
     scheduled_revocation_date: str
 
 
 class CardUpdateHeaders:
     """The optional HTTP headers accepted when updating a card's details.
 
+    Deprecated: The API no longer documents these headers; use the method without headers.
+    Will be removed in the next major version. When set, they are still sent unchanged.
+
     Header values are stringified by ApiClient, so declare the boolean header as the string
     "true" rather than a Python bool: str(True) is "True", which is not the value the spec
     shows. All three existing header classes in this SDK use str for the same reason.
     """
-    # Set to "true" to retrieve the card's encrypted credentials in the response. Requires an RSA
-    # public key to be provided in the Encryption-Key header.
+    # Deprecated: no longer documented by the API. Still sent when set.
     # [Optional]
     # Maps to HTTP header return-encrypted-cvv.
     # Example: "true"
     return_encrypted_cvv: str
-    # The RSA public key used to encrypt returned credentials. Required when the
-    # return-encrypted-cvv header is set to "true". Provide the public key with the
-    # BEGIN PUBLIC KEY and END PUBLIC KEY headers and any newline characters removed, encoded as
-    # Base64.
+    # Deprecated: no longer documented by the API. Still sent when set.
     # [Optional]
     # Maps to HTTP header Encryption-Key.
     encryption_key: str
@@ -254,8 +283,16 @@ class CardCredentialsQuery:
 
 
 class RevokeRequest:
+    """Optional request body for POST /issuing/cards/{cardId}/revoke."""
+    # The reason why the card is being revoked.
+    # [Optional]
+    # Enum: expired, reported_lost, reported_stolen
     reason: RevokeReason
 
 
 class SuspendRequest:
+    """Optional request body for POST /issuing/cards/{cardId}/suspend."""
+    # The reason why the card is being suspended.
+    # [Optional]
+    # Enum: suspected_lost, suspected_stolen
     reason: SuspendReason

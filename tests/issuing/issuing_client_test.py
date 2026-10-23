@@ -1,3 +1,5 @@
+import warnings
+
 import pytest
 
 from tests._assertions import assert_api_call
@@ -69,16 +71,24 @@ class TestIssuingClient:
         assert_api_call(mock, 'issuing/cards/card_id', body)
         assert mock.call_args.kwargs['headers'] is None
 
-    def test_should_update_card_with_the_encrypted_cvv_headers(self, mocker, client: IssuingClient):
+    def test_should_update_card_with_the_deprecated_headers(self, mocker, client: IssuingClient):
         mock = mocker.patch('checkout_sdk.api_client.ApiClient.patch', return_value='response')
         body = UpdateCardRequest()
         headers = CardUpdateHeaders()
         headers.return_encrypted_cvv = 'true'
         headers.encryption_key = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A'
 
-        assert client.update_card('card_id', body, headers) == 'response'
+        with pytest.warns(DeprecationWarning, match='next major version'):
+            assert client.update_card('card_id', body, headers) == 'response'
         assert_api_call(mock, 'issuing/cards/card_id', body)
         assert mock.call_args.kwargs['headers'] is headers
+
+    def test_should_not_warn_when_updating_card_without_headers(self, mocker, client: IssuingClient):
+        mocker.patch('checkout_sdk.api_client.ApiClient.patch', return_value='response')
+
+        with warnings.catch_warnings():
+            warnings.simplefilter('error', DeprecationWarning)
+            assert client.update_card('card_id', UpdateCardRequest()) == 'response'
 
     def test_should_enroll_three_ds(self, mocker, client: IssuingClient):
         mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
@@ -129,12 +139,26 @@ class TestIssuingClient:
         assert client.revoke_card('card_id', body) == 'response'
         assert_api_call(mock, 'issuing/cards/card_id/revoke', body)
 
+    def test_should_revoke_card_without_body(self, mocker, client: IssuingClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+
+        assert client.revoke_card('card_id') == 'response'
+        assert_api_call(mock, 'issuing/cards/card_id/revoke')
+        assert mock.call_args.args[2] is None
+
     def test_should_suspend_card(self, mocker, client: IssuingClient):
         mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
         body = SuspendRequest()
 
         assert client.suspend_card('card_id', body) == 'response'
         assert_api_call(mock, 'issuing/cards/card_id/suspend', body)
+
+    def test_should_suspend_card_without_body(self, mocker, client: IssuingClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+
+        assert client.suspend_card('card_id') == 'response'
+        assert_api_call(mock, 'issuing/cards/card_id/suspend')
+        assert mock.call_args.args[2] is None
 
     def test_should_get_digital_card(self, mocker, client: IssuingClient):
         mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')

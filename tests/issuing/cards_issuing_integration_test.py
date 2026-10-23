@@ -68,10 +68,6 @@ class TestCardsIssuing:
         assert_response(response)
         assert response.http_metadata.status_code == 200
 
-    # The 2026-09-17 spec (INT-1700) removed encrypted_cvv from update-card-response entirely,
-    # so return-encrypted-cvv/Encryption-Key no longer make the update response carry it. This
-    # test previously asserted the opposite (added by INT-1695, when the field still existed).
-
     def test_should_renew_card(self, issuing_checkout_api, card):
         request = VirtualCardRenewRequest()
         request.reference = 'RENEW-REF-123'
