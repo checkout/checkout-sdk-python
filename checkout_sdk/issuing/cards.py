@@ -215,7 +215,7 @@ class UpdateCardRequest:
 class CardUpdateHeaders:
     """The optional HTTP headers accepted when updating a card's details.
 
-    Deprecated: the API no longer supports these headers; use the method without headers.
+    Deprecated: The API no longer documents these headers; use the method without headers.
     Will be removed in the next major version. When set, they are still sent unchanged.
 
     Header values are stringified by ApiClient, so declare the boolean header as the string

@@ -90,7 +90,7 @@ class IssuingClient(Client):
         Args:
             card_id: The card's unique identifier.
             update_card_request: The card fields to update.
-            headers: Deprecated. The API no longer supports these headers; use the method
+            headers: Deprecated. The API no longer documents these headers; use the method
                 without headers. Will be removed in the next major version. When set, the
                 headers are still sent unchanged.
         Returns:
@@ -99,9 +99,8 @@ class IssuingClient(Client):
             a single use. Physical cards never send it.
         """
         if headers is not None:
-            warnings.warn('The headers argument of update_card is deprecated: the API no longer supports '
-                          'these headers; use the method without headers. Will be removed in the next '
-                          'major version.', DeprecationWarning, stacklevel=2)
+            warnings.warn('The API no longer documents these headers; use the method without headers. '
+                          'Will be removed in the next major version.', DeprecationWarning, stacklevel=2)
         return self._api_client.patch(self.build_path(self.__ISSUING, self.__CARDS, card_id),
                                       self._sdk_authorization(),
                                       update_card_request,
