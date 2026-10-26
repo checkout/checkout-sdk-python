@@ -4,7 +4,7 @@ from enum import Enum
 
 from checkout_sdk.common.common import Address, Phone
 from checkout_sdk.common.enums import Currency
-from checkout_sdk.payments.payments import PaymentType, PreferredSchema, ShippingDetails
+from checkout_sdk.payments.payments import PreferredSchema, ShippingDetails
 
 
 # Enums
@@ -12,6 +12,21 @@ class PaymentMethodInitialization(str, Enum):
     """The initialization state of a payment method on a Payment Setup."""
     DISABLED = 'disabled'
     ENABLED = 'enabled'
+
+
+class PaymentSetupPaymentType(str, Enum):
+    """The type of payment on a Payment Setup.
+
+    The Payment Setup schema declares these values lowercase. The /payments request uses
+    payments.payments.PaymentType, whose capitalized values (for example PayLater) the Payment
+    Setups API rejects, so the two enums are kept apart.
+    """
+    REGULAR = 'regular'
+    RECURRING = 'recurring'
+    MOTO = 'moto'
+    INSTALLMENT = 'installment'
+    PAY_LATER = 'pay_later'
+    UNSCHEDULED = 'unscheduled'
 
 
 # Shared payment-method enums
@@ -126,9 +141,10 @@ class MerchantAccount:
     # The total number of orders made by the customer.
     # [Optional]
     total_order_count: int
-    # The payment amount of the customer's most recent transaction.
+    # The payment amount of the customer's most recent transaction. A decimal number, for
+    # example 55.99.
     # [Optional]
-    last_payment_amount: int
+    last_payment_amount: float
 
 
 class Customer:
@@ -164,15 +180,17 @@ class Customer:
 
 # Payment Method Common entities
 class PaymentMethodAction:
-    """The next available action for the Klarna, PayPal or instrument payment method.
+    """The next available action for the PayPal or instrument payment method.
 
-    The Cash App and Pay by Bank methods have their own action types (CashAppAction,
-    PayByBankAction), because their actions carry different properties.
+    The Klarna, stc pay, Cash App and Pay by Bank methods have their own action types
+    (KlarnaAction, StcpayAction, CashAppAction, PayByBankAction), because their actions carry
+    different properties. client_token and session_id are not part of the PayPal or instrument
+    action schemas.
     """
     # The type of action.
     # [Optional]
     # readOnly
-    # Enum: "sdk" (Klarna, PayPal) "set_instrument" (instrument)
+    # Enum: "sdk" (PayPal) "set_instrument" (instrument)
     type: str
     # The client token for the Klarna SDK.
     # [Optional]
@@ -189,7 +207,12 @@ class PaymentMethodAction:
 
 
 class PaymentMethodOption:
-    """A payment method option. Not present in the current Payment Setup schema."""
+    """A payment method option.
+
+    Deprecated: Not part of any payment method schema in the Payment Setups API specification;
+    the API ignores it on requests. There is no replacement. Will be removed in the next major
+    version.
+    """
     # The identifier of the payment method option.
     # [Optional]
     id: str
@@ -202,7 +225,12 @@ class PaymentMethodOption:
 
 
 class PaymentMethodOptions:
-    """The payment method options. Not present in the current Payment Setup schema."""
+    """The payment method options.
+
+    Deprecated: Not part of any payment method schema in the Payment Setups API specification;
+    the API ignores it on requests. Klarna and stc pay expose action instead; the other methods
+    have no replacement. Will be removed in the next major version.
+    """
     # The SDK payment method option.
     # [Optional]
     sdk: PaymentMethodOption
@@ -215,6 +243,22 @@ class PaymentMethodOptions:
     # The pay now payment method option.
     # [Optional]
     pay_now: PaymentMethodOption
+
+
+# Base for payment methods that only expose status/flags (swagger PaymentSetupPaymentMethod).
+# Distinct from PaymentMethodBase, which also carries the writable `initialization` field.
+class PaymentSetupPaymentMethod:
+    """Base for payment methods that expose only status and flags (swagger
+    PaymentSetupPaymentMethod)."""
+    # The payment method status.
+    # [Optional]
+    # readOnly
+    # Enum: "unavailable" "action_required" "ready" "initialization_required" "invalid"
+    status: str
+    # The list of error codes or indicators that highlight missing or invalid information.
+    # [Optional]
+    # readOnly
+    flags: list  # list of str
 
 
 class PaymentMethodBase:
@@ -230,7 +274,8 @@ class PaymentMethodBase:
     # readOnly
     flags: list  # list of str
     # The initialization state of the payment method. When you create a Payment Setup, this
-    # defaults to disabled.
+    # defaults to disabled. On update the API replaces the payment methods, so send enabled
+    # again to keep the method enabled.
     # [Optional]
     # Default: "disabled"
     initialization: PaymentMethodInitialization = PaymentMethodInitialization.DISABLED
@@ -245,8 +290,37 @@ class KlarnaAccountHolder:
     name: str
 
 
+class KlarnaActionType(str, Enum):
+    """The type of the Klarna action."""
+    SDK = 'sdk'
+
+
+class KlarnaAction:
+    """The next available action for the Klarna payment method. Response only."""
+    # The type of action.
+    # [Optional]
+    # readOnly
+    type: KlarnaActionType
+    # The client token for the Klarna SDK.
+    # [Optional]
+    # readOnly
+    client_token: str
+    # The session ID.
+    # [Optional]
+    # readOnly
+    session_id: str
+
+
 class Klarna(PaymentMethodBase):
     """The Klarna payment method's details and configuration."""
+    # The next available action for the payment method.
+    # [Optional]
+    # readOnly
+    action: KlarnaAction
+    # The IBAN of the account used to complete Klarna verification.
+    # [Optional]
+    # readOnly
+    iban: str
 
     def __init__(self):
         super().__init__()
@@ -255,21 +329,45 @@ class Klarna(PaymentMethodBase):
         # [Optional]
         # readOnly
         self.account_holder: KlarnaAccountHolder
-        # The payment method options. Not present in the current Klarna schema.
+        # Deprecated: Not part of the Klarna schema in the Payment Setups API specification; the
+        # API ignores it on requests. Use action instead. Will be removed in the next major
+        # version.
+        # The payment method options.
         # [Optional]
         self.payment_method_options: PaymentMethodOptions
 
 
 # Stcpay entities
+class StcpayActionType(str, Enum):
+    """The type of the stc pay action."""
+    OTP = 'otp'
+
+
+class StcpayAction:
+    """The next available action for the stc pay payment method. Response only."""
+    # The type of action.
+    # [Optional]
+    # readOnly
+    type: StcpayActionType
+
+
 class Stcpay(PaymentMethodBase):
     """The stc pay payment method's details and configuration."""
+    # The next available action for the payment method.
+    # [Optional]
+    # readOnly
+    action: StcpayAction
 
     def __init__(self):
         super().__init__()
         # The one-time password (OTP) for stc pay.
         # [Optional]
+        # writeOnly
         self.otp: str
-        # The payment method options. Not present in the current stc pay schema.
+        # Deprecated: Not part of the stc pay schema in the Payment Setups API specification;
+        # the API ignores it on requests. Use action instead. Will be removed in the next major
+        # version.
+        # The payment method options.
         # [Optional]
         self.payment_method_options: PaymentMethodOptions
 
@@ -283,24 +381,42 @@ class Tabby(PaymentMethodBase):
 
     def __init__(self):
         super().__init__()
-        # The payment method options. Not present in the current Tabby schema.
+        # Deprecated: Not part of the Tabby schema in the Payment Setups API specification; the
+        # API ignores it on requests. There is no replacement. Will be removed in the next major
+        # version.
+        # The payment method options.
         # [Optional]
         self.payment_method_options: PaymentMethodOptions
 
 
 # Bizum entities
-class Bizum(PaymentMethodBase):
+class Bizum(PaymentSetupPaymentMethod):
     """The Bizum payment method's details and configuration."""
+    # Deprecated: Not part of the Bizum schema in the Payment Setups API specification; the API
+    # ignores it on requests. There is no replacement. Will be removed in the next major version.
+    # The initialization state of the payment method.
+    # [Optional]
+    # Default: "disabled"
+    initialization: PaymentMethodInitialization = PaymentMethodInitialization.DISABLED
 
     def __init__(self):
         super().__init__()
-        # The payment method options. Not present in the current Bizum schema.
+        # Deprecated: Not part of the Bizum schema in the Payment Setups API specification; the
+        # API ignores it on requests. There is no replacement. Will be removed in the next major
+        # version.
+        # The payment method options.
         # [Optional]
         self.payment_method_options: PaymentMethodOptions
 
 
-class Blik(PaymentMethodBase):
+class Blik(PaymentSetupPaymentMethod):
     """The Blik payment method's details and configuration."""
+    # Deprecated: Not part of the Blik schema in the Payment Setups API specification; the API
+    # ignores it on requests. There is no replacement. Will be removed in the next major version.
+    # The initialization state of the payment method.
+    # [Optional]
+    # Default: "disabled"
+    initialization: PaymentMethodInitialization = PaymentMethodInitialization.DISABLED
     # The 6-digit BLIK code generated by the customer's banking app.
     # [Optional]
     # ^[0-9]{6}$
@@ -337,22 +453,6 @@ class Paypal(PaymentMethodBase):
     # [Optional]
     # readOnly
     action: PaymentMethodAction
-
-
-# Base for payment methods that only expose status/flags (swagger PaymentSetupPaymentMethod).
-# Distinct from PaymentMethodBase, which also carries the writable `initialization` field.
-class PaymentSetupPaymentMethod:
-    """Base for payment methods that expose only status and flags (swagger
-    PaymentSetupPaymentMethod)."""
-    # The payment method status.
-    # [Optional]
-    # readOnly
-    # Enum: "unavailable" "action_required" "ready" "initialization_required" "invalid"
-    status: str
-    # The list of error codes or indicators that highlight missing or invalid information.
-    # [Optional]
-    # readOnly
-    flags: list  # list of str
 
 
 class KnetLanguage(str, Enum):
@@ -403,14 +503,22 @@ class PaymentSetupInstrument(PaymentSetupPaymentMethod):
     # [Optional]
     # readOnly
     type: str
-    # The customer's phone number. Not present in the current instrument schema.
+    # Deprecated: Not part of the instrument schema in the Payment Setups API
+    # specification; the API ignores it on requests. There is no replacement. Will be removed in
+    # the next major version.
+    # The customer's phone number.
     # [Optional]
     phone: Phone
-    # Account holder details for the payment. Not present in the current instrument schema.
+    # Deprecated: Not part of the instrument schema in the Payment Setups API
+    # specification; the API ignores it on requests. There is no replacement. Will be removed in
+    # the next major version.
+    # Account holder details for the payment.
     # [Optional]
     account_holder: PaymentSetupAccountHolder
+    # Deprecated: Not part of the instrument schema in the Payment Setups API
+    # specification; the API ignores it on requests. There is no replacement. Will be removed in
+    # the next major version.
     # Indicates whether to use the Real-Time Account Updater to update the card information.
-    # Not present in the current instrument schema.
     # [Optional]
     allow_update: bool
     # The next available action for the payment method. Its type is set_instrument.
@@ -450,9 +558,31 @@ class MobilePay(PaymentSetupPaymentMethod):
     pass
 
 
-class Tamara(PaymentSetupPaymentMethod):
-    """The Tamara payment method's details and configuration."""
-    pass
+class TamaraRiskAssessment:
+    """Risk signals about the customer, forwarded to Tamara with the payment."""
+    # Specifies whether the customer is a premium customer.
+    # [Optional]
+    premium_customer: bool
+    # The customer's risk score.
+    # [Optional]
+    risk_score: int
+    # The number of orders the customer has made in the last 24 hours.
+    # [Optional]
+    order_count_last24h: int
+    # The number of devices linked to the customer.
+    # [Optional]
+    linked_device_count: int
+
+
+class Tamara(PaymentMethodBase):
+    """The Tamara payment method's details and configuration.
+
+    initialization is inherited from PaymentMethodBase: it defaults to disabled, and on update
+    the API replaces the payment methods, so send enabled again to keep the method enabled.
+    """
+    # Risk signals about the customer, forwarded to Tamara with the payment.
+    # [Optional]
+    risk_assessment: TamaraRiskAssessment
 
 
 class MBWay(PaymentSetupPaymentMethod):
@@ -937,8 +1067,11 @@ class Bacs(PaymentMethodBase):
 
 # Card Present entities
 class CardPresentPin:
-    """The PIN block details of a card-present payment. Not present in the current Payment Setup
-    schema."""
+    """The PIN block details of a card-present payment.
+
+    Deprecated: card_present is no longer part of the Payment Setups API specification. There is
+    no replacement. Will be removed in the next major version.
+    """
     # The identifier of the key set used to encrypt the PIN block.
     # [Optional]
     key_set_id: str
@@ -951,7 +1084,11 @@ class CardPresentPin:
 
 
 class CardPresent(PaymentSetupPaymentMethod):
-    """The card-present payment method. Not present in the current Payment Setup schema."""
+    """The card-present payment method.
+
+    Deprecated: card_present is no longer part of the Payment Setups API specification. There is
+    no replacement. Will be removed in the next major version.
+    """
     # The track 2 data read from the card.
     # [Optional]
     track2: str
@@ -1463,7 +1600,9 @@ class PaymentMethods:
     # The Bacs payment method's details and configuration.
     # [Optional]
     bacs: Bacs
-    # The card-present payment method. Not present in the current Payment Setup schema.
+    # Deprecated: card_present is no longer part of the Payment Setups API specification. There is
+    # no replacement. Will be removed in the next major version.
+    # The card-present payment method.
     # [Optional]
     card_present: CardPresent
     # The Pay by Bank (Open Banking) payment method's details and configuration.
@@ -1912,10 +2051,11 @@ class PaymentSetupTerminal:
     # [Optional]
     # min 8 characters, max 8 characters
     id: str
-    # The local date and time on the terminal, in ISO 8601 format.
+    # The local date and time on the terminal, in ISO 8601 format. Pass a timezone-aware
+    # datetime so the offset is sent; microseconds are not sent.
     # [Optional]
-    # Format: date-time
-    local_date_time: str
+    # Format: date-time (RFC 3339)
+    local_date_time: datetime
 
 
 class AccountFundingTransactionIdentificationType(str, Enum):
@@ -2033,9 +2173,10 @@ class PaymentSetupsRequest:
     currency: Currency
     # The type of payment. You must provide this field for card payments in which the
     # cardholder is not present. For example, if the transaction is a recurring payment, or a
-    # mail order/telephone order (MOTO) payment. Defaults to regular.
+    # mail order/telephone order (MOTO) payment.
     # [Optional]
-    payment_type: PaymentType
+    # Default: "regular"
+    payment_type: PaymentSetupPaymentType
     # A reference you can use to identify the payment. For example, an order number.
     # [Optional]
     # max 80 characters

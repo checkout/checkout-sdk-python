@@ -5,12 +5,11 @@ import pytest
 
 from checkout_sdk.common.common import Phone
 from checkout_sdk.common.enums import Currency
-from checkout_sdk.payments.payments import PaymentType
 from checkout_sdk.payments.setups.setups import (
     PaymentSetupsRequest, Settings, Customer, CustomerEmail, CustomerDevice,
     PaymentMethods, Klarna, KlarnaAccountHolder, PaymentMethodInitialization,
     Ideal, Knet, KnetLanguage, Bancontact, P24, P24AccountHolder,
-    CashApp, CustomerDeviceClient, OsType
+    CashApp, CustomerDeviceClient, OsType, PaymentSetupPaymentType
 )
 from tests.checkout_test_utils import assert_response, new_uuid
 
@@ -37,7 +36,7 @@ def test_should_create_payment_setup(default_api):
     assert response.processing_channel_id == request.processing_channel_id
     assert response.amount == request.amount
     assert response.currency == request.currency
-    assert str(response.payment_type).lower() == request.payment_type.lower()
+    assert response.payment_type == request.payment_type
     assert response.reference == request.reference
     assert response.description == request.description
 
@@ -91,7 +90,7 @@ def test_should_get_payment_setup(default_api):
     assert response.processing_channel_id == create_request.processing_channel_id
     assert response.amount == create_request.amount
     assert response.currency == create_request.currency
-    assert str(response.payment_type).lower() == create_request.payment_type.lower()
+    assert response.payment_type == create_request.payment_type
     assert response.reference == create_request.reference
     assert response.description == create_request.description
 
@@ -248,7 +247,7 @@ def create_payment_setups_request() -> PaymentSetupsRequest:
     request.processing_channel_id = os.getenv('CHECKOUT_PROCESSING_CHANNEL_ID')
     request.amount = 1000
     request.currency = Currency.GBP
-    request.payment_type = PaymentType.REGULAR
+    request.payment_type = PaymentSetupPaymentType.REGULAR
     request.reference = f"TEST-REF-{new_uuid()[:6]}"
     request.description = "Integration test payment setup"
 
