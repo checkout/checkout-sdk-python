@@ -4,7 +4,6 @@ import json
 from abc import ABCMeta
 from datetime import datetime, timedelta
 
-import urllib3
 from requests import HTTPError, Session, ConnectionError
 
 from checkout_sdk.authorization_type import AuthorizationType
@@ -69,11 +68,9 @@ class OAuthSdkCredentials(SdkCredentials, metaclass=ABCMeta):
             'scope': str.join(' ', self.__scopes)
         }
 
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
         try:
             response = self.__http_client.request(method='POST', url=self.__authorization_uri,
-                                                  data=data, verify=False, allow_redirects=False,
+                                                  data=data, allow_redirects=False,
                                                   auth=(self.__client_id, self.__client_secret))
             response.raise_for_status()
         except HTTPError as err:
