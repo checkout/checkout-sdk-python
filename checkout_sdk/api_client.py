@@ -102,6 +102,7 @@ class ApiClient:
 
         base_uri = self._base_uri + path
 
+        files = None
         try:
             json_body, params_dict, files = self._prepare_request_payload(
                 request_headers, body, params, file_request, multipart_file)
@@ -122,6 +123,11 @@ class ApiClient:
         except OSError as err:
             error = err.strerror
             raise CheckoutException(error) from err
+        finally:
+            # get_file_request opens the upload; requests reads it but never closes it.
+            if files is not None:
+                for _, file, _ in files.values():
+                    file.close()
 
         http_metadata = map_to_http_metadata(response)
         if response.text:
