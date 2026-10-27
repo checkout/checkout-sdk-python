@@ -5,6 +5,9 @@ from enum import Enum
 from checkout_sdk.common.common import Address, Phone
 from checkout_sdk.common.enums import Currency
 from checkout_sdk.payments.payments import PreferredSchema, ShippingDetails
+# Deprecated: PaymentType is re-exported here only so existing imports from this module keep
+# working. Payment Setups use PaymentSetupPaymentType. Will be removed in the next major version.
+from checkout_sdk.payments.payments import PaymentType  # noqa: F401
 
 
 # Enums
@@ -245,22 +248,6 @@ class PaymentMethodOptions:
     pay_now: PaymentMethodOption
 
 
-# Base for payment methods that only expose status/flags (swagger PaymentSetupPaymentMethod).
-# Distinct from PaymentMethodBase, which also carries the writable `initialization` field.
-class PaymentSetupPaymentMethod:
-    """Base for payment methods that expose only status and flags (swagger
-    PaymentSetupPaymentMethod)."""
-    # The payment method status.
-    # [Optional]
-    # readOnly
-    # Enum: "unavailable" "action_required" "ready" "initialization_required" "invalid"
-    status: str
-    # The list of error codes or indicators that highlight missing or invalid information.
-    # [Optional]
-    # readOnly
-    flags: list  # list of str
-
-
 class PaymentMethodBase:
     """Base for payment methods that carry status, flags and the writable initialization field
     (swagger PaymentSetupPaymentMethod plus PaymentMethodInitialization)."""
@@ -274,8 +261,7 @@ class PaymentMethodBase:
     # readOnly
     flags: list  # list of str
     # The initialization state of the payment method. When you create a Payment Setup, this
-    # defaults to disabled. On update the API replaces the payment methods, so send enabled
-    # again to keep the method enabled.
+    # defaults to disabled.
     # [Optional]
     # Default: "disabled"
     initialization: PaymentMethodInitialization = PaymentMethodInitialization.DISABLED
@@ -390,7 +376,7 @@ class Tabby(PaymentMethodBase):
 
 
 # Bizum entities
-class Bizum(PaymentSetupPaymentMethod):
+class Bizum(PaymentMethodBase):
     """The Bizum payment method's details and configuration."""
     # Deprecated: Not part of the Bizum schema in the Payment Setups API specification; the API
     # ignores it on requests. There is no replacement. Will be removed in the next major version.
@@ -409,7 +395,7 @@ class Bizum(PaymentSetupPaymentMethod):
         self.payment_method_options: PaymentMethodOptions
 
 
-class Blik(PaymentSetupPaymentMethod):
+class Blik(PaymentMethodBase):
     """The Blik payment method's details and configuration."""
     # Deprecated: Not part of the Blik schema in the Payment Setups API specification; the API
     # ignores it on requests. There is no replacement. Will be removed in the next major version.
@@ -453,6 +439,22 @@ class Paypal(PaymentMethodBase):
     # [Optional]
     # readOnly
     action: PaymentMethodAction
+
+
+# Base for payment methods that only expose status/flags (swagger PaymentSetupPaymentMethod).
+# Distinct from PaymentMethodBase, which also carries the writable `initialization` field.
+class PaymentSetupPaymentMethod:
+    """Base for payment methods that expose only status and flags (swagger
+    PaymentSetupPaymentMethod)."""
+    # The payment method status.
+    # [Optional]
+    # readOnly
+    # Enum: "unavailable" "action_required" "ready" "initialization_required" "invalid"
+    status: str
+    # The list of error codes or indicators that highlight missing or invalid information.
+    # [Optional]
+    # readOnly
+    flags: list  # list of str
 
 
 class KnetLanguage(str, Enum):
@@ -574,12 +576,13 @@ class TamaraRiskAssessment:
     linked_device_count: int
 
 
-class Tamara(PaymentMethodBase):
-    """The Tamara payment method's details and configuration.
-
-    initialization is inherited from PaymentMethodBase: it defaults to disabled, and on update
-    the API replaces the payment methods, so send enabled again to keep the method enabled.
-    """
+class Tamara(PaymentSetupPaymentMethod):
+    """The Tamara payment method's details and configuration."""
+    # The initialization state of the payment method. When you create a Payment Setup, this
+    # defaults to disabled.
+    # [Optional]
+    # Default: "disabled"
+    initialization: PaymentMethodInitialization = PaymentMethodInitialization.DISABLED
     # Risk signals about the customer, forwarded to Tamara with the payment.
     # [Optional]
     risk_assessment: TamaraRiskAssessment

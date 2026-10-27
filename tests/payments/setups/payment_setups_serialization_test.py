@@ -1580,7 +1580,11 @@ class TestPaymentSetupMethodFieldsSerialization:
             assert getattr(read.risk_assessment, field) == getattr(risk, field), field
 
     def test_tamara_initialization_defaults_to_disabled(self):
-        assert isinstance(Tamara(), PaymentMethodBase)
+        # Tamara keeps the base it had before (status and flags only) and declares
+        # initialization itself, so isinstance checks against that base still hold.
+        assert isinstance(Tamara(), PaymentSetupPaymentMethod)
+        assert not isinstance(Tamara(), PaymentMethodBase)
+        assert Tamara.__annotations__['initialization'] is PaymentMethodInitialization
         assert _serialize(Tamara()) == {'initialization': 'disabled'}
 
     def test_tamara_spec_example_reads(self):
@@ -1620,11 +1624,12 @@ class TestPaymentSetupMethodFieldsSerialization:
 
     @pytest.mark.parametrize('method_type', [Bizum, Blik])
     def test_deprecated_initialization_is_still_declared_and_sent(self, method_type):
-        # Bizum and Blik schemas have no initialization. The member stays, deprecated, with the
-        # same default, so the wire is unchanged.
-        assert issubclass(method_type, PaymentSetupPaymentMethod)
-        assert not issubclass(method_type, PaymentMethodBase)
-        assert 'initialization' in method_type.__annotations__
+        # Bizum and Blik schemas have no initialization. They keep PaymentMethodBase as their
+        # base, and redeclare initialization (deprecated) with the same type and default, so
+        # callers and the wire are unchanged.
+        assert issubclass(method_type, PaymentMethodBase)
+        assert method_type.__annotations__['initialization'] is PaymentMethodInitialization
+        assert method_type.initialization is PaymentMethodBase.initialization
         assert _serialize(method_type()) == {'initialization': 'disabled'}
         method = method_type()
         method.initialization = PaymentMethodInitialization.ENABLED
@@ -1675,6 +1680,12 @@ class TestPaymentSetupPaymentTypeSerialization:
 
         assert '"payment_type": "pay_later"' in body
         assert 'PayLater' not in body
+
+    def test_payment_type_is_still_importable_from_the_setups_module(self):
+        # Deprecated re-export kept so existing imports from the setups module keep working.
+        from checkout_sdk.payments.setups.setups import PaymentType as SetupsModulePaymentType
+
+        assert SetupsModulePaymentType is PaymentType
 
     def test_request_annotation_is_the_setups_enum(self):
         assert PaymentSetupsRequest.__annotations__['payment_type'] is PaymentSetupPaymentType
