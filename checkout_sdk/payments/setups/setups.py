@@ -685,7 +685,8 @@ class Qpay(PaymentSetupPaymentMethod):
 class Ideal(PaymentSetupPaymentMethod):
     """The iDEAL payment method's details and configuration."""
     # A description of the products or services being paid for. Do not include HTML tags or
-    # special characters, as these are rejected by iDEAL.
+    # special characters, as these are rejected by iDEAL. The specification marks this
+    # optional, but the API keeps the method invalid until it is sent.
     # [Optional]
     # max 35 characters
     description: str
@@ -694,14 +695,16 @@ class Ideal(PaymentSetupPaymentMethod):
 class Knet(PaymentSetupPaymentMethod):
     """The KNET payment method's details and configuration."""
     # The customer's preferred language, as an ISO 639-1 code. For example, the language
-    # selected on your site, if the issuer's site supports it.
+    # selected on your site, if the issuer's site supports it. The specification marks this
+    # optional, but the API keeps the method invalid until it is sent.
     # [Optional]
     language: KnetLanguage
 
 
 class Bancontact(PaymentSetupPaymentMethod):
     """The Bancontact payment method's details and configuration."""
-    # The account holder's name.
+    # The account holder's name. The specification marks this optional, but the API keeps the
+    # method invalid until it is sent.
     # [Optional]
     # min 3 characters, max 100 characters
     account_holder_name: str
