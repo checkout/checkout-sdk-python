@@ -304,8 +304,9 @@ class TestPaymentSetupsSerialization:
             'allow_partial_match': True,
         }
 
-    def test_deprecated_card_present_still_serializes_nested_pin(self):
-        # card_present is not in the Payment Setup schema. It stays, deprecated, and is still sent.
+    def test_card_present_serializes_nested_pin(self):
+        # card_present is not listed in the public API reference but is still supported by the
+        # API, so it is still sent under its key.
         card_present = CardPresent()
         card_present.track2 = 'track2-data'
         card_present.emv = 'emv-data'

@@ -1076,11 +1076,8 @@ class Bacs(PaymentMethodBase):
 
 # Card Present entities
 class CardPresentPin:
-    """The PIN block details of a card-present payment.
-
-    Deprecated: card_present is no longer part of the Payment Setups API specification. There is
-    no replacement. Will be removed in the next major version.
-    """
+    """The PIN block details of a card-present payment. Not present in the current Payment Setup
+    schema."""
     # The identifier of the key set used to encrypt the PIN block.
     # [Optional]
     key_set_id: str
@@ -1093,11 +1090,7 @@ class CardPresentPin:
 
 
 class CardPresent(PaymentSetupPaymentMethod):
-    """The card-present payment method.
-
-    Deprecated: card_present is no longer part of the Payment Setups API specification. There is
-    no replacement. Will be removed in the next major version.
-    """
+    """The card-present payment method. Not present in the current Payment Setup schema."""
     # The track 2 data read from the card.
     # [Optional]
     track2: str
@@ -1609,9 +1602,7 @@ class PaymentMethods:
     # The Bacs payment method's details and configuration.
     # [Optional]
     bacs: Bacs
-    # Deprecated: card_present is no longer part of the Payment Setups API specification. There is
-    # no replacement. Will be removed in the next major version.
-    # The card-present payment method.
+    # The card-present payment method. Not present in the current Payment Setup schema.
     # [Optional]
     card_present: CardPresent
     # The Pay by Bank (Open Banking) payment method's details and configuration.
