@@ -195,10 +195,16 @@ class PaymentMethodAction:
     # readOnly
     # Enum: "sdk" (PayPal) "set_instrument" (instrument)
     type: str
+    # Deprecated: Not part of the PayPal or instrument action schema in the Payment Setups API
+    # specification; the API ignores it on requests. There is no replacement. Will be removed in
+    # the next major version.
     # The client token for the Klarna SDK.
     # [Optional]
     # readOnly
     client_token: str
+    # Deprecated: Not part of the PayPal or instrument action schema in the Payment Setups API
+    # specification; the API ignores it on requests. There is no replacement. Will be removed in
+    # the next major version.
     # The session ID.
     # [Optional]
     # readOnly

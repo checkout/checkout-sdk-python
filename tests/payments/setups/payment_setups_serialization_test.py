@@ -30,6 +30,7 @@ from checkout_sdk.payments.setups.setups import (
     GooglePayPreferredScheme, Klarna, KlarnaAction, KlarnaActionType, Stcpay, StcpayAction,
     StcpayActionType, Tabby, Tamara, TamaraRiskAssessment, Bizum, Blik, PaymentMethodBase,
     PaymentSetupPaymentMethod, PaymentMethodOptions, PaymentMethodOption, PaymentSetupPaymentType,
+    PaymentMethodAction, Paypal,
 )
 from checkout_sdk.payments.payments import PaymentType, PreferredSchema
 
@@ -1640,6 +1641,30 @@ class TestPaymentSetupMethodFieldsSerialization:
         blik.partner_code = '123456'
 
         assert _serialize(blik) == {'initialization': 'disabled', 'partner_code': '123456'}
+
+    def test_deprecated_action_client_token_and_session_id_are_still_declared_and_sent(self):
+        # Not part of the PayPal or instrument action schemas. They stay, deprecated, and are
+        # still sent and read under their keys.
+        assert PaymentMethodAction.__annotations__['client_token'] is str
+        assert PaymentMethodAction.__annotations__['session_id'] is str
+        action = PaymentMethodAction()
+        action.type = 'sdk'
+        action.client_token = 'token_1'
+        action.session_id = 'session_1'
+        action.order_id = 'order_1'
+        paypal = Paypal()
+        paypal.action = action
+
+        body = json.dumps(paypal, cls=JsonSerializer)
+
+        assert '"client_token": "token_1"' in body
+        assert '"session_id": "session_1"' in body
+        assert 'clientToken' not in body
+        assert 'sessionId' not in body
+        read = ResponseWrapper(None, json.loads(body))
+        assert read.action.client_token == action.client_token
+        assert read.action.session_id == action.session_id
+        assert read.action.order_id == action.order_id
 
     @pytest.mark.parametrize('method_type', [Klarna, Stcpay, Tabby, Bizum])
     def test_deprecated_payment_method_options_are_still_sent(self, method_type):
