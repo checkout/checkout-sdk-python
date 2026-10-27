@@ -144,8 +144,8 @@ class MerchantAccount:
     # The total number of orders made by the customer.
     # [Optional]
     total_order_count: int
-    # The payment amount of the customer's most recent transaction. A decimal number, for
-    # example 55.99.
+    # The payment amount of the customer's most recent transaction. The specification types this
+    # as a number (example 55.99); the API currently stores it as an integer.
     # [Optional]
     last_payment_amount: float
 
