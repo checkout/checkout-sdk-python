@@ -1,6 +1,7 @@
 from datetime import datetime
 from enum import Enum
 
+from checkout_sdk.common.common import CustomerRetry
 from checkout_sdk.common.enums import Currency
 from checkout_sdk.payments.payments import PaymentType, BillingDescriptor, ShippingDetails, \
     PaymentRecipient, ProcessingSettings, RiskRequest, ThreeDsRequest, PaymentSender, PaymentPlan, AuthorizationType
@@ -102,10 +103,6 @@ class InstructionPurpose(str, Enum):
 
 class Instruction:
     purpose: InstructionPurpose
-
-
-class CustomerRetry:
-    max_attempts: int
 
 
 class AccountHolderType(str, Enum):

@@ -1042,20 +1042,36 @@ class PaymentSegment:
 
 
 class DowntimeRetryRequest:
+    """Configuration of Downtime retries."""
+    # [Required] Indicates if Checkout.com retries the payment when it's declined due to issuer or acquirer downtime.
     enabled: bool
 
 
 class DunningRetryRequest:
+    """Configuration of Dunning retries."""
+    # [Required] Indicates if Checkout.com retries the payment when it's declined with a supported decline code.
     enabled: bool
+    # [Optional] The maximum number of authorization retry attempts, excluding the initial authorization.
+    # Range: 1 to 15. Default: 6.
     max_attempts: int
+    # [Optional] The maximum number of days between the initial request and the final retry attempt.
+    # Range: 1 to 60. Default: 30.
     end_after_days: int
 
 
 class PaymentRetryRequest:
+    """Configuration of asynchronous retries."""
+    # [Required] Indicates whether asynchronous retries are enabled for the payment.
     enabled: bool
+    # @deprecated max_attempts is not part of RetryRequest in the API and will be removed in the next major
+    # version. Use dunning.max_attempts (DunningRetryRequest) instead.
     max_attempts: int
+    # @deprecated end_after_days is not part of RetryRequest in the API and will be removed in the next major
+    # version. Use dunning.end_after_days (DunningRetryRequest) instead.
     end_after_days: int
+    # [Optional] Configuration of asynchronous Downtime retries.
     downtime: DowntimeRetryRequest
+    # [Optional] Configuration of asynchronous Dunning retries.
     dunning: DunningRetryRequest
 
 
