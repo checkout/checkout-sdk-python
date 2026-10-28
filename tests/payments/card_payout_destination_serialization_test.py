@@ -3,9 +3,9 @@ import json
 from checkout_sdk.common.common import AccountHolder
 from checkout_sdk.common.enums import AccountHolderType
 from checkout_sdk.json_serializer import JsonSerializer
-from checkout_sdk.payments.payments import NetworkTokenType, PaymentDestinationType, \
+from checkout_sdk.payments.payments import CardPayoutItem, ItemType, NetworkTokenType, PaymentDestinationType, \
     PaymentRequestCardDestination, PaymentRequestNetworkTokenDestination, PaymentRequestTokenDestination, \
-    PayoutRequest
+    PayoutRequest, ProductSubType
 from tests.payments.card_payout_fixtures import ACCOUNT_HOLDER_FIXTURE, rich_account_holder
 
 # Spec example for 02_CardPayoutRequest_DestinationTypeNetworkToken; vts is the first token_type enum value.
@@ -198,3 +198,23 @@ class TestCardPayoutDestinationSerialization:
         assert decoded['token'] == destination.token
         assert decoded['account_holder']['type'] == account_holder.type.value
         assert decoded['account_holder']['last_name'] == account_holder.last_name
+
+    def test_payout_request_items_serialize_literal_keys_and_round_trip(self):
+        # Spec example for CardPayoutItems: type digital, sub_type stablecoin.
+        digital = CardPayoutItem()
+        digital.type = ItemType.DIGITAL
+        digital.sub_type = ProductSubType.STABLECOIN
+        physical = CardPayoutItem()
+        physical.type = ItemType.PHYSICAL
+        request = PayoutRequest()
+        request.items = [digital, physical]
+
+        decoded = _serialize(request)['items']
+
+        assert decoded == [{'type': 'digital', 'sub_type': 'stablecoin'}, {'type': 'physical'}]
+        assert decoded[0]['type'] == digital.type.value
+        assert decoded[0]['sub_type'] == digital.sub_type.value
+        assert decoded[1]['type'] == physical.type.value
+
+    def test_card_payout_item_omits_unset_fields_instead_of_sending_null(self):
+        assert _serialize(CardPayoutItem()) == {}

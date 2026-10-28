@@ -1131,6 +1131,19 @@ class Product:
     sku: str
 
 
+class CardPayoutItem:
+    """The order's line item or product that is being paid out (card payouts only)."""
+    # The item type. For example, physical or digital. This field is used to provide item level
+    # metadata where applicable.
+    # [Optional]
+    # Enum: "digital" "physical"
+    type: ItemType
+    # The digital item type. If type is set to digital, this field is required.
+    # [Optional]
+    # Enum: "blockchain" "cbdc" "cryptocurrency" "nft" "stablecoin"
+    sub_type: ProductSubType
+
+
 class PaymentCustomerRequest(CustomerRequest):
     tax_number: str
 
@@ -1514,7 +1527,7 @@ class PayoutRequest:
     segment: PaymentSegment
     # The order's line items. Card payouts only.
     # [Optional]
-    items: list  # payments.Product
+    items: list  # payments.CardPayoutItem
     # Stores additional information about the transaction with custom fields. Card payouts only.
     # [Optional]
     metadata: dict
