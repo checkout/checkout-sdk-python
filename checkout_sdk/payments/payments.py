@@ -58,10 +58,24 @@ class PaymentType(str, Enum):
 
 
 class PaymentDestinationType(str, Enum):
+    """The payout destination type.
+
+    Shared by two discriminators: the card payout destination (card, network_token, id, token)
+    and the bank payout destination (id, bank_account).
+    """
     BANK_ACCOUNT = 'bank_account'
     CARD = 'card'
     ID = 'id'
+    NETWORK_TOKEN = 'network_token'
     TOKEN = 'token'
+
+
+class NetworkTokenType(str, Enum):
+    """The network token type."""
+    VTS = 'vts'
+    MDES = 'mdes'
+    APPLEPAY = 'applepay'
+    GOOGLEPAY = 'googlepay'
 
 
 class Exemption(str, Enum):
@@ -1165,6 +1179,13 @@ class PayoutRequestEntitySource(PayoutRequestSource):
 
 # Payment Request Destination
 class PaymentRequestDestination:
+    """The destination of the payout.
+
+    You can encrypt this field by using the Cko-Encryption-Key-Id and Cko-Encrypted-Properties
+    headers.
+    """
+    # The payout destination type. Set by each subclass.
+    # [Required]
     type: PaymentDestinationType
 
     def __init__(self, type_p: PaymentDestinationType):
@@ -1172,15 +1193,41 @@ class PaymentRequestDestination:
 
 
 class PaymentBankAccountDestination(PaymentRequestDestination):
+    """A bank account payout destination (bank payout, type bank_account)."""
+    # The type of the bank account. Note that some beneficiary banks do not accept payouts to
+    # savings accounts.
+    # [Required]
     account_type: AccountType
+    # Number (which can contain letters) that identifies the local account.
+    # [Optional]
     account_number: str
+    # Code that identifies the bank. Also referred as Routing Number in the United States.
+    # [Optional]
     bank_code: str
+    # The combination of bank code and/or branch code and account number.
+    # [Optional]
     bban: str
+    # Code that identifies the bank branch.
+    # [Optional]
     branch_code: str
+    # Internationally agreed standard for identifying bank accounts. Lengths vary per
+    # destination_country.
+    # [Optional]
     iban: str
+    # 8 or 11 character code which identifies the bank or bank branch.
+    # [Optional]
     swift_bic: str
+    # The two-letter ISO country code of where the account is based. Note that not all
+    # countries are available.
+    # [Required]
+    # min 2 characters
+    # max 2 characters
     country: Country
+    # The account holder details.
+    # [Optional]
     account_holder: AccountHolder
+    # The bank details. Not declared on PaymentBankAccountDestination in the spec.
+    # [Optional]
     bank: BankDetails
 
     def __init__(self):
@@ -1188,17 +1235,115 @@ class PaymentBankAccountDestination(PaymentRequestDestination):
 
 
 class PaymentRequestIdDestination(PaymentRequestDestination):
-    id: str
+    """A payment instrument payout destination (type id).
 
+    Valid for both card payouts and bank payouts.
+    """
+    # The payment source ID. This will be an ID with the prefix src_.
+    # [Required]
+    # ^(src)_(\w{26})$
+    # min 30 characters
+    # max 30 characters
+    id: str
+    # The payout destination account holder. Required for card payouts, where this position
+    # accepts only type and first_name, middle_name, last_name (individual) or company_name
+    # (corporate, government).
+    # [Optional]
     account_holder: AccountHolder
 
     def __init__(self):
         super().__init__(PaymentDestinationType.ID)
 
 
+class PaymentRequestCardDestination(PaymentRequestDestination):
+    """A card payout destination (card payout, type card)."""
+    # The card number. You can encrypt this field by using the Cko-Encryption-Key-Id and
+    # Cko-Encrypted-Properties headers.
+    # [Required]
+    # max 19 characters
+    number: str
+    # The card's expiration month.
+    # [Required]
+    expiry_month: int
+    # The card's expiration year.
+    # [Required]
+    expiry_year: int
+    # The payout destination account holder. This position accepts type (individual,
+    # corporate, government); first_name, middle_name and last_name (max 50 characters each),
+    # date_of_birth (YYYY-MM-DD) and country_of_birth for individual; company_name for
+    # corporate and government; and billing_address, phone, identification and email
+    # (max 255 characters) for all three.
+    # [Required]
+    account_holder: AccountHolder
+
+    def __init__(self):
+        super().__init__(PaymentDestinationType.CARD)
+
+
+class PaymentRequestNetworkTokenDestination(PaymentRequestDestination):
+    """A network token payout destination (card payout, type network_token).
+
+    Leave cryptogram and eci unset when not used: assigning None sends null.
+    """
+    # The network token's Primary Account Number (PAN).
+    # [Required]
+    token: str
+    # The network token's expiration month.
+    # [Required]
+    # min 1
+    expiry_month: int
+    # The network token's expiration year.
+    # [Required]
+    expiry_year: int
+    # The network token type.
+    # [Required]
+    token_type: NetworkTokenType
+    # The network token's Base64-encoded cryptographic identifier (TAVV). The cryptogram is
+    # used by card schemes to validate the token verification result.
+    # [Optional]
+    # max 50 characters
+    cryptogram: str
+    # The network token's Electronic Commerce Indicator (ECI) security level.
+    # [Optional]
+    # max 2 characters
+    eci: str
+    # The payout destination account holder. This position accepts type (individual,
+    # corporate, government); first_name, middle_name and last_name (max 50 characters each),
+    # date_of_birth (YYYY-MM-DD) and country_of_birth for individual; company_name for
+    # corporate and government; and billing_address, phone, identification and email
+    # (max 255 characters) for all three.
+    # [Required]
+    account_holder: AccountHolder
+
+    def __init__(self):
+        super().__init__(PaymentDestinationType.NETWORK_TOKEN)
+
+
+class PaymentRequestTokenDestination(PaymentRequestDestination):
+    """A token payout destination (card payout, type token)."""
+    # The Checkout.com card token ID. This will be an ID with the prefix tok_.
+    # [Required]
+    # ^(tok)_(\w{26})$
+    # min 30 characters
+    # max 30 characters
+    token: str
+    # The payout destination account holder. This position accepts only type and first_name,
+    # middle_name, last_name (individual) or company_name (corporate, government).
+    # [Required]
+    account_holder: AccountHolder
+
+    def __init__(self):
+        super().__init__(PaymentDestinationType.TOKEN)
+
+
 # Request Payout
 class PayoutRequest:
     source: PayoutRequestSource
+    # The destination of the payout. Card payouts take PaymentRequestCardDestination,
+    # PaymentRequestNetworkTokenDestination, PaymentRequestIdDestination or
+    # PaymentRequestTokenDestination; bank payouts take PaymentRequestIdDestination or
+    # PaymentBankAccountDestination.
+    # [Required]
     destination: PaymentRequestDestination
     amount: int
     currency: Currency
