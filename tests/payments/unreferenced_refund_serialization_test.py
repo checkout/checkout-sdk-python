@@ -1,39 +1,15 @@
 import json
 
-from checkout_sdk.common.common import AccountHolder, AccountHolderIdentification, Address, Phone
-from checkout_sdk.common.enums import AccountHolderIdentificationType, AccountHolderType, Country, Currency
+from checkout_sdk.common.enums import Currency
 from checkout_sdk.json_serializer import JsonSerializer
 from checkout_sdk.payments.payments import NetworkTokenType, PaymentInstruction, PaymentRequestCardDestination, \
     PaymentRequestIdDestination, PaymentRequestNetworkTokenDestination, PaymentRequestTokenDestination, \
     PaymentSegment, PayoutRequestCurrencyAccountSource, ProcessingSettings, UnreferencedRefundRequest
+from tests.payments.card_payout_fixtures import ACCOUNT_HOLDER_FIXTURE, rich_account_holder
 
 # The spec has no request example for UnreferencedRefundRequest; values below come from the
-# per-property examples and patterns of the schema.
-ACCOUNT_HOLDER_FIXTURE = {
-    'type': 'individual',
-    'first_name': 'John',
-    'middle_name': 'Paul',
-    'last_name': 'Smith',
-    'billing_address': {
-        'address_line1': '123 High St.',
-        'address_line2': 'Flat 456',
-        'city': 'London',
-        'state': 'GB',
-        'zip': 'SW1A 1AA',
-        'country': 'GB'
-    },
-    'phone': {'country_code': '+44', 'number': '4155552671'},
-    'identification': {
-        'type': 'passport',
-        'number': 'E12345678',
-        'issuing_country': 'GB',
-        'date_of_expiry': '2030-01-01'
-    },
-    'email': 'john.smith@example.com',
-    'date_of_birth': '1985-05-15',
-    'country_of_birth': 'GB'
-}
-
+# per-property examples of the schema where it declares one (amount 120, segment, metadata,
+# previous_payment_id) and otherwise from its patterns (source, processing channel, ids).
 CARD_DESTINATION_FIXTURE = {
     'type': 'card',
     'number': '4242424242424242',
@@ -69,7 +45,7 @@ REQUEST_FIXTURE = {
     'source': {'type': 'currency_account', 'id': 'ca_y3oqhf46pyzuxjbcn2giaqnb44'},
     'destination': CARD_DESTINATION_FIXTURE,
     'instruction': {'funds_transfer_type': 'MI', 'purpose': 'family_support'},
-    'amount': 1000,
+    'amount': 120,
     'currency': 'GBP',
     'payment_type': 'UnreferencedRefund',
     'processing_channel_id': 'pc_q4dbxom5jbgudnjzjpz7j2z6uq',
@@ -91,45 +67,12 @@ def _serialize(obj):
     return json.loads(json.dumps(obj, cls=JsonSerializer))
 
 
-def _account_holder():
-    billing_address = Address()
-    billing_address.address_line1 = '123 High St.'
-    billing_address.address_line2 = 'Flat 456'
-    billing_address.city = 'London'
-    billing_address.state = 'GB'
-    billing_address.zip = 'SW1A 1AA'
-    billing_address.country = Country.GB
-
-    phone = Phone()
-    phone.country_code = '+44'
-    phone.number = '4155552671'
-
-    identification = AccountHolderIdentification()
-    identification.type = AccountHolderIdentificationType.PASSPORT
-    identification.number = 'E12345678'
-    identification.issuing_country = Country.GB
-    identification.date_of_expiry = '2030-01-01'
-
-    account_holder = AccountHolder()
-    account_holder.type = AccountHolderType.INDIVIDUAL
-    account_holder.first_name = 'John'
-    account_holder.middle_name = 'Paul'
-    account_holder.last_name = 'Smith'
-    account_holder.billing_address = billing_address
-    account_holder.phone = phone
-    account_holder.identification = identification
-    account_holder.email = 'john.smith@example.com'
-    account_holder.date_of_birth = '1985-05-15'
-    account_holder.country_of_birth = Country.GB
-    return account_holder
-
-
 def _card_destination():
     destination = PaymentRequestCardDestination()
     destination.number = '4242424242424242'
     destination.expiry_month = 6
     destination.expiry_year = 2025
-    destination.account_holder = _account_holder()
+    destination.account_holder = rich_account_holder()
     return destination
 
 
@@ -141,7 +84,7 @@ def _network_token_destination():
     destination.token_type = NetworkTokenType.VTS
     destination.cryptogram = 'hv8mUFzPzRZoCAAAAAEQBDMAAAA='
     destination.eci = '05'
-    destination.account_holder = _account_holder()
+    destination.account_holder = rich_account_holder()
     return destination
 
 
@@ -149,7 +92,7 @@ def _id_destination(with_account_holder=True):
     destination = PaymentRequestIdDestination()
     destination.id = 'src_wmlfc3zyhqzehihu7giusaaawu'
     if with_account_holder:
-        destination.account_holder = _account_holder()
+        destination.account_holder = rich_account_holder()
     return destination
 
 
@@ -157,7 +100,7 @@ def _token_destination(with_account_holder=True):
     destination = PaymentRequestTokenDestination()
     destination.token = 'tok_ubfj2q76miwundwlk72vxt2i7q'
     if with_account_holder:
-        destination.account_holder = _account_holder()
+        destination.account_holder = rich_account_holder()
     return destination
 
 
@@ -181,7 +124,7 @@ def _full_request(destination=None):
     request.source = source
     request.destination = destination if destination is not None else _card_destination()
     request.instruction = instruction
-    request.amount = 1000
+    request.amount = 120
     request.currency = Currency.GBP
     request.processing_channel_id = 'pc_q4dbxom5jbgudnjzjpz7j2z6uq'
     request.reference = 'ORD-5023-4E89'
@@ -218,7 +161,7 @@ class TestUnreferencedRefundSerialization:
         source.id = 'ca_y3oqhf46pyzuxjbcn2giaqnb44'
         request.source = source
         request.destination = _token_destination(with_account_holder=False)
-        request.amount = 1000
+        request.amount = 120
         request.currency = Currency.GBP
         request.processing_channel_id = 'pc_q4dbxom5jbgudnjzjpz7j2z6uq'
 
@@ -227,13 +170,6 @@ class TestUnreferencedRefundSerialization:
         assert set(serialized.keys()) == REQUIRED_REQUEST_KEYS
         assert serialized['source'] == REQUEST_FIXTURE['source']
         assert serialized['destination'] == {'type': 'token', 'token': 'tok_ubfj2q76miwundwlk72vxt2i7q'}
-
-    def test_card_destination_nested_under_destination(self):
-        serialized = _serialize(_full_request(_card_destination()))
-
-        assert serialized['destination'] == CARD_DESTINATION_FIXTURE
-        assert isinstance(serialized['destination']['expiry_month'], int)
-        assert isinstance(serialized['destination']['expiry_year'], int)
 
     def test_network_token_destination_nested_under_destination(self):
         serialized = _serialize(_full_request(_network_token_destination()))

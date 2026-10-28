@@ -1,11 +1,12 @@
 import json
 
-from checkout_sdk.common.common import AccountHolder, AccountHolderIdentification, Address, Phone
-from checkout_sdk.common.enums import AccountHolderIdentificationType, AccountHolderType, Country
+from checkout_sdk.common.common import AccountHolder
+from checkout_sdk.common.enums import AccountHolderType
 from checkout_sdk.json_serializer import JsonSerializer
 from checkout_sdk.payments.payments import NetworkTokenType, PaymentDestinationType, \
     PaymentRequestCardDestination, PaymentRequestNetworkTokenDestination, PaymentRequestTokenDestination, \
     PayoutRequest
+from tests.payments.card_payout_fixtures import ACCOUNT_HOLDER_FIXTURE, rich_account_holder
 
 # Spec example for 02_CardPayoutRequest_DestinationTypeNetworkToken; vts is the first token_type enum value.
 NETWORK_TOKEN_FIXTURE = {
@@ -16,30 +17,7 @@ NETWORK_TOKEN_FIXTURE = {
     'token_type': 'vts',
     'cryptogram': 'hv8mUFzPzRZoCAAAAAEQBDMAAAA=',
     'eci': '05',
-    'account_holder': {
-        'type': 'individual',
-        'first_name': 'John',
-        'middle_name': 'Paul',
-        'last_name': 'Smith',
-        'billing_address': {
-            'address_line1': '123 High St.',
-            'address_line2': 'Flat 456',
-            'city': 'London',
-            'state': 'GB',
-            'zip': 'SW1A 1AA',
-            'country': 'GB'
-        },
-        'phone': {'country_code': '+44', 'number': '4155552671'},
-        'identification': {
-            'type': 'passport',
-            'number': 'E12345678',
-            'issuing_country': 'GB',
-            'date_of_expiry': '2030-01-01'
-        },
-        'email': 'john.smith@example.com',
-        'date_of_birth': '1985-05-15',
-        'country_of_birth': 'GB'
-    }
+    'account_holder': ACCOUNT_HOLDER_FIXTURE
 }
 
 REQUIRED_NETWORK_TOKEN_KEYS = {'type', 'token', 'expiry_month', 'expiry_year', 'token_type', 'account_holder'}
@@ -47,39 +25,6 @@ REQUIRED_NETWORK_TOKEN_KEYS = {'type', 'token', 'expiry_month', 'expiry_year', '
 
 def _serialize(obj):
     return json.loads(json.dumps(obj, cls=JsonSerializer))
-
-
-def _rich_account_holder():
-    billing_address = Address()
-    billing_address.address_line1 = '123 High St.'
-    billing_address.address_line2 = 'Flat 456'
-    billing_address.city = 'London'
-    billing_address.state = 'GB'
-    billing_address.zip = 'SW1A 1AA'
-    billing_address.country = Country.GB
-
-    phone = Phone()
-    phone.country_code = '+44'
-    phone.number = '4155552671'
-
-    identification = AccountHolderIdentification()
-    identification.type = AccountHolderIdentificationType.PASSPORT
-    identification.number = 'E12345678'
-    identification.issuing_country = Country.GB
-    identification.date_of_expiry = '2030-01-01'
-
-    account_holder = AccountHolder()
-    account_holder.type = AccountHolderType.INDIVIDUAL
-    account_holder.first_name = 'John'
-    account_holder.middle_name = 'Paul'
-    account_holder.last_name = 'Smith'
-    account_holder.billing_address = billing_address
-    account_holder.phone = phone
-    account_holder.identification = identification
-    account_holder.email = 'john.smith@example.com'
-    account_holder.date_of_birth = '1985-05-15'
-    account_holder.country_of_birth = Country.GB
-    return account_holder
 
 
 def _network_token_destination(with_optionals=True):
@@ -91,7 +36,7 @@ def _network_token_destination(with_optionals=True):
     if with_optionals:
         destination.cryptogram = 'hv8mUFzPzRZoCAAAAAEQBDMAAAA='
         destination.eci = '05'
-    destination.account_holder = _rich_account_holder()
+    destination.account_holder = rich_account_holder()
     return destination
 
 
@@ -180,14 +125,14 @@ class TestCardPayoutDestinationSerialization:
         destination.number = '4242424242424242'
         destination.expiry_month = 6
         destination.expiry_year = 2025
-        destination.account_holder = _rich_account_holder()
+        destination.account_holder = rich_account_holder()
 
         assert _serialize(destination) == {
             'type': 'card',
             'number': '4242424242424242',
             'expiry_month': 6,
             'expiry_year': 2025,
-            'account_holder': NETWORK_TOKEN_FIXTURE['account_holder'],
+            'account_holder': ACCOUNT_HOLDER_FIXTURE,
         }
 
     def test_token_destination_serializes_every_property(self):
@@ -213,3 +158,43 @@ class TestCardPayoutDestinationSerialization:
         with_string.token_type = 'vts'
 
         assert _serialize(with_string) == _serialize(with_enum)
+
+    def test_payout_request_serializes_card_destination_and_round_trips(self):
+        destination = PaymentRequestCardDestination()
+        destination.number = '4242424242424242'
+        destination.expiry_month = 6
+        destination.expiry_year = 2025
+        destination.account_holder = rich_account_holder()
+        request = PayoutRequest()
+        request.destination = destination
+
+        decoded = _serialize(request)['destination']
+
+        assert decoded == {'type': 'card', 'number': '4242424242424242', 'expiry_month': 6,
+                           'expiry_year': 2025, 'account_holder': ACCOUNT_HOLDER_FIXTURE}
+        assert decoded['type'] == destination.type.value
+        assert decoded['number'] == destination.number
+        assert decoded['expiry_month'] == destination.expiry_month
+        assert decoded['expiry_year'] == destination.expiry_year
+        assert decoded['account_holder']['first_name'] == destination.account_holder.first_name
+
+    def test_payout_request_serializes_token_destination_and_round_trips(self):
+        account_holder = AccountHolder()
+        account_holder.type = AccountHolderType.INDIVIDUAL
+        account_holder.first_name = 'John'
+        account_holder.middle_name = 'Paul'
+        account_holder.last_name = 'Smith'
+        destination = PaymentRequestTokenDestination()
+        destination.token = 'tok_ubfj2q76miwundwlk72vxt2i7q'
+        destination.account_holder = account_holder
+        request = PayoutRequest()
+        request.destination = destination
+
+        decoded = _serialize(request)['destination']
+
+        assert decoded == {'type': 'token', 'token': 'tok_ubfj2q76miwundwlk72vxt2i7q',
+                           'account_holder': {'type': 'individual', 'first_name': 'John',
+                                              'middle_name': 'Paul', 'last_name': 'Smith'}}
+        assert decoded['token'] == destination.token
+        assert decoded['account_holder']['type'] == account_holder.type.value
+        assert decoded['account_holder']['last_name'] == account_holder.last_name
