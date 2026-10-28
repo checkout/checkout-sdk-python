@@ -1,6 +1,6 @@
 import json
 
-from checkout_sdk.common.common import BankDetails
+from checkout_sdk.common.common import AccountHolder, BankDetails
 from checkout_sdk.json_serializer import JsonSerializer
 from checkout_sdk.payments.payments import InstructionScheme, PaymentBankAccountDestination, PaymentInstruction, \
     PayoutRequest
@@ -43,3 +43,10 @@ class TestDeprecatedPayoutMembersSerialization:
 
         assert decoded['bank'] == {'name': 'Lloyds TSB', 'branch': 'Bournemouth'}
         assert decoded['type'] == 'bank_account'
+
+    def test_deprecated_account_holder_full_name_and_gender_still_serialize(self):
+        account_holder = AccountHolder()
+        account_holder.full_name = 'John Smith'
+        account_holder.gender = 'male'
+
+        assert _serialize(account_holder) == {'full_name': 'John Smith', 'gender': 'male'}
