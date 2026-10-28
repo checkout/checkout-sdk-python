@@ -22,6 +22,9 @@ class CaptureType(str, Enum):
 
 
 class InstructionScheme(str, Enum):
+    """The payment scheme type of a bank payout instruction. Enum: "local" "instant"."""
+    # Deprecated: not in the current specification, which only lists local and instant. Retained for
+    # backwards compatibility. Will be removed in the next major version.
     SWIFT = 'swift'
     LOCAL = 'local'
     INSTANT = 'instant'
