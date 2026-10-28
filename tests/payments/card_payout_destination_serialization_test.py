@@ -4,8 +4,8 @@ from checkout_sdk.common.common import AccountHolder
 from checkout_sdk.common.enums import AccountHolderType
 from checkout_sdk.json_serializer import JsonSerializer
 from checkout_sdk.payments.payments import CardPayoutItem, ItemType, NetworkTokenType, PaymentDestinationType, \
-    PaymentRequestCardDestination, PaymentRequestNetworkTokenDestination, PaymentRequestTokenDestination, \
-    PayoutRequest, ProductSubType
+    PaymentRequestCardDestination, PaymentRequestIdDestination, PaymentRequestNetworkTokenDestination, \
+    PaymentRequestTokenDestination, PayoutRequest, ProductSubType
 from tests.payments.card_payout_fixtures import ACCOUNT_HOLDER_FIXTURE, rich_account_holder
 
 # Spec example for 02_CardPayoutRequest_DestinationTypeNetworkToken; vts is the first token_type enum value.
@@ -198,6 +198,26 @@ class TestCardPayoutDestinationSerialization:
         assert decoded['token'] == destination.token
         assert decoded['account_holder']['type'] == account_holder.type.value
         assert decoded['account_holder']['last_name'] == account_holder.last_name
+
+    def test_payout_request_serializes_id_destination_and_round_trips(self):
+        # The card payout id destination accepts only type and the name properties of its account holder.
+        account_holder = AccountHolder()
+        account_holder.type = AccountHolderType.CORPORATE
+        account_holder.company_name = 'Acme Corporation'
+        destination = PaymentRequestIdDestination()
+        destination.id = 'src_wmlfc3zyhqzehihu7giusaaawu'
+        destination.account_holder = account_holder
+        request = PayoutRequest()
+        request.destination = destination
+
+        decoded = _serialize(request)['destination']
+
+        assert decoded == {'type': 'id', 'id': 'src_wmlfc3zyhqzehihu7giusaaawu',
+                           'account_holder': {'type': 'corporate', 'company_name': 'Acme Corporation'}}
+        assert decoded['type'] == destination.type.value
+        assert decoded['id'] == destination.id
+        assert decoded['account_holder']['type'] == account_holder.type.value
+        assert decoded['account_holder']['company_name'] == account_holder.company_name
 
     def test_payout_request_items_serialize_literal_keys_and_round_trip(self):
         # Spec example for CardPayoutItems: type digital, sub_type stablecoin.

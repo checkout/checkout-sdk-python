@@ -2,9 +2,9 @@ import json
 
 from checkout_sdk.common.enums import Currency
 from checkout_sdk.json_serializer import JsonSerializer
-from checkout_sdk.payments.payments import NetworkTokenType, PaymentInstruction, PaymentRequestCardDestination, \
-    PaymentRequestIdDestination, PaymentRequestNetworkTokenDestination, PaymentRequestTokenDestination, \
-    PaymentSegment, PayoutRequestCurrencyAccountSource, ProcessingSettings, UnreferencedRefundRequest
+from checkout_sdk.payments.payments import CardPayoutProcessing, NetworkTokenType, PaymentInstruction, \
+    PaymentRequestCardDestination, PaymentRequestIdDestination, PaymentRequestNetworkTokenDestination, \
+    PaymentRequestTokenDestination, PaymentSegment, PayoutRequestCurrencyAccountSource, UnreferencedRefundRequest
 from tests.payments.card_payout_fixtures import ACCOUNT_HOLDER_FIXTURE, rich_account_holder
 
 # The spec has no request example for UnreferencedRefundRequest; values below come from the
@@ -117,7 +117,7 @@ def _full_request(destination=None):
     segment.business_category = 'Inward Payments'
     segment.market = 'UK'
 
-    processing = ProcessingSettings()
+    processing = CardPayoutProcessing()
     processing.processing_speed = 'fast'
 
     request = UnreferencedRefundRequest()
