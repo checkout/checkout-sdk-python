@@ -337,18 +337,59 @@ class PaymentRequestTokenSource(PaymentRequestSource):
 
 
 class PaymentRequestNetworkTokenSource(PaymentRequestSource):
+    """A network token payment source."""
+    # The network token PAN.
+    # [Required]
     token: str
+    # The expiry month of the token.
+    # [Required]
+    # min 1
     expiry_month: int
+    # The expiry year of the token.
+    # [Required]
     expiry_year: int
-    token_type: str
+    # The type of token.
+    # [Required]
+    # Enum: "vts" "mdes" "applepay" "googlepay"
+    token_type: NetworkTokenType
+    # The Base64 encoded cryptographic identifier (TAVV) used by card schemes to validate the token
+    # verification result. Optional if previous_payment_id is specified and 3ds.enabled is false.
+    # [Required]
+    # max 100 characters
     cryptogram: str
+    # The Electronic Commerce Indicator (ECI) security level associated with the token. Optional if
+    # previous_payment_id is specified and 3ds.enabled is false.
+    # [Required]
+    # max 2 characters
     eci: str
+    # Indicates whether this card is being submitted from your own stored card-on-file system, rather
+    # than being entered by the customer at the time of payment. Set to true when you provide card details
+    # that you already have on file for the customer.
+    # [Optional]
+    # Default: false
     stored: bool
+    # This must be set to true if you intend to reuse the payment credentials in subsequent payments.
+    # Setting the field as false will mean that a payment instrument will not be included in the payment
+    # response.
+    # [Optional]
+    # Default: true
     store_for_future_use: bool
+    # The customer's name.
+    # [Optional]
     name: str
+    # The card verification value/code. 3 digits, except for American Express (4 digits).
+    # [Optional]
+    # min 3 characters
+    # max 4 characters
     cvv: str
+    # The customer's billing address.
+    # [Optional]
     billing_address: Address
+    # The customer's phone number.
+    # [Optional]
     phone: Phone
+    # Information about the account holder of the card.
+    # [Optional]
     account_holder: AccountHolder
 
     def __init__(self):
@@ -1004,9 +1045,11 @@ class ProcessingSettings:
     # pattern ^\d{6}$
     # 6 characters
     partner_code: str
-    # Not declared on any processing component schema; it appears only in inline schemas.
-    # 'fast' (only for unreferenced refunds / card payouts)
+    # The speed at which the payout or the unreferenced refund is processed. Only applicable for
+    # unreferenced refunds. Not declared on any processing component schema; it appears only in
+    # the inline processing objects of card payouts and unreferenced refunds.
     # [Optional]
+    # Enum: "fast"
     processing_speed: str
     # The scheme transaction link identifier.
     # [Optional]
@@ -1050,8 +1093,20 @@ class PaymentCustomerRequest(CustomerRequest):
 
 
 class PaymentSegment:
+    """The dimension details about business segment for payment request. At least one dimension
+    required.
+    """
+    # The brand of business segment.
+    # [Optional]
+    # max 50 characters
     brand: str
+    # The category of business segment.
+    # [Optional]
+    # max 50 characters
     business_category: str
+    # The market of business segment.
+    # [Optional]
+    # max 50 characters
     market: str
 
 
@@ -1157,6 +1212,9 @@ class PaymentRequest:
 
 # Payout Request Source
 class PayoutRequestSource:
+    """The source of a card payout, bank payout or unreferenced refund."""
+    # The payout or unreferenced refund source type. Set by each subclass.
+    # [Required]
     type: PayoutSourceType
 
     def __init__(self, type_p: PayoutSourceType):
@@ -1164,6 +1222,16 @@ class PayoutRequestSource:
 
 
 class PayoutRequestCurrencyAccountSource(PayoutRequestSource):
+    """A currency account source (type currency_account).
+
+    Used by card payouts, bank payouts and unreferenced refunds.
+    """
+    # The ID of the currency account that will fund the payout or the unreferenced refund. For
+    # bank payouts, its holding currency must match the payout's currency.
+    # [Required]
+    # ^(ca)_(\w{26})$
+    # min 29 characters
+    # max 29 characters
     id: str
 
     def __init__(self):
@@ -1179,12 +1247,12 @@ class PayoutRequestEntitySource(PayoutRequestSource):
 
 # Payment Request Destination
 class PaymentRequestDestination:
-    """The destination of the payout.
+    """The destination of the payout or of the unreferenced refund.
 
     You can encrypt this field by using the Cko-Encryption-Key-Id and Cko-Encrypted-Properties
     headers.
     """
-    # The payout destination type. Set by each subclass.
+    # The payout or unreferenced refund destination type. Set by each subclass.
     # [Required]
     type: PaymentDestinationType
 
@@ -1226,8 +1294,11 @@ class PaymentBankAccountDestination(PaymentRequestDestination):
     # The account holder details.
     # [Optional]
     account_holder: AccountHolder
-    # The bank details. Not declared on PaymentBankAccountDestination in the spec.
+    # The bank details.
     # [Optional]
+    # Deprecated: not in the current specification of the bank account payout destination, so the
+    # API does not define it. Retained for backwards compatibility. Will be removed in the next
+    # major version.
     bank: BankDetails
 
     def __init__(self):
@@ -1237,7 +1308,7 @@ class PaymentBankAccountDestination(PaymentRequestDestination):
 class PaymentRequestIdDestination(PaymentRequestDestination):
     """A payment instrument payout destination (type id).
 
-    Valid for both card payouts and bank payouts.
+    Valid for card payouts, bank payouts and unreferenced refunds.
     """
     # The payment source ID. This will be an ID with the prefix src_.
     # [Required]
@@ -1247,7 +1318,11 @@ class PaymentRequestIdDestination(PaymentRequestDestination):
     id: str
     # The payout destination account holder. Required for card payouts, where this position
     # accepts only type and first_name, middle_name, last_name (individual) or company_name
-    # (corporate, government).
+    # (corporate, government). Optional for unreferenced refunds, where this position accepts
+    # type (individual, corporate, government); first_name, middle_name and last_name (max 50
+    # characters each), date_of_birth (YYYY-MM-DD) and country_of_birth for individual;
+    # company_name for corporate and government; and billing_address, phone, identification and
+    # email (max 255 characters) for all three.
     # [Optional]
     account_holder: AccountHolder
 
@@ -1256,7 +1331,7 @@ class PaymentRequestIdDestination(PaymentRequestDestination):
 
 
 class PaymentRequestCardDestination(PaymentRequestDestination):
-    """A card payout destination (card payout, type card)."""
+    """A card destination (type card), for card payouts and unreferenced refunds."""
     # The card number. You can encrypt this field by using the Cko-Encryption-Key-Id and
     # Cko-Encrypted-Properties headers.
     # [Required]
@@ -1268,11 +1343,12 @@ class PaymentRequestCardDestination(PaymentRequestDestination):
     # The card's expiration year.
     # [Required]
     expiry_year: int
-    # The payout destination account holder. This position accepts type (individual,
-    # corporate, government); first_name, middle_name and last_name (max 50 characters each),
-    # date_of_birth (YYYY-MM-DD) and country_of_birth for individual; company_name for
-    # corporate and government; and billing_address, phone, identification and email
-    # (max 255 characters) for all three.
+    # The destination account holder, for card payouts and unreferenced refunds. This position
+    # accepts type (individual, corporate, government); first_name, middle_name and last_name
+    # (max 50 characters each), date_of_birth (YYYY-MM-DD) and country_of_birth for individual;
+    # company_name for corporate and government; and billing_address, phone, identification and
+    # email (max 255 characters) for all three. For unreferenced refunds, first_name and
+    # last_name are required for individual, and company_name for corporate and government.
     # [Required]
     account_holder: AccountHolder
 
@@ -1281,7 +1357,7 @@ class PaymentRequestCardDestination(PaymentRequestDestination):
 
 
 class PaymentRequestNetworkTokenDestination(PaymentRequestDestination):
-    """A network token payout destination (card payout, type network_token).
+    """A network token destination (type network_token), for card payouts and unreferenced refunds.
 
     Leave cryptogram and eci unset when not used: assigning None sends null.
     """
@@ -1307,11 +1383,12 @@ class PaymentRequestNetworkTokenDestination(PaymentRequestDestination):
     # [Optional]
     # max 2 characters
     eci: str
-    # The payout destination account holder. This position accepts type (individual,
-    # corporate, government); first_name, middle_name and last_name (max 50 characters each),
-    # date_of_birth (YYYY-MM-DD) and country_of_birth for individual; company_name for
-    # corporate and government; and billing_address, phone, identification and email
-    # (max 255 characters) for all three.
+    # The destination account holder, for card payouts and unreferenced refunds. This position
+    # accepts type (individual, corporate, government); first_name, middle_name and last_name
+    # (max 50 characters each), date_of_birth (YYYY-MM-DD) and country_of_birth for individual;
+    # company_name for corporate and government; and billing_address, phone, identification and
+    # email (max 255 characters) for all three. For unreferenced refunds, first_name and
+    # last_name are required for individual, and company_name for corporate and government.
     # [Required]
     account_holder: AccountHolder
 
@@ -1320,16 +1397,21 @@ class PaymentRequestNetworkTokenDestination(PaymentRequestDestination):
 
 
 class PaymentRequestTokenDestination(PaymentRequestDestination):
-    """A token payout destination (card payout, type token)."""
+    """A token destination (type token), for card payouts and unreferenced refunds."""
     # The Checkout.com card token ID. This will be an ID with the prefix tok_.
     # [Required]
     # ^(tok)_(\w{26})$
     # min 30 characters
     # max 30 characters
     token: str
-    # The payout destination account holder. This position accepts only type and first_name,
-    # middle_name, last_name (individual) or company_name (corporate, government).
-    # [Required]
+    # The destination account holder. Required for card payouts, where this position accepts
+    # only type and first_name, middle_name, last_name (individual) or company_name (corporate,
+    # government). Optional for unreferenced refunds, where this position accepts type
+    # (individual, corporate, government); first_name, middle_name and last_name (max 50
+    # characters each), date_of_birth (YYYY-MM-DD) and country_of_birth for individual;
+    # company_name for corporate and government; and billing_address, phone, identification and
+    # email (max 255 characters) for all three.
+    # [Required] for card payouts, [Optional] for unreferenced refunds
     account_holder: AccountHolder
 
     def __init__(self):
@@ -1338,25 +1420,131 @@ class PaymentRequestTokenDestination(PaymentRequestDestination):
 
 # Request Payout
 class PayoutRequest:
+    """A card payout or bank payout request, sent to POST /payments."""
+    # The source of the payout. For bank payouts, the source from which the payout is funded.
+    # [Required]
     source: PayoutRequestSource
-    # The destination of the payout. Card payouts take PaymentRequestCardDestination,
+    # The destination of the payout. You can encrypt this field by using the Cko-Encryption-Key-Id
+    # and Cko-Encrypted-Properties headers. Card payouts take PaymentRequestCardDestination,
     # PaymentRequestNetworkTokenDestination, PaymentRequestIdDestination or
     # PaymentRequestTokenDestination; bank payouts take PaymentRequestIdDestination or
     # PaymentBankAccountDestination.
     # [Required]
     destination: PaymentRequestDestination
+    # The amount to pay out, in minor units.
+    # [Optional] for card payouts, [Required] for bank payouts
+    # min 0
     amount: int
+    # The three-letter ISO 4217 code for the currency you want to pay out to the recipient. For bank
+    # payouts, it should match the currency of the destination account.
+    # [Required]
     currency: Currency
+    # A custom reference to identify the payout. For example, an order number.
+    # [Optional]
+    # max 50 characters for card payouts
     reference: str
+    # The billing descriptor for bank payouts. Beneficiary banks typically construct it using the
+    # billing descriptor reference and the sender information.
+    # [Required] for bank payouts, not used by card payouts
     billing_descriptor: PayoutBillingDescriptor
+    # The sender of the payout. Required for money transfer card payouts. For bank payouts, the
+    # ultimate sender of the payout, that is, your customer; not supported for Platform or Direct
+    # Seller Checkout.com clients.
+    # [Optional]
     sender: PaymentSender
+    # Additional details about the payout instruction.
+    # [Required] for card payouts, [Optional] for bank payouts
     instruction: PaymentInstruction
+    # The unique identifier for the processing channel.
+    # [Required]
+    # ^(pc)_(\w{26})$
+    # min 29 characters
+    # max 29 characters
     processing_channel_id: str
+    # The dimension details about business segment for payment request. At least one dimension
+    # required.
+    # [Optional]
     segment: PaymentSegment
+    # The order's line items. Card payouts only.
+    # [Optional]
     items: list  # payments.Product
+    # Stores additional information about the transaction with custom fields. Card payouts only.
+    # [Optional]
     metadata: dict
+    # The identifier of an existing payment from the recurring series, if the payout is a recurring
+    # payment that uses stored card details. Card payouts only.
+    # [Optional]
     previous_payment_id: str
+    # Information related to the processing of the payout. Card payouts only.
+    # [Optional]
     processing: ProcessingSettings
+
+
+# Request Unreferenced Refund
+class UnreferencedRefundRequest:
+    """An unreferenced refund request, sent to POST /payments.
+
+    payment_type is set to UnreferencedRefund by the constructor.
+    """
+    # The source of the unreferenced refund. Takes PayoutRequestCurrencyAccountSource.
+    # [Required]
+    source: PayoutRequestSource
+    # The destination of the unreferenced refund. Takes PaymentRequestCardDestination,
+    # PaymentRequestNetworkTokenDestination, PaymentRequestIdDestination or
+    # PaymentRequestTokenDestination.
+    # [Required]
+    destination: PaymentRequestDestination
+    # Additional details about the unreferenced refund instruction. Uses purpose and
+    # funds_transfer_type. funds_transfer_type is required if processing.processing_speed is
+    # fast; its value should be based on the destination card scheme: for Visa, use MI; for
+    # Mastercard, use C60. purpose is required if the card's issuer_country is one of AR, BD,
+    # CL, CO, EG, IN or MX; Enum: "family_support" "expatriation" "travel_and_tourism"
+    # "education" "medical_treatment" "emergency_need" "leisure" "savings" "gifts" "donations"
+    # "financial_services" "it_services" "investment" "insurance" "loan_payment" "pension"
+    # "royalties" "other" "income".
+    # [Optional]
+    instruction: PaymentInstruction
+    # The amount in minor currency.
+    # [Required]
+    # Format: int64
+    # min 1
+    # max 9999999999
+    amount: int
+    # The three-letter ISO currency code of the payment.
+    # [Required]
+    # min 3 characters
+    # max 3 characters
+    currency: Currency
+    # The type of the payment. Set to UnreferencedRefund by the constructor.
+    # [Required]
+    # Enum: "UnreferencedRefund"
+    payment_type: str
+    # The processing channel identifier.
+    # [Required]
+    # ^(pc)_(\w{26})$
+    processing_channel_id: str
+    # An internal reference you can later use to identify this payment.
+    # [Optional]
+    reference: str
+    # A set of key-value pairs that you can attach to the refund request. It can be useful for
+    # storing additional information in a structured format. This object only allows one level
+    # of depth, so cannot accept non-primitive data types such as objects or arrays.
+    # [Optional]
+    metadata: dict
+    # The previous related payment identifier. This could be the ID of the payment that you want
+    # to refund.
+    # [Optional]
+    previous_payment_id: str
+    # The dimension details about business segment for payment request. At least one dimension
+    # required.
+    # [Optional]
+    segment: PaymentSegment
+    # Returns information related to the processing of the payment. Uses processing_speed.
+    # [Optional]
+    processing: ProcessingSettings
+
+    def __init__(self):
+        self.payment_type = 'UnreferencedRefund'
 
 
 # Query

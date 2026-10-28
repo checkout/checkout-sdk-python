@@ -6,7 +6,7 @@ from checkout_sdk.checkout_configuration import CheckoutConfiguration
 from checkout_sdk.client import Client
 from checkout_sdk.payments.payments import PaymentRequest, PayoutRequest, CaptureRequest, AuthorizationRequest, \
     RefundRequest, VoidRequest, PaymentsQueryFilter, CancelScheduledRetryRequest, ReversePaymentRequest, \
-    PaymentsSearchRequest
+    PaymentsSearchRequest, UnreferencedRefundRequest
 
 
 class PaymentsClient(Client):
@@ -22,6 +22,19 @@ class PaymentsClient(Client):
 
     def request_payout(self, payout_request: PayoutRequest, idempotency_key: str = None):
         return self._api_client.post(self.__PAYMENTS_PATH, self._sdk_authorization(), payout_request, idempotency_key)
+
+    def request_unreferenced_refund(self, unreferenced_refund_request: UnreferencedRefundRequest,
+                                    idempotency_key: str = None):
+        """Send an unreferenced refund request to POST /payments.
+
+        Args:
+            unreferenced_refund_request: The unreferenced refund request body.
+            idempotency_key: Optional idempotency key.
+        Returns:
+            ResponseWrapper with the payment response data.
+        """
+        return self._api_client.post(self.__PAYMENTS_PATH, self._sdk_authorization(), unreferenced_refund_request,
+                                     idempotency_key)
 
     def get_payments_list(self, query: PaymentsQueryFilter):
         return self._api_client.get(self.__PAYMENTS_PATH, self._sdk_authorization(), query)

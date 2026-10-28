@@ -1,7 +1,8 @@
 import json
 
 from checkout_sdk.json_serializer import JsonSerializer
-from checkout_sdk.payments.payments import AuthorizationType, PaymentPlan
+from checkout_sdk.payments.payments import AuthorizationType, NetworkTokenType, PaymentPlan, \
+    PaymentRequestNetworkTokenSource
 from checkout_sdk.payments.hosted.hosted_payments import HostedPaymentsSessionRequest
 from checkout_sdk.payments.links.payments_links import PaymentLinkRequest
 from checkout_sdk.payments.sessions.sessions import PaymentSessionsRequest
@@ -49,3 +50,10 @@ class TestPaymentRequestFieldsSerialization:
             'authorization_type': 'Final',
             'payment_plan': {'days_between_payments': 30, 'total_number_of_payments': 12},
         }
+
+    def test_network_token_source_serializes_every_token_type_literal(self):
+        for token_type in NetworkTokenType:
+            source = PaymentRequestNetworkTokenSource()
+            source.token_type = token_type
+
+            assert _serialize(source) == {'type': 'network_token', 'token_type': token_type.value}
