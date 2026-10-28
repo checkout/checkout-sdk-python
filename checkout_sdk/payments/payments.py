@@ -1063,11 +1063,11 @@ class PaymentRetryRequest:
     """Configuration of asynchronous retries."""
     # [Required] Indicates whether asynchronous retries are enabled for the payment.
     enabled: bool
-    # @deprecated max_attempts is not part of RetryRequest in the API and will be removed in the next major
-    # version. Use dunning.max_attempts (DunningRetryRequest) instead.
+    # Deprecated: not part of RetryRequest in the API. Use dunning.max_attempts instead.
+    # Will be removed in the next major version.
     max_attempts: int
-    # @deprecated end_after_days is not part of RetryRequest in the API and will be removed in the next major
-    # version. Use dunning.end_after_days (DunningRetryRequest) instead.
+    # Deprecated: not part of RetryRequest in the API. Use dunning.end_after_days instead.
+    # Will be removed in the next major version.
     end_after_days: int
     # [Optional] Configuration of asynchronous Downtime retries.
     downtime: DowntimeRetryRequest

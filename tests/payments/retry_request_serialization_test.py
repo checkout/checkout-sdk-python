@@ -112,3 +112,28 @@ class TestCustomerRetrySerialization:
             setattr(restored, key, value)
         assert restored.max_attempts == 2
         assert _serialize(restored) == body == {'max_attempts': 2}
+
+
+class TestPaymentRetryRequestRoundtrip:
+
+    def test_should_roundtrip_payment_retry_request(self):
+        # swagger has no property examples for RetryRequest; values use the DunningRetryRequest defaults
+        body = _serialize(_build_retry())
+        restored = PaymentRetryRequest()
+        restored.enabled = body['enabled']
+        restored.dunning = DunningRetryRequest()
+        for key, value in body['dunning'].items():
+            setattr(restored.dunning, key, value)
+        restored.downtime = DowntimeRetryRequest()
+        for key, value in body['downtime'].items():
+            setattr(restored.downtime, key, value)
+        assert restored.enabled is True
+        assert restored.dunning.enabled is True
+        assert restored.dunning.max_attempts == 6
+        assert restored.dunning.end_after_days == 30
+        assert restored.downtime.enabled is True
+        assert _serialize(restored) == body == {
+            'enabled': True,
+            'dunning': {'enabled': True, 'max_attempts': 6, 'end_after_days': 30},
+            'downtime': {'enabled': True},
+        }
