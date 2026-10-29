@@ -196,15 +196,15 @@ class PaymentMethodAction:
     # Enum: "sdk" (PayPal) "set_instrument" (instrument)
     type: str
     # Deprecated: Not part of the PayPal or instrument action schema in the Payment Setups API
-    # specification; the API ignores it on requests. There is no replacement. Will be removed in
-    # the next major version.
+    # specification. For Klarna use Klarna.action (KlarnaAction); there is no replacement for
+    # PayPal and instrument. Will be removed in the next major version.
     # The client token for the Klarna SDK.
     # [Optional]
     # readOnly
     client_token: str
     # Deprecated: Not part of the PayPal or instrument action schema in the Payment Setups API
-    # specification; the API ignores it on requests. There is no replacement. Will be removed in
-    # the next major version.
+    # specification. For Klarna use Klarna.action (KlarnaAction); there is no replacement for
+    # PayPal and instrument. Will be removed in the next major version.
     # The session ID.
     # [Optional]
     # readOnly
@@ -218,9 +218,8 @@ class PaymentMethodAction:
 class PaymentMethodOption:
     """A payment method option.
 
-    Deprecated: Not part of any payment method schema in the Payment Setups API specification;
-    the API ignores it on requests. There is no replacement. Will be removed in the next major
-    version.
+    Deprecated: Not part of any payment method schema in the Payment Setups API specification.
+    There is no replacement. Will be removed in the next major version.
     """
     # The identifier of the payment method option.
     # [Optional]
@@ -236,9 +235,9 @@ class PaymentMethodOption:
 class PaymentMethodOptions:
     """The payment method options.
 
-    Deprecated: Not part of any payment method schema in the Payment Setups API specification;
-    the API ignores it on requests. Klarna and stc pay expose action instead; the other methods
-    have no replacement. Will be removed in the next major version.
+    Deprecated: Not part of any payment method schema in the Payment Setups API specification.
+    Klarna and stc pay expose action instead; the other methods have no replacement. Will be
+    removed in the next major version.
     """
     # The SDK payment method option.
     # [Optional]
@@ -323,9 +322,8 @@ class Klarna(PaymentMethodBase):
         # [Optional]
         # readOnly
         self.account_holder: KlarnaAccountHolder
-        # Deprecated: Not part of the Klarna schema in the Payment Setups API specification; the
-        # API ignores it on requests. Use action instead. Will be removed in the next major
-        # version.
+        # Deprecated: Not part of the Klarna schema in the Payment Setups API specification. Use
+        # action instead. Will be removed in the next major version.
         # The payment method options.
         # [Optional]
         self.payment_method_options: PaymentMethodOptions
@@ -358,9 +356,8 @@ class Stcpay(PaymentMethodBase):
         # [Optional]
         # writeOnly
         self.otp: str
-        # Deprecated: Not part of the stc pay schema in the Payment Setups API specification;
-        # the API ignores it on requests. Use action instead. Will be removed in the next major
-        # version.
+        # Deprecated: Not part of the stc pay schema in the Payment Setups API specification.
+        # Use action instead. Will be removed in the next major version.
         # The payment method options.
         # [Optional]
         self.payment_method_options: PaymentMethodOptions
@@ -375,9 +372,8 @@ class Tabby(PaymentMethodBase):
 
     def __init__(self):
         super().__init__()
-        # Deprecated: Not part of the Tabby schema in the Payment Setups API specification; the
-        # API ignores it on requests. There is no replacement. Will be removed in the next major
-        # version.
+        # Deprecated: Not part of the Tabby schema in the Payment Setups API specification.
+        # There is no replacement. Will be removed in the next major version.
         # The payment method options.
         # [Optional]
         self.payment_method_options: PaymentMethodOptions
@@ -386,8 +382,8 @@ class Tabby(PaymentMethodBase):
 # Bizum entities
 class Bizum(PaymentMethodBase):
     """The Bizum payment method's details and configuration."""
-    # Deprecated: Not part of the Bizum schema in the Payment Setups API specification; the API
-    # ignores it on requests. There is no replacement. Will be removed in the next major version.
+    # Deprecated: Not part of the Bizum schema in the Payment Setups API specification. There is
+    # no replacement. Will be removed in the next major version.
     # The initialization state of the payment method.
     # [Optional]
     # Default: "disabled"
@@ -395,9 +391,8 @@ class Bizum(PaymentMethodBase):
 
     def __init__(self):
         super().__init__()
-        # Deprecated: Not part of the Bizum schema in the Payment Setups API specification; the
-        # API ignores it on requests. There is no replacement. Will be removed in the next major
-        # version.
+        # Deprecated: Not part of the Bizum schema in the Payment Setups API specification.
+        # There is no replacement. Will be removed in the next major version.
         # The payment method options.
         # [Optional]
         self.payment_method_options: PaymentMethodOptions
@@ -405,14 +400,15 @@ class Bizum(PaymentMethodBase):
 
 class Blik(PaymentMethodBase):
     """The Blik payment method's details and configuration."""
-    # Deprecated: Not part of the Blik schema in the Payment Setups API specification; the API
-    # ignores it on requests. There is no replacement. Will be removed in the next major version.
+    # Deprecated: Not part of the Blik schema in the Payment Setups API specification. There is
+    # no replacement. Will be removed in the next major version.
     # The initialization state of the payment method.
     # [Optional]
     # Default: "disabled"
     initialization: PaymentMethodInitialization = PaymentMethodInitialization.DISABLED
     # The 6-digit BLIK code generated by the customer's banking app.
     # [Optional]
+    # writeOnly
     # ^[0-9]{6}$
     partner_code: str
 
