@@ -1637,11 +1637,63 @@ class TestPaymentSetupMethodFieldsSerialization:
         method.initialization = PaymentMethodInitialization.ENABLED
         assert _serialize(method) == {'initialization': 'enabled'}
 
-    def test_blik_still_serializes_partner_code(self):
+    def test_blik_serializes_partner_code_spec_example_and_reads_back(self):
         blik = Blik()
-        blik.partner_code = '123456'
+        blik.partner_code = '999111'
 
-        assert _serialize(blik) == {'initialization': 'disabled', 'partner_code': '123456'}
+        body = json.dumps(blik, cls=JsonSerializer)
+
+        assert '"partner_code": "999111"' in body
+        assert 'partnerCode' not in body
+        assert json.loads(body) == {'initialization': 'disabled', 'partner_code': '999111'}
+        read = ResponseWrapper(None, json.loads(body))
+        assert read.partner_code == blik.partner_code
+        assert read.initialization == PaymentMethodInitialization.DISABLED
+
+    def test_tabby_serializes_payment_types_spec_example_and_reads_back(self):
+        tabby = Tabby()
+        tabby.payment_types = ['pay_later']
+
+        body = json.dumps(tabby, cls=JsonSerializer)
+
+        assert '"payment_types": ["pay_later"]' in body
+        assert 'paymentTypes' not in body
+        assert json.loads(body) == {'initialization': 'disabled', 'payment_types': ['pay_later']}
+        read = ResponseWrapper(None, json.loads(body))
+        assert read.payment_types == tabby.payment_types
+        assert read.initialization == PaymentMethodInitialization.DISABLED
+
+    def test_ideal_description_spec_example_reads_back(self):
+        ideal = Ideal()
+        ideal.description = '2 t-shirts'
+
+        body = json.dumps(ideal, cls=JsonSerializer)
+
+        assert '"description": "2 t-shirts"' in body
+        read = ResponseWrapper(None, json.loads(body))
+        assert read.description == ideal.description
+
+    @pytest.mark.parametrize('language', list(KnetLanguage))
+    def test_knet_language_reads_back(self, language):
+        knet = Knet()
+        knet.language = language
+
+        body = json.dumps(knet, cls=JsonSerializer)
+
+        assert '"language": "{}"'.format(language.value) in body
+        read = ResponseWrapper(None, json.loads(body))
+        assert read.language == language
+
+    def test_bancontact_account_holder_name_reads_back(self):
+        bancontact = Bancontact()
+        bancontact.account_holder_name = 'John Smith'
+
+        body = json.dumps(bancontact, cls=JsonSerializer)
+
+        assert '"account_holder_name": "John Smith"' in body
+        assert 'accountHolderName' not in body
+        read = ResponseWrapper(None, json.loads(body))
+        assert read.account_holder_name == bancontact.account_holder_name
 
     def test_deprecated_action_client_token_and_session_id_are_still_declared_and_sent(self):
         # Not part of the PayPal or instrument action schemas. They stay, deprecated, and are
