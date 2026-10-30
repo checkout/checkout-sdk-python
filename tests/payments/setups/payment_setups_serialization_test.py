@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -27,9 +27,12 @@ from checkout_sdk.payments.setups.setups import (
     PaymentSetupsRequest, Customer, CustomerEmail, CustomerDevice, CustomerDeviceClient,
     PaymentMethodInitialization, CashApp, CashAppAction, CashAppActionType, CashAppAddress,
     CashAppCustomerProfile, PaymentSetupRisk, CardDetails, CardToken, WalletToken, PaymentSetupCardScheme,
-    GooglePayPreferredScheme,
+    GooglePayPreferredScheme, Klarna, KlarnaAction, KlarnaActionType, Stcpay, StcpayAction,
+    StcpayActionType, Tabby, Tamara, TamaraRiskAssessment, Bizum, Blik, PaymentMethodBase,
+    PaymentSetupPaymentMethod, PaymentMethodOptions, PaymentMethodOption, PaymentSetupPaymentType,
+    PaymentMethodAction, Paypal,
 )
-from checkout_sdk.payments.payments import PreferredSchema
+from checkout_sdk.payments.payments import PaymentType, PreferredSchema
 
 
 def _serialize(obj):
@@ -235,7 +238,11 @@ class TestPaymentSetupsSerialization:
             'account_holder': {'type': 'individual', 'first_name': 'John', 'last_name': 'Smith'},
         }
 
-    def test_instrument_serializes_id_and_phone(self):
+    def test_instrument_deprecated_fields_are_still_declared_and_sent(self):
+        # phone, account_holder and allow_update are not in the instrument schema. They stay
+        # declared, deprecated, and are still sent when set.
+        for field in ('phone', 'account_holder', 'allow_update'):
+            assert field in PaymentSetupInstrument.__annotations__, field
         instrument = PaymentSetupInstrument()
         instrument.id = 'src_wmlfc3zttb4uzmk6snpwb43jbi'
         instrument.allow_update = True
@@ -243,11 +250,15 @@ class TestPaymentSetupsSerialization:
         phone.country_code = '+44'
         phone.number = '207 946 0000'
         instrument.phone = phone
+        holder = PaymentSetupAccountHolder()
+        holder.first_name = 'John'
+        instrument.account_holder = holder
 
         assert _serialize(instrument) == {
             'id': 'src_wmlfc3zttb4uzmk6snpwb43jbi',
             'allow_update': True,
             'phone': {'country_code': '+44', 'number': '207 946 0000'},
+            'account_holder': {'first_name': 'John'},
         }
 
     def test_payment_methods_container_serializes_only_set_methods(self):
@@ -294,6 +305,8 @@ class TestPaymentSetupsSerialization:
         }
 
     def test_card_present_serializes_nested_pin(self):
+        # card_present is not listed in the public API reference but is still supported by the
+        # API, so it is still sent under its key.
         card_present = CardPresent()
         card_present.track2 = 'track2-data'
         card_present.emv = 'emv-data'
@@ -314,6 +327,10 @@ class TestPaymentSetupsSerialization:
             'store_for_future_use': True,
             'name': 'John Smith',
         }
+        assert 'card_present' in PaymentMethods.__annotations__
+        payment_methods = PaymentMethods()
+        payment_methods.card_present = CardPresent()
+        assert '"card_present"' in json.dumps(payment_methods, cls=JsonSerializer)
 
     def test_pay_by_bank_serializes_bank_id_and_action(self):
         pay_by_bank = PayByBank()
@@ -897,7 +914,7 @@ class TestPaymentSetupCustomerSerialization:
         merchant_account.first_transaction_date = '2023-09-15'
         merchant_account.last_transaction_date = '2025-03-28'
         merchant_account.total_order_count = 6
-        merchant_account.last_payment_amount = 5599
+        merchant_account.last_payment_amount = 55.99
 
         customer = Customer()
         customer.country = 'GB'
@@ -1410,3 +1427,393 @@ class TestPaymentSetupRequestTopLevelSerialization:
         assert read.metadata.coupon_code == 'NY2018'
         assert read.metadata.partner_id == 123989
         assert read.metadata.vip is True
+
+
+class TestPaymentSetupMethodFieldsSerialization:
+    """Klarna iban and action, stc pay action, Tamara initialization and risk_assessment, and the
+    deprecated payment method members that stay declared and sent."""
+
+    def test_klarna_serializes_action_and_iban_under_the_spec_keys(self):
+        action = KlarnaAction()
+        action.type = KlarnaActionType.SDK
+        action.client_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzZXNzaW9uX2lkIiA6ICIw'
+        action.session_id = '0b1d9815-165e-42e2-8867-35bc03789e00'
+        holder = KlarnaAccountHolder()
+        holder.name = 'John Smith'
+        klarna = Klarna()
+        klarna.status = 'ready'
+        klarna.flags = []
+        klarna.initialization = PaymentMethodInitialization.ENABLED
+        klarna.account_holder = holder
+        klarna.action = action
+        klarna.iban = 'DE89370400440532013000'
+
+        body = json.dumps(klarna, cls=JsonSerializer)
+
+        for key in ('"iban"', '"action"', '"client_token"', '"session_id"', '"account_holder"',
+                    '"initialization"'):
+            assert key in body, key
+        assert 'clientToken' not in body
+        assert 'sessionId' not in body
+        assert json.loads(body) == {
+            'status': 'ready',
+            'flags': [],
+            'initialization': 'enabled',
+            'account_holder': {'name': 'John Smith'},
+            'action': {
+                'type': 'sdk',
+                'client_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzZXNzaW9uX2lkIiA6ICIw',
+                'session_id': '0b1d9815-165e-42e2-8867-35bc03789e00',
+            },
+            'iban': 'DE89370400440532013000',
+        }
+
+        read = ResponseWrapper(None, json.loads(body))
+        assert read.status == klarna.status
+        assert read.flags == klarna.flags
+        assert read.initialization == klarna.initialization
+        assert read.account_holder.name == holder.name
+        assert read.action.type == action.type
+        assert read.action.client_token == action.client_token
+        assert read.action.session_id == action.session_id
+        assert read.iban == klarna.iban
+
+    def test_klarna_spec_example_reads(self):
+        read = ResponseWrapper(None, {
+            'status': 'ready',
+            'initialization': 'disabled',
+            'action': {
+                'type': 'sdk',
+                'client_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzZXNzaW9uX2lkIiA6ICIw',
+                'session_id': '0b1d9815-165e-42e2-8867-35bc03789e00',
+            },
+            'iban': 'DE89370400440532013000',
+        })
+
+        assert read.action.type == KlarnaActionType.SDK
+        assert read.action.client_token == 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzZXNzaW9uX2lkIiA6ICIw'
+        assert read.action.session_id == '0b1d9815-165e-42e2-8867-35bc03789e00'
+        assert read.iban == 'DE89370400440532013000'
+        assert read.initialization == PaymentMethodInitialization.DISABLED
+
+    def test_stcpay_serializes_otp_and_action_under_the_spec_keys(self):
+        action = StcpayAction()
+        action.type = StcpayActionType.OTP
+        stcpay = Stcpay()
+        stcpay.otp = '123456'
+        stcpay.action = action
+
+        body = json.dumps(stcpay, cls=JsonSerializer)
+
+        assert '"otp": "123456"' in body
+        assert '"action": {"type": "otp"}' in body
+        assert json.loads(body) == {
+            'initialization': 'disabled',
+            'otp': '123456',
+            'action': {'type': 'otp'},
+        }
+
+        read = ResponseWrapper(None, json.loads(body))
+        assert read.otp == stcpay.otp
+        assert read.action.type == StcpayActionType.OTP
+        assert read.initialization == PaymentMethodInitialization.DISABLED
+
+    def test_stcpay_spec_example_reads(self):
+        read = ResponseWrapper(None, {'status': 'action_required', 'action': {'type': 'otp'}})
+
+        assert read.status == 'action_required'
+        assert read.action.type == StcpayActionType.OTP
+
+    def test_new_fields_are_declared_with_their_types(self):
+        # Assigning an undeclared attribute still serializes, so the declarations are checked here.
+        assert Klarna.__annotations__['action'] is KlarnaAction
+        assert Klarna.__annotations__['iban'] is str
+        assert KlarnaAction.__annotations__ == {
+            'type': KlarnaActionType, 'client_token': str, 'session_id': str,
+        }
+        assert Stcpay.__annotations__['action'] is StcpayAction
+        assert StcpayAction.__annotations__ == {'type': StcpayActionType}
+        assert Tamara.__annotations__['risk_assessment'] is TamaraRiskAssessment
+        assert TamaraRiskAssessment.__annotations__ == {
+            'premium_customer': bool, 'risk_score': int, 'order_count_last24h': int,
+            'linked_device_count': int,
+        }
+
+    def test_action_type_enums_have_every_spec_value(self):
+        assert [t.value for t in KlarnaActionType] == ['sdk']
+        assert [t.value for t in StcpayActionType] == ['otp']
+
+    def test_tamara_serializes_initialization_and_risk_assessment_under_the_spec_keys(self):
+        risk = TamaraRiskAssessment()
+        risk.premium_customer = False
+        risk.risk_score = 42
+        risk.order_count_last24h = 0
+        risk.linked_device_count = 2
+        tamara = Tamara()
+        tamara.status = 'ready'
+        tamara.flags = []
+        tamara.initialization = PaymentMethodInitialization.ENABLED
+        tamara.risk_assessment = risk
+
+        body = json.dumps(tamara, cls=JsonSerializer)
+
+        for key in ('"initialization": "enabled"', '"risk_assessment"', '"premium_customer"',
+                    '"risk_score"', '"order_count_last24h"', '"linked_device_count"'):
+            assert key in body, key
+        assert 'riskAssessment' not in body
+        assert 'order_count_last_24h' not in body
+        assert json.loads(body) == {
+            'status': 'ready',
+            'flags': [],
+            'initialization': 'enabled',
+            'risk_assessment': {
+                'premium_customer': False,
+                'risk_score': 42,
+                'order_count_last24h': 0,
+                'linked_device_count': 2,
+            },
+        }
+
+        read = ResponseWrapper(None, json.loads(body))
+        assert read.status == tamara.status
+        assert read.flags == tamara.flags
+        assert read.initialization == tamara.initialization
+        for field in ('premium_customer', 'risk_score', 'order_count_last24h', 'linked_device_count'):
+            assert getattr(read.risk_assessment, field) == getattr(risk, field), field
+
+    def test_tamara_initialization_defaults_to_disabled(self):
+        # Tamara keeps the base it had before (status and flags only) and declares
+        # initialization itself, so isinstance checks against that base still hold.
+        assert isinstance(Tamara(), PaymentSetupPaymentMethod)
+        assert not isinstance(Tamara(), PaymentMethodBase)
+        assert Tamara.__annotations__['initialization'] is PaymentMethodInitialization
+        assert _serialize(Tamara()) == {'initialization': 'disabled'}
+
+    def test_tamara_spec_example_reads(self):
+        read = ResponseWrapper(None, {
+            'status': 'initialization_required',
+            'flags': [],
+            'initialization': 'disabled',
+            'risk_assessment': {
+                'premium_customer': False,
+                'risk_score': 42,
+                'order_count_last24h': 0,
+                'linked_device_count': 2,
+            },
+        })
+
+        assert read.initialization == PaymentMethodInitialization.DISABLED
+        assert read.risk_assessment.premium_customer is False
+        assert read.risk_assessment.risk_score == 42
+        assert read.risk_assessment.order_count_last24h == 0
+        assert read.risk_assessment.linked_device_count == 2
+
+    def test_payment_methods_container_sends_the_new_fields_under_the_method_keys(self):
+        payment_methods = PaymentMethods()
+        klarna = Klarna()
+        klarna.iban = 'DE89370400440532013000'
+        payment_methods.klarna = klarna
+        tamara = Tamara()
+        risk = TamaraRiskAssessment()
+        risk.risk_score = 42
+        tamara.risk_assessment = risk
+        payment_methods.tamara = tamara
+
+        assert _serialize(payment_methods) == {
+            'klarna': {'initialization': 'disabled', 'iban': 'DE89370400440532013000'},
+            'tamara': {'initialization': 'disabled', 'risk_assessment': {'risk_score': 42}},
+        }
+
+    @pytest.mark.parametrize('method_type', [Bizum, Blik])
+    def test_deprecated_initialization_is_still_declared_and_sent(self, method_type):
+        # Bizum and Blik schemas have no initialization. They keep PaymentMethodBase as their
+        # base, and redeclare initialization (deprecated) with the same type and default, so
+        # callers and the wire are unchanged.
+        assert issubclass(method_type, PaymentMethodBase)
+        assert method_type.__annotations__['initialization'] is PaymentMethodInitialization
+        assert method_type.initialization is PaymentMethodBase.initialization
+        assert _serialize(method_type()) == {'initialization': 'disabled'}
+        method = method_type()
+        method.initialization = PaymentMethodInitialization.ENABLED
+        assert _serialize(method) == {'initialization': 'enabled'}
+
+    def test_blik_serializes_partner_code_spec_example_and_reads_back(self):
+        blik = Blik()
+        blik.partner_code = '999111'
+
+        body = json.dumps(blik, cls=JsonSerializer)
+
+        assert '"partner_code": "999111"' in body
+        assert 'partnerCode' not in body
+        assert json.loads(body) == {'initialization': 'disabled', 'partner_code': '999111'}
+        read = ResponseWrapper(None, json.loads(body))
+        assert read.partner_code == blik.partner_code
+        assert read.initialization == PaymentMethodInitialization.DISABLED
+
+    def test_tabby_serializes_payment_types_spec_example_and_reads_back(self):
+        tabby = Tabby()
+        tabby.payment_types = ['pay_later']
+
+        body = json.dumps(tabby, cls=JsonSerializer)
+
+        assert '"payment_types": ["pay_later"]' in body
+        assert 'paymentTypes' not in body
+        assert json.loads(body) == {'initialization': 'disabled', 'payment_types': ['pay_later']}
+        read = ResponseWrapper(None, json.loads(body))
+        assert read.payment_types == tabby.payment_types
+        assert read.initialization == PaymentMethodInitialization.DISABLED
+
+    def test_ideal_description_spec_example_reads_back(self):
+        ideal = Ideal()
+        ideal.description = '2 t-shirts'
+
+        body = json.dumps(ideal, cls=JsonSerializer)
+
+        assert '"description": "2 t-shirts"' in body
+        read = ResponseWrapper(None, json.loads(body))
+        assert read.description == ideal.description
+
+    @pytest.mark.parametrize('language', list(KnetLanguage))
+    def test_knet_language_reads_back(self, language):
+        knet = Knet()
+        knet.language = language
+
+        body = json.dumps(knet, cls=JsonSerializer)
+
+        assert '"language": "{}"'.format(language.value) in body
+        read = ResponseWrapper(None, json.loads(body))
+        assert read.language == language
+
+    def test_bancontact_account_holder_name_reads_back(self):
+        bancontact = Bancontact()
+        bancontact.account_holder_name = 'John Smith'
+
+        body = json.dumps(bancontact, cls=JsonSerializer)
+
+        assert '"account_holder_name": "John Smith"' in body
+        assert 'accountHolderName' not in body
+        read = ResponseWrapper(None, json.loads(body))
+        assert read.account_holder_name == bancontact.account_holder_name
+
+    def test_deprecated_action_client_token_and_session_id_are_still_declared_and_sent(self):
+        # Not part of the PayPal or instrument action schemas. They stay, deprecated, and are
+        # still sent and read under their keys.
+        assert PaymentMethodAction.__annotations__['client_token'] is str
+        assert PaymentMethodAction.__annotations__['session_id'] is str
+        action = PaymentMethodAction()
+        action.type = 'sdk'
+        action.client_token = 'token_1'
+        action.session_id = 'session_1'
+        action.order_id = 'order_1'
+        paypal = Paypal()
+        paypal.action = action
+
+        body = json.dumps(paypal, cls=JsonSerializer)
+
+        assert '"client_token": "token_1"' in body
+        assert '"session_id": "session_1"' in body
+        assert 'clientToken' not in body
+        assert 'sessionId' not in body
+        read = ResponseWrapper(None, json.loads(body))
+        assert read.action.client_token == action.client_token
+        assert read.action.session_id == action.session_id
+        assert read.action.order_id == action.order_id
+
+    @pytest.mark.parametrize('method_type', [Klarna, Stcpay, Tabby, Bizum])
+    def test_deprecated_payment_method_options_are_still_sent(self, method_type):
+        option = PaymentMethodOption()
+        option.id = 'pmo_1'
+        options = PaymentMethodOptions()
+        options.sdk = option
+        method = method_type()
+        method.payment_method_options = options
+
+        assert _serialize(method)['payment_method_options'] == {'sdk': {'id': 'pmo_1'}}
+
+
+class TestPaymentSetupPaymentTypeSerialization:
+    """payment_type on the Payment Setup request uses its own lowercase enum."""
+
+    def test_payment_type_has_every_spec_value(self):
+        assert [t.value for t in PaymentSetupPaymentType] == [
+            'regular', 'recurring', 'moto', 'installment', 'pay_later', 'unscheduled',
+        ]
+
+    @pytest.mark.parametrize('payment_type', list(PaymentSetupPaymentType))
+    def test_every_payment_type_is_sent_lowercase_and_reads_back(self, payment_type):
+        request = PaymentSetupsRequest()
+        request.payment_type = payment_type
+
+        body = json.dumps(request, cls=JsonSerializer)
+
+        assert '"payment_type": "{}"'.format(payment_type.value) in body
+        read = ResponseWrapper(None, json.loads(body))
+        assert read.payment_type == payment_type
+
+    def test_pay_later_is_sent_as_the_spec_value(self):
+        request = PaymentSetupsRequest()
+        request.payment_type = PaymentSetupPaymentType.PAY_LATER
+
+        body = json.dumps(request, cls=JsonSerializer)
+
+        assert '"payment_type": "pay_later"' in body
+        assert 'PayLater' not in body
+
+    def test_payment_type_is_still_importable_from_the_setups_module(self):
+        # Deprecated re-export kept so existing imports from the setups module keep working.
+        from checkout_sdk.payments.setups.setups import PaymentType as SetupsModulePaymentType
+
+        assert SetupsModulePaymentType is PaymentType
+
+    def test_request_annotation_is_the_setups_enum(self):
+        assert PaymentSetupsRequest.__annotations__['payment_type'] is PaymentSetupPaymentType
+        assert PaymentSetupsRequest.__annotations__['payment_type'] is not PaymentType
+
+    def test_spec_example_reads(self):
+        read = ResponseWrapper(None, {'payment_type': 'regular'})
+
+        assert read.payment_type == PaymentSetupPaymentType.REGULAR
+
+
+class TestPaymentSetupTerminalAndMerchantAccountTypes:
+    """terminal.local_date_time as a date-time and merchant_account.last_payment_amount as a
+    number."""
+
+    def test_terminal_local_date_time_serializes_a_timezone_aware_datetime(self):
+        terminal = PaymentSetupTerminal()
+        terminal.id = '12345678'
+        terminal.local_date_time = datetime(2026, 5, 26, 13, 5, 14, tzinfo=timezone(timedelta(hours=1)))
+
+        body = json.dumps(terminal, cls=JsonSerializer)
+
+        assert '"local_date_time": "2026-05-26T13:05:14+01:00"' in body
+        assert 'localDateTime' not in body
+        read = ResponseWrapper(None, json.loads(body))
+        assert read.id == terminal.id
+        assert datetime.fromisoformat(read.local_date_time) == terminal.local_date_time
+
+    def test_terminal_local_date_time_still_sends_a_string_unchanged(self):
+        terminal = PaymentSetupTerminal()
+        terminal.local_date_time = '2026-05-26T13:05:14.0000000+01:00'
+
+        assert _serialize(terminal) == {'local_date_time': '2026-05-26T13:05:14.0000000+01:00'}
+
+    def test_terminal_spec_example_reads(self):
+        read = ResponseWrapper(None, {'id': '12345678', 'local_date_time': '2026-05-26T13:05:14.0000000+01:00'})
+
+        assert read.id == '12345678'
+        assert read.local_date_time == '2026-05-26T13:05:14.0000000+01:00'
+
+    def test_terminal_annotation_is_datetime(self):
+        assert PaymentSetupTerminal.__annotations__['local_date_time'] is datetime
+
+    def test_last_payment_amount_serializes_a_decimal_number(self):
+        merchant_account = MerchantAccount()
+        merchant_account.last_payment_amount = 55.99
+
+        body = json.dumps(merchant_account, cls=JsonSerializer)
+
+        assert '"last_payment_amount": 55.99' in body
+        assert 'lastPaymentAmount' not in body
+        assert ResponseWrapper(None, json.loads(body)).last_payment_amount == 55.99
+        assert MerchantAccount.__annotations__['last_payment_amount'] is float
