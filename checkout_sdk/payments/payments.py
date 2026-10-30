@@ -1523,7 +1523,8 @@ class PaymentRequestIdDestination(PaymentRequestDestination):
     # type (individual, corporate, government); first_name, middle_name and last_name (max 50
     # characters each), date_of_birth (YYYY-MM-DD) and country_of_birth for individual;
     # company_name for corporate and government; and billing_address, phone, identification and
-    # email (max 255 characters) for all three.
+    # email (max 255 characters) for all three. Not part of bank payouts, whose id destination
+    # accepts only type and id.
     # [Required] for card payouts, [Optional] for unreferenced refunds
     account_holder: AccountHolder
 

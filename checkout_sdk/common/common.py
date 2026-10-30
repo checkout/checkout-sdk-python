@@ -89,10 +89,9 @@ class AccountHolder:
     type: AccountHolderType
     # The account holder's full name.
     # [Optional]
-    # Deprecated: not in the request schema of any account holder; the Klarna payment source
-    # account_holder had it until the API removed it. Still returned in the PayPal payment details
-    # source account_holder. Retained for backwards compatibility. Will be removed in the next major
-    # version. There is no replacement.
+    # Deprecated: not in the request schema of any account holder. Still returned in the PayPal
+    # payment details source account_holder. Retained for backwards compatibility. Will be removed
+    # in the next major version. There is no replacement.
     full_name: str
     # The account holder's first name (individual). For card payouts, the combination of
     # first_name, middle_name and last_name should exceed 3 letters in length. This must be a valid
@@ -119,10 +118,9 @@ class AccountHolder:
     email: str
     # The account holder's gender.
     # [Optional]
-    # Deprecated: not in the request schema of any account holder; the Klarna payment source
-    # account_holder had it until the API removed it. Still returned in the Klarna payment details
-    # source account_holder. Retained for backwards compatibility. Will be removed in the next major
-    # version. There is no replacement.
+    # Deprecated: not in the request schema of any account holder. Still returned in the Klarna
+    # payment details source account_holder. Retained for backwards compatibility. Will be removed
+    # in the next major version. There is no replacement.
     gender: str
     # The account holder's company name (corporate, government). This must be a valid legal name.
     # For bank payouts, the full legal name of a registered company that holds the account.
