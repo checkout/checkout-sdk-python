@@ -101,6 +101,17 @@ class InstructionPurpose(str, Enum):
 
 
 class Instruction:
+    """Details about the payment instruction of a payment session. Payment sessions use purpose only.
+
+    Payouts, unreferenced refunds, regular payments, hosted payments and payment links use
+    payments.PaymentInstruction instead.
+    """
+    # The purpose of the payment. This field might be required for AFT transactions depending on
+    # the card's issuer_country.
+    # [Optional]
+    # Enum: "family_support" "expatriation" "travel_and_tourism" "education" "medical_treatment"
+    # "emergency_need" "leisure" "savings" "gifts" "donations" "financial_services" "it_services"
+    # "investment" "insurance" "loan_payment" "pension" "royalties" "other" "income"
     purpose: InstructionPurpose
 
 

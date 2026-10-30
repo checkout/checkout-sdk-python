@@ -5,7 +5,7 @@ from checkout_sdk.common.common import AccountHolder
 from checkout_sdk.payments.payments_client import PaymentsClient
 from checkout_sdk.payments.payments import PaymentRequest, PayoutRequest, CaptureRequest, AuthorizationRequest, \
     RequestProviderTokenSource, RefundRequest, VoidRequest, CancelScheduledRetryRequest, ReversePaymentRequest, \
-    PaymentsSearchRequest
+    PaymentsSearchRequest, UnreferencedRefundRequest
 
 
 @pytest.fixture(scope='class')
@@ -42,6 +42,21 @@ class TestPaymentsClient:
 
         assert client.request_payout(body, 'idempotency_key') == 'response'
         assert_api_call(mock, 'payments', body)
+
+    def test_request_unreferenced_refund(self, mocker, client: PaymentsClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        body = UnreferencedRefundRequest()
+
+        assert client.request_unreferenced_refund(body) == 'response'
+        assert_api_call(mock, 'payments', body)
+
+    def test_request_unreferenced_refund_idempotency_key(self, mocker, client: PaymentsClient):
+        mock = mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
+        body = UnreferencedRefundRequest()
+
+        assert client.request_unreferenced_refund(body, 'idempotency_key') == 'response'
+        assert_api_call(mock, 'payments', body)
+        assert mock.call_args.args[3] == 'idempotency_key'
 
     def test_get_payment_details(self, mocker, client: PaymentsClient):
         mock = mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
