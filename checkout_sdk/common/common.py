@@ -29,6 +29,14 @@ class CustomerRequest:
 
 
 class CustomerRetry:
+    """Configures the parameters for customer retries.
+
+    A customer retry is a payment attempt performed by the customer on the checkout page. This differs
+    from authorization request retries performed in the back end by Checkout.com.
+    """
+    # The maximum number of customer retry attempts, excluding the initial payment attempt.
+    # [Optional] on hosted payments and payment links, [Required] on payment sessions.
+    # Range: 0 to 5. Default: 5.
     max_attempts: int
 
 
