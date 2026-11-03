@@ -5,28 +5,86 @@ on:
       - main
     paths:
       - checkout_sdk/properties.py
+  # Dry run from any branch: builds VERSION.devN and uploads it to TestPyPI only.
+  workflow_dispatch:
 
+# Read-only by default. Only the publish jobs get an OIDC token and only the release job
+# can write to the repository.
+permissions:
+  contents: read # checkout only
+
+concurrency:
+  group: build-release-${{ github.ref }}
+  cancel-in-progress: false
+
+# Every pip install uses a hash-locked file (--require-hashes), so a new release of any
+# dependency cannot change what these jobs install. Regenerate the locks with
+# bash .github/scripts/compile-release-locks.sh. Actions are pinned by commit SHA.
 jobs:
-  deploy:
-    if: github.ref == 'refs/heads/main'
+  # Builds the distributions with no secrets in the job. It runs before the tests, so the
+  # code the tests install cannot plant the artifact the publish job downloads.
+  build:
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
+    outputs:
+      version: ${{ steps.read-version.outputs.version }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - id: setup-python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.10'
-      # Wheels only, as in build-main.yml: this job also holds the PyPI credentials.
-      # The tooling is pinned to exact versions (Sonar S8544).
       - id: install-tooling
+        run: python -m pip install --require-hashes -r requirements-release-build.txt
+      - id: read-version
+        env:
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
-          python -m pip install --only-binary :all: pip==26.2.2
-          pip install --only-binary :all: wheel==0.48.0
-          pip install --only-binary :all: twine==7.0.0
-          pip install --only-binary :all: build==1.6.1
+          version=$(sed -n 's/^VERSION = "\(.*\)"$/\1/p' checkout_sdk/properties.py)
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+((a|b|rc)[0-9]+)?$ ]]; then
+            echo "::error::Unexpected VERSION in checkout_sdk/properties.py: '$version'"
+            exit 1
+          fi
+          if [ "$DRY_RUN" = true ]; then
+            version="${version}.dev${GITHUB_RUN_NUMBER}"
+            sed -i "s/^VERSION = \".*\"$/VERSION = \"${version}\"/" checkout_sdk/properties.py
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Building $version"
+      # --no-isolation builds with the locked setuptools and wheel instead of letting build
+      # download them, and fails if they do not match [build-system] in pyproject.toml.
+      - id: build-dist
+        run: python -m build --no-isolation
+      - id: verify-dist
+        env:
+          VERSION: ${{ steps.read-version.outputs.version }}
+        run: python -I .github/scripts/verify_dist.py dist "$VERSION"
+      - id: upload-dist
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  # Holds the sandbox secrets and never sees a publishing credential.
+  test:
+    needs: build
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - id: setup-python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.10'
       - id: install-project-dependencies
         run: |
-          pip install --only-binary :all: -r requirements-ci.txt
+          python -m pip install --require-hashes -r requirements-release-test.txt
+          # Installs nothing; fails if requirements-ci.txt changed without regenerating the lock.
+          python -m pip install --no-index --dry-run -r requirements-ci.txt
       - id: testing
         env:
           CHECKOUT_PROCESSING_CHANNEL_ID: ${{ secrets.IT_CHECKOUT_PROCESSING_CHANNEL_ID }}
@@ -44,21 +102,58 @@ jobs:
           CHECKOUT_DEFAULT_OAUTH_ISSUING_CLIENT_SECRET: ${{ secrets.IT_CHECKOUT_DEFAULT_OAUTH_ISSUING_CLIENT_SECRET }}
           CHECKOUT_MERCHANT_SUBDOMAIN: ${{ secrets.IT_CHECKOUT_MERCHANT_SUBDOMAIN }}
         run: python -m pytest -x --import-mode=append tests/
-      - id: read-version
-        run: echo "CURRENT_VERSION=$(grep -o '".*"' checkout_sdk/properties.py | sed 's/"//g' | tr -d \\n)" >> $GITHUB_ENV
-      - id: print-version
-        run: echo "Releasing $CURRENT_VERSION"
-      - id: build-dist
-        run: python -m build
-      - id: upload-dist
-        run: twine upload dist/* -u ${{ secrets.PY_PI_USER }} -p ${{ secrets.PY_PI_PW }}
-      - id: create-release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # PyPI Trusted Publishing: no stored password, the action exchanges the job's OIDC token
+  # for a short-lived upload token. The job checks out no code and installs nothing.
+  publish-testpypi:
+    if: github.event_name == 'workflow_dispatch'
+    needs: [build, test]
+    runs-on: ubuntu-22.04
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/project/checkout-sdk/${{ needs.build.outputs.version }}/
+    permissions:
+      id-token: write # Trusted Publishing OIDC token
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          tag_name: ${{ env.CURRENT_VERSION }}
-          release_name: ${{ env.CURRENT_VERSION }}
-          body: ${{ github.event.head_commit.message }}
-          draft: false
-          prerelease: false
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          print-hash: true
+
+  publish-pypi:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [build, test]
+    runs-on: ubuntu-22.04
+    environment:
+      name: pypi
+      url: https://pypi.org/project/checkout-sdk/${{ needs.build.outputs.version }}/
+    permissions:
+      id-token: write # Trusted Publishing OIDC token
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+        with:
+          print-hash: true
+
+  release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [build, publish-pypi]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write # gh release create
+    steps:
+      - id: create-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.build.outputs.version }}
+          NOTES: ${{ github.event.head_commit.message }}
+        run: |
+          gh release create "$VERSION" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "$VERSION" --notes "$NOTES"

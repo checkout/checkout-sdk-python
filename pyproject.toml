@@ -1,0 +1,5 @@
+[build-system]
+# Exact pins so a new setuptools or wheel release cannot change how the package is built.
+# Keep in sync with BUILD_TOOLS in .github/scripts/compile-release-locks.sh.
+requires = ["setuptools==84.2.1", "wheel==0.48.0"]
+build-backend = "setuptools.build_meta"
