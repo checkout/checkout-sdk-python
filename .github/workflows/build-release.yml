@@ -38,7 +38,8 @@ jobs:
         with:
           python-version: '3.10'
       - id: install-tooling
-        run: python -m pip install --require-hashes -r requirements-release-build.txt
+        run: |
+          python -m pip install --only-binary :all: --require-hashes -r requirements-release-build.txt
       - id: read-version
         env:
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' }}
@@ -61,7 +62,7 @@ jobs:
       - id: verify-dist
         env:
           VERSION: ${{ steps.read-version.outputs.version }}
-        run: python -I .github/scripts/verify_dist.py dist "$VERSION"
+        run: python -I .github/scripts/verify_dist.py "$VERSION"
       - id: upload-dist
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -83,9 +84,9 @@ jobs:
           python-version: '3.10'
       - id: install-project-dependencies
         run: |
-          python -m pip install --require-hashes -r requirements-release-test.txt
+          python -m pip install --only-binary :all: --require-hashes -r requirements-release-test.txt
           # Installs nothing; fails if requirements-ci.txt changed without regenerating the lock.
-          python -m pip install --no-index --dry-run -r requirements-ci.txt
+          python -m pip install --only-binary :all: --no-index --dry-run -r requirements-ci.txt
       - id: testing
         env:
           CHECKOUT_PROCESSING_CHANNEL_ID: ${{ secrets.IT_CHECKOUT_PROCESSING_CHANNEL_ID }}

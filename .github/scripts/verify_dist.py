@@ -5,15 +5,18 @@ both archives contain only the entries the package is meant to ship, and the ver
 the metadata and in checkout_sdk/properties.py matches. Standard library only, so it adds
 nothing to the release job's locked dependencies.
 
-Usage: python -I .github/scripts/verify_dist.py <dist dir> <version>
+Run from the repository root: python -I .github/scripts/verify_dist.py <version>
 """
 import email.parser
 import pathlib
+import re
 import sys
 import tarfile
 import zipfile
 
 PACKAGE = 'checkout_sdk'
+DIST = pathlib.Path('dist')
+VERSION_PATTERN = re.compile(r'[0-9]+\.[0-9]+\.[0-9]+((a|b|rc)[0-9]+)?(\.dev[0-9]+)?')
 
 
 def fail(message):
@@ -69,18 +72,20 @@ def check_sdist(path, version):
     return len(members)
 
 
-def main(dist_dir, version):
-    dist = pathlib.Path(dist_dir)
-    wheel = dist / f'{PACKAGE}-{version}-py3-none-any.whl'
-    sdist = dist / f'{PACKAGE}-{version}.tar.gz'
-    found = sorted(path.name for path in dist.iterdir())
-    if found != sorted([wheel.name, sdist.name]):
-        fail(f'{dist}: found {found}, expected exactly {sorted([wheel.name, sdist.name])}')
+def main(version):
+    if not VERSION_PATTERN.fullmatch(version):
+        fail(f'{version!r} is not a release or dev version')
+    # The version is only compared with file names; the files opened come from the listing.
+    files = sorted(DIST.iterdir())
+    expected = sorted([f'{PACKAGE}-{version}-py3-none-any.whl', f'{PACKAGE}-{version}.tar.gz'])
+    if [path.name for path in files] != expected:
+        fail(f'{DIST}: found {[path.name for path in files]}, expected exactly {expected}')
+    wheel, sdist = files  # '-py3' sorts before '.tar', so the wheel comes first
     print(f'{wheel.name}: {check_wheel(wheel, version)} entries OK')
     print(f'{sdist.name}: {check_sdist(sdist, version)} entries OK')
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
-        fail('usage: verify_dist.py <dist dir> <version>')
-    main(sys.argv[1], sys.argv[2])
+    if len(sys.argv) != 2:
+        fail('usage: verify_dist.py <version>')
+    main(sys.argv[1])
