@@ -61,7 +61,8 @@ class Client:
         if not issubclass(type(value), str):
             raise CheckoutArgumentException(_INVALID_SEGMENT_MESSAGE)
         # Exact str copy of the characters, so no overridden method of a str subclass takes part.
-        value = str.__str__(value)
+        # A full slice copies on CPython and PyPy alike; str.__str__ keeps the subclass on PyPy.
+        value = str.__getitem__(value, slice(None))
         if _FORBIDDEN_SEGMENT_CHARACTERS.search(value):
             raise CheckoutArgumentException(_INVALID_SEGMENT_MESSAGE)
         try:
