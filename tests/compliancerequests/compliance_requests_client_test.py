@@ -3,6 +3,7 @@ import pytest
 from tests._assertions import assert_api_call
 from checkout_sdk.compliancerequests.compliance_requests_client import ComplianceRequestsClient
 from checkout_sdk.compliancerequests.compliance_requests import ComplianceRequestRespondRequest
+from checkout_sdk.exception import CheckoutArgumentException
 
 
 @pytest.fixture(scope='class')
@@ -21,7 +22,7 @@ class TestComplianceRequestsClient:
     def test_get_compliance_request_with_none_payment_id(self, mocker, client: ComplianceRequestsClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.get', return_value='response')
 
-        with pytest.raises(TypeError, match="sequence item 1: expected str"):
+        with pytest.raises(CheckoutArgumentException, match="Invalid path segment"):
             client.get_compliance_request(None)
 
     def test_respond_to_compliance_request(self, mocker, client: ComplianceRequestsClient):
@@ -34,7 +35,7 @@ class TestComplianceRequestsClient:
     def test_respond_to_compliance_request_with_none_payment_id(self, mocker, client: ComplianceRequestsClient):
         mocker.patch('checkout_sdk.api_client.ApiClient.post', return_value='response')
 
-        with pytest.raises(TypeError, match="sequence item 1: expected str"):
+        with pytest.raises(CheckoutArgumentException, match="Invalid path segment"):
             client.respond_to_compliance_request(None, ComplianceRequestRespondRequest())
 
     def test_respond_to_compliance_request_with_none_request(self, mocker, client: ComplianceRequestsClient):
