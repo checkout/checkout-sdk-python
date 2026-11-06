@@ -10,6 +10,10 @@ jobs:
   deploy:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
+    # The repository's default GITHUB_TOKEN is read-only. create-release needs
+    # write access to contents to create the version tag and GitHub release.
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v2
       - id: setup-python
