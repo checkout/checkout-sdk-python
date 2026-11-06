@@ -11,7 +11,8 @@ from checkout_sdk.instruments.instruments import CreateInstrumentRequest, Update
 
 class InstrumentsClient(Client):
     __INSTRUMENTS = 'instruments'
-    __BANK_VALIDATION_PATH = 'validation/bank-accounts'
+    __VALIDATION_PATH = 'validation'
+    __BANK_ACCOUNTS_PATH = 'bank-accounts'
 
     def __init__(self, api_client: ApiClient, configuration: CheckoutConfiguration):
         super().__init__(api_client=api_client,
@@ -40,5 +41,5 @@ class InstrumentsClient(Client):
 
     def get_bank_account_field_formatting(self, country: Country, currency: Currency,
                                           bank_account_field_query: BankAccountFieldQuery):
-        return self._api_client.get(self.build_path(self.__BANK_VALIDATION_PATH, country, currency),
+        return self._api_client.get(self.build_path(self.__VALIDATION_PATH, self.__BANK_ACCOUNTS_PATH, country, currency),
                                     self._sdk_authorization(AuthorizationType.OAUTH), bank_account_field_query)

@@ -8,7 +8,8 @@ from checkout_sdk.payments.googlepay.googlepay import GooglePayEnrollmentRequest
 
 
 class GooglePayClient(Client):
-    __GOOGLEPAY_ENROLLMENTS_PATH = 'googlepay/enrollments'
+    __GOOGLEPAY_PATH = 'googlepay'
+    __ENROLLMENTS_PATH = 'enrollments'
     __DOMAIN_PATH = 'domain'
     __DOMAINS_PATH = 'domains'
     __STATE_PATH = 'state'
@@ -19,20 +20,21 @@ class GooglePayClient(Client):
                          authorization_type=AuthorizationType.OAUTH)
 
     def create_enrollment(self, request: GooglePayEnrollmentRequest):
-        return self._api_client.post(self.__GOOGLEPAY_ENROLLMENTS_PATH, self._sdk_authorization(), request)
+        return self._api_client.post(self.build_path(self.__GOOGLEPAY_PATH, self.__ENROLLMENTS_PATH),
+                                     self._sdk_authorization(), request)
 
     def register_domain(self, entity_id: str, request: GooglePayRegisterDomainRequest):
         return self._api_client.post(
-            self.build_path(self.__GOOGLEPAY_ENROLLMENTS_PATH, entity_id, self.__DOMAIN_PATH),
+            self.build_path(self.__GOOGLEPAY_PATH, self.__ENROLLMENTS_PATH, entity_id, self.__DOMAIN_PATH),
             self._sdk_authorization(),
             request)
 
     def get_registered_domains(self, entity_id: str):
         return self._api_client.get(
-            self.build_path(self.__GOOGLEPAY_ENROLLMENTS_PATH, entity_id, self.__DOMAINS_PATH),
+            self.build_path(self.__GOOGLEPAY_PATH, self.__ENROLLMENTS_PATH, entity_id, self.__DOMAINS_PATH),
             self._sdk_authorization())
 
     def get_enrollment_state(self, entity_id: str):
         return self._api_client.get(
-            self.build_path(self.__GOOGLEPAY_ENROLLMENTS_PATH, entity_id, self.__STATE_PATH),
+            self.build_path(self.__GOOGLEPAY_PATH, self.__ENROLLMENTS_PATH, entity_id, self.__STATE_PATH),
             self._sdk_authorization())

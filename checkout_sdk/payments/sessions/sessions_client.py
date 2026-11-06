@@ -11,6 +11,8 @@ from checkout_sdk.payments.sessions.sessions import (
 
 class PaymentSessionsClient(Client):
     __PAYMENT_SESSIONS_PATH = 'payment-sessions'
+    __COMPLETE_PATH = 'complete'
+    __SUBMIT_PATH = 'submit'
 
     def __init__(self, api_client: ApiClient, configuration: CheckoutConfiguration):
         super().__init__(api_client=api_client,
@@ -23,11 +25,12 @@ class PaymentSessionsClient(Client):
 
     def create_payment_session_with_payment(
             self, payment_session_with_payment_request: PaymentSessionWithPaymentRequest):
-        return self._api_client.post(self.__PAYMENT_SESSIONS_PATH + '/complete', self._sdk_authorization(),
+        return self._api_client.post(self.build_path(self.__PAYMENT_SESSIONS_PATH, self.__COMPLETE_PATH),
+                                     self._sdk_authorization(),
                                      payment_session_with_payment_request)
 
     def submit_payment_session(self, session_id: str,
                                submit_payment_session_request: SubmitPaymentSessionRequest):
-        return self._api_client.post(self.__PAYMENT_SESSIONS_PATH + '/' + session_id + '/submit',
+        return self._api_client.post(self.build_path(self.__PAYMENT_SESSIONS_PATH, session_id, self.__SUBMIT_PATH),
                                      self._sdk_authorization(),
                                      submit_payment_session_request)

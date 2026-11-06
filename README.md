@@ -203,6 +203,11 @@ except CheckoutApiException as err:
     error_details = err.error_details
 ```
 
+Identifiers passed to client methods (for example a payment id) are sent as single, percent-encoded path
+segments: pass them unencoded (Enum members are sent by their value). A `CheckoutArgumentException` is raised
+before any request is sent when an identifier is not a string, is `None`, empty, `.` or `..`, cannot be encoded as UTF-8, or contains `/`, `\` or an
+ASCII control character (U+0000 to U+001F, U+007F).
+
 ## Building from source
 
 ### Prerequisites

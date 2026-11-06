@@ -1,8 +1,17 @@
 from __future__ import absolute_import
 
+import re
+from enum import Enum
+from urllib.parse import quote
+
 from checkout_sdk.api_client import ApiClient
 from checkout_sdk.authorization_type import AuthorizationType
 from checkout_sdk.checkout_configuration import CheckoutConfiguration
+from checkout_sdk.exception import CheckoutArgumentException
+
+_FORBIDDEN_SEGMENT_CHARACTERS = re.compile(r'[/\\\x00-\x1f\x7f]')
+_INVALID_SEGMENT_MESSAGE = ("Invalid path segment: it must be a non-empty string, not '.' or '..', "
+                            "without '/', '\\' or ASCII control characters (U+0000 to U+001F, U+007F)")
 
 
 class Client:
@@ -25,4 +34,40 @@ class Client:
 
     @staticmethod
     def build_path(*params):
-        return '/'.join(params)
+        """Join path segments into a request path, encoding each one as a single segment.
+
+        Every argument is percent-encoded (RFC 3986, only ``A-Z a-z 0-9 - . _ ~`` kept), so
+        ``?``, ``#``, ``%`` and spaces stay inside their segment. Pass identifiers unencoded: an
+        already encoded value is encoded again. Enum members are sent by their value.
+
+        Args:
+            *params: the path segments, path constants and caller identifiers alike.
+
+        Returns:
+            str: the segments joined with ``/``.
+
+        Raises:
+            CheckoutArgumentException: a segment is not a string (or a string-valued Enum
+                member), is empty, ``.`` or ``..``, contains ``/``, ``\\`` or an ASCII control
+                character (U+0000 to U+001F, U+007F), or cannot be encoded as UTF-8.
+        """
+        return '/'.join(Client._encode_path_segment(param) for param in params)
+
+    @staticmethod
+    def _encode_path_segment(value):
+        # type() rather than isinstance(): a __class__ property cannot change it.
+        if issubclass(type(value), Enum):
+            value = value.value
+        if not issubclass(type(value), str):
+            raise CheckoutArgumentException(_INVALID_SEGMENT_MESSAGE)
+        # Exact str copy of the characters, so no overridden method of a str subclass takes part.
+        value = str.__str__(value)
+        if _FORBIDDEN_SEGMENT_CHARACTERS.search(value):
+            raise CheckoutArgumentException(_INVALID_SEGMENT_MESSAGE)
+        try:
+            encoded = quote(value, safe='')
+        except UnicodeEncodeError:
+            raise CheckoutArgumentException(_INVALID_SEGMENT_MESSAGE) from None
+        if encoded in ('', '.', '..'):
+            raise CheckoutArgumentException(_INVALID_SEGMENT_MESSAGE)
+        return encoded

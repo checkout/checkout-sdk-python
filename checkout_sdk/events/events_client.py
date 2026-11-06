@@ -19,10 +19,8 @@ class EventsClient(Client):
                          authorization_type=AuthorizationType.SECRET_KEY)
 
     def retrieve_all_event_types(self, version: str = None):
-        event_types_path = "event-types"
-        if version is not None:
-            event_types_path += "?version=" + version
-        return self._api_client.get(event_types_path, self._sdk_authorization())
+        params = None if version is None else {'version': version}
+        return self._api_client.get('event-types', self._sdk_authorization(), params)
 
     def retrieve_events(self, events_request: RetrieveEventsRequest):
         return self._api_client.get(self.__EVENTS_PATH, self._sdk_authorization(), events_request)
