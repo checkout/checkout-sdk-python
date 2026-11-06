@@ -23,7 +23,8 @@ class SepaClient(Client):
                                     self._sdk_authorization())
 
     def cancel_mandate(self, mandate_id: str):
-        return self._api_client.post(self.build_path(self.__SEPA_PATH, self.__MANDATES_PATH, mandate_id, self.__CANCEL_PATH),
+        return self._api_client.post(self.build_path(self.__SEPA_PATH, self.__MANDATES_PATH,
+                                                     mandate_id, self.__CANCEL_PATH),
                                      self._sdk_authorization())
 
     def get_mandate_via_ppro(self, mandate_id: str):
@@ -33,5 +34,6 @@ class SepaClient(Client):
 
     def cancel_mandate_via_ppro(self, mandate_id: str):
         return self._api_client.post(self.build_path(self.__APMS_PATH, self.__PPRO_PATH,
-                                                     self.__SEPA_PATH, self.__MANDATES_PATH, mandate_id, self.__CANCEL_PATH),
+                                                     self.__SEPA_PATH, self.__MANDATES_PATH,
+                                                     mandate_id, self.__CANCEL_PATH),
                                      self._sdk_authorization())

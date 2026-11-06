@@ -41,5 +41,6 @@ class InstrumentsClient(Client):
 
     def get_bank_account_field_formatting(self, country: Country, currency: Currency,
                                           bank_account_field_query: BankAccountFieldQuery):
-        return self._api_client.get(self.build_path(self.__VALIDATION_PATH, self.__BANK_ACCOUNTS_PATH, country, currency),
+        return self._api_client.get(self.build_path(self.__VALIDATION_PATH, self.__BANK_ACCOUNTS_PATH,
+                                                    country, currency),
                                     self._sdk_authorization(AuthorizationType.OAUTH), bank_account_field_query)
