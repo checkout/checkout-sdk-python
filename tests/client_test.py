@@ -167,8 +167,8 @@ class TestBuildPath:
 
     def test_should_not_echo_rejected_value_in_message(self):
         with pytest.raises(CheckoutArgumentException) as error:
-            Client.build_path('payments', 'secret_value/x')
-        assert 'secret_value' not in str(error.value)
+            Client.build_path('payments', 'sample_value/x')
+        assert 'sample_value' not in str(error.value)
 
 
 class TestRequestPathOnTheWire:
@@ -177,7 +177,7 @@ class TestRequestPathOnTheWire:
         configuration, api_client, adapter = wire
         client = PaymentsClient(api_client, configuration)
         with pytest.raises(CheckoutArgumentException):
-            client.void_payment('pay_x/refunds#')
+            client.void_payment('pay_x/y#')
         assert adapter.requests == []
 
     def test_should_reject_dot_segments_in_id_before_sending(self, wire):
