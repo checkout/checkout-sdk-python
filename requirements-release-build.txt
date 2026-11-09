@@ -88,6 +88,9 @@ wheel==0.48.0 \
     # via -r -
 
 # The following packages are considered to be unsafe in a requirements file:
+pip==26.3 \
+    --hash=sha256:f3b60b20ffaadd4415ed7957212a38ac63fa4c5fa375bd0f4a797777940fad13
+    # via -r -
 setuptools==84.2.1 \
     --hash=sha256:ca140b45d5325a9478f880e351484f62fef15f336462e449ca0c03c873d589c2
     # via -r -
