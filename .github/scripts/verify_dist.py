@@ -16,7 +16,7 @@ import zipfile
 
 PACKAGE = 'checkout_sdk'
 DIST = pathlib.Path('dist')
-VERSION_PATTERN = re.compile(r'[0-9]+\.[0-9]+\.[0-9]+((a|b|rc)[0-9]+)?(\.dev[0-9]+)?')
+VERSION_PATTERN = re.compile(r'\d+\.\d+\.\d+((a|b|rc)\d+)?(\.dev\d+)?', re.ASCII)
 
 
 def fail(message):

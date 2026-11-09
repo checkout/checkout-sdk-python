@@ -25,6 +25,7 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       version: ${{ steps.read-version.outputs.version }}
+      wheel-sha256: ${{ steps.hash-wheel.outputs.wheel-sha256 }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -59,6 +60,10 @@ jobs:
         env:
           VERSION: ${{ steps.read-version.outputs.version }}
         run: python -I .github/scripts/verify_dist.py "$VERSION"
+      - id: hash-wheel
+        run: |
+          wheels=(dist/*.whl)
+          echo "wheel-sha256=$(sha256sum "${wheels[0]}" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
       - id: upload-dist
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -90,8 +95,12 @@ jobs:
           path: dist/
       # Moves the source package aside so the tests import the installed wheel.
       - id: install-dist
+        env:
+          WHEEL_SHA256: ${{ needs.build.outputs.wheel-sha256 }}
         run: |
-          python -m pip install --only-binary :all: --no-deps --no-index dist/*.whl
+          wheels=(dist/*.whl)
+          echo "$PWD/${wheels[0]} --hash=sha256:$WHEEL_SHA256" > "$RUNNER_TEMP/dist-requirements.txt"
+          python -m pip install --only-binary :all: --no-deps --no-index --require-hashes -r "$RUNNER_TEMP/dist-requirements.txt"
           mv checkout_sdk "$RUNNER_TEMP/checkout_sdk-source"
           python -c 'import checkout_sdk, sysconfig; assert checkout_sdk.__file__.startswith(sysconfig.get_paths()["purelib"]), checkout_sdk.__file__'
       - id: testing
