@@ -28,9 +28,9 @@ pip install checkout-sdk==<version>
 ```
 
 > **Version 3.0.0 is here!**
->  <br/><br/>
-> We improved the initialization of SDK making it easier to understand the available options. <br/>
-> Now `NAS` accounts are the default instance for the SDK and `ABC` structure was moved to a `previous` prefixes. <br/>
+>
+> We improved the initialization of SDK making it easier to understand the available options.
+> Now `NAS` accounts are the default instance for the SDK and `ABC` structure was moved to a `previous` prefixes.
 > If you have been using this SDK before, you may find the following important changes:
 > * Imports: if you used to import `checkout_sdk.payments.payments` now use `checkout_sdk.payments.payments_previous`
 > * Marketplace module was moved to Accounts module, same for classes and references.
